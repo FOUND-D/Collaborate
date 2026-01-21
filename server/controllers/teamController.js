@@ -131,12 +131,6 @@ const deleteTeam = asyncHandler(async (req, res) => {
   }
 });
 
-  } else {
-    res.status(400);
-    throw new Error('Invalid action specified. Must be "approve" or "reject"');
-  }
-});
-
 module.exports = {
   createTeam,
   addMember,
@@ -145,3 +139,62 @@ module.exports = {
   deleteTeam,
   updateTeamJoinRequest,
 };
+
+// @desc    Update a team join request (approve/reject)
+// @route   PUT /api/teams/:id/join
+// @access  Private (Team Owner)
+const updateTeamJoinRequest = asyncHandler(async (req, res) => {
+  const teamId = req.params.id;
+  const { userId, action } = req.body; // 'approve' or 'reject'
+
+  const team = await Team.findById(teamId);
+
+  if (!team) {
+    res.status(404);
+    throw new Error('Team not found');
+  }
+
+  // Check if the logged-in user is the team owner
+  if (team.owner.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error('Not authorized to manage join requests for this team');
+  }
+
+  // Check if the user is in pending requests
+  const userRequestIndex = team.pendingJoinRequests.indexOf(userId);
+  if (userRequestIndex === -1) {
+    res.status(404);
+    throw new Error('User not found in pending join requests');
+  }
+
+  if (action === 'approve') {
+    // Remove from pending requests
+    team.pendingJoinRequests.splice(userRequestIndex, 1);
+    // Add to members
+    team.members.push(userId);
+    await team.save();
+
+    // Add team to user's teams list
+    const user = await User.findById(userId);
+    if (user) {
+      if (!user.teams.includes(teamId)) {
+        user.teams.push(teamId);
+        await user.save();
+      }
+    } else {
+      console.warn(`Approved user (ID: ${userId}) not found for team ${teamId}.`);
+    }
+
+    res.json({ message: 'User approved and added to the team' });
+
+  } else if (action === 'reject') {
+    // Remove from pending requests
+    team.pendingJoinRequests.splice(userRequestIndex, 1);
+    await team.save();
+    res.json({ message: 'User join request rejected' });
+
+  } else {
+    res.status(400);
+    throw new Error('Invalid action specified. Must be "approve" or "reject"');
+  }
+});
