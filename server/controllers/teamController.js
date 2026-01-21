@@ -131,15 +131,6 @@ const deleteTeam = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = {
-  createTeam,
-  addMember,
-  getTeams,
-  joinTeam,
-  deleteTeam,
-  updateTeamJoinRequest,
-};
-
 // @desc    Update a team join request (approve/reject)
 // @route   PUT /api/teams/:id/join
 // @access  Private (Team Owner)
@@ -198,3 +189,12 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
     throw new Error('Invalid action specified. Must be "approve" or "reject"');
   }
 });
+
+module.exports = {
+  createTeam,
+  addMember,
+  getTeams,
+  joinTeam,
+  deleteTeam,
+  updateTeamJoinRequest,
+};
