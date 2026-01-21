@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { listTeams, createTeam, joinTeam, deleteTeam } from '../actions/teamActions';
+import { listTeams, createTeam, joinTeam, deleteTeam, updateTeamJoinRequest } from '../actions/teamActions';
 import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_SUCCESS } from '../constants/teamConstants';
 
 const TeamScreen = () => {
@@ -41,6 +41,14 @@ const TeamScreen = () => {
     success: successDelete,
   } = teamDelete;
 
+  const teamUpdateJoinRequest = useSelector((state) => state.teamUpdateJoinRequest);
+  const {
+    loading: loadingUpdateJoinRequest,
+    error: errorUpdateJoinRequest,
+    success: successUpdateJoinRequest,
+    message: updateJoinRequestMessage,
+  } = teamUpdateJoinRequest;
+
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
@@ -69,8 +77,12 @@ const TeamScreen = () => {
       dispatch(listTeams()); // Refresh team list after deletion
     }
 
+    if (successUpdateJoinRequest) {
+      dispatch(listTeams()); // Refresh teams after approving/rejecting a request
+    }
+
     dispatch(listTeams());
-  }, [dispatch, navigate, userInfo, successCreate, successJoin, successDelete]);
+  }, [dispatch, navigate, userInfo, successCreate, successJoin, successDelete, successUpdateJoinRequest]);
 
   const handleCloseCreate = () => setShowCreate(false);
   const handleShowCreate = () => setShowCreate(true);
@@ -86,6 +98,10 @@ const TeamScreen = () => {
   const submitJoinTeamHandler = (e) => {
     e.preventDefault();
     dispatch(joinTeam(joinTeamId));
+  };
+
+  const handleJoinRequest = (teamId, userId, action) => {
+    dispatch(updateTeamJoinRequest(teamId, userId, action));
   };
 
   const deleteHandler = (id) => {
@@ -143,6 +159,7 @@ const TeamScreen = () => {
         <Modal.Body>
           {loadingJoin && <Loader />}
           {errorJoin && <Message variant='danger'>{errorJoin}</Message>}
+          {successJoin && <Message variant='success'>{joinTeamMessage}</Message>}
           <Form onSubmit={submitJoinTeamHandler}>
             <Form.Group controlId="joinTeamId">
               <Form.Label>Team ID</Form.Label>
@@ -162,6 +179,9 @@ const TeamScreen = () => {
 
       {loadingDelete && <Loader />}
       {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
+      {loadingUpdateJoinRequest && <Loader />}
+      {errorUpdateJoinRequest && <Message variant='danger'>{errorUpdateJoinRequest}</Message>}
+      {successUpdateJoinRequest && <Message variant='success'>{updateJoinRequestMessage}</Message>}
       {loading ? (
         <Loader />
       ) : error ? (
@@ -172,6 +192,9 @@ const TeamScreen = () => {
             <tr>
               <th>ID</th>
               <th>NAME</th>
+              <th>Owner</th>
+              <th>Members</th>
+              <th>Pending Requests</th>
               <th></th>
             </tr>
           </thead>
@@ -180,6 +203,41 @@ const TeamScreen = () => {
               <tr key={team._id}>
                 <td>{team._id}</td>
                 <td>{team.name}</td>
+                <td>{team.owner.name}</td> {/* Assuming owner is populated */}
+                <td>
+                  {team.members.map(member => member.name).join(', ')}
+                </td>
+                <td>
+                  {team.pendingJoinRequests && team.pendingJoinRequests.length > 0 ? (
+                    <ul>
+                      {team.pendingJoinRequests.map(requestingUser => (
+                        <li key={requestingUser._id}>
+                          {requestingUser.name}
+                          {userInfo && team.owner === userInfo._id && (
+                            <>
+                              <Button
+                                variant="success"
+                                className="btn-sm mx-1"
+                                onClick={() => handleJoinRequest(team._id, requestingUser._id, 'approve')}
+                              >
+                                <i className="fas fa-check"></i>
+                              </Button>
+                              <Button
+                                variant="danger"
+                                className="btn-sm"
+                                onClick={() => handleJoinRequest(team._id, requestingUser._id, 'reject')}
+                              >
+                                <i className="fas fa-times"></i>
+                              </Button>
+                            </>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    'None'
+                  )}
+                </td>
                 <td>
                   <LinkContainer to={`/team/${team._id}/edit`}>
                     <Button variant="light" className="btn-sm">
@@ -189,7 +247,7 @@ const TeamScreen = () => {
                   {userInfo && team.owner === userInfo._id && (
                     <Button
                       variant="danger"
-                      className="btn-sm"
+                      className="btn-sm mx-1"
                       onClick={() => deleteHandler(team._id)}
                     >
                       <i className="fas fa-trash"></i>
