@@ -1,47 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Form } from 'react-bootstrap'; // Keep Modal and Form for now
-import { FaPlus, FaUsers, FaEdit, FaTrash, FaCheck, FaTimes } from 'react-icons/fa'; // Import icons
+import { useNavigate, Link } from 'react-router-dom';
+import { FaPlus, FaUsers, FaEdit, FaTrash, FaCheck, FaTimes, FaUser, FaArrowRight } from 'react-icons/fa';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listTeams, createTeam, joinTeam, deleteTeam, updateTeamJoinRequest } from '../actions/teamActions';
 import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_SUCCESS } from '../constants/teamConstants';
 
-// --- New TeamCard Component ---
-const TeamCard = ({ team, userInfo, onDelete, navigate }) => {
-  // Ensure team.owner and team.members are populated objects
+// --- New TeamListItem Component ---
+const TeamListItem = ({ team, userInfo, onDelete, navigate }) => {
   const isOwner = userInfo && team.owner && team.owner._id === userInfo._id;
 
-  // Render nothing if essential data is missing
   if (!team || !team.owner || !team.members) return null;
 
-  const handleCardClick = () => {
-    navigate(`/team/${team._id}`);
-  };
-
   return (
-    <div className="team-card" onClick={handleCardClick}>
-      <div className="team-card-header">
-        <h3 className="team-name">{team.name}</h3>
-        <div className="team-owner-avatar" title={`Owner: ${team.owner.name}`}>
-          {team.owner.name ? team.owner.name.charAt(0).toUpperCase() : '?'}
+    <div className="team-list-item">
+      <div className="team-info">
+        <Link to={`/team/${team._id}`} className="team-name-link">
+          {team.name}
+        </Link>
+        <div className="team-metadata-badges">
+          {team.owner && (
+            <div className="metadata-badge">
+              <FaUser />
+              <span>{team.owner.name} (Owner)</span>
+            </div>
+          )}
+          <div className="metadata-badge">
+            <FaUsers />
+            <span>{team.members.length} Members</span>
+          </div>
         </div>
       </div>
-      <div className="team-card-body">
-        <div className="member-count-badge">
-          <FaUsers /> {team.members.length} Members
-        </div>
-        {/* Placeholder for Status dot - logic to be added */}
-        <div className="team-status-dot" style={{ backgroundColor: 'var(--status-info)' }}></div>
-      </div>
-      <div className="team-card-actions">
+      <div className="team-actions">
+        <Link to={`/team/${team._id}`} className="btn btn-primary btn-small">
+          View
+        </Link>
         {isOwner && (
           <>
-            <button className="btn btn-icon btn-small" onClick={(e) => { e.stopPropagation(); /* navigate to edit team */ }}>
+            {/* <button className="btn btn-icon btn-small" onClick={(e) => { e.stopPropagation(); /* navigate to edit team */ /*}}>
               <FaEdit />
-            </button>
+            </button> */ }
             <button className="btn btn-icon btn-small btn-danger" onClick={(e) => { e.stopPropagation(); onDelete(team._id); }}>
               <FaTrash />
             </button>
@@ -100,7 +100,7 @@ const TeamScreen = () => {
 
   useEffect(() => {
     dispatch({ type: TEAM_CREATE_RESET });
-    dispatch({ type: TEAM_JOIN_RESET }); // Reset join state
+    dispatch({ type: TEAM_JOIN_RESET });
 
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
@@ -111,22 +111,22 @@ const TeamScreen = () => {
     if (successCreate) {
       setShowCreate(false);
       setCreateTeamName('');
-      dispatch(listTeams()); // Refresh team list after creation
+      dispatch(listTeams());
     }
 
     if (successJoin) {
         setShowJoin(false);
         setJoinTeamId('');
-        dispatch(listTeams()); // Refresh team list after joining
+        dispatch(listTeams());
     }
 
     if (successDelete) {
-      dispatch({ type: TEAM_DELETE_SUCCESS }); // Reset success state for delete
-      dispatch(listTeams()); // Refresh team list after deletion
+      dispatch({ type: TEAM_DELETE_SUCCESS });
+      dispatch(listTeams());
     }
 
     if (successUpdateJoinRequest) {
-      dispatch(listTeams()); // Refresh teams after approving/rejecting a request
+      dispatch(listTeams());
     }
 
   }, [dispatch, navigate, userInfo, successCreate, successJoin, successDelete, successUpdateJoinRequest]);
@@ -157,32 +157,38 @@ const TeamScreen = () => {
     }
   };
 
-  // Filter pending requests for teams the user owns
-  const teamsWithPendingRequests = teams.filter(team =>
+  const teamsWithPendingRequests = teams && teams.filter(team =>
     userInfo && team.owner && team.owner._id === userInfo._id && team.pendingJoinRequests && team.pendingJoinRequests.length > 0
   );
 
   return (
     <div className="teams-dashboard-page">
-      <h1 className="dashboard-title">Teams</h1>
+      <div className="project-hero-header">
+        <h1 className="project-detail-title">Your Teams</h1>
+        <p className="project-detail-goal">
+            Manage your teams, create new ones, or join existing collaborations.
+        </p>
+      </div>
 
-      {/* Action Cards for Create and Join Team */}
       <div className="action-cards-grid">
         <div className="action-card" onClick={handleShowCreate}>
           <FaPlus className="action-card-icon" />
           <h3 className="action-card-title">Create New Team</h3>
           <p className="action-card-description">Start a new collaboration hub.</p>
-          <button className="btn btn-primary btn-small">Create Team</button>
+          <span className="action-card-link">
+            Create Team <FaArrowRight />
+          </span>
         </div>
         <div className="action-card" onClick={handleShowJoin}>
           <FaUsers className="action-card-icon" />
           <h3 className="action-card-title">Join Existing Team</h3>
           <p className="action-card-description">Connect with an existing team.</p>
-          <button className="btn btn-secondary btn-small">Join Team</button>
+          <span className="action-card-link">
+            Join Team <FaArrowRight />
+          </span>
         </div>
       </div>
 
-      {/* Pending Requests Section */}
       {teamsWithPendingRequests.length > 0 && (
         <div className="pending-requests-section">
           <h2 className="section-title">Pending Join Requests</h2>
@@ -192,7 +198,7 @@ const TeamScreen = () => {
                 <p><strong>{team.name}</strong> has requests from:</p>
                 <ul>
                   {team.pendingJoinRequests.map(requestingUser => (
-                    <li key={requestingUser._id}> {/* Assuming requestingUser is populated here */}
+                    <li key={requestingUser._id}>
                       <span>{requestingUser.name}</span>
                       <button className="btn btn-icon btn-success btn-small" onClick={() => handleJoinRequest(team._id, requestingUser._id, 'approve')}>
                         <FaCheck />
@@ -214,17 +220,20 @@ const TeamScreen = () => {
       {loadingUpdateJoinRequest && <Loader />}
       {errorUpdateJoinRequest && <Message variant='danger'>{errorUpdateJoinRequest}</Message>}
       {successUpdateJoinRequest && <Message variant='success'>{updateJoinRequestMessage}</Message>}
+
       {loading ? (
         <Loader />
       ) : error ? (
         <Message variant='danger'>{error}</Message>
       ) : (
-        <div className="team-grid">
+        <div className="modern-team-list">
           {teams.length === 0 ? (
-            <Message variant='info'>No teams found. Create or join one!</Message>
+            <div className="empty-state-container">
+                <Message variant='info'>No teams found. Create or join one!</Message>
+            </div>
           ) : (
             teams.map((team) => (
-              <TeamCard
+              <TeamListItem
                 key={team._id}
                 team={team}
                 userInfo={userInfo}
@@ -237,55 +246,71 @@ const TeamScreen = () => {
       )}
 
       {/* Create Team Modal */}
-      <Modal show={showCreate} onHide={handleCloseCreate}>
-        <Modal.Header closeButton>
-          <Modal.Title>Create Team</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {loadingCreate && <Loader />}
-          {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
-          <Form onSubmit={submitCreateTeamHandler}>
-            <Form.Group controlId="createTeamName">
-              <Form.Label>Team Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter team name"
-                value={createTeamName}
-                onChange={(e) => setCreateTeamName(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <button type="submit" className="btn btn-primary mt-3">
-              Create
-            </button>
-          </Form>
-        </Modal.Body>
-      </Modal>
+      {showCreate && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Create Team</h3>
+              <button className="modal-close-btn" onClick={handleCloseCreate}>&times;</button>
+            </div>
+            <div className="modal-body">
+              {loadingCreate && <Loader />}
+              {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
+              <form onSubmit={submitCreateTeamHandler}>
+                <div className="form-group floating-label">
+                  <input
+                    type="text"
+                    id="createTeamName"
+                    className="form-input"
+                    placeholder=" "
+                    value={createTeamName}
+                    onChange={(e) => setCreateTeamName(e.target.value)}
+                  />
+                  <label htmlFor="createTeamName">Team Name</label>
+                </div>
+                <div className="form-actions">
+                    <button type="button" className="btn btn-secondary" onClick={handleCloseCreate}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">Create</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Join Team Modal */}
-      <Modal show={showJoin} onHide={handleCloseJoin}>
-        <Modal.Header closeButton>
-          <Modal.Title>Join Team</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {loadingJoin && <Loader />}
-          {errorJoin && <Message variant='danger'>{errorJoin}</Message>}
-          {successJoin && <Message variant='success'>{joinTeamMessage}</Message>}
-          <Form onSubmit={submitJoinTeamHandler}>
-            <Form.Group controlId="joinTeamId">
-              <Form.Label>Team ID</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Team ID"
-                value={joinTeamId}
-                onChange={(e) => setJoinTeamId(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
-            <button type="submit" className="btn btn-primary mt-3">
-              Join
-            </button>
-          </Form>
-        </Modal.Body>
-      </Modal>
+      {showJoin && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Join Team</h3>
+              <button className="modal-close-btn" onClick={handleCloseJoin}>&times;</button>
+            </div>
+            <div className="modal-body">
+              {loadingJoin && <Loader />}
+              {errorJoin && <Message variant='danger'>{errorJoin}</Message>}
+              {successJoin && <Message variant='success'>{joinTeamMessage}</Message>}
+              <form onSubmit={submitJoinTeamHandler}>
+                <div className="form-group floating-label">
+                  <input
+                    type="text"
+                    id="joinTeamId"
+                    className="form-input"
+                    placeholder=" "
+                    value={joinTeamId}
+                    onChange={(e) => setJoinTeamId(e.target.value)}
+                  />
+                  <label htmlFor="joinTeamId">Team ID</label>
+                </div>
+                <div className="form-actions">
+                    <button type="button" className="btn btn-secondary" onClick={handleCloseJoin}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">Join</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

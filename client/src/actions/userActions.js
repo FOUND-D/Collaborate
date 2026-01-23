@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../utils/api';
 import {
   USER_LOGIN_REQUEST,
   USER_LOGIN_SUCCESS,
@@ -24,7 +24,7 @@ export const login = (email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       '/api/users/login',
       { email, password },
       config
@@ -64,7 +64,7 @@ export const register = (name, email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       '/api/users/register',
       { name, email, password },
       config
@@ -102,25 +102,94 @@ export const listUsers = () => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    const { data } = await axios.get('/api/users', config);
+    const { data } = await api.get('/api/users', config);
 
     dispatch({
       type: USER_LIST_SUCCESS,
       payload: data,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: USER_LIST_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
+    });
+  }
+};
+
+import {
+  USER_DETAILS_REQUEST,
+  USER_DETAILS_SUCCESS,
+  USER_DETAILS_FAIL,
+} from '../constants/userConstants';
+
+// ... other actions
+
+export const getUserDetails = (id) => async (dispatch, getState) => {
+  try {
+    dispatch({
+      type: USER_DETAILS_REQUEST,
+    });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await api.get(`/api/users/${id}`, config);
+
+    dispatch({
+      type: USER_DETAILS_SUCCESS,
+      payload: data,
+    });
+    
+    // Also update the login state with the fresh user data
+    dispatch({
+      type: USER_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    localStorage.setItem('userInfo', JSON.stringify(data));
+
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
+    dispatch({
+      type: USER_DETAILS_FAIL,
+      payload: message,
     });
   }
 };

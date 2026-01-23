@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../utils/api';
 import { logout } from './userActions';
 import {
   TASK_LIST_REQUEST,
@@ -26,6 +26,11 @@ export const listTasks = () => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
@@ -42,7 +47,7 @@ export const listTasks = () => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -60,25 +65,34 @@ export const getTaskDetails = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    const { data } = await axios.get(`/api/tasks/${id}`, config);
+    const { data } = await api.get(`/api/tasks/${id}`, config);
 
     dispatch({
       type: TASK_DETAILS_SUCCESS,
       payload: data,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TASK_DETAILS_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -93,6 +107,11 @@ export const createTask = (task) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -100,19 +119,23 @@ export const createTask = (task) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post('/api/tasks', task, config);
+    const { data } = await api.post('/api/tasks', task, config);
 
     dispatch({
       type: TASK_CREATE_SUCCESS,
       payload: data,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TASK_CREATE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -126,6 +149,11 @@ export const updateTask = (task) => async (dispatch, getState) => {
     const {
       userLogin: { userInfo },
     } = getState();
+
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
 
     const config = {
       headers: {
@@ -141,12 +169,16 @@ export const updateTask = (task) => async (dispatch, getState) => {
       payload: data,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TASK_UPDATE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -161,6 +193,11 @@ export const deleteTask = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
@@ -173,12 +210,16 @@ export const deleteTask = (id) => async (dispatch, getState) => {
       type: TASK_DELETE_SUCCESS,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TASK_DELETE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };

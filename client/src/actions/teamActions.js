@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../utils/api';
 import { logout } from './userActions';
 import {
   TEAM_LIST_REQUEST,
@@ -29,12 +29,17 @@ export const listTeams = () => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
-    const { data } = await axios.get('/api/teams', config);
+    const { data } = await api.get('/api/teams', config);
 
     dispatch({
       type: TEAM_LIST_SUCCESS,
@@ -45,7 +50,7 @@ export const listTeams = () => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -63,12 +68,17 @@ export const getTeamDetails = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
-    const { data } = await axios.get(`/api/teams/${id}`, config);
+    const { data } = await api.get(`/api/teams/${id}`, config);
 
     dispatch({
       type: TEAM_DETAILS_SUCCESS,
@@ -79,7 +89,7 @@ export const getTeamDetails = (id) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -100,6 +110,11 @@ export const createTeam = (name) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -107,19 +122,23 @@ export const createTeam = (name) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post('/api/teams', { name }, config);
+    const { data } = await api.post('/api/teams', { name }, config);
 
     dispatch({
       type: TEAM_CREATE_SUCCESS,
       payload: data,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TEAM_CREATE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -134,6 +153,11 @@ export const joinTeam = (teamId) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -141,19 +165,23 @@ export const joinTeam = (teamId) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post(`/api/teams/${teamId}/join`, {}, config);
+    const { data } = await api.post(`/api/teams/${teamId}/join`, {}, config);
 
     dispatch({
       type: TEAM_JOIN_SUCCESS,
       payload: data.message, // The server now returns a message: 'Join request sent successfully'
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TEAM_JOIN_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -168,24 +196,33 @@ export const deleteTeam = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    await axios.delete(`/api/teams/${id}`, config);
+    await api.delete(`/api/teams/${id}`, config);
 
     dispatch({
       type: TEAM_DELETE_SUCCESS,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TEAM_DELETE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };
@@ -200,6 +237,11 @@ export const updateTeamJoinRequest = (teamId, userId, action) => async (dispatch
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -207,19 +249,23 @@ export const updateTeamJoinRequest = (teamId, userId, action) => async (dispatch
       },
     };
 
-    const { data } = await axios.put(`/api/teams/${teamId}/join`, { userId, action }, config);
+    const { data } = await api.put(`/api/teams/${teamId}/join`, { userId, action }, config);
 
     dispatch({
       type: TEAM_UPDATE_JOIN_REQUEST_SUCCESS,
       payload: data.message,
     });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: TEAM_UPDATE_JOIN_REQUEST_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: message,
     });
   }
 };

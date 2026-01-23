@@ -3,10 +3,12 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 const FormContainer = ({ children }) => {
   return (
-    <Container className="form-container-custom">
+    <Container>
       <Row className="justify-content-md-center">
-        <Col xs={12} md={6}>
-          {children}
+        <Col xs={12} md={8} className="form-container-custom"> {/* Increased width to md=8 */}
+          <div className="form-wrapper-custom">
+            {children}
+          </div>
         </Col>
       </Row>
     </Container>

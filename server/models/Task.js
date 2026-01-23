@@ -28,6 +28,15 @@ const taskSchema = mongoose.Schema(
       required: true,
       default: 'pending', // pending, in_progress, completed, at_risk
     },
+    priority: {
+      type: String, // High, Medium, Low
+      default: 'Medium',
+    },
+    assumptions: [
+      {
+        type: String,
+      },
+    ],
     commitmentTimestamp: {
       type: Date,
     },

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../utils/api';
 import { logout } from './userActions';
 import {
   PROJECT_CREATE_WITH_AI_REQUEST,
@@ -31,6 +31,11 @@ export const createProjectWithAI = (project) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -38,7 +43,7 @@ export const createProjectWithAI = (project) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post('/api/projects/ai', project, config);
+    const { data } = await api.post('/api/projects/ai', project, config);
 
     dispatch({
       type: PROJECT_CREATE_WITH_AI_SUCCESS,
@@ -49,7 +54,7 @@ export const createProjectWithAI = (project) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -67,13 +72,18 @@ export const getProjectDetails = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    const { data } = await axios.get(`/api/projects/${id}`, config);
+    const { data } = await api.get(`/api/projects/${id}`, config);
 
     dispatch({
       type: PROJECT_DETAILS_SUCCESS,
@@ -84,7 +94,7 @@ export const getProjectDetails = (id) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -104,13 +114,18 @@ export const listProjects = () => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    const { data } = await axios.get('/api/projects', config);
+    const { data } = await api.get('/api/projects', config);
 
     dispatch({
       type: PROJECT_LIST_SUCCESS,
@@ -121,7 +136,7 @@ export const listProjects = () => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -141,13 +156,18 @@ export const deleteProject = (id) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    await axios.delete(`/api/projects/${id}`, config);
+    await api.delete(`/api/projects/${id}`, config);
 
     dispatch({
       type: PROJECT_DELETE_SUCCESS,
@@ -157,7 +177,7 @@ export const deleteProject = (id) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -177,6 +197,11 @@ export const createProject = (project) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -184,7 +209,7 @@ export const createProject = (project) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post('/api/projects', project, config);
+    const { data } = await api.post('/api/projects', project, config);
 
     dispatch({
       type: PROJECT_CREATE_SUCCESS,
@@ -195,7 +220,7 @@ export const createProject = (project) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({
@@ -215,6 +240,11 @@ export const updateProject = (project) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    if (!userInfo || !userInfo.token) {
+      dispatch(logout());
+      throw new Error('No authorization token found');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -222,7 +252,7 @@ export const updateProject = (project) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.put(
+    const { data } = await api.put(
       `/api/projects/${project._id}`,
       project,
       config
@@ -237,7 +267,7 @@ export const updateProject = (project) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
     }
     dispatch({

@@ -1,1 +1,91 @@
-400 {"error":{"message":"Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details.","type":"invalid_request_error","code":"json_validate_failed","failed_generation":"{\"tasks\":[{\"name\":\"Project Initiation\",\"description\":\"Kick‑off the project, assign team roles, set up communication channels, and establish project governance.\",\"duration\":5,\"dependencies\":[],\"subtasks\":[]},{\"name\":\"Requirements Analysis\",\"description\":\"Gather and formalize functional and non‑functional requirements for the mailing application, including phishing detection, spam filtering, email generation, and multi‑provider support.\",\"duration\":12,\"dependencies\":[\"Project Initiation\"],\"subtasks\":[{\"name\":\"Stakeholder Interviews\",\"description\":\"Conduct interviews with end‑users, security experts, and business owners to capture expectations and constraints.\",\"duration\":3,\"dependencies\":[]},{\"name\":\"Use Case Definition\",\"description\":\"Document detailed use cases for sending, receiving, detecting threats, and generating emails across Gmail, Outlook, and Yahoo.\",\"duration\":3,\"dependencies\":[\"Stakeholder Interviews\"]},{\"name\":\"Functional Specification\",\"description\":\"Create a comprehensive functional spec covering UI flows, API endpoints, detection thresholds, and generation triggers.\",\"duration\":4,\"dependencies\":[\"Use Case Definition\"]},{\"name\":\"Non‑functional Requirements\",\"description\":\"Define performance, scalability, security, compliance (e.g., GDPR), and availability requirements.\",\"duration\":2,\"dependencies\":[\"Functional Specification\"]}]},\"name\":\"System Architecture Design\",\"description\":\"Design the high‑level system architecture, data flow, technology stack, and security model to meet the defined requirements.\",\"duration\":15,\"dependencies\":[\"Requirements Analysis\"],\"subtasks\":[{\"name\":\"High‑level Architecture Diagram\",\"description\":\"Produce diagrams illustrating components such as UI, API gateway, detection engine, mail provider adapters, and databases.\",\"duration\":3,\"dependencies\":[]},{\"name\":\"Data Flow Diagram\",\"description\":\"Map the flow of email data from inbound providers through detection modules to storage and outbound generation.\",\"duration\":3,\"dependencies\":[\"High‑level Architecture Diagram\"]},{\"name\":\"Technology Stack Selection\",\"description\":\"Choose languages, frameworks, databases, ML libraries, and CI/CD tools suitable for cross‑platform mail integration.\",\"duration\":4,\"dependencies\":[\"Data Flow Diagram\"]},{\"name\":\"Security Architecture\",\"description\":\"Define authentication (OAuth2), encryption, secure storage of tokens, and isolation of ML models.\",\"duration\":5,\"dependencies\":[\"Technology Stack Selection\"]}]},\"name\":\"UI/UX Design\",\"description\":\"Create user interface mockups, interaction flows, and visual design for the web‑based client supporting all mail providers.\",\"duration\":10,\"dependencies\":[\"Requirements Analysis\"],\"subtasks\":[{\"name\":\"Wireframe Creation\",\"description\":\"Sketch low‑fidelity screens for inbox, compose, detection alerts, and settings.\",\"duration\":3,\"dependencies\":[]},{\"name\":\"High‑fidelity Mockups\",\"description\":\"Develop polished designs with branding, responsive layouts, and accessibility considerations.\",\"duration\":4,\"dependencies\":[\"Wireframe Creation\"]},{\"name\":\"Prototype Development\",\"description\":\"Build an interactive prototype using a tool like Figma or Storybook for early user testing.\",\"duration\":3,\"dependencies\":[\"High‑fidelity Mockups\"]}]},\"name\":\"Email Service Integration\",\"description\":\"Implement adapters for Gmail, Outlook, and Yahoo Mail APIs, handling authentication, message retrieval, and sending.\",\"duration\":20,\"dependencies\":[\"System Architecture Design\"],\"subtasks\":[{\"name\":\"Gmail API Integration\",\"description\":\"Set up OAuth2 flow, fetch messages, and send mails via Google's REST API.\",\"duration\":5,\"dependencies\":[]},{\"name\":\"Outlook API Integration\",\"description\":\"Integrate Microsoft Graph API for Office365 and Outlook.com accounts, handling token refresh.\",\"duration\":5,\"dependencies\":[\"Gmail API Integration\"]},{\"name\":\"Yahoo Mail API Integration\",\"description\":\"Implement Yahoo Mail OAuth and REST endpoints for message access and delivery.\",\"duration\":5,\"dependencies\":[\"Outlook API Integration\"]},{\"name\":\"Unified Mail Adapter Layer\",\"description\":\"Create an abstraction layer that normalizes API responses into a common internal format.\",\"duration\":5,\"dependencies\":[\"Yahoo Mail API Integration\"]}]},\"name\":\"Spam & Phishing Detection Engine\",\"description\":\"Develop and integrate a machine‑learning based engine to classify incoming emails as legitimate, spam, or phishing.\",\"duration\":30,\"dependencies\":[\"System Architecture Design\"],\"subtasks\":[{\"name\":\"Data Collection\",\"description\":\"Gather labeled email datasets from public sources and internal logs for spam and phishing examples.\",\"duration\":5,\"dependencies\":[]},{\"name\":\"Feature Engineering\",\"description\":\"Extract textual, header, URL, and sender reputation features for model input.\",\"duration\":5,\"dependencies\":[\"Data Collection\"]},{\"name\":\"Model Selection\",\"description\":\"Evaluate algorithms (e.g., XGBoost, BERT, ensemble) and select the best performing model.\",\"duration\":5,\"dependencies\":[\"Feature Engineering\"]},{\"name\":\"Model Training\",\"description\":\"Train the chosen model on the prepared dataset, applying cross‑validation.\",\"duration\":6,\"dependencies\":[\"Model Selection\"]},{\"name\":\"Model Evaluation\",\"description\":\"Measure precision, recall, F1‑score, and false‑positive rate; tune thresholds.\",\"duration\":4,\"dependencies\":[\"Model Training\"]},{\"name\":\"Integration with Backend\",\"description\":\"Expose the detection logic via a REST endpoint and integrate with the mail ingestion pipeline.\",\"duration\":5,\"dependencies\":[\"Model Evaluation\"]}]},\"name\":\"Email Generation Engine\",\"description\":\"Implement a component that can automatically compose emails based on templates or AI‑driven natural language generation when triggered.\",\"duration\":25,\"dependencies\":[\"System Architecture Design\"],\"subtasks\":[{\"name\":\"Template Library Design\",\"description\":\"Create a set of parameterized email templates for common scenarios (e.g., acknowledgments, alerts).\",\"duration\":4,\"dependencies\":[]},{\"name\":\"NLG Model Development\",\"description\":\"Fine‑tune a language model (e.g., GPT‑Neo) to generate context‑aware email bodies.\",\"duration\":8,\"dependencies\":[\"Template Library Design\"]},{\"name\":\"Contextual Data Retrieval\",\"description\":\"Build services to fetch user data, recent interactions, and relevant metadata for insertion into generated content.\",\"duration\":5,\"dependencies\":[\"NLG Model Development\"]},{\"name\":\"Generation API\",\"description\":\"Expose a RESTful endpoint that accepts a trigger and returns a ready‑to‑send email object.\",\"duration\":4,\"dependencies\":[\"Contextual Data Retrieval\"]},{\"name\":\"Integration with Mail Service\",\"description\":\"Connect the generation output to the Email Service Integration layer for dispatch.\",\"duration\":4,\"dependencies\":[\"Generation API\"]}]},\"name\":\"Backend Development\",\"description\":\"Develop server‑side components, databases, and services that glue together mail adapters, detection, and generation engines.\",\"duration\":35,\"dependencies\":[\"Email Service Integration\",\"Spam & Phishing Detection Engine\",\"Email Generation Engine\"],\"subtasks\":[{\"name\":\"Database Schema Design\",\"description\":\"Model entities for users, email metadata, detection results, and generated drafts.\",\"duration\":5,\"dependencies\":[]},{\"name\":\"API Development\",\"description\":\"Implement CRUD endpoints for inbox view, detection alerts, and generated email retrieval.\",\"duration\":10,\"dependencies\":[\"Database Schema Design\"]},{\"name\":\"Service Layer Implementation\",\"description\":\"Code business logic for processing inbound mail, invoking detection, and storing outcomes.\",\"duration\":10,\"dependencies\":[\"API Development\"]},{\"name\":\"Scheduler & Queue Setup\",\"description\":\"Configure background workers (e.g., Celery, RabbitMQ) for asynchronous detection and generation tasks.\",\"duration\":5,\"dependencies\":[\"Service Layer Implementation\"]},{\"name\":\"Security Hardening\",\"description\":\"Enforce token validation, rate limiting, and audit logging throughout the backend.\",\"duration\":5,\"dependencies\":[\"Scheduler & Queue Setup\"]}]},\"name\":\"Frontend Development\",\"description\":\"Build the web client that provides inbox views, detection alerts, composition, and settings for all supported providers.\",\"duration\":30,\"dependencies\":[\"UI/UX Design\",\"Backend Development\"],\"subtasks\":[{\"name\":\"Dashboard UI Implementation\",\"description\":\"Develop the main inbox view with tabs for Gmail, Outlook, and Yahoo, displaying detection flags.\",\"duration\":8,\"dependencies\":[]},{\"name\":\"Compose & Generation UI\",\"description\":\"Create the compose screen that can auto‑populate content from the Email Generation Engine.\",\"duration\":7,\"dependencies\":[\"Dashboard UI Implementation\"]},{\"name\":\"Notification System\",\"description\":\"Implement real‑time alerts (e.g., toast, badge) for phishing/spam detection results.\",\"duration\":5,\"dependencies\":[\"Compose & Generation UI\"]},{\"name\":\"Settings & Provider Management\",\"description\":\"Allow users to add/remove mail accounts, manage OAuth tokens, and configure detection thresholds.\",\"duration\":5,\"dependencies\":[\"Notification System\"]},{\"name\":\"Responsive & Accessibility Testing\",\"description\":\"Ensure UI works on desktop/mobile and meets WCAG 2.1 AA criteria.\",\"duration\":5,\"dependencies\":[\"Settings & Provider Management\"]}]},\"name\":\"Testing & QA\",\"description\":\"Execute comprehensive testing to verify functionality, performance, security, and user acceptance.\",\"duration\":20,\"dependencies\":[\"Backend Development\",\"Frontend Development\"],\"subtasks\":[{\"name\":\"Unit Testing\",\"description\":\"Write and run unit tests for all backend services and frontend components.\",\"duration\":5,\"dependencies\":[]},{\"name\":\"Integration Testing\",\"description\":\"Validate end‑to‑end flows across mail adapters, detection engine, and generation module.\",\"duration\":5,\"dependencies\":[\"Unit Testing\"]},{\"name\":\"Performance Testing\",\"description\":\"Load test the system with high email volumes and measure latency of detection/generation.\",\"duration\":4,\"dependencies\":[\"Integration Testing\"]},{\"name\":\"Security Testing\",\"description\":\"Conduct vulnerability scanning, penetration tests, and verify OAuth token handling.\",\"duration\":3,\"dependencies\":[\"Performance Testing\"]},{\"name\":\"User Acceptance Testing (UAT)\",\"description\":\"Have representative users perform key scenarios and collect feedback for refinements.\",\"duration\":3,\"dependencies\":[\"Security Testing\"]}]},\"name\":\"Deployment & Release\",\"description\":\"Prepare production environment, automate deployment pipelines, and release the application to users.\",\"duration\":12,\"dependencies\":[\"Testing & QA\"],\"subtasks\":[{\"name\":\"CI/CD Pipeline Setup\",\"description\":\"Configure automated build, test, and deployment stages using tools like GitHub Actions or Jenkins.\",\"duration\":4,\"dependencies\":[]},{\"name\":\"Staging Deployment\",\"description\":\"Deploy the application to a staging environment for final verification.\",\"duration\":3,\"dependencies\":[\"CI/CD Pipeline Setup\"]},{\"name\":\"Production Deployment\",\"description\":\"Roll out the application to the live environment with zero‑downtime strategy.\",\"duration\":3,\"dependencies\":[\"Staging Deployment\"]},{\"name\":\"Monitoring & Alerting\",\"description\":\"Implement logging, metrics (e.g., Prometheus), and alerts for system health and detection accuracy.\",\"duration\":2,\"dependencies\":[\"Production Deployment\"]}]},\"name\":\"Documentation & Training\",\"description\":\"Produce technical documentation, user guides, and conduct training sessions for stakeholders.\",\"duration\":10,\"dependencies\":[\"Deployment & Release\"],\"subtasks\":[{\"name\":\"Technical Documentation\",\"description\":\"Document architecture diagrams, API specs, data models, and deployment procedures.\",\"duration\":4,\"dependencies\":[]},{\"name\":\"User Guides\",\"description\":\"Create step‑by‑step manuals for end‑users covering account setup, detection alerts, and email generation.\",\"duration\":3,\"dependencies\":[\"Technical Documentation\"]},{\"name\":\"Training Sessions\",\"description\":\"Conduct webinars and hands‑on workshops for support staff and key users.\",\"duration\":3,\"dependencies\":[\"User Guides\"]}]},\"name\":\"Project Closure\",\"description\":\"Finalize project artefacts, obtain sign‑off, and transition to maintenance.\",\"duration\":5,\"dependencies\":[\"Documentation & Training\"],\"subtasks\":[{\"name\":\"Final Sign‑off\",\"description\":\"Collect acceptance signatures from sponsor and key stakeholders.\",\"duration\":1,\"dependencies\":[]},{\"name\":\"Lessons Learned Workshop\",\"description\":\"Document successes, challenges, and improvement recommendations.\",\"duration\":2,\"dependencies\":[\"Final Sign‑off\"]},{\"name\":\"Transition to Support\",\"description\":\"Hand over operational responsibilities to the maintenance team, including access credentials.\",\"duration\":2,\"dependencies\":[\"Lessons Learned Workshop\"]}]}]}"}}
+The stack trace you provided confirms that your React application successfully sent the request from userActions.js (line 153), but the server replied with Status Code 500. This means your backend server crashed or encountered an unhandled exception while trying to process the /api/users/profile request.
+
+Here is the step-by-step guide to fixing this.
+
+1. The "Golden Rule" of 500 Errors
+You are looking in the wrong place for the error message. The browser console only tells you that the server crashed, not why.
+
+You must check your Backend Terminal.
+
+Go to the terminal/command prompt where your backend server is running (e.g., where you ran npm start, node server.js, nodemon, or python manage.py runserver).
+
+You will likely see a specific error message there, such as:
+
+Cannot read properties of undefined (reading 'id')
+
+jwt malformed
+
+Connection refused (Database issue)
+
+2. Why is it pointing to Port 5173?
+Your error says: GET http://localhost:5173/api/users/profile.
+
+The Issue: Port 5173 is typically the Vite Frontend Development Server. Your backend usually runs on a different port (like 5000, 8000, or 3000).
+
+The Scenario: You are likely using a Proxy in your vite.config.js to forward /api requests from 5173 to your backend port.
+
+The Fix:
+
+Ensure your Backend Server is actually running.
+
+Check your vite.config.js file. It should look something like this:
+
+JavaScript
+
+// vite.config.js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000', // Ensure this matches your BACKEND port
+        changeOrigin: true,
+      },
+    },
+  },
+});
+If you are not using a proxy, your axios request in userActions.js is pointing to the wrong URL. It should probably be http://localhost:5000/api/users/profile.
+
+3. Common Code Causes for /profile 500 Errors
+Since the endpoint is /users/profile, the crash is likely caused by Authentication Middleware.
+
+Missing/Invalid Token: The server tries to decode a JSON Web Token (JWT) from the headers. If the token is null or invalid, and the backend code doesn't handle the error gracefully, it crashes.
+
+Database Lookup Failed: The middleware decodes the token, gets a userId, and tries to find the user in the database. If the database connection is lost or the query syntax is wrong, it crashes.
+
+How to verify:
+
+Open the Network Tab in your browser developer tools (F12).
+
+Click on the failed profile request (in red).
+
+Look at the Headers tab -> Request Headers.
+
+Check for Authorization: Bearer <token>. If the token is missing or says Bearer undefined, that is your root cause.
+
+4. Immediate Debugging Steps
+Step A: Restart the Backend Sometimes the backend gets stuck in a bad state. Kill the terminal (Ctrl+C) and restart it.
+
+Step B: Inspect userActions.js Go to userActions.js line 153. Ensure you are passing the configuration object (headers) correctly.
+
+JavaScript
+
+// userActions.js example
+export const getUserProfile = () => async (dispatch, getState) => {
+  try {
+    // 1. Get user info (token) from Redux state
+    const { userLogin: { userInfo } } = getState();
+
+    // 2. Configure headers
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`, // Check if this exists!
+      },
+    };
+
+    // 3. Make the request
+    const { data } = await axios.get('/api/users/profile', config);
+
+  } catch (error) {
+    // ... error handling
+  }
+};

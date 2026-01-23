@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { Row, Col, ListGroup, Card } from 'react-bootstrap';
+import { Row, Col, ListGroup, Card, Button } from 'react-bootstrap';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
@@ -33,6 +33,17 @@ const TeamDetailsScreen = () => {
               <Card>
                 <Card.Header as="h2">{team.name}</Card.Header>
                 <Card.Body>
+                  <Card.Text>
+                    <strong>Team ID:</strong> {team._id}
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="ml-2"
+                      onClick={() => navigator.clipboard.writeText(team._id)}
+                    >
+                      Copy ID
+                    </Button>
+                  </Card.Text>
                   <Card.Title>Members</Card.Title>
                   <ListGroup variant="flush">
                     {team.members && team.members.map((member) => (

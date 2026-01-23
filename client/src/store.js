@@ -5,6 +5,7 @@ import {
   userLoginReducer,
   userRegisterReducer,
   userListReducer,
+  userDetailsReducer, // Import userDetailsReducer
 } from './reducers/userReducers';
 import {
   teamListReducer,
@@ -27,6 +28,7 @@ const reducer = combineReducers({
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
   userList: userListReducer,
+  userDetails: userDetailsReducer, // Add userDetailsReducer
   teamList: teamListReducer,
   teamCreate: teamCreateReducer,
   teamJoin: teamJoinReducer,
