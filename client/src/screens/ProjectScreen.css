@@ -1,0 +1,108 @@
+
+  /* =========================================
+    6. PROJECTS SCREEN (GRID & GLASS)
+    ========================================= */
+  /* Transform List to Grid */
+  .modern-project-list {
+    display: grid !important; 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 2rem;
+    margin-top: 3rem; /* Spacing Fix */
+    
+    /* Reset old list styles */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .project-list-item {
+    background-color: var(--bg-glass-medium);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: var(--border-glass-highlight);
+    border-radius: 24px;
+    padding: 1.75rem;
+    
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    box-shadow: var(--shadow-glass);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    will-change: transform, background-color, box-shadow; /* Optimize for these properties */
+  }
+
+  .project-list-item:hover {
+    transform: translateY(-8px);
+    background-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+  }
+
+  .project-info {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-name-link {
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Data Capsules */
+  .project-info p {
+    background: rgba(255, 255, 255, 0.4);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    margin: 0.5rem 0;
+    width: fit-content;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .project-actions {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .project-hero-header {
+    background-color: var(--bg-glass-medium);
+    backdrop-filter: blur(12px);
+    border: var(--border-glass-highlight);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-glass);
+  }
+
+  .project-detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .metadata-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-medium-emphasis);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }

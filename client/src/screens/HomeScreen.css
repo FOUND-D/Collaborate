@@ -1,0 +1,76 @@
+
+/* =========================================
+    5. DASHBOARD SCREEN
+    ========================================= */
+  .dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+  }
+
+  /* !!! DASHBOARD GRID SPACING FIX !!! */
+  .action-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem; /* Space from Welcome Banner */
+    margin-bottom: 2.5rem;
+  }
+
+  .action-card {
+    background-color: var(--bg-glass-medium);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: var(--border-glass-highlight);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--shadow-glass);
+    will-change: transform, background-color, box-shadow; /* Optimize for these properties */
+  }
+  .action-card:hover {
+    transform: translateY(-5px);
+    background-color: rgba(255, 255, 255, 0.75);
+  }
+
+  .action-card-icon {
+    font-size: 3rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  .action-card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-high-emphasis);
+  }
+  .action-card-description {
+    font-size: 0.9rem;
+    color: var(--text-medium-emphasis);
+  }
+
+  .pending-requests-section {
+    background-color: var(--bg-glass-medium);
+    backdrop-filter: blur(12px);
+    border: var(--border-glass-highlight);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-glass);
+  }
+
+  .request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }

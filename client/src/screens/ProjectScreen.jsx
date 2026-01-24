@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './ProjectScreen.css';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProjectDetails, updateProject } from '../actions/projectActions';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './TeamScreen.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaPlus, FaUsers, FaEdit, FaTrash, FaCheck, FaTimes, FaUser, FaArrowRight } from 'react-icons/fa';
