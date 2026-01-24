@@ -2,30 +2,24 @@ import axios from 'axios';
 import store from '../store';
 import { setServerOffline, setServerOnline } from '../actions/serverActions';
 
-// 1. Capture the variable
-const BACKEND_URL = import.meta.env.VITE_APP_API_URL;
+// --- CONFIGURATION ---
+// We are hardcoding the URL to prevent "undefined" errors on refresh.
+const BACKEND_URL = "https://collaborate-el4m.onrender.com"; 
 
-// 2. Safety Check: If this is missing, the app relies on Vercel (BAD).
-// This log will show up in your browser console if the var is missing.
-if (!BACKEND_URL) {
-  console.error("FATAL ERROR: VITE_APP_API_URL is undefined. API calls will fail.");
-}
+console.log("Using API Base URL:", BACKEND_URL); 
+// ---------------------
 
 const api = axios.create({
-  // 3. FORCE the absolute URL. 
-  // If BACKEND_URL is undefined, this will remain undefined 
-  // and axios might default to current origin, but we want to catch it.
-  baseURL: BACKEND_URL, 
+  baseURL: BACKEND_URL,
 });
 
 // Request interceptor
 api.interceptors.request.use((config) => {
   const { serverStatus } = store.getState();
   
-  // EXTRA SAFETY: If the config.baseURL somehow became relative (empty), force it again here
-  if (!config.baseURL || config.baseURL === '') {
-     console.warn("Fixing missing Base URL on the fly...");
-     config.baseURL = BACKEND_URL;
+  // Double-check: ensure baseURL is never empty
+  if (!config.baseURL) {
+      config.baseURL = BACKEND_URL;
   }
 
   if (serverStatus.status === 'offline') {
@@ -36,6 +30,25 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// ... keep your response interceptor as is ...
+// Response interceptor to catch network errors
+api.interceptors.response.use(
+  (response) => {
+    const { serverStatus } = store.getState();
+    if (serverStatus.status !== 'online') {
+      store.dispatch(setServerOnline());
+    }
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      // Server responded with an error (4xx, 5xx)
+    } else if (error.request) {
+      // Network Error (Server is down or unreachable)
+      console.error('Network Error: Server unreachable at', BACKEND_URL);
+      store.dispatch(setServerOffline());
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
