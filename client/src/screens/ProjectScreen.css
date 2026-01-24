@@ -334,7 +334,10 @@
 }
 
 .add-task-btn {
-    background-image: linear-gradient(to-bottom, #0071e3, #005bb7);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(to-bottom, #0071e3, #005bb7);
     color: #fff;
     border-radius: 980px; /* Perfect pill shape */
     padding: 10px 24px;
@@ -535,4 +538,41 @@
 .task-action-btn:hover {
     background-color: #f2f2f7;
     color: var(--text-primary);
+}
+
+.project-header-action-group {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* 16px gap between buttons */
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid #d2d2d7;
+    color: var(--text-primary);
+    border-radius: 980px;
+    padding: 10px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f2f2f7;
+    border-color: #c2c2c7;
+}
+
+.project-title-input {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
