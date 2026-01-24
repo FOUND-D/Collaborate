@@ -333,24 +333,7 @@
     font-weight: 500;
 }
 
-.add-task-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(to-bottom, #0071e3, #005bb7);
-    color: #fff;
-    border-radius: 980px; /* Perfect pill shape */
-    padding: 10px 24px;
-    font-weight: 500;
-    border: none;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
 
-.add-task-btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 15px rgba(0, 113, 227, 0.2);
-}
 
 .project-detail-title {
     font-size: 3rem;
