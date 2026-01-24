@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
 import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt } from 'react-icons/fa';
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true); // State to control sidebar collapse
+const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -22,40 +17,40 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="sidebar-header">
         <button className="sidebar-toggle" onClick={toggleSidebar}>
-          {isOpen ? <FaTimes /> : <FaBars />}
+          {isSidebarOpen ? <FaTimes /> : <FaBars />}
         </button>
-        {isOpen && <h2 className="app-title">Collaborate</h2>}
+        {isSidebarOpen && <h2 className="app-title">Collaborate</h2>}
       </div>
 
       <nav className="sidebar-nav">
         <Link to="/" className="nav-item">
           <FaTachometerAlt />
-          {isOpen && <span className="nav-text">Dashboard</span>}
+          {isSidebarOpen && <span className="nav-text">Dashboard</span>}
         </Link>
         <Link to="/projects/ongoing" className="nav-item">
           <FaFolder />
-          {isOpen && <span className="nav-text">Projects</span>}
+          {isSidebarOpen && <span className="nav-text">Projects</span>}
         </Link>
         <Link to="/teams" className="nav-item">
           <FaUsers />
-          {isOpen && <span className="nav-text">Teams</span>}
+          {isSidebarOpen && <span className="nav-text">Teams</span>}
         </Link>
         <Link to="/tasks" className="nav-item">
           <FaTasks />
-          {isOpen && <span className="nav-text">Tasks</span>}
+          {isSidebarOpen && <span className="nav-text">Tasks</span>}
         </Link>
         <Link to="/settings" className="nav-item">
           <FaCog />
-          {isOpen && <span className="nav-text">Settings</span>}
+          {isSidebarOpen && <span className="nav-text">Settings</span>}
         </Link>
       </nav>
 
       {userInfo && (
         <div className="sidebar-footer">
-          {isOpen && (
+          {isSidebarOpen && (
             <div className="user-profile">
               <div className="user-avatar">
                 {userInfo.name.charAt(0).toUpperCase()}
@@ -65,7 +60,7 @@ const Sidebar = () => {
           )}
           <button className="logout-button" onClick={logoutHandler}>
             <FaSignOutAlt />
-            {isOpen && <span className="logout-text">Logout</span>}
+            {isSidebarOpen && <span className="logout-text">Logout</span>}
           </button>
         </div>
       )}
