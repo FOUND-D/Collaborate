@@ -1,0 +1,150 @@
+
+  /* =========================================
+    10. AI PAGE & UTILITIES
+    ========================================= */
+  .hero-input-container, .ai-result-preview {
+    background-color: var(--bg-glass-medium);
+    backdrop-filter: blur(20px);
+    border: var(--border-glass-highlight);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--shadow-glass);
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .skeleton-loader {
+    background: linear-gradient(90deg, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.2) 75%);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .sidebar-open {
+      position: fixed;
+      height: 100vh;
+      left: 0; top: 0;
+      width: 260px;
+      background-color: rgba(255,255,255, 0.95);
+    }
+    .sidebar-closed { width: 0; padding: 0; overflow: hidden; }
+    .action-cards-grid, .team-grid { grid-template-columns: 1fr; }
+    .project-hero-header { padding: 1.5rem; }
+    .project-metadata-badges {
+      flex-direction: column; /* Stack badges vertically */
+      align-items: flex-start; /* Align them to the start */
+      gap: 0.5rem; /* Reduce gap */
+    }
+
+    .side-drawer-content {
+      max-width: 100%; /* Take full width on mobile */
+      width: 100%;
+    }
+
+    .modal-content {
+      max-width: 95%; /* Adjust modal width for better mobile fit */
+      width: 95%;
+    }
+
+    .main-content {
+      padding: 1rem; /* Adjust padding for mobile */
+      transition: padding-left 0.3s ease; /* Smooth transition for shifting content */
+    }
+
+    .main-content-shifted {
+      padding-left: 260px; /* Space for the open sidebar */
+    }
+  }
+
+  /* Extra Small Devices (Phones, less than 480px) */
+  @media (max-width: 480px) {
+    .main-content {
+      padding: 0.5rem; /* Even less padding for very small screens */
+    }
+
+    /* Adjust font sizes for better readability on small phones */
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; }
+    .project-detail-title { font-size: 1.8rem; }
+    .action-card-title { font-size: 1.2rem; }
+    .project-name-link { font-size: 1.3rem; }
+    .team-name { font-size: 1.2rem; }
+    button { padding: 0.5em 1em; font-size: 0.9em; }
+    .metadata-badge, .project-info p, .team-card div:not(.team-actions) { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+
+    .task-list-item {
+      display: flex; /* Ensure it's a flex container */
+      flex-direction: row; /* Keep as row for the main items */
+      flex-wrap: wrap; /* Allow items to wrap to next line */
+      align-items: center; /* Align items to the center of the cross axis */
+      padding: 0.75rem 1rem; /* Adjust padding */
+      gap: 0.5rem; /* Add some spacing between stacked items */
+    }
+
+    .task-list-item .task-checkbox {
+      flex-shrink: 0; /* Don't shrink the checkbox */
+    }
+
+    .task-list-item .task-details {
+      flex-grow: 1; /* Allow task details to take up available space */
+      min-width: 0; /* Prevent content from overflowing */
+    }
+
+    .task-list-item .task-name {
+      font-size: 1rem; /* Adjust font size for readability */
+      margin-right: 0.5rem; /* Space between name and status/edit */
+    }
+
+    .task-list-item .task-description {
+      font-size: 0.85rem;
+      margin-top: 0.25rem; /* Space below task name */
+      width: 100%; /* Ensure description takes full width */
+    }
+
+    .task-list-item .task-tags {
+      flex-basis: 100%; /* Force tags to a new line */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .task-list-item .task-status-pill {
+      font-size: 0.7rem; /* Smaller pill text */
+    }
+
+    .task-list-item .task-edit-button {
+      flex-shrink: 0; /* Don't shrink edit button */
+      margin-left: auto; /* Push to the right if space allows, or align under tags */
+      align-self: flex-end; /* Align to the end of the cross axis */
+    }
+
+    .project-hero-title-and-action {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .add-task-btn {
+      width: 100%;
+    }
+  }
+  .server-status-message {
+    background-color: var(--status-warning);
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure it's above other content */
+  }

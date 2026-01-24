@@ -13,6 +13,7 @@ import ProjectScreen from './screens/ProjectScreen';
 import OngoingProjectsScreen from './screens/OngoingProjectsScreen';
 import TeamDetailsScreen from './screens/TeamDetailsScreen';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
+import { FaBars } from 'react-icons/fa'; // Import FaBars for the mobile toggle
 
 const App = () => {
   const serverStatus = useSelector((state) => state.serverStatus);
@@ -23,12 +24,20 @@ const App = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const mainContentClass = `main-content ${isSidebarOpen ? 'main-content-shifted' : ''}`;
+  // Adjust mainContentClass based on sidebar state for desktop
+  // On desktop, main-content expands when sidebar is closed.
+  const mainContentClass = `main-content ${isSidebarOpen ? '' : 'main-content-expanded'}`;
 
 
   return (
     <Router>
       <div className="app-layout">
+        {/* Mobile-only toggle button (visible when sidebar is closed on mobile) */}
+        {!isSidebarOpen && (
+          <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
+            <FaBars />
+          </button>
+        )}
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <div className={mainContentClass}>
           {status === SERVER_STATUS_OFFLINE && (

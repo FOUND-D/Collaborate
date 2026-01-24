@@ -1,0 +1,101 @@
+:root {
+    /* =========================================
+      1. GLASSMORPHISM COLOR PALETTE
+      ========================================= */
+    
+    /* Background: Soft, flowing pastel gradient */
+    --bg-main-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    --bg-main-gradient-accent: linear-gradient(135deg, #E0C3FC 0%, #8EC5FC 100%); /* Lavender to Blue */
+
+    /* Glass Panels (Transparency + Blur) */
+    --bg-glass-heavy: rgba(255, 255, 255, 0.75); /* Sidebar, Nav */
+    --bg-glass-medium: rgba(255, 255, 255, 0.55); /* Cards, Panels */
+    --bg-glass-light: rgba(255, 255, 255, 0.35); /* Subtle elements */
+    --bg-glass-input: rgba(255, 255, 255, 0.9);  /* Inputs (High opacity for reading) */
+
+    /* Borders & Highlights (The "Glass Edge") */
+    --border-glass-highlight: 1px solid rgba(255, 255, 255, 0.9);
+    --border-glass-subtle: 1px solid rgba(255, 255, 255, 0.4);
+
+    /* Shadows (Diffuse colored glow) */
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    --shadow-glass-hover: 0 15px 35px rgba(31, 38, 135, 0.15);
+
+    /* Brand Colors */
+    --primary-brand-color: #6366F1; /* Indigo 500 */
+    --primary-brand-color-rgb: 99, 102, 241; 
+    --primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+
+    /* Typography Colors (Dark Text for Light Glass) */
+    --text-high-emphasis: #1f2937; /* Dark Slate */
+    --text-medium-emphasis: #4b5563; /* Medium Grey */
+    --text-low-emphasis: #9ca3af; /* Light Grey */
+
+    /* Status Colors */
+    --status-success: #10B981; 
+    --status-success-rgb: 16, 185, 129;
+    --status-warning: #F59E0B; 
+    --status-warning-rgb: 245, 158, 11;
+    --status-error: #EF4444; 
+    --status-error-rgb: 239, 68, 68;
+    --status-info: #3B82F6; 
+    --status-info-rgb: 59, 130, 246;
+
+    /* Typography & Layout */
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    --border-radius-base: 16px; /* Softer, rounder corners */
+
+    /* Browser Defaults */
+    color-scheme: light; 
+    color: var(--text-high-emphasis);
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    /* The Main Gradient Background */
+    background: var(--bg-main-gradient-accent); 
+    background-attachment: fixed; 
+    background-size: cover;
+    color: var(--text-high-emphasis);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  a {
+    font-weight: 500;
+    color: var(--primary-brand-color);
+    text-decoration: inherit;
+  }
+  a:hover { color: #4F46E5; }
+
+  h1, h2, h3, h4, h5, h6 { color: var(--text-high-emphasis); }
+
+  button {
+    border-radius: var(--border-radius-base);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: inherit;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    color: var(--text-high-emphasis);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    will-change: transform, background-color, box-shadow; /* Optimize for these properties */
+  }
+  button:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  button:focus, button:focus-visible {
+    outline: 2px solid var(--primary-brand-color);
+    outline-offset: 2px;
+  }
