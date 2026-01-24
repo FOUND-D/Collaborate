@@ -48,7 +48,7 @@
   /* Prominent Button Style */
   .btn-primary {
     background-color: var(--primary-blue);
-    color: white;
+    color: #000000;
     border: none;
     border-radius: var(--radius-squircle);
     padding: 0.8em 1.4em;
