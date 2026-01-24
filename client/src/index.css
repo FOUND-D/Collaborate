@@ -156,8 +156,9 @@ body {
   padding: 0.85rem 1rem;
   color: var(--text-medium-emphasis);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-radius: 12px;
+  will-change: transform; /* Hint for smoother animation */
 }
 .nav-item:hover {
   background-color: rgba(255, 255, 255, 0.4);
@@ -224,7 +225,7 @@ body {
   cursor: pointer;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .logout-button:hover {
   background-color: rgba(239, 68, 68, 0.1);
@@ -262,6 +263,7 @@ button {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  will-change: transform, background-color, box-shadow; /* Optimize for these properties */
 }
 button:hover {
   background-color: rgba(255, 255, 255, 0.9);
@@ -418,7 +420,7 @@ button:focus, button:focus-visible {
   left: 0.75rem;
   color: var(--text-medium-emphasis);
   pointer-events: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: transparent;
 }
 .form-group .form-input:focus ~ label,
@@ -462,6 +464,7 @@ button:focus, button:focus-visible {
   text-align: center;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: var(--shadow-glass);
+  will-change: transform, background-color, box-shadow; /* Optimize for these properties */
 }
 .action-card:hover {
   transform: translateY(-5px);
@@ -538,6 +541,7 @@ button:focus, button:focus-visible {
   box-shadow: var(--shadow-glass);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  will-change: transform, background-color, box-shadow; /* Optimize for these properties */
 }
 
 .project-list-item:hover {
@@ -640,6 +644,7 @@ button:focus, button:focus-visible {
   
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
   transition: transform 0.2s ease;
+  will-change: transform, background-color, box-shadow; /* Optimize for these properties */
   
   /* Reset margins */
   margin: 0 !important; 
@@ -745,7 +750,7 @@ button:focus, button:focus-visible {
   align-items: center;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  transition: background 0.2s;
+  transition: background 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .task-list-item:hover { background-color: rgba(255, 255, 255, 0.4); }
 
