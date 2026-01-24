@@ -24,8 +24,33 @@
     100% { background-position: 200px 0; }
   }
 
+  /* Mobile Sidebar Toggle */
+  .mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
   /* Mobile Responsive */
   @media (max-width: 768px) {
+    .mobile-sidebar-toggle {
+      display: flex;
+    }
+
     .sidebar-open {
       position: fixed;
       height: 100vh;
@@ -33,7 +58,7 @@
       width: 260px;
       background-color: rgba(255,255,255, 0.95);
     }
-    .sidebar-closed { width: 0; padding: 0; overflow: hidden; }
+    .sidebar-closed { width: 0; padding: 0; overflow: hidden; border: none; }
     .action-cards-grid, .team-grid { grid-template-columns: 1fr; }
     .project-hero-header { padding: 1.5rem; }
     .project-metadata-badges {
@@ -55,8 +80,10 @@
     .main-content {
       padding: 1rem; /* Adjust padding for mobile */
       transition: padding-left 0.3s ease; /* Smooth transition for shifting content */
+      margin-left: 0 !important; /* Override desktop margin */
     }
 
+    /* This class is not in App.jsx, but let's keep it for now */
     .main-content-shifted {
       padding-left: 260px; /* Space for the open sidebar */
     }
