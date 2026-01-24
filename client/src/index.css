@@ -1,971 +1,715 @@
+/* =========================================
+   1. CORE VARIABLES & THEME (Notion/Linear Inspired)
+   ========================================= */
 :root {
-  /* =========================================
-     1. SLACK ENTERPRISE COLOR PALETTE
-     ========================================= */
-
-  /* Theme: Classic Aubergine (Sidebar) & Clean White (Main) */
-  --bg-body: #FFFFFF;
-  --bg-sidebar: #3F0E40; /* The iconic Slack Purple */
-  --bg-sidebar-hover: #350d36;
-  --bg-sidebar-active: #1164A3; /* Blue selection state */
-  --bg-surface: #FFFFFF;
-  --bg-surface-secondary: #F8F8F8; /* Light gray for headers/backgrounds */
+  /* Color Palette - Neutral / Clean */
+  --bg-body: #F9FAFB;       /* Very light gray background */
+  --bg-surface: #FFFFFF;    /* Pure white for cards */
+  --bg-sidebar: #1C1C1F;    /* Deep, almost black sidebar (Linear style) */
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --bg-sidebar-active: rgba(255, 255, 255, 0.12);
+  
+  /* Inputs & Forms */
   --bg-input: #FFFFFF;
-
-  /* Text Colors */
-  --text-high-emphasis: #1D1C1D; /* Strict Charcoal */
-  --text-medium-emphasis: #616061; /* Dark Gray */
-  --text-low-emphasis: #868686; /* Light Gray */
-  --text-on-sidebar: #CFC3CF; /* Light lavender for inactive sidebar text */
+  --bg-input-focus: #FFFFFF;
+  
+  /* Typography Colors */
+  --text-main: #111827;     /* Near black */
+  --text-muted: #6B7280;    /* Muted gray */
+  --text-light: #9CA3AF;    /* Lighter gray */
+  --text-on-sidebar: #9CA3AF;
   --text-on-sidebar-active: #FFFFFF;
 
-  /* Borders & Dividers */
-  --border-ui: #DDDDDD; /* Crisp light gray border */
-  --border-focus: #1264A3; /* Focus ring color */
-  --border-subtle: #EEEEEE;
+  /* Brand Accents */
+  --primary: #2563EB;       /* Deep Royal Blue */
+  --primary-hover: #1D4ED8;
+  --primary-light: #EFF6FF; /* Very light blue for backgrounds */
+  
+  /* Status Colors (Pastel/Modern) */
+  --status-success-bg: #DCFCE7;
+  --status-success-text: #166534;
+  --status-warning-bg: #FEF3C7;
+  --status-warning-text: #92400E;
+  --status-error-bg: #FEE2E2;
+  --status-error-text: #991B1B;
+  --status-info-bg: #E0F2FE;
+  --status-info-text: #075985;
 
-  /* Brand Colors */
-  --primary-brand-color: #1264A3; /* Slack Blue */
-  --primary-brand-hover: #0B4C8C;
-  --accent-purple: #4A154B;
+  /* Borders & Shadows */
+  --border-subtle: #E5E7EB;
+  --border-focus: #2563EB;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
-  /* Status Colors */
-  --status-success: #007a5a; /* Slack Green */
-  --status-warning: #dfa632;
-  --status-error: #e01e5a; /* Slack Red */
-  --status-info: #1264A3;
-
-  /* Shadows (Enterprise = Subtle & Tight) */
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.12);
-  --shadow-focus: 0 0 0 4px rgba(29, 155, 209, 0.3);
-
-  /* Typography & Layout */
-  font-family: 'Lato', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.45;
-  font-weight: 400;
-  --border-radius-base: 6px; /* Tighter radius (Pro look) */
-  --border-radius-large: 8px;
-
-  /* Browser Defaults */
-  color-scheme: light;
-  color: var(--text-high-emphasis);
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  /* Solid Background - No Gradients */
-  background-color: var(--bg-body);
-  color: var(--text-high-emphasis);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-.server-status-message {
-  background-color: var(--status-warning);
-  color: #1D1C1D;
-  text-align: center;
-  padding: 0.5rem;
-  font-weight: 700;
-  font-size: 0.9rem;
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  /* Layout */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --header-height: 60px;
+  
+  /* Font */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* =========================================
-   2. APP LAYOUT & SIDEBAR
+   2. GLOBAL RESET & BASE STYLES
+   ========================================= */
+body {
+  margin: 0;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--primary-hover);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Scrollbar Polish */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* =========================================
+   3. APP LAYOUT & SIDEBAR
    ========================================= */
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-body);
+  width: 100%;
 }
 
+/* Sidebar Container */
 .sidebar {
   background-color: var(--bg-sidebar);
-  border-right: none; /* Slack sidebar has no right border usually, just color contrast */
   color: var(--text-on-sidebar);
-  padding: 0; /* Remove padding to be flush */
-  padding-top: 1rem;
   display: flex;
   flex-direction: column;
-  transition: width 0.2s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: none; /* No shadow */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1px solid rgba(255,255,255,0.05);
   position: relative;
-  z-index: 1000;
-  backdrop-filter: none;
+  z-index: 50;
+  flex-shrink: 0;
 }
 
 .sidebar-open { width: 260px; }
-.sidebar-closed { width: 68px; }
+.sidebar-closed { width: 70px; }
 
+/* Sidebar Header */
 .sidebar-header {
+  height: var(--header-height);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  margin-bottom: 1.5rem;
-  justify-content: flex-end;
-  height: 40px;
+  justify-content: space-between; /* Adjust based on state via JS mostly, but CSS flex helps */
+  padding: 0 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-.sidebar-open .sidebar-header { justify-content: space-between; }
 
 .app-title {
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: white;
-  background: none;
-  -webkit-text-fill-color: white;
-  margin: 0;
-  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  display: flex; 
-  align-items: center; 
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-on-sidebar);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 }
 .sidebar-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.1);
+  color: #FFF;
 }
 
+/* Navigation */
 .sidebar-nav {
-  flex-grow: 1;
+  padding: 1.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  padding: 0 12px;
-  gap: 2px; /* Very tight spacing */
+  gap: 0.25rem;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
   color: var(--text-on-sidebar);
-  text-decoration: none;
-  transition: background-color 0.1s ease;
-  border-radius: 6px;
-  will-change: auto;
-  min-height: 36px;
+  transition: all 0.2s ease;
+  min-height: 40px;
 }
+
 .nav-item:hover {
   background-color: var(--bg-sidebar-hover);
-  color: white;
-  transform: none; /* Remove float */
+  color: #FFF;
 }
+
 .nav-item.active {
   background-color: var(--bg-sidebar-active);
-  color: white;
-  box-shadow: none;
+  color: var(--text-on-sidebar-active);
   font-weight: 500;
 }
-.nav-item svg { font-size: 1.1rem; }
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2px;
+  flex-shrink: 0;
+}
 
 .nav-text {
+  font-size: 0.9rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.95rem;
+  opacity: 1;
+  transition: opacity 0.2s;
 }
-.sidebar-closed .nav-text,
-.sidebar-closed .app-title,
-.sidebar-closed .user-name { display: none; }
 
-.sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  background-color: transparent;
+.sidebar-closed .nav-text,
+.sidebar-closed .app-title {
+  display: none;
 }
-.sidebar-open .sidebar-footer {
-  flex-direction: row;
-  justify-content: space-between;
+.sidebar-closed .sidebar-header {
+  justify-content: center;
+  padding: 0;
+}
+
+/* Sidebar Footer / User Profile */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.1);
 }
 
 .user-profile {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: white;
-}
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px; /* Slack avatars are rounded squares */
-  background: var(--status-success);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 700;
-  color: #fff;
-  font-size: 0.75rem;
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  color: var(--text-on-sidebar);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 4px;
-  transition: all 0.1s ease;
-}
-.logout-button:hover {
-  background-color: rgba(224, 30, 90, 0.2);
-  color: #ffaebf;
-}
-
-.main-content {
-  flex-grow: 1;
-  padding: 2rem 3rem;
-  overflow-y: auto;
-  background-color: var(--bg-body);
-}
-
-/* =========================================
-   3. GLOBAL ELEMENTS (Buttons, Links, Titles)
-   ========================================= */
-a {
-  font-weight: 600;
-  color: var(--primary-brand-color);
-  text-decoration: none;
-}
-a:hover { 
-  color: var(--primary-brand-hover); 
-  text-decoration: underline; 
-}
-
-h1, h2, h3, h4, h5, h6 { 
-  color: var(--text-high-emphasis); 
-  margin-top: 0;
-}
-
-button {
-  border-radius: 4px; /* Classic Slack button radius */
-  border: 1px solid var(--border-ui);
-  padding: 0 16px;
-  height: 36px; /* Standard height */
-  font-size: 0.95rem;
-  font-weight: 700;
-  font-family: inherit;
-  background-color: white;
-  backdrop-filter: none;
-  color: var(--text-high-emphasis);
-  cursor: pointer;
-  transition: all 0.1s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-button:hover {
-  background-color: #F8F8F8;
-  transform: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border-color: #bababa;
-}
-button:focus, button:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-  border-color: var(--primary-brand-color);
-}
-
-/* Primary Button & Form Submit */
-.btn-primary, 
-.form-container-custom button[type='submit'] {
-  background: var(--status-success) !important; /* Use Slack Green for primary actions */
-  color: white !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-.btn-primary:hover,
-.form-container-custom button[type='submit']:hover {
-  background: #006046 !important; /* Darker Green */
-  color: white;
-}
-
-/* =========================================
-   4. FORMS & AUTH (Solid Panels)
-   ========================================= */
-.form-container-custom {
-  margin-top: 40px;
-  display: flex;
-  justify-content: center;
-}
-
-.form-wrapper-custom {
-  background-color: var(--bg-surface);
-  backdrop-filter: none;
-  padding: 3rem;
-  border-radius: var(--border-radius-large);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-ui);
-  width: 100%;
-  color: var(--text-high-emphasis);
-}
-
-.form-container-custom input,
-.form-container-custom select,
-.form-container-custom textarea,
-.form-group .form-input,
-.modal .form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #868686; /* Darker default border for contrast */
-  border-radius: 4px;
-  background-color: var(--bg-input);
-  color: var(--text-high-emphasis);
-  font-size: 1rem;
-  box-sizing: border-box;
-  margin-bottom: 1.25rem;
-  transition: all 0.1s;
-}
-
-.form-container-custom input:focus,
-.form-group .form-input:focus {
-  background-color: #fff;
-  border-color: var(--primary-brand-color);
-  box-shadow: var(--shadow-focus);
-  outline: none;
-}
-
-.form-container-custom label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 700;
-  color: var(--text-high-emphasis);
-  font-size: 0.9rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end; 
-  gap: 12px;
-  margin-top: 2rem;
-}
-
-/* AUTH LAYOUT */
-.auth-layout-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-.auth-graphic-side {
-  flex: 0 0 40%;
-  background: var(--bg-sidebar); /* Use Aubergine */
-  backdrop-filter: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  color: white;
-  position: relative;
   overflow: hidden;
 }
 
-.auth-graphic-shape {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.05); /* Subtle circle */
-  border-radius: 50%; /* Perfect circle */
-  animation: none; /* No wobbling */
-  filter: none;
-}
-
-.auth-form-side {
-  flex: 1;
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: var(--bg-body); 
-  padding: 2rem;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
-.auth-form-content {
-  background-color: white;
-  backdrop-filter: none;
-  padding: 3rem;
-  border-radius: 8px;
-  box-shadow: var(--shadow-hover);
-  border: 1px solid var(--border-ui);
-  width: 100%;
-  max-width: 450px;
-}
-
-.auth-title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--text-high-emphasis);
-  margin-bottom: 2rem;
-  text-align: center;
-  letter-spacing: -0.03em;
-}
-
-/* Floating Label Logic - Simplified for Enterprise */
-.form-group.floating-label {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-.form-group label {
-  position: absolute;
-  top: -22px; /* Move label permanently up for cleaner look */
-  left: 0;
-  color: var(--text-high-emphasis);
-  pointer-events: none;
+.sidebar-closed .user-name { display: none; }
+.user-name {
+  color: #FFF;
   font-size: 0.9rem;
-  font-weight: 700;
-  background-color: transparent;
-}
-/* Disable complex transform animations for cleaner enterprise inputs */
-.form-group .form-input:focus ~ label,
-.form-group .form-input:not(:placeholder-shown) ~ label {
-  /* Logic retained but visually static for reliability */
-  transform: none;
+  white-space: nowrap;
 }
 
 /* =========================================
-   5. DASHBOARD SCREEN
+   4. MAIN CONTENT AREA
    ========================================= */
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: 900;
-  margin-bottom: 2rem;
-  letter-spacing: -0.02em;
+.main-content {
+  flex-grow: 1;
+  background-color: var(--bg-body);
+  padding: 2rem 3rem;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
+.dashboard-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* =========================================
+   5. CARDS & DASHBOARD WIDGETS
+   ========================================= */
 .action-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
 
 .action-card {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Left align for pro feel */
-  text-align: left;
-  transition: all 0.15s ease;
-  box-shadow: var(--shadow-card);
-  will-change: transform;
+  position: relative;
+  overflow: hidden;
 }
+
 .action-card:hover {
-  transform: none;
-  border-color: #999;
+  transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
+  border-color: #D1D5DB;
 }
 
 .action-card-icon {
-  font-size: 2rem;
-  background: none;
-  -webkit-text-fill-color: var(--primary-brand-color);
-  color: var(--primary-brand-color);
+  font-size: 1.5rem;
+  color: var(--primary);
   margin-bottom: 1rem;
+  background: var(--primary-light);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .action-card-title {
   font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-high-emphasis);
+  font-weight: 600;
   margin-bottom: 0.5rem;
+  color: var(--text-main);
 }
+
 .action-card-description {
   font-size: 0.9rem;
-  color: var(--text-medium-emphasis);
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
-.pending-requests-section {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
-  padding: 1.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: var(--shadow-card);
-}
-
-.request-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #FAFAFA;
-  padding: 12px 16px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  border: 1px solid var(--border-subtle);
-}
-
 /* =========================================
-   6. PROJECTS SCREEN
+   6. PROJECTS & LISTS (Linear Style)
    ========================================= */
 .modern-project-list {
-  display: grid !important; 
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  gap: 16px;
-  margin-top: 2rem;
-  
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .project-list-item {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  
-  box-shadow: var(--shadow-card);
-  transition: all 0.15s ease;
-  border-bottom: 1px solid var(--border-ui) !important;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  min-height: 200px;
 }
 
 .project-list-item:hover {
-  transform: none;
-  border-color: #888;
-  box-shadow: var(--shadow-hover);
-}
-
-.project-info {
-  flex-grow: 1;
-  margin-bottom: 1.5rem;
+  border-color: #9CA3AF;
+  box-shadow: var(--shadow-card);
 }
 
 .project-name-link {
-  font-size: 1.25rem;
-  font-weight: 900;
-  background: none;
-  -webkit-text-fill-color: var(--text-high-emphasis);
-  color: var(--text-high-emphasis);
-  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
   display: block;
-  margin-bottom: 1rem;
 }
 .project-name-link:hover {
-  color: var(--primary-brand-color);
-  -webkit-text-fill-color: var(--primary-brand-color);
-  text-decoration: underline;
+  color: var(--primary);
+  text-decoration: none;
 }
 
-/* Data Capsules */
 .project-info p {
-  background: #F0F0F0;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin: 8px 0;
-  width: fit-content;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  border: 1px solid #E0E0E0;
-  color: var(--text-medium-emphasis);
-  font-weight: 500;
+  gap: 0.5rem;
 }
 
 .project-actions {
-  margin-top: auto;
+  margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-ui);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 /* =========================================
-   7. TEAMS SCREEN
+   7. TASK LISTS (Table/Row Style)
    ========================================= */
-.team-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
-  gap: 16px !important;
-  width: 100%;
-  margin-top: 2rem;
-  flex-direction: row !important; 
-  align-items: stretch !important;
-}
-
-.team-card {
-  aspect-ratio: 1 / 0.85;
-  min-height: 250px;
-  width: 100%;
-  
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
-  padding: 1.5rem;
-  
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  
-  box-shadow: var(--shadow-card);
-  transition: all 0.15s ease;
-  margin: 0 !important; 
-}
-
-.team-card:hover {
-  transform: none;
-  box-shadow: var(--shadow-hover);
-  border-color: #999;
-}
-
-.team-name {
-  font-size: 1.2rem;
-  font-weight: 900;
-  margin: 0 0 1rem 0;
-  background: none;
-  -webkit-text-fill-color: var(--text-high-emphasis);
-  color: var(--text-high-emphasis);
-}
-
-.team-card div:not(.team-actions) {
-  background: #F3F3F3;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  border: 1px solid #E5E5E5;
-  color: var(--text-medium-emphasis);
-}
-
-.team-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: auto; 
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-ui);
-}
-
-.team-actions button {
-  flex: 1; 
-  border-radius: 4px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-weight: 700;
-  height: 32px;
-}
-
-.team-actions button:first-child {
-  background-color: white;
-  border: 1px solid var(--border-ui);
-  color: var(--text-high-emphasis);
-}
-.team-actions button:first-child:hover {
-  background-color: #F0F0F0;
-}
-
-.team-actions button:last-child {
-  background-color: white;
-  border: 1px solid #facccc;
-  color: var(--status-error);
-  max-width: 50px; 
-}
-.team-actions button:last-child:hover {
-  background-color: var(--status-error);
-  color: white;
-}
-
-/* =========================================
-   8. PROJECT DETAILS & TASKS
-   ========================================= */
-.project-hero-header {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-card);
-}
-
-.project-detail-title {
-  font-size: 2rem;
-  font-weight: 900;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.02em;
-}
-
-.metadata-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #F0F0F0;
-  color: var(--text-high-emphasis);
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid #DDDDDD;
-}
-
-/* Tasks List - Table Style */
 .modern-task-list {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
-  box-shadow: var(--shadow-card);
-  padding: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
   margin-top: 1rem;
 }
 
 .task-list-item {
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-ui);
-  transition: background 0.1s;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color 0.15s ease;
 }
-.task-list-item:hover { background-color: #F8F9FA; }
-.task-list-item:last-child { border-bottom: none; }
+
+.task-list-item:last-child {
+  border-bottom: none;
+}
+
+.task-list-item:hover {
+  background-color: #F3F4F6;
+}
 
 .task-status-pill {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  display: inline-block;
 }
-.task-status-pill.status-todo { background: #E1F1FF; color: #1264A3; }
-.task-status-pill.status-inprogress { background: #FFF7D1; color: #9A5B03; }
-.task-status-pill.status-completed { background: #D4F4DD; color: #007A5A; }
+
+/* Dynamic Status Colors */
+.task-status-pill.status-todo {
+  background-color: #F3F4F6;
+  color: #4B5563;
+}
+.task-status-pill.status-inprogress {
+  background-color: var(--status-info-bg);
+  color: var(--status-info-text);
+}
+.task-status-pill.status-completed {
+  background-color: var(--status-success-bg);
+  color: var(--status-success-text);
+}
 
 /* =========================================
-   9. MODALS & SIDE DRAWERS
+   8. BUTTONS & INPUTS
+   ========================================= */
+/* Standard Button */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  gap: 0.5rem;
+}
+
+/* Primary Button */
+.btn-primary, button[type="submit"] {
+  background-color: var(--primary);
+  color: white;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.btn-primary:hover, button[type="submit"]:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary / Default Button */
+.team-actions button:first-child,
+.project-actions button {
+  background-color: #FFF;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+.team-actions button:first-child:hover,
+.project-actions button:hover {
+  background-color: #F9FAFB;
+  border-color: #D1D5DB;
+}
+
+/* Danger Button */
+.team-actions button:last-child {
+  background-color: #FFF;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+}
+.team-actions button:last-child:hover {
+  background-color: #FEF2F2;
+  border-color: #FCA5A5;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select,
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus, .form-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+/* =========================================
+   9. AUTH & FORMS
+   ========================================= */
+.auth-layout-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-graphic-side {
+  flex: 1;
+  background-color: var(--bg-sidebar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-form-side {
+  flex: 0 0 500px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-form-content {
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* =========================================
+   10. MODALS & DRAWERS
    ========================================= */
 .modal-overlay, .side-drawer-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); 
-  backdrop-filter: none;
-  z-index: 2000;
+  inset: 0;
+  z-index: 1000;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-  background-color: white;
-  backdrop-filter: none;
-  padding: 2rem;
-  border-radius: 8px;
+  background: white;
+  padding: 0; /* Reset for header/body split */
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
   width: 90%;
   max-width: 500px;
-  border: 1px solid var(--border-ui);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-  position: relative;
+  overflow: hidden;
+  animation: modalPop 0.2s ease-out;
+}
+
+.modal-header, .side-drawer-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #F9FAFB;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .side-drawer-content {
-  background-color: white;
-  backdrop-filter: none;
-  width: 100%;
-  max-width: 500px; /* Slightly wider for enterprise data */
-  height: 100%;
-  border-left: 1px solid var(--border-ui);
-  box-shadow: -5px 0 25px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
-}
-
-.side-drawer-header, .modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-ui);
-  background: #F9F9F9; /* Header distinction */
-}
-.side-drawer-header h2, .modal-header h2 {
-  font-size: 1.25rem;
-  margin: 0;
+  height: 100vh;
+  width: 450px;
+  background: white;
+  box-shadow: var(--shadow-modal);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(0);
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .side-drawer-body {
   padding: 1.5rem;
-  flex-grow: 1;
   overflow-y: auto;
+  flex-grow: 1;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 /* =========================================
-   10. AI PAGE & UTILITIES
+   11. TEAMS GRID
    ========================================= */
-.hero-input-container, .ai-result-preview {
-  background-color: white;
-  backdrop-filter: none;
-  border: 1px solid var(--border-ui);
-  border-radius: var(--border-radius-large);
-  padding: 2rem;
-  box-shadow: var(--shadow-card);
-  width: 100%;
-  max-width: 800px;
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-.skeleton-loader {
-  background: linear-gradient(90deg, #F0F0F0 25%, #FAFAFA 50%, #F0F0F0 75%);
-  background-size: 200% 100%;
-  border-radius: 4px;
-  animation: shimmer 2s infinite;
-}
-@keyframes shimmer {
-  0% { background-position: -200px 0; }
-  100% { background-position: 200px 0; }
+.team-card {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Mobile Responsive */
+.team-name {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.team-actions {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 0.5rem;
+}
+.team-actions button {
+  flex: 1;
+}
+
+/* =========================================
+   12. RESPONSIVE UTILITIES
+   ========================================= */
 @media (max-width: 768px) {
-  .sidebar-open {
-    position: fixed;
-    height: 100vh;
-    left: 0; top: 0;
-    width: 280px;
-    background-color: var(--bg-sidebar);
-    box-shadow: 5px 0 20px rgba(0,0,0,0.3);
-  }
-  .sidebar-closed { width: 0; padding: 0; overflow: hidden; }
-  .action-cards-grid, .team-grid { grid-template-columns: 1fr; }
-  .project-hero-header { padding: 1.5rem; }
-  
-  .project-metadata-badges {
-    flex-direction: column; 
-    align-items: flex-start; 
-    gap: 0.5rem; 
-  }
-
-  .side-drawer-content {
-    max-width: 100%; 
-    width: 100%;
-  }
-
-  .modal-content {
-    max-width: 95%; 
-    width: 95%;
-  }
-
-  .main-content {
-    padding: 1rem; 
-    transition: padding-left 0.3s ease; 
-  }
-
-  .main-content-shifted {
-    padding-left: 0; /* On mobile overlay, don't shift content */
-  }
-}
-
-/* Extra Small Devices (Phones, less than 480px) */
-@media (max-width: 480px) {
-  .main-content {
-    padding: 16px; 
-  }
-
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.4rem; }
-  h3 { font-size: 1.1rem; }
-  .project-detail-title { font-size: 1.5rem; }
-  .action-card-title { font-size: 1.1rem; }
-  .project-name-link { font-size: 1.2rem; }
-  .team-name { font-size: 1.1rem; }
-  
-  button { padding: 0 12px; font-size: 0.9rem; }
-  
-  .metadata-badge, .project-info p, .team-card div:not(.team-actions) { 
-    font-size: 0.75rem; padding: 4px 8px; 
-  }
-
-  .task-list-item {
-    display: flex; 
-    flex-direction: row; 
-    flex-wrap: wrap; 
-    align-items: center; 
-    padding: 12px; 
-    gap: 8px; 
-  }
-
-  .task-list-item .task-checkbox {
-    flex-shrink: 0; 
-  }
-
-  .task-list-item .task-details {
-    flex-grow: 1; 
-    min-width: 0; 
-  }
-
-  .task-list-item .task-name {
-    font-size: 0.95rem; 
-    font-weight: 700;
-    margin-right: 0.5rem; 
-  }
-
-  .task-list-item .task-description {
-    font-size: 0.85rem;
-    margin-top: 4px; 
-    width: 100%; 
-    color: var(--text-medium-emphasis);
-  }
-
-  .task-list-item .task-tags {
-    flex-basis: 100%; 
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .task-list-item .task-status-pill {
-    font-size: 0.65rem; 
-  }
-
-  .task-list-item .task-edit-button {
-    flex-shrink: 0; 
-    margin-left: auto; 
-    align-self: flex-end; 
-  }
-
-  .project-hero-title-and-action {
+  .app-layout {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  }
+  
+  .sidebar {
+    width: 100% !important;
+    height: auto;
+    position: sticky;
+    top: 0;
+  }
+  
+  .sidebar-closed {
+    width: 100%;
+    height: var(--header-height);
+    overflow: hidden;
+  }
+  
+  .sidebar-open {
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
   }
 
-  .add-task-btn {
+  .main-content {
+    padding: 1.5rem;
+  }
+  
+  .auth-form-side {
+    flex: 1;
+    padding: 1rem;
+  }
+  
+  .auth-graphic-side {
+    display: none;
+  }
+  
+  .side-drawer-content {
     width: 100%;
   }
 }
