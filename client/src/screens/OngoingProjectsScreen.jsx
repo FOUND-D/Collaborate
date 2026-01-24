@@ -130,7 +130,7 @@ const OngoingProjectsScreen = () => {
       <div className="project-hero-header">
         <div className="project-hero-title-and-action">
             <h1 className="project-detail-title">Ongoing Projects</h1>
-            <button className="add-task-btn" onClick={openModal}>
+            <button className="btn-gradient" onClick={openModal}>
                 <FaPlus /> Create Project
             </button>
         </div>

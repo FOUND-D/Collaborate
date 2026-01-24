@@ -7,7 +7,8 @@ import { updateTask } from '../actions/taskActions';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import TaskSideDrawer from '../components/TaskSideDrawer';
-import { FaEdit, FaCheckSquare, FaSquare, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus, FaChevronLeft } from 'react-icons/fa'; // Added FaCalendarAlt, FaUser, FaPlus
+import GoalModal from '../components/GoalModal'; // Import GoalModal
+import { FaEdit, FaCheckSquare, FaSquare, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus, FaChevronLeft, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
 
 const calculateProgress = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
@@ -88,6 +89,7 @@ const ProjectScreen = () => {
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [projectName, setProjectName] = useState('');
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false); // State for goal modal
 
   const projectDetails = useSelector((state) => state.projectDetails);
   const { loading, error, project } = projectDetails;
@@ -154,10 +156,6 @@ const ProjectScreen = () => {
 
   return (
     <div className="project-details-page">
-      <Link to="/projects/ongoing" className="btn btn-secondary btn-small back-button">
-        Go Back
-      </Link>
-
       {loading ? (
         <Loader />
       ) : error ? (
@@ -171,12 +169,38 @@ const ProjectScreen = () => {
                   <FaChevronLeft />
                   <span>All Projects</span>
                 </Link>
-                <button className="add-task-btn" onClick={handleAddTask}>
-                  <FaPlus /> Add Task
-                </button>
+                <div className="project-header-action-group">
+                  {isEditing ? (
+                    <>
+                      <button className="btn-tertiary" onClick={() => setIsEditing(false)}>Cancel</button>
+                      <button className="btn-primary" onClick={handleSaveProjectName}>Save</button>
+                    </>
+                  ) : (
+                    <button className="task-action-btn" onClick={() => setIsEditing(true)}>
+                      <FaEdit />
+                    </button>
+                  )}
+                  <button className="btn-outline-secondary" onClick={() => setIsGoalModalOpen(true)}>
+                    <FaExternalLinkAlt /> View Project Goal
+                  </button>
+                  <button className="btn-gradient" onClick={handleAddTask}>
+                    <FaPlus /> Add Task
+                  </button>
+                </div>
               </div>
 
-              <h1 className="project-detail-title">{project.name}</h1>
+              <h1 className="project-detail-title">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={projectName}
+                    onChange={handleProjectNameChange}
+                    className="project-title-input"
+                  />
+                ) : (
+                  project.name
+                )}
+              </h1>
 
               {project.goal && (
                 <div className="project-description-container">
@@ -247,6 +271,15 @@ const ProjectScreen = () => {
           projectId={projectId}
           isCreatingTask={isCreatingTask}
           onClose={closeDrawer}
+        />
+      )}
+
+      {/* Goal Modal */}
+      {project && project.goal && (
+        <GoalModal
+          isOpen={isGoalModalOpen}
+          onClose={() => setIsGoalModalOpen(false)}
+          goal={project.goal}
         />
       )}
     </div>
