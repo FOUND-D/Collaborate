@@ -1,8 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import { Container } from 'react-bootstrap'; // Removed
-// import Header from './components/Header'; // Removed
-import Sidebar from './components/Sidebar'; // New import
+import { useSelector } from 'react-redux';
+import Sidebar from './components/Sidebar';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import TeamScreen from './screens/TeamScreen';
@@ -13,15 +12,22 @@ import ProjectCreateScreen from './screens/ProjectCreateScreen';
 import ProjectScreen from './screens/ProjectScreen';
 import OngoingProjectsScreen from './screens/OngoingProjectsScreen';
 import TeamDetailsScreen from './screens/TeamDetailsScreen';
-
-// import other screens as needed
+import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 
 const App = () => {
+  const serverStatus = useSelector((state) => state.serverStatus);
+  const { status } = serverStatus;
+
   return (
     <Router>
       <div className="app-layout">
         <Sidebar />
         <div className="main-content">
+          {status === SERVER_STATUS_OFFLINE && (
+            <div className="server-status-message">
+              Server is currently offline. It usually takes about a minute to start up. Please wait...
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<HomeScreen />} exact />
             <Route path="/login" element={<LoginScreen />} />
