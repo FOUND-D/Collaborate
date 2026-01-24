@@ -17,7 +17,7 @@ const HomeScreen = () => {
       </div>
 
       <div className="action-cards-grid">
-        <Link to="/projects" className="action-card">
+        <Link to="/projects/ongoing" className="action-card">
           <FaProjectDiagram className="action-card-icon" />
           <h3 className="action-card-title">View Ongoing Projects</h3>
           <p className="action-card-description">
