@@ -255,7 +255,7 @@
 
       background-color: var(--primary-blue, #0071e3);
 
-      color: white;
+      color: #000000;
 
       padding: 10px 20px;
 
@@ -445,7 +445,7 @@
     border-color: var(--primary-blue);
 }
 .task-checkbox.checked svg {
-    color: white;
+    color: #000000;
 }
 
 
@@ -565,6 +565,7 @@
     align-items: center;
     gap: 8px;
     background: linear-gradient(to-bottom, #0071e3, #005bb7) !important;
+    color: #000000 !important;
     border-radius: 980px;
     padding: 10px 24px;
     font-weight: 500;
@@ -577,4 +578,3 @@
     transform: scale(1.03);
     box-shadow: 0 4px 15px rgba(0, 113, 227, 0.2);
 }
-

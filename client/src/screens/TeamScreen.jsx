@@ -9,52 +9,18 @@ import Loader from '../components/Loader';
 import { listTeams, createTeam, joinTeam, deleteTeam, updateTeamJoinRequest } from '../actions/teamActions';
 import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_SUCCESS } from '../constants/teamConstants';
 
-// --- New TeamListItem Component ---
-const TeamListItem = ({ team, userInfo, onDelete, navigate }) => {
-  const isOwner = userInfo && team.owner && team.owner._id === userInfo._id;
 
-  if (!team || !team.owner || !team.members) return null;
-
-  return (
-    <div className="team-list-item">
-      <div className="team-info">
-        <Link to={`/team/${team._id}`} className="team-name-link">
-          {team.name}
-        </Link>
-        <div className="team-metadata-badges">
-          {team.owner && (
-            <div className="metadata-badge">
-              <FaUser />
-              <span>{team.owner.name} (Owner)</span>
-            </div>
-          )}
-          <div className="metadata-badge">
-            <FaUsers />
-            <span>{team.members.length} Members</span>
-          </div>
-        </div>
-      </div>
-      <div className="team-actions">
-        <Link to={`/team/${team._id}`} className="btn btn-primary btn-small">
-          View
-        </Link>
-        {isOwner && (
-          <>
-            {/* <button className="btn btn-icon btn-small" onClick={(e) => { e.stopPropagation(); /* navigate to edit team */ /*}}>
-              <FaEdit />
-            </button> */ }
-            <button className="btn btn-icon btn-small btn-danger" onClick={(e) => { e.stopPropagation(); onDelete(team._id); }}>
-              <FaTrash />
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+const getInitials = (name) => {
+  if (!name) return '';
+  const words = name.split(' ');
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  }
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 };
-// ---------------------------------------------------------------------
 
 const TeamScreen = () => {
+
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [createTeamName, setCreateTeamName] = useState('');
@@ -234,13 +200,42 @@ const TeamScreen = () => {
             </div>
           ) : (
             teams.map((team) => (
-              <TeamListItem
+              <div
                 key={team._id}
-                team={team}
-                userInfo={userInfo}
-                onDelete={deleteHandler}
-                navigate={navigate}
-              />
+                className="team-card"
+                onClick={() => navigate(`/team/${team._id}`)}
+              >
+                <div className="team-card-content">
+                  <div className="team-card-header-wrapper">
+                    <div className="team-avatar" style={{ backgroundColor: team.color || '#a78bfa' }}>
+                      {getInitials(team.name)}
+                    </div>
+                    <h3 className="team-card-name">{team.name}</h3>
+                  </div>
+                  <div className="team-card-meta">
+                    {team.owner && (
+                      <div className="team-card-meta-item">
+                        <FaUser />
+                        <span>{team.owner.name} (Owner)</span>
+                      </div>
+                    )}
+                    <div className="team-card-meta-item">
+                      <FaUsers />
+                      <span>{team.members.length} Members</span>
+                    </div>
+                  </div>
+                </div>
+
+                {userInfo && team.owner && team.owner._id === userInfo._id && (
+                  <FaTrash
+                    className="team-card-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteHandler(team._id);
+                    }}
+                  />
+                )}
+              </div>
             ))
           )}
         </div>

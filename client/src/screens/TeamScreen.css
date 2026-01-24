@@ -1,65 +1,426 @@
+/* TeamScreen.css */
 
-  .team-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-    gap: 2rem !important; /* More space */
-    width: 100%;
-    margin-top: 2rem;
-    align-items: stretch !important;
-  }
+/* Teams Dashboard Page Layout */
+.teams-dashboard-page {
+  padding: 2rem;
+}
 
-  .team-card {
-    background-color: var(--background-card);
-    border: none;
-    border-radius: var(--radius-squircle);
-    padding: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: var(--shadow-soft);
-    transition: all var(--transition-main);
-    aspect-ratio: 1 / 0.9;
-    min-height: auto;
-    margin: 0 !important;
-  }
+/* Hero Header (reused from ProjectScreen) */
+.project-hero-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
 
-  .team-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-  }
+.project-detail-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
 
-  .team-name {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
-    color: var(--text-primary);
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-  }
+.project-detail-goal {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
 
-  .team-card div:not(.team-actions) {
-    background: var(--background-input);
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    border: none;
-    color: var(--text-secondary);
-  }
+/* Action Cards Grid (Create/Join Team) */
+.action-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
 
-  .team-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e5e5;
-  }
-  
-  .team-actions .btn-primary, .team-actions .btn-tertiary {
-      flex: 1;
-  }
+.action-card {
+  background-color: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
 
+.action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.action-card-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.action-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.action-card-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  flex-grow: 1; /* Pushes the link to the bottom */
+}
+
+.action-card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.action-card-link svg {
+  transition: transform 0.2s ease-in-out;
+}
+
+.action-card:hover .action-card-link svg {
+  transform: translateX(3px);
+}
+
+/* Pending Requests Section */
+.pending-requests-section {
+  margin-bottom: 2.5rem;
+  background-color: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.request-item {
+  background-color: var(--background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.request-item strong {
+  color: var(--text-primary);
+}
+
+.request-item ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.request-item li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.request-item li:first-child {
+  border-top: none;
+}
+
+.request-item li span {
+  flex-grow: 1;
+  color: var(--text-secondary);
+}
+
+.request-item li .btn-small {
+  margin-left: 0.5rem;
+}
+
+/* Team Grid and Card Styles */
+.modern-team-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+  margin-top: 2rem; /* Add some space from the section above */
+}
+
+.team-card {
+  background-color: #ffffff; /* White background */
+  border: 1px solid #e2e2e2; /* Subtle gray border */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Soft drop shadow */
+  padding: 1.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative; /* For delete icon positioning */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.team-card:hover {
+  transform: translateY(-5px); /* Lifts up slightly */
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.08); /* Deeper shadow on hover */
+}
+
+.team-card-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-card-header-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.team-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #a78bfa; /* Placeholder color, ideally dynamic */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.team-card-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c; /* Dark text for name */
+  line-height: 1.3;
+}
+
+.team-card-meta {
+  color: #6b7280; /* Gray text for meta info */
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.team-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.team-card-meta-item svg {
+  color: #9ca3af; /* Lighter gray for icons */
+  font-size: 1rem;
+}
+
+.team-card-delete {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #9ca3af; /* Default gray */
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+}
+
+.team-card-delete:hover {
+  color: #ef4444; /* Red on hover */
+  background-color: #fef2f2; /* Light red background on hover */
+}
+
+/* Empty State */
+.empty-state-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+
+/* =========================================
+    MODAL STYLES (from global.css, for consistency)
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: var(--background-card);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.modal-body {
+  flex-grow: 1;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.floating-label {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  padding-top: 1.5rem; /* Space for floating label */
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: var(--background-input);
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.form-input::placeholder {
+  color: transparent; /* Hide default placeholder */
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.floating-label label {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus + label,
+.form-input:not(:placeholder-shown) + label {
+  top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--primary-color);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.btn-secondary {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.btn-icon:hover {
+  background-color: var(--background-secondary);
+}
+
+.btn-danger {
+  background-color: var(--red-color);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: var(--red-color-dark);
+}
+
+.btn-success {
+  background-color: var(--green-color);
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background-color: var(--green-color-dark);
+}
 
 /* =========================================
     New Apple-like Team Details Styles
@@ -151,7 +512,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    color: white;
+    color: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -200,3 +561,14 @@
     margin-left: 16px;
 }
 
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+  .modern-team-list {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+}
