@@ -60,3 +60,143 @@
       flex: 1;
   }
 
+
+/* =========================================
+    New Apple-like Team Details Styles
+   ========================================= */
+
+.team-detail-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+.team-detail-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    text-decoration: none;
+    color: var(--primary-blue);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.team-detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.detail-section-group {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.detail-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.copy-id-capsule {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #f2f2f7;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.team-id-text {
+    font-family: 'SF Mono', 'Menlo', 'monospace';
+    font-size: 0.9rem;
+    color: #86868b;
+}
+
+.copy-id-btn {
+    background: transparent;
+    border: none;
+    color: #86868b;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.member-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.member-chip {
+    background: #f2f2f7;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    position: relative; /* For tooltip */
+}
+
+.member-avatar-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.project-link-card {
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    border: 1px solid #e5e5e7;
+}
+
+.project-link-card:hover {
+    background: #ffffff;
+    transform: scale(1.01);
+    border-color: #d1d1d1;
+}
+
+.project-card-info {
+    flex-grow: 1;
+}
+
+.project-card-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.project-card-progress .progress-bar-container {
+    height: 6px;
+    max-width: 200px;
+}
+
+.project-card-due-date {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-left: 16px;
+}
+
