@@ -204,7 +204,7 @@ export const deleteTask = (id) => async (dispatch, getState) => {
       },
     };
 
-    await axios.delete(`/api/tasks/${id}`, config);
+    await api.delete(`/api/tasks/${id}`, config);
 
     dispatch({
       type: TASK_DELETE_SUCCESS,

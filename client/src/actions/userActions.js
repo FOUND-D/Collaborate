@@ -126,6 +126,8 @@ export const listUsers = () => async (dispatch, getState) => {
         : error.message;
     if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
+    } else {
+      dispatch(setServerOffline());
     }
     dispatch({
       type: USER_LIST_FAIL,
@@ -139,6 +141,7 @@ import {
   USER_DETAILS_SUCCESS,
   USER_DETAILS_FAIL,
 } from '../constants/userConstants';
+import { setServerOffline } from './serverActions';
 
 // ... other actions
 
@@ -186,6 +189,8 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
         : error.message;
     if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
       dispatch(logout());
+    } else {
+      dispatch(setServerOffline());
     }
     dispatch({
       type: USER_DETAILS_FAIL,
@@ -193,3 +198,4 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
     });
   }
 };
+
