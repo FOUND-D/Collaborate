@@ -364,3 +364,126 @@
     }
 
     
+
+/* =========================================
+    New Apple-like Task List Styles
+   ========================================= */
+
+.modern-task-list {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 8px 24px;
+    margin: 20px 0;
+    box-shadow: var(--shadow-soft);
+    border: none;
+}
+
+.task-list-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f2f2f7;
+}
+
+.task-list-item:last-child {
+    border-bottom: none;
+}
+
+.task-checkbox-container {
+    margin-right: 16px;
+}
+
+/* Custom Checkbox */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-main);
+}
+.task-checkbox.checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+.task-checkbox.checked svg {
+    color: white;
+}
+
+
+.task-details-main {
+    flex-grow: 1;
+}
+
+.task-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: color var(--transition-main);
+}
+.task-name.completed {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+.task-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.task-metadata-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 16px;
+}
+
+.task-status-pill {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+.task-status-pill.completed {
+    background-color: #e5f4ea;
+    color: #1e7e34;
+}
+.task-status-pill.pending {
+    background-color: #f2f2f7;
+    color: #86868b;
+}
+/* Add other statuses */
+.task-status-pill.inprogress {
+    background-color: #e6f1fc;
+    color: #0071e3;
+}
+.task-status-pill.blocked {
+    background-color: #fceeed;
+    color: #d92d20;
+}
+
+
+.task-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.task-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-main);
+}
+.task-action-btn:hover {
+    background-color: #f2f2f7;
+    color: var(--text-primary);
+}

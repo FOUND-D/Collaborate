@@ -7,7 +7,7 @@ import { updateTask } from '../actions/taskActions';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import TaskSideDrawer from '../components/TaskSideDrawer';
-import { FaEdit, FaCheckSquare, FaSquare, FaCalendarAlt, FaUser, FaUsers, FaPlus } from 'react-icons/fa'; // Added FaCalendarAlt, FaUser, FaPlus
+import { FaEdit, FaCheckSquare, FaSquare, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus } from 'react-icons/fa'; // Added FaCalendarAlt, FaUser, FaPlus
 
 const calculateProgress = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
@@ -17,65 +17,58 @@ const calculateProgress = (tasks) => {
 
 const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
   const [subtasksVisible, setSubtasksVisible] = useState(false);
+  const isCompleted = task.status === 'Completed';
 
-  const getStatusColor = (status) => {
+  // Define a mapping for status to a simpler class name for the pills
+  const getStatusClass = (status) => {
     switch (status) {
-      case 'Completed': return 'var(--status-success)';
-      case 'In Progress': return 'var(--status-info)';
-      case 'Blocked': return 'var(--status-error)';
-      case 'To Do': return 'var(--text-medium-emphasis)';
-      default: return 'var(--text-medium-emphasis)';
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'High': return 'var(--status-error)';
-      case 'Medium': return 'var(--status-warning)';
-      case 'Low': return 'var(--status-success)';
-      case 'Urgent': return 'var(--status-error)';
-      default: return 'var(--text-medium-emphasis)';
+      case 'Completed': return 'completed';
+      case 'In Progress': return 'inprogress';
+      case 'Blocked': return 'blocked';
+      case 'To Do':
+      default:
+        return 'pending';
     }
   };
 
   return (
     <>
-      <li className="task-list-item" style={{ marginLeft: `${level * 20}px` }}>
-        <button className="btn-icon task-checkbox" onClick={() => onCheck(task)}>
-          {task.status === 'Completed' ? <FaCheckSquare /> : <FaSquare />}
-        </button>
-        <div className="task-details">
-          <span className={`task-name ${task.status === 'Completed' ? 'completed' : ''}`} onClick={() => onEdit(task._id)}>
+      <li className="task-list-item" style={{ paddingLeft: `${level * 32}px` }}>
+        <div className="task-checkbox-container">
+          <div className={`task-checkbox ${isCompleted ? 'checked' : ''}`} onClick={() => onCheck(task)}>
+            {isCompleted && <FaCheck size="0.8em" />}
+          </div>
+        </div>
+        <div className="task-details-main" onClick={() => onEdit(task._id)}>
+          <span className={`task-name ${isCompleted ? 'completed' : ''}`}>
             {task.name}
           </span>
-          <p className="task-description">{task.description}</p>
+          {task.description && <p className="task-description">{task.description}</p>}
         </div>
-        <div className="task-tags">
+        <div className="task-metadata-group">
           {task.priority && (
-            <span className="task-tag" style={{ backgroundColor: getPriorityColor(task.priority) }}>
+            <span className="task-priority-indicator">
+              {/* This could be styled based on priority, e.g., using colors or icons */}
               {task.priority}
             </span>
           )}
-          {task.assignee && task.assignee.name && (
-            <span className="task-tag assignee-tag">
-              {task.assignee.name}
-            </span>
-          )}
-          <span className={`task-status-pill status-${task.status.toLowerCase().replace(/\s/g, '')}`}>
+          <span className={`task-status-pill ${getStatusClass(task.status)}`}>
             {task.status}
           </span>
         </div>
-        {task.subTasks && task.subTasks.length > 0 && (
-          <button className="btn-icon" onClick={() => setSubtasksVisible(!subtasksVisible)}>
-            {subtasksVisible ? '-' : '+'}
+        <div className="task-actions-group">
+          {task.subTasks && task.subTasks.length > 0 && (
+            <button className="task-action-btn" onClick={() => setSubtasksVisible(!subtasksVisible)}>
+              {subtasksVisible ? <FaMinus /> : <FaPlus />}
+            </button>
+          )}
+          <button className="task-action-btn" onClick={() => onEdit(task._id)}>
+            <FaEdit />
           </button>
-        )}
-        <button className="btn-icon task-edit-button" onClick={() => onEdit(task._id)}>
-          <FaEdit />
-        </button>
+        </div>
       </li>
       {subtasksVisible && task.subTasks && (
-        <ul className="modern-task-list">
+        <ul className="modern-task-list" style={{ margin: 0, padding: 0, boxShadow: 'none' }}>
           {task.subTasks.map(subtask => (
             <TaskItem key={subtask._id} task={subtask} onCheck={onCheck} onEdit={onEdit} level={level + 1} />
           ))}
