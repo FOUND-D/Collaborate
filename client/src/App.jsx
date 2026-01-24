@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Sidebar from './components/Sidebar';
@@ -17,12 +17,20 @@ import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 const App = () => {
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Manage sidebar state in App.jsx
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const mainContentClass = `main-content ${isSidebarOpen ? 'main-content-shifted' : ''}`;
+
 
   return (
     <Router>
       <div className="app-layout">
-        <Sidebar />
-        <div className="main-content">
+        <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+        <div className={mainContentClass}>
           {status === SERVER_STATUS_OFFLINE && (
             <div className="server-status-message">
               Server is currently offline. It usually takes about a minute to start up. Please wait...
