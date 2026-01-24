@@ -7,6 +7,8 @@ import {
   userListReducer,
   userDetailsReducer, // Import userDetailsReducer
 } from './reducers/userReducers';
+import { serverStatusReducer } from './reducers/serverReducers';
+
 import {
   teamListReducer,
   teamCreateReducer,
@@ -46,6 +48,7 @@ const reducer = combineReducers({
   projectDelete: projectDeleteReducer,
   projectCreate: projectCreateReducer,
   projectUpdate: projectUpdateReducer,
+  serverStatus: serverStatusReducer,
 });
 
 const userInfoFromStorage = localStorage.getItem('userInfo')
