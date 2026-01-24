@@ -66,6 +66,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.server-status-message {
+  background-color: var(--status-warning);
+  color: white;
+  text-align: center;
+  padding: 0.75rem;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it's above other content */
+}
+
 /* =========================================
    2. APP LAYOUT & SIDEBAR
    ========================================= */
