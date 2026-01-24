@@ -1,6 +1,6 @@
 import React from 'react';
 import './Sidebar.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
 import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt } from 'react-icons/fa';
@@ -17,36 +17,46 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     navigate('/login');
   };
 
+  // The NavLink `className` prop can accept a function to conditionally apply classes.
+  const getNavLinkClass = ({ isActive }) => {
+    return isActive ? 'nav-item active' : 'nav-item';
+  };
+
   return (
     <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="sidebar-header">
-        <button className="sidebar-toggle sidebar-toggle-desktop" onClick={toggleSidebar}>
+        <button className="sidebar-toggle" onClick={toggleSidebar}>
           {isSidebarOpen ? <FaTimes /> : <FaBars />}
         </button>
-        {isSidebarOpen && <h2 className="app-title">Collaborate</h2>}
+        {isSidebarOpen && <h2 className="app-title">UniSync</h2>}
       </div>
 
       <nav className="sidebar-nav">
-        <Link to="/" className="nav-item">
+        <NavLink to="/" end className={getNavLinkClass}>
           <FaTachometerAlt />
-          {isSidebarOpen && <span className="nav-text">Dashboard</span>}
-        </Link>
-        <Link to="/projects/ongoing" className="nav-item">
+          <span className="nav-text">Dashboard</span>
+          {!isSidebarOpen && <span className="tooltip">Dashboard</span>}
+        </NavLink>
+        <NavLink to="/projects/ongoing" className={getNavLinkClass}>
           <FaFolder />
-          {isSidebarOpen && <span className="nav-text">Projects</span>}
-        </Link>
-        <Link to="/teams" className="nav-item">
+          <span className="nav-text">Projects</span>
+          {!isSidebarOpen && <span className="tooltip">Projects</span>}
+        </NavLink>
+        <NavLink to="/teams" className={getNavLinkClass}>
           <FaUsers />
-          {isSidebarOpen && <span className="nav-text">Teams</span>}
-        </Link>
-        <Link to="/tasks" className="nav-item">
+          <span className="nav-text">Teams</span>
+          {!isSidebarOpen && <span className="tooltip">Teams</span>}
+        </NavLink>
+        <NavLink to="/tasks" className={getNavLinkClass}>
           <FaTasks />
-          {isSidebarOpen && <span className="nav-text">Tasks</span>}
-        </Link>
-        <Link to="/settings" className="nav-item">
+          <span className="nav-text">Tasks</span>
+          {!isSidebarOpen && <span className="tooltip">Tasks</span>}
+        </NavLink>
+        <NavLink to="/settings" className={getNavLinkClass}>
           <FaCog />
-          {isSidebarOpen && <span className="nav-text">Settings</span>}
-        </Link>
+          <span className="nav-text">Settings</span>
+          {!isSidebarOpen && <span className="tooltip">Settings</span>}
+        </NavLink>
       </nav>
 
       {userInfo && (
@@ -62,6 +72,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
           <button className="logout-button" onClick={logoutHandler}>
             <FaSignOutAlt />
             {isSidebarOpen && <span className="logout-text">Logout</span>}
+            {!isSidebarOpen && <span className="tooltip">Logout</span>}
           </button>
         </div>
       )}
