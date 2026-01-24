@@ -97,14 +97,14 @@
     padding: 1rem 0;
     display: flex;
     flex-direction: column;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transition for desktop width changes */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--shadow-glass);
     position: relative;
     z-index: 1000;
   }
 
   .sidebar-open { width: 260px; }
-  .sidebar-closed { width: var(--sidebar-width-closed, 72px); } /* Use CSS variable for closed width */
+  .sidebar-closed { width: 72px; }
 
   .sidebar-header {
     display: flex;
@@ -125,7 +125,7 @@
     margin: 0;
   }
 
-  .sidebar-toggle { /* General styling for any sidebar toggle */
+  .sidebar-toggle {
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.6);
     color: var(--text-high-emphasis);
@@ -236,41 +236,7 @@
     flex-grow: 1;
     padding: 2rem;
     overflow-y: auto;
-    margin-left: 260px; /* Default margin for open sidebar */
-    transition: margin-left 0.3s ease-in-out;
   }
-
-  .main-content-expanded {
-    margin-left: var(--sidebar-width-closed, 72px); /* Shift left when sidebar is closed */
-  }
-
-  /* Style for the mobile-only sidebar toggle button */
-  .mobile-sidebar-toggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1001; /* Above sidebar and main content */
-    display: none; /* Hidden by default */
-    background: var(--primary-brand-color);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 0.75rem;
-    cursor: pointer;
-    box-shadow: var(--shadow-glass);
-  }
-
-  /* Hide desktop sidebar toggle on mobile */
-  .sidebar-toggle-desktop {
-    display: none;
-  }
-
-
-  /* =========================================
-    3. GLOBAL ELEMENTS (Buttons, Links, Titles)
-    ========================================= */
-  a {
-    font-weight: 500;
 
   /* =========================================
     3. GLOBAL ELEMENTS (Buttons, Links, Titles)
@@ -878,36 +844,14 @@
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    .sidebar {
+    .sidebar-open {
       position: fixed;
       height: 100vh;
-      left: 0;
-      top: 0;
-      z-index: 1000; /* Ensure sidebar is above main content when open */
+      left: 0; top: 0;
+      width: 260px;
       background-color: rgba(255,255,255, 0.95);
-      width: 260px; /* Default open width */
-      transform: translateX(-100%); /* Start off-screen */
-      transition: transform 0.3s ease-in-out;
     }
-
-    .sidebar-open {
-      transform: translateX(0); /* Slide into view */
-    }
-
-    .sidebar-closed {
-      transform: translateX(-100%); /* Ensure it stays off-screen */
-    }
-
-    .main-content {
-      padding: 1rem; /* Adjust padding for mobile, no left shift */
-      margin-left: 0; /* No margin-left shift on mobile */
-      transition: none; /* Remove transition on mobile for simpler overlay behavior */
-    }
-
-    .mobile-sidebar-toggle {
-      display: flex; /* Show on mobile */
-    }
-
+    .sidebar-closed { width: 0; padding: 0; overflow: hidden; }
     .action-cards-grid, .team-grid { grid-template-columns: 1fr; }
     .project-hero-header { padding: 1.5rem; }
     .project-metadata-badges {
@@ -926,11 +870,15 @@
       width: 95%;
     }
 
-    /* Hide desktop sidebar toggle on mobile */
-    .sidebar-toggle-desktop {
-      display: none;
+    .main-content {
+      padding: 1rem; /* Adjust padding for mobile */
+      transition: padding-left 0.3s ease; /* Smooth transition for shifting content */
     }
 
+    .main-content-shifted {
+      padding-left: 260px; /* Space for the open sidebar */
+    }
+  }
 
   /* Extra Small Devices (Phones, less than 480px) */
   @media (max-width: 480px) {
@@ -955,6 +903,4 @@
       gap: 0.5rem; /* Add some spacing between stacked items */
       padding: 0.75rem 1rem; /* Adjust padding */
     }
-  }
-}
   }
