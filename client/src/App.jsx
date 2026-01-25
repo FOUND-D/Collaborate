@@ -12,6 +12,7 @@ import ProjectCreateScreen from './screens/ProjectCreateScreen';
 import ProjectScreen from './screens/ProjectScreen';
 import OngoingProjectsScreen from './screens/OngoingProjectsScreen';
 import TeamDetailsScreen from './screens/TeamDetailsScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 
@@ -83,6 +84,7 @@ const App = () => {
             <Route path="/project/create" element={<ProjectCreateScreen />} />
             <Route path="/project/:id" element={<ProjectScreen />} />
             <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
             {/* Add other routes here */}
           </Routes>
         </div>
