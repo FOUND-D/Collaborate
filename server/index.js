@@ -1,10 +1,10 @@
 const express = require('express');
-const http = require('http'); // Import http module
-const { Server } = require("socket.io"); // Import Server from socket.io
+const http = require('http'); 
+const { Server } = require("socket.io"); 
 const Groq = require('groq-sdk');
-const cors = require('cors'); // Import cors
-const dotenv = require('dotenv'); // Import dotenv
-const connectDB = require('./config/db'); // Import connectDB
+const cors = require('cors'); 
+const dotenv = require('dotenv'); 
+const connectDB = require('./config/db'); 
 const userRoutes = require('./routes/userRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -13,26 +13,46 @@ const { protect } = require('./middleware/authMiddleware');
 const Task = require('./models/Task');
 const Team = require('./models/Team');
 
+dotenv.config(); 
 
-dotenv.config(); // Load environment variables
-
-connectDB(); // Connect to MongoDB
+connectDB(); 
 
 const app = express();
-const server = http.createServer(app); // Create http server
+
+// ============================================================
+// [START] REDIRECT MIDDLEWARE
+// ============================================================
+app.use((req, res, next) => {
+  // Get the host from the request headers
+  const host = req.get('host');
+
+  // Check if the request is hitting the old Vercel domain
+  if (host === 'collaborate-ashy.vercel.app') {
+    // Redirect (301 Permanent) to the new domain, preserving the path/query
+    return res.redirect(301, `https://collaborate-arin.vercel.app${req.originalUrl}`);
+  }
+
+  // If not the old domain, continue to the rest of the app
+  next();
+});
+// ============================================================
+// [END] REDIRECT MIDDLEWARE
+// ============================================================
+
+const server = http.createServer(app); 
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins for now, refine later
+    origin: "*", 
     methods: ["GET", "POST"]
   }
-}); // Initialize socket.io
+}); 
 const port = process.env.PORT || 3003;
 
-app.use(cors()); // Use cors middleware
-app.use(express.json()); // For parsing application/json
+app.use(cors()); 
+app.use(express.json()); 
 
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY, // Use environment variable in production
+  apiKey: process.env.GROQ_API_KEY, 
 });
 
 io.on('connection', (socket) => {
@@ -46,7 +66,6 @@ io.on('connection', (socket) => {
   });
 });
 
-
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
@@ -58,10 +77,8 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
 
-// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
-
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
