@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const asyncHandler = require('../middleware/asyncHandler');
+const bcrypt = require('bcryptjs');
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -65,7 +66,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate('teams').populate('projects');
+  const user = await User.findById(req.user._id).populate('teams');
 
   if (user) {
     res.json({
@@ -75,7 +76,53 @@ const getUserProfile = asyncHandler(async (req, res) => {
       role: user.role,
       techStack: user.techStack,
       teams: user.teams,
-      projects: user.projects,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user profile
+// @route   PATCH /api/users/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const { name, email, role, techStack, password } = req.body;
+
+  const updateFields = {};
+
+  if (name) updateFields.name = name;
+  if (role) updateFields.role = role;
+  if (techStack) updateFields.techStack = techStack;
+
+  if (email) {
+    const userExists = await User.findOne({ email });
+    if (userExists && userExists._id.toString() !== req.user._id.toString()) {
+      res.status(400);
+      throw new Error('User with this email already exists');
+    }
+    updateFields.email = email;
+  }
+
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    updateFields.password = await bcrypt.hash(password, salt);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: updateFields },
+    { new: true, runValidators: true }
+  ).select('-password');
+
+  if (updatedUser) {
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      techStack: updatedUser.techStack,
+      token: generateToken(updatedUser._id),
     });
   } else {
     res.status(404);
@@ -114,4 +161,6 @@ module.exports = {
   loginUser,
   searchUsers,
   getUsers,
+  getUserProfile,
+  updateUserProfile,
 };
