@@ -13,6 +13,7 @@ import ProjectScreen from './screens/ProjectScreen';
 import OngoingProjectsScreen from './screens/OngoingProjectsScreen';
 import TeamDetailsScreen from './screens/TeamDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import MeetingScreen from './screens/MeetingScreen';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/teams" element={<TeamScreen />} />
             <Route path="/team/:id" element={<TeamDetailsScreen />} />
+            <Route path="/team/:id/meeting" element={<MeetingScreen />} />
             <Route path="/tasks" element={<TaskScreen />} />
             <Route path="/task/create" element={<TaskEditScreen />} />
             <Route path="/task/:id/edit" element={<TaskEditScreen />} />
