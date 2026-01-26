@@ -86,6 +86,14 @@ const addMember = asyncHandler(async (req, res) => {
 
             team.members.push(userId);
             await team.save();
+
+            // Also add the team to the user's list of teams
+            await User.findByIdAndUpdate(
+                userId,
+                { $addToSet: { teams: team._id } },
+                { new: true }
+            );
+
             res.json(team);
         } else {
             res.status(404);

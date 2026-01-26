@@ -15,8 +15,10 @@ const groq = new Groq({
 // @route   GET /api/projects
 // @access  Private
 const getProjects = asyncHandler(async (req, res) => {
+  const teamIds = req.user.teams ? req.user.teams.map(team => team._id) : [];
+
   const projects = await Project.find({
-    $or: [{ owner: req.user._id }, { team: { $in: req.user.teams } }],
+    $or: [{ owner: req.user._id }, { team: { $in: teamIds } }],
   })
     .populate('owner', 'name email')
     .populate({ // Populate team with its members' names and emails
@@ -43,7 +45,7 @@ const getProjects = asyncHandler(async (req, res) => {
 // @route   POST /api/projects/ai
 // @access  Private
 const createProjectWithAI = asyncHandler(async (req, res) => {
-  const { name, goal, dueDate, teamId } = req.body;
+  const { name, goal, dueDate, teamId, techStack } = req.body;
 
   if (!name || !goal) {
     res.status(400);
@@ -54,21 +56,45 @@ const createProjectWithAI = asyncHandler(async (req, res) => {
     messages: [
       {
         role: 'user',
-        content: `You are an expert project manager with 20 years of experience in software development and project planning. Your task is to create a detailed, hierarchical project plan based on the following user-provided goal.
+        content: `You are an expert project manager with 20 years of experience in software development and project planning. Your task is to create a detailed, hierarchical project plan based on the following user-provided goal and technical specifications.
 
 **Project Goal:** "${goal}"
+**Technology Stack:** ${techStack ? `"${techStack}"` : "Not specified. Please suggest a suitable technology stack."}
 
 **Instructions:**
 
-1.  **Analyze the Goal:** Carefully analyze the project goal to understand its core requirements, deliverables, and constraints.
-2.  **Deconstruct into Phases:** Break down the project into a series of high-level phases (e.g., Planning, Design, Development, Testing, Deployment). The project should have at least 4-6 distinct phases.
-3.  **Generate Detailed Tasks:** For each phase, create a list of detailed tasks. Each task must be a clear, actionable item. The description for each task must be extremely descriptive, providing all necessary details so that no other source is needed to understand and execute the task.
-4.  **Create Sub-Tasks:** For complex tasks, break them down further into a list of sub-tasks. Each sub-task should be a small, manageable unit of work. The description for each sub-task must be extremely descriptive, providing all necessary details so that no other source is needed to understand and execute the sub-task.
-5.  **Estimate Duration:** Provide a realistic duration in days for each task and sub-task.
-6.  **Identify Dependencies:** For each task and sub-task, identify any dependencies on other tasks. Dependencies should be listed as an array of task names.
+1.  **Analyze the Goal & Tech Stack:**
+    *   Carefully analyze the project goal to understand its core requirements, deliverables, and constraints.
+    *   If a technology stack is provided, your plan and timeline must be based on it.
+    *   If a technology stack is NOT provided, you MUST suggest a modern, suitable technology stack (e.g., MERN, PERN, Django with React, etc.) and justify your choice.
+
+2.  **Deconstruct into Custom Phases & Timeline:**
+    *   Break down the project into a series of high-level phases. **Phase names must be descriptive and custom to the project, not generic.** For example, instead of "Phase 1: Planning," use a name like "Phase 1: Foundation & Discovery."
+    *   The project should have at least 4-6 distinct phases.
+    *   **Crucially, your timeline must account for parallel work.** For a team of more than one, frontend and backend development should happen concurrently after the initial design/planning phase. Your phase and task structure should reflect this parallelism.
+
+3.  **Generate Proactive and Detailed Tasks:**
+    *   For each phase, create a list of detailed tasks. Each task must be a clear, actionable item.
+    *   **The description for each task must be a step-by-step guide.** It must be extremely descriptive, proactively suggesting what to do and providing all necessary details so that no other source is needed to understand and execute the task. Automate the timeline and the tasks for the user.
+
+4.  **Create Granular Sub-Tasks:**
+    *   For complex tasks, break them down further into a list of sub-tasks. Each sub-task should be a small, manageable unit of work.
+    *   The description for each sub-task must also be extremely descriptive and proactive.
+
+5.  **Estimate Duration:** Provide a realistic duration in days for each task and sub-task, reflecting the complexity and the specified (or suggested) tech stack.
+
+6.  **Identify Dependencies:**
+    *   For each task and sub-task, identify any dependencies on other tasks.
+    *   Dependencies should be listed as an array of task names. Reflect the parallel nature of development in your dependency mapping.
+
 7.  **Set Priority:** Assign a priority to each task (\`High\`, \`Medium\`, or \`Low\`).
+
 8.  **State Assumptions:** For each phase, list any assumptions you are making.
-9.  **Generate JSON Output:** Your final output MUST be a single, valid JSON object with a \`tasks\` array. Ensure all string values within the JSON are properly escaped (e.g., double quotes, newlines). Do not include any other text or explanations outside of the JSON object. If any content cannot be properly escaped or formatted, you must omit it to ensure the JSON remains valid.
+
+9.  **Generate JSON Output:**
+    *   Your final output MUST be a single, valid JSON object with a \`tasks\` array.
+    *   If you suggested a tech stack, include a \`suggestedTechStack\` field at the root of the JSON object.
+    *   Ensure all string values within the JSON are properly escaped. Do not include any other text or explanations outside of the JSON object.
 
 **JSON Schema:**
 
@@ -76,32 +102,25 @@ Your JSON output must follow this structure:
 
 \`\`\`json
 {
+  "suggestedTechStack": "Optional: Only include if you are suggesting a stack. E.g., MERN Stack (MongoDB, Express.js, React, Node.js)",
   "tasks": [
     {
-      "name": "Phase 1: Project Initiation and Planning",
+      "name": "Phase 1: Foundation & Discovery",
       "description": "This phase involves setting up the project, defining the scope, and creating a detailed plan.",
       "duration": 5,
       "priority": "High",
       "assumptions": [
-        "The project team is available.",
+        "The project team has at least one frontend and one backend developer.",
         "The project budget is approved."
       ],
       "dependencies": [],
       "subtasks": [
         {
           "name": "Define Project Scope and Objectives",
-          "description": "Create a detailed project scope document that outlines the goals, deliverables, features, functions, tasks, deadlines, and costs.",
+          "description": "1. Conduct a stakeholder meeting to gather initial requirements. 2. Draft a project brief outlining the goals, target audience, and key features. 3. Create a detailed project scope document specifying what is in and out of scope. 4. Get sign-off on the scope document from all stakeholders.",
           "duration": 2,
           "priority": "High",
           "dependencies": [],
-          "subtasks": []
-        },
-        {
-          "name": "Develop Project Plan",
-          "description": "Create a comprehensive project plan that includes a timeline, resource plan, communication plan, and risk management plan.",
-          "duration": 3,
-          "priority": "High",
-          "dependencies": ["Define Project Scope and Objectives"],
           "subtasks": []
         }
       ]
@@ -109,69 +128,7 @@ Your JSON output must follow this structure:
   ]
 }
 \`\`\`
-
-**Example:**
-
-Here is a small example for a simple project like "Build a personal portfolio website":
-
-\`\`\`json
-{
-  "tasks": [
-    {
-      "name": "Phase 1: Design",
-      "description": "Design the visual layout and user experience of the portfolio website.",
-      "duration": 3,
-      "priority": "High",
-      "assumptions": [],
-      "dependencies": [],
-      "subtasks": [
-        {
-          "name": "Create Wireframes",
-          "description": "Create low-fidelity wireframes for each page of the website.",
-          "duration": 1,
-          "priority": "High",
-          "dependencies": [],
-          "subtasks": []
-        },
-        {
-          "name": "Create Mockups",
-          "description": "Create high-fidelity mockups based on the wireframes.",
-          "duration": 2,
-          "priority": "High",
-          "dependencies": ["Create Wireframes"],
-          "subtasks": []
-        }
-      ]
-    },
-    {
-      "name": "Phase 2: Development",
-      "description": "Develop the front-end and back-end of the portfolio website.",
-      "duration": 7,
-      "priority": "High",
-      "assumptions": [],
-      "dependencies": ["Phase 1: Design"],
-      "subtasks": [
-        {
-          "name": "Setup Development Environment",
-          "description": "Set up the local development environment, including a code editor, version control, and any necessary dependencies.",
-          "duration": 1,
-          "priority": "High",
-          "dependencies": [],
-          "subtasks": []
-        },
-        {
-          "name": "Build UI Components",
-          "description": "Build the UI components for the website based on the mockups.",
-          "duration": 4,
-          "priority": "High",
-          "dependencies": ["Setup Development Environment"],
-          "subtasks": []
-        }
-      ]
-    }
-  ]
-}
-\`\`\``,
+`,
       },
     ],
     model: 'openai/gpt-oss-120b',
