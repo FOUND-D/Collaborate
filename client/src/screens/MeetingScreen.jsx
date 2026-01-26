@@ -113,7 +113,6 @@ const MeetingScreen = () => {
   useEffect(() => {
     console.log("Initializing socket connection...");
 
-    // *** THIS IS THE CRITICAL FIX FOR PRODUCTION ***
     const BACKEND_URL = process.env.NODE_ENV === "production" 
         ? "https://collaborate-arin.onrender.com" 
         : "http://localhost:3002";
@@ -181,7 +180,7 @@ const MeetingScreen = () => {
   }, [id, localStream]);
 
   /* =====================================
-     5. WEBRTC LOGIC (Fixed)
+     5. WEBRTC LOGIC (Fixed with TURN)
   ===================================== */
   useEffect(() => {
     if (!socketRef.current || !localStream) return;
@@ -195,8 +194,26 @@ const MeetingScreen = () => {
       
       const pc = new RTCPeerConnection({
         iceServers: [
+            // Google STUN (Standard)
             { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
+            { urls: 'stun:stun1.l.google.com:19302' },
+            
+            // OpenRelay FREE TURN (Crucial for Vercel/Render)
+            {
+              urls: "turn:openrelay.metered.ca:80",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443?transport=tcp",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
         ]
       });
 
