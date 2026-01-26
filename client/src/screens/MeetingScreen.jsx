@@ -41,6 +41,11 @@ const MeetingScreen = () => {
      FETCH + SOCKET SETUP
   ===================================== */
 
+/* =====================================
+     FETCH + SOCKET SETUP
+  ===================================== */
+
+  // Effect for fetching meeting data
   useEffect(() => {
     console.log("MeetingScreen mounted");
 
@@ -60,6 +65,59 @@ const MeetingScreen = () => {
 
     fetchMeeting();
 
+    // Main cleanup for socket and peer connections
+    return () => {
+      console.log("Cleaning up MeetingScreen (main effect)");
+      socket.emit("userLeft", {
+        teamId: id,
+        user: { ...userInfo, socketId: socket.id },
+      });
+
+      // Close all peer connections by userId
+      Object.values(peerConnections).forEach((pc) => pc.close());
+
+      socket.disconnect();
+
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, [id, navigate, userInfo]); // Dependencies for main effect
+
+  // Effect for media stream acquisition
+  useEffect(() => {
+    console.log("Getting user media...");
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        console.log("Got user media stream");
+        setLocalStream(stream);
+
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+
+        initLocalAudioAnalyser(stream);
+      })
+      .catch((err) => {
+        console.error("Media error:", err);
+      });
+  }, []); // Runs only once on mount
+
+  // Separate useEffect for local stream cleanup
+  useEffect(() => {
+    if (localStream) {
+        console.log("localStream changed, setting up its cleanup.");
+        return () => {
+            console.log("Stopping local stream tracks.");
+            localStream.getTracks().forEach((t) => t.stop());
+            setLocalStream(null); // Clear localStream state
+        };
+    }
+  }, [localStream]); // This effect runs when localStream changes
+
+  // Effect for Socket.IO connection and event listeners
+  useEffect(() => {
     console.log("Connecting to socket server...");
     socket = io(
       process.env.NODE_ENV === "production" ? "" : "http://localhost:3002"
@@ -67,19 +125,7 @@ const MeetingScreen = () => {
 
     socket.on('connect', () => {
         console.log("Socket connected, id:", socket.id);
-        console.log("Getting user media...");
-        navigator.mediaDevices
-          .getUserMedia({ video: true, audio: true })
-          .then((stream) => {
-            console.log("Got user media stream");
-            setLocalStream(stream);
-
-            if (localVideoRef.current) {
-              localVideoRef.current.srcObject = stream;
-            }
-
-            initLocalAudioAnalyser(stream);
-
+        if (localStream) { // Only emit join and userJoined if localStream is available
             console.log("Emitting joinTeamRoom for team:", id);
             socket.emit("joinTeamRoom", id);
 
@@ -88,12 +134,8 @@ const MeetingScreen = () => {
               teamId: id,
               user: { ...userInfo, socketId: socket.id },
             });
-          })
-          .catch((err) => {
-            console.error("Media error:", err);
-          });
+        }
     });
-
 
     socket.on("participantsUpdated", (updatedParticipants) => {
         console.log("Participants updated:", updatedParticipants);
@@ -136,54 +178,15 @@ const MeetingScreen = () => {
       });
     });
 
+    // Cleanup socket listeners
     return () => {
-      console.log("Cleaning up MeetingScreen");
-      socket.emit("userLeft", {
-        teamId: id,
-        user: { ...userInfo, socketId: socket.id },
-      });
-
-      if (localStream) {
-        localStream.getTracks().forEach((t) => t.stop());
-      }
-
-      // Close all peer connections by userId
-      Object.values(peerConnections).forEach((pc) => pc.close());
-
-      socket.disconnect();
-
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
+        socket.off('connect');
+        socket.off('participantsUpdated');
+        socket.off('meetingEnded');
+        socket.off('user-disconnected');
+        socket.disconnect(); // Disconnect socket on unmount
     };
-  }, [id, navigate, userInfo]);
-
-  // Listener for remote media status changes
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('camera-toggled', ({ userId, cameraOn }) => {
-        console.log(`Camera toggled for userId ${userId}: ${cameraOn}`);
-        setRemoteMediaStatus(prev => ({
-            ...prev,
-            [userId]: { ...prev[userId], cameraOn }
-        }));
-    });
-
-    socket.on('mic-toggled', ({ userId, micOn }) => {
-        console.log(`Mic toggled for userId ${userId}: ${micOn}`);
-        setRemoteMediaStatus(prev => ({
-            ...prev,
-            [userId]: { ...prev[userId], micOn }
-        }));
-    });
-
-    // Cleanup listeners
-    return () => {
-        socket.off('camera-toggled');
-        socket.off('mic-toggled');
-    };
-  }, [socket]);
+  }, [id, navigate, userInfo, localStream]); // localStream is now a dependency here to re-emit joinTeamRoom if localStream becomes available later
 
 
   /* =====================================
