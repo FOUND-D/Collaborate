@@ -1,43 +1,32 @@
 /* =========================================
-   GOOGLE MEET PRO + APPLE GLASS UI SYSTEM
+   MEETING UI – STABLE PRO VERSION
    ========================================= */
 
 :root {
-  /* Backgrounds */
-  --bg-main: #0c0f14;
-  --bg-surface: rgba(22, 22, 25, 0.88);
-  --bg-elevated: rgba(35, 35, 40, 0.9);
+  /* Background */
+  --bg-main: #0f1115;
+  --bg-surface: rgba(28, 28, 30, 0.95);
 
   /* Glass */
-  --glass-light: rgba(255, 255, 255, 0.08);
-  --glass-heavy: rgba(255, 255, 255, 0.12);
+  --glass: rgba(255, 255, 255, 0.06);
 
   /* Borders */
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --border-main: rgba(255, 255, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.12);
 
   /* Text */
   --text-main: #ffffff;
-  --text-sub: #a5a5ad;
-  --text-dim: #7a7a85;
+  --text-sub: #b0b0b5;
 
-  /* Accents */
+  /* Accent */
   --blue: #0a84ff;
-  --green: #32d178;
+  --green: #30d158;
   --red: #ff453a;
-  --orange: #ff9f0a;
 
   /* Radius */
-  --radius-xl: 22px;
-  --radius-lg: 18px;
-  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  /* Shadows */
-  --shadow-soft: 0 6px 30px rgba(0, 0, 0, 0.6);
-  --shadow-strong: 0 12px 50px rgba(0, 0, 0, 0.8);
-
-  /* Motion */
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Shadow */
+  --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.5);
 }
 
 /* =========================================
@@ -52,24 +41,23 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
+/* IMPORTANT: allow scroll */
 body {
   background: var(--bg-main);
+
   font-family: -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "Inter", system-ui, sans-serif;
 
   color: var(--text-main);
-  line-height: 1.5;
 
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  height: 100vh;
 }
 
 /* =========================================
-   MAIN CONTAINER
+   MAIN LAYOUT
    ========================================= */
 
 .meeting-screen-container {
@@ -79,10 +67,11 @@ body {
   display: flex;
   flex-direction: column;
 
-  background:
-    radial-gradient(circle at 20% 10%, #1c1f28, transparent 60%),
-    radial-gradient(circle at 80% 90%, #161a22, transparent 60%),
-    #0c0f14;
+  background: radial-gradient(
+    circle at top,
+    #1c1f26,
+    #0f1115 70%
+  );
 
   overflow: hidden;
 }
@@ -92,24 +81,23 @@ body {
    ========================================= */
 
 .meeting-header {
-  padding: 1.1rem 1.8rem;
+  padding: 1rem 1.5rem;
+
+  text-align: center;
 
   background: var(--bg-surface);
-  backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(20px);
 
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border);
 
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-shrink: 0;
 
   z-index: 10;
 }
 
 .meeting-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
 }
 
 .meeting-header p {
@@ -124,29 +112,37 @@ body {
 .video-grid-container {
   flex: 1;
 
-  padding: 1.4rem;
+  min-height: 0; /* VERY IMPORTANT */
+
+  padding: 1rem;
 
   display: grid;
 
   grid-template-columns: repeat(
     auto-fit,
-    minmax(260px, 1fr)
+    minmax(240px, 1fr)
   );
 
-  gap: 16px;
+  grid-auto-rows: 1fr;
+
+  gap: 14px;
+
+  place-items: stretch;
 
   overflow-y: auto;
 
-  scroll-behavior: smooth;
+  position: relative;
+  z-index: 1;
 }
 
+/* Scrollbar */
 .video-grid-container::-webkit-scrollbar {
   width: 6px;
 }
 
 .video-grid-container::-webkit-scrollbar-thumb {
-  background: var(--glass-heavy);
-  border-radius: 99px;
+  background: var(--glass);
+  border-radius: 20px;
 }
 
 /* =========================================
@@ -159,35 +155,34 @@ body {
   width: 100%;
   height: 100%;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.01)
-    );
+  min-height: 180px;
 
-  border-radius: var(--radius-xl);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+
+  border-radius: var(--radius-lg);
 
   overflow: hidden;
 
-  border: 1px solid var(--border-main);
+  border: 1px solid var(--border);
 
   box-shadow: var(--shadow-soft);
 
   display: flex;
 
   transition:
-    transform 0.35s var(--ease),
-    box-shadow 0.35s var(--ease),
-    border 0.35s var(--ease);
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
-  will-change: transform;
+  z-index: 2;
 }
 
-/* Hover Lift */
+/* Hover */
 .video-participant-container:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow-strong);
+  transform: translateY(-2px);
 }
 
 /* =========================================
@@ -202,7 +197,7 @@ body {
 
   background: black;
 
-  filter: contrast(1.05) saturate(1.1);
+  display: block;
 }
 
 /* =========================================
@@ -212,25 +207,23 @@ body {
 .participant-name {
   position: absolute;
 
-  bottom: 10px;
-  left: 10px;
+  bottom: 8px;
+  left: 8px;
 
-  padding: 6px 14px;
+  padding: 5px 12px;
 
   font-size: 0.8rem;
   font-weight: 500;
 
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
 
   border-radius: 999px;
 
   color: white;
 
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
 
-  letter-spacing: 0.02em;
-
-  z-index: 2;
+  z-index: 5;
 
   display: flex;
   align-items: center;
@@ -238,85 +231,73 @@ body {
 }
 
 /* =========================================
-   ACTIVE SPEAKER EFFECT
+   ACTIVE SPEAKER
    ========================================= */
 
 .video-participant-container.speaking {
   border: 2px solid var(--green);
 
   box-shadow:
-    0 0 0 2px rgba(50, 209, 120, 0.3),
-    0 0 30px rgba(50, 209, 120, 0.7);
+    0 0 0 2px rgba(48, 209, 88, 0.3),
+    0 0 22px rgba(48, 209, 88, 0.6);
 
-  animation: speakerPulse 1.4s infinite var(--ease);
+  animation: speakerPulse 1.5s infinite ease-in-out;
 }
 
-/* Outer Wave */
+/* Wave ring */
 .video-participant-container.speaking::after {
   content: "";
 
   position: absolute;
-  inset: -8px;
+  inset: -6px;
 
   border-radius: inherit;
 
-  border: 2px solid rgba(50, 209, 120, 0.6);
+  border: 2px solid rgba(48, 209, 88, 0.6);
 
-  animation: speakerWave 1.4s infinite ease-out;
+  animation: speakerWave 1.5s infinite ease-out;
 
   pointer-events: none;
 }
 
-/* Inner Glow */
+/* Disable blocking overlay */
 .video-participant-container.speaking::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(50, 209, 120, 0.15),
-      transparent 70%
-    );
-
-  z-index: 1;
+  pointer-events: none;
 }
 
 /* =========================================
-   SPEAKER ANIMATION
+   SPEAKER ANIMATIONS
    ========================================= */
 
 @keyframes speakerPulse {
   0% {
     box-shadow:
-      0 0 0 2px rgba(50, 209, 120, 0.25),
-      0 0 15px rgba(50, 209, 120, 0.4);
+      0 0 0 2px rgba(48, 209, 88, 0.2),
+      0 0 14px rgba(48, 209, 88, 0.4);
   }
 
   50% {
     box-shadow:
-      0 0 0 5px rgba(50, 209, 120, 0.45),
-      0 0 40px rgba(50, 209, 120, 0.9);
+      0 0 0 4px rgba(48, 209, 88, 0.4),
+      0 0 28px rgba(48, 209, 88, 0.8);
   }
 
   100% {
     box-shadow:
-      0 0 0 2px rgba(50, 209, 120, 0.25),
-      0 0 15px rgba(50, 209, 120, 0.4);
+      0 0 0 2px rgba(48, 209, 88, 0.2),
+      0 0 14px rgba(48, 209, 88, 0.4);
   }
 }
 
 @keyframes speakerWave {
-  0% {
+  from {
     opacity: 0.7;
     transform: scale(1);
   }
 
-  100% {
+  to {
     opacity: 0;
-    transform: scale(1.18);
+    transform: scale(1.15);
   }
 }
 
@@ -325,19 +306,22 @@ body {
    ========================================= */
 
 .meeting-controls {
-  padding: 1rem 1.3rem;
+  padding: 0.9rem 1rem;
 
   display: flex;
   justify-content: center;
-  gap: 1rem;
 
-  background: var(--bg-elevated);
+  gap: 0.8rem;
 
-  backdrop-filter: blur(30px) saturate(150%);
+  background: var(--bg-surface);
 
-  border-top: 1px solid var(--border-soft);
+  backdrop-filter: blur(22px);
 
-  z-index: 20;
+  border-top: 1px solid var(--border);
+
+  flex-shrink: 0;
+
+  z-index: 10;
 }
 
 /* =========================================
@@ -345,58 +329,47 @@ body {
    ========================================= */
 
 .btn {
-  min-width: 130px;
+  min-width: 120px;
 
-  padding: 0.7rem 1.3rem;
+  padding: 0.6rem 1.1rem;
 
   font-size: 0.85rem;
   font-weight: 500;
 
   border-radius: 999px;
 
-  border: 1px solid var(--border-main);
+  border: 1px solid var(--border);
 
-  background: var(--glass-light);
+  background: var(--glass);
 
   color: white;
 
   cursor: pointer;
 
-  transition:
-    transform 0.25s var(--ease),
-    background 0.25s var(--ease),
-    box-shadow 0.25s var(--ease);
+  transition: all 0.2s ease;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
 }
 
 .btn:hover {
-  background: var(--glass-heavy);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .btn:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
-/* =========================================
-   PRIMARY
-   ========================================= */
-
+/* Primary */
 .btn:not(.btn-danger) {
-  border-color: rgba(10, 132, 255, 0.5);
+  border-color: rgba(10, 132, 255, 0.4);
 }
 
-/* =========================================
-   LEAVE
-   ========================================= */
-
+/* Leave */
 .btn-danger {
   background: rgba(255, 69, 58, 0.22);
-  border-color: rgba(255, 69, 58, 0.55);
+  border-color: rgba(255, 69, 58, 0.5);
   color: var(--red);
 }
 
@@ -413,32 +386,30 @@ body {
   display: none;
 }
 
+/* Camera off overlay */
 .video-overlay-icon {
   position: absolute;
   inset: 0;
 
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  color: var(--text-dim);
+  color: var(--text-sub);
 
-  font-size: 2.4rem;
-
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.35);
 
   backdrop-filter: blur(6px);
 
-  z-index: 3;
+  z-index: 4;
 }
 
 .media-status-icons {
-  margin-left: 8px;
-
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
 
-  opacity: 0.85;
+  margin-left: 6px;
 }
 
 /* =========================================
@@ -446,22 +417,19 @@ body {
    ========================================= */
 
 @media (max-width: 768px) {
-  .video-grid-container {
-    padding: 1rem;
-    gap: 12px;
-  }
 
-  .meeting-header h1 {
-    font-size: 1.2rem;
+  .video-grid-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .btn {
-    min-width: 105px;
+    min-width: 100px;
     font-size: 0.8rem;
   }
 
-  .meeting-controls {
-    gap: 0.6rem;
-    padding: 0.8rem;
+  .meeting-header h1 {
+    font-size: 1.15rem;
   }
+
 }
