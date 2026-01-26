@@ -72,7 +72,7 @@ const MeetingScreen = () => {
           .getUserMedia({ video: true, audio: true })
           .then((stream) => {
             console.log("Got user media stream");
-            setLocalStream(stream); // Set localStream state here
+            setLocalStream(stream);
 
             if (localVideoRef.current) {
               localVideoRef.current.srcObject = stream;
@@ -136,13 +136,16 @@ const MeetingScreen = () => {
       });
     });
 
-    // Main cleanup for socket and peer connections
     return () => {
-      console.log("Cleaning up MeetingScreen (main effect)");
+      console.log("Cleaning up MeetingScreen");
       socket.emit("userLeft", {
         teamId: id,
         user: { ...userInfo, socketId: socket.id },
       });
+
+      if (localStream) {
+        localStream.getTracks().forEach((t) => t.stop());
+      }
 
       // Close all peer connections by userId
       Object.values(peerConnections).forEach((pc) => pc.close());
@@ -153,19 +156,7 @@ const MeetingScreen = () => {
         audioContextRef.current.close();
       }
     };
-  }, [id, navigate, userInfo]); // Dependencies for main effect
-
-  // Separate useEffect for local stream cleanup
-  useEffect(() => {
-    if (localStream) {
-        console.log("localStream changed, setting up its cleanup.");
-        return () => {
-            console.log("Stopping local stream tracks.");
-            localStream.getTracks().forEach((t) => t.stop());
-            setLocalStream(null); // Clear localStream state
-        };
-    }
-  }, [localStream]); // This effect runs when localStream changes
+  }, [id, navigate, userInfo]);
 
   // Listener for remote media status changes
   useEffect(() => {
