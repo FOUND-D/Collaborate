@@ -73,12 +73,10 @@ const groq = new Groq({
 
 
 const participants = {}; // Structure: { teamId: { userId: { socketId, ...userInfo, cameraOn, micOn } } }
+const socketToTeamMap = {}; // Global map: { socket.id: teamId }
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-
-  // Map socket.id to teamId for easier lookup on disconnect
-  const socketToTeamMap = {};
 
   socket.on('joinTeamRoom', (teamId) => {
     socket.join(teamId);
@@ -92,9 +90,9 @@ io.on('connection', (socket) => {
         if (clientId !== socket.id) {
           const userInRoom = Object.values(participants[teamId] || {}).find(p => p.socketId === clientId);
           if (userInRoom) {
-            otherUsers.push({ socketId: clientId, userId: userInRoom._id });
+            otherUsers.push({ socketId: clientId, userId: userInRoom._id, cameraOn: userInRoom.cameraOn, micOn: userInRoom.micOn }); // Include media status
           } else {
-            otherUsers.push({ socketId: clientId }); // Fallback if user not in participants yet
+            console.warn(`User with socketId ${clientId} in room ${teamId} not found in participants map when preparing otherUsers list.`);
           }
         }
       }
@@ -113,9 +111,9 @@ io.on('connection', (socket) => {
     // Tell the other users about the new user
     const newUserEntry = Object.values(participants[teamId] || {}).find(p => p.socketId === socket.id);
     if(newUserEntry) {
-      socket.to(teamId).emit('user-connected', { socketId: socket.id, userId: newUserEntry._id });
+      socket.to(teamId).emit('user-connected', { socketId: socket.id, userId: newUserEntry._id, cameraOn: newUserEntry.cameraOn, micOn: newUserEntry.micOn }); // Include media status
     } else {
-      socket.to(teamId).emit('user-connected', { socketId: socket.id });
+        console.warn(`New user with socketId ${socket.id} not found in participants map after joinTeamRoom.`);
     }
   });
 
@@ -168,15 +166,15 @@ io.on('connection', (socket) => {
   });
 
   socket.on('offer', (payload) => {
-    io.to(payload.target).emit('offer', { ...payload, socket: socket.id }); // Add sender's socket.id
+    io.to(payload.target).emit('offer', { ...payload, senderSocketId: socket.id }); // Add sender's socket.id
   });
 
   socket.on('answer', (payload) => {
-    io.to(payload.target).emit('answer', { ...payload, socket: socket.id }); // Add sender's socket.id
+    io.to(payload.target).emit('answer', { ...payload, senderSocketId: socket.id }); // Add sender's socket.id
   });
 
   socket.on('ice-candidate', (payload) => { // Incoming payload already contains senderUserId and targetUserId
-    io.to(payload.target).emit('ice-candidate', { ...payload, socket: socket.id }); // Add sender's socket.id
+    io.to(payload.target).emit('ice-candidate', { ...payload, senderSocketId: socket.id }); // Add sender's socket.id
   });
 
   socket.on('toggle-camera', ({ userId, cameraOn }) => {
