@@ -1,27 +1,323 @@
-.modal-overlay{
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(31, 41, 55, 0.4); /* Navy tint */
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* ================================
+   ROOT VARIABLES
+================================ */
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --bg-light: #f8fafc;
+  --border-light: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --transition: all 0.25s ease;
+}
+
+/* ================================
+   MODAL OVERLAY
+================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(10px);
+  z-index: 3000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ================================
+   MODAL CONTAINER
+================================ */
+.modal-content {
+  width: 95%;
+  max-width: 550px;
+
+  background: linear-gradient(
+    180deg,
+    #ffffff,
+    #f9fbff
+  );
+
+  padding: 2.5rem 2.5rem 2.75rem;
+  border-radius: var(--radius-lg);
+
+  border: 1px solid var(--border-light);
+
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    0 10px 20px rgba(0, 0, 0, 0.06);
+
+  position: relative;
+
+  animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ================================
+   CLOSE BUTTON
+================================ */
+.modal-close-btn {
+  width: 36px;
+  height: 36px;
+
+  background: #f1f5f9;
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-muted);
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.modal-close-btn:hover {
+  background: #e2e8f0;
+  color: var(--text-main);
+  transform: rotate(90deg);
+}
+
+/* ================================
+   HEADER
+================================ */
+.text-center h2 {
+  color: var(--text-main);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-center {
+  margin-bottom: 2rem;
+}
+
+/* ================================
+   TOGGLE BUTTONS
+================================ */
+.modal-toggle {
+  display: flex;
+  gap: 0.75rem;
+  background: #f1f5f9;
+  padding: 0.4rem;
+  border-radius: 999px;
+}
+
+/* Individual toggle */
+.toggle-btn {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  padding: 0.65rem 1rem;
+
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  color: var(--text-muted);
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.toggle-btn.active {
+  background: white;
+  color: var(--primary);
+
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.toggle-btn:hover:not(.active) {
+  color: var(--text-main);
+}
+
+/* ================================
+   FORM GROUP
+================================ */
+.form-group {
+  margin-bottom: 1.4rem;
+}
+
+/* ================================
+   FLOATING LABEL
+================================ */
+.floating-label {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+
+  padding: 0.85rem 1rem;
+
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+
+  background: var(--bg-light);
+
+  font-size: 0.95rem;
+  color: var(--text-main);
+
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  outline: none;
+
+  background: #ffffff;
+
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Label */
+.floating-label label {
+  position: absolute;
+
+  left: 1rem;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  font-size: 0.85rem;
+  color: var(--text-muted);
+
+  pointer-events: none;
+
+  background: white;
+  padding: 0 0.3rem;
+
+  transition: var(--transition);
+}
+
+/* When input has value */
+.form-input:not(:placeholder-shown) + label,
+.form-input:focus + label {
+  top: -0.45rem;
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+
+/* ================================
+   TEXTAREA
+================================ */
+textarea.form-input {
+  resize: none;
+  line-height: 1.5;
+}
+
+/* ================================
+   SELECT
+================================ */
+select.form-input {
+  cursor: pointer;
+}
+
+/* ================================
+   ACTION BUTTONS
+================================ */
+.form-actions {
+  margin-top: 2.5rem;
+}
+
+/* Primary */
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+
+  color: white;
+  font-weight: 600;
+
+  border: none;
+  border-radius: var(--radius-md);
+
+  padding: 0.8rem 1rem;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+
+  box-shadow:
+    0 6px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 20px rgba(59, 130, 246, 0.35);
+}
+
+/* Secondary */
+.btn-secondary {
+  background: transparent;
+
+  border: 1px solid var(--border-light);
+
+  color: var(--text-muted);
+  font-weight: 600;
+
+  border-radius: var(--radius-md);
+
+  padding: 0.8rem 1rem;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  color: var(--text-main);
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 520px) {
+  .modal-content {
+    padding: 2rem 1.5rem;
   }
 
-  .modal-content {
-    background-color: var(--bg-glass-heavy); /* More opaque */
-    backdrop-filter: blur(25px);
-    padding: 2rem;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 500px;
-    border: var(--border-glass-highlight);
-    box-shadow: var(--shadow-glass-hover);
-    position: relative;
+  .modal-toggle {
+    flex-direction: column;
+    border-radius: var(--radius-md);
   }
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-  }
+}
