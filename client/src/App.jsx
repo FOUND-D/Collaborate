@@ -27,7 +27,6 @@ const App = () => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      // On desktop, we want the sidebar open by default, on mobile we want it closed.
       if (!mobile && !isSidebarOpen) {
         setIsSidebarOpen(true);
       } else if (mobile && isSidebarOpen) {
@@ -36,17 +35,14 @@ const App = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    // Call handler right away so state is correct on initial render
     handleResize(); 
     return () => window.removeEventListener('resize', handleResize);
-  }, []); // Empty array ensures this effect runs only once on mount and unmount
+  }, []); 
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // On desktop, content shifts when sidebar is closed.
-  // On mobile, content shifts when sidebar is open (as an overlay).
   const getShiftClass = () => {
     if (isMobile) {
       return isSidebarOpen ? 'main-content-shifted' : '';
