@@ -1,27 +1,120 @@
-.modal-overlay{
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(31, 41, 55, 0.4); /* Navy tint */
-    backdrop-filter: blur(4px);
-    z-index: 2000;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2); /* bg-black/20 */
+  backdrop-filter: blur(8px); /* backdrop-blur-md */
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #F8FAFC; /* light gray/white */
+  padding: 2.5rem; /* Increased padding */
+  border-radius: 20px; /* Softer corners */
+  width: 90%;
+  max-width: 550px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0,0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Soft, large-spread shadow */
+  position: relative;
+  border: 1px solid #E2E8F0; /* Subtle border */
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748B; /* Gray icon color */
+}
+
+.modal-title {
+    font-weight: 700; /* Bold weight for modal title */
+    font-size: 1.75rem;
+    color: #1E293B; /* Dark heading */
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.modal-description {
+    text-align: center;
+    color: #64748B; /* Lighter gray subtext */
+    margin-bottom: 2rem;
+}
+
+.segmented-control {
     display: flex;
     justify-content: center;
-    align-items: center;
-  }
+    margin-bottom: 2rem;
+    background-color: #E2E8F0; /* Light gray background */
+    border-radius: 12px;
+    padding: 4px;
+}
 
-  .modal-content {
-    background-color: var(--bg-glass-heavy); /* More opaque */
-    backdrop-filter: blur(25px);
-    padding: 2rem;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 500px;
-    border: var(--border-glass-highlight);
-    box-shadow: var(--shadow-glass-hover);
-    position: relative;
-  }
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-  }
+.segmented-control button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    background-color: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #475569;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.segmented-control button:first-of-type {
+    margin-right: 8px; /* Spacing between buttons */
+}
+
+.segmented-control button.active {
+    background-color: #FFFFFF; /* White active background */
+    color: #007AFF; /* Blue active text */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-input {
+    background-color: #FFFFFF; /* Clean white field */
+    border: 1px solid #E2E8F0; /* Subtle 1px border */
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: #1E293B;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #007AFF; /* Highlights blue on focus */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end; /* Prominently on the right side */
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background-color: #007AFF; /* Bright blue */
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px; /* Pill-shape */
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-secondary {
+    background: none;
+    border: none;
+    color: #64748B; /* Gray text-link style */
+    font-weight: 600;
+    cursor: pointer;
+}
