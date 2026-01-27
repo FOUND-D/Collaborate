@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaTrash, FaPlus } from 'react-icons/fa'; // Removed unused icons for cleaner code
+import { FaTrash, FaPlus, FaCalendarAlt, FaUser } from 'react-icons/fa'; 
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -17,55 +17,86 @@ const calculateProgress = (tasks) => {
   return Math.round((completedTasks / tasks.length) * 100);
 };
 
-// --- Updated ProjectListItem Component ---
+// --- Updated ProjectListItem Component (Fixes Delete Button Visibility) ---
 const ProjectListItem = ({ project, userInfo, onDelete }) => {
-  const navigate = useNavigate(); // Hook for navigation
-  const isOwner = userInfo && project.owner && project.owner._id === userInfo._id;
+  const navigate = useNavigate();
+
+  // --- FIX START: Robust Ownership Check ---
+  // This handles cases where project.owner is populated (an object) OR just an ID string
+  const ownerId = project.owner?._id || project.owner;
+  const userId = userInfo?._id;
+  
+  // We use toString() to ensure we are comparing "String" vs "String"
+  // This fixes issues where one might be a MongoDB ObjectId
+  const isOwner = userId && ownerId && ownerId.toString() === userId.toString();
+  // --- FIX END ---
+
   const progress = calculateProgress(project.tasks);
 
-  // Handler for the View button click
   const handleViewClick = () => {
     if (project._id) {
       navigate(`/project/${project._id}`);
-    } else {
-      console.error('Error: Project ID is missing');
+    }
+  };
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation(); // Prevents clicking the card background
+    // Double confirmation
+    if (window.confirm(`Are you sure you want to delete project "${project.name}"?`)) {
+        onDelete(project._id);
     }
   };
 
   return (
     <div className="project-list-item">
       <div className="project-info">
-        {/* Name is still a Link for accessibility/SEO, but you can change this too if needed */}
         <Link to={`/project/${project._id}`} className="project-name-link">
           {project.name}
         </Link>
         <div className="project-metadata-capsules">
-          {/* ... metadata capsules ... */}
+          {project.dueDate && (
+            <span className="metadata-capsule">
+              <FaCalendarAlt /> Due: {new Date(project.dueDate).toLocaleDateString()}
+            </span>
+          )}
+          {project.owner && (
+            <span className="metadata-capsule">
+              <FaUser /> {project.owner.name}
+            </span>
+          )}
+           <span className="metadata-capsule">
+             {project.status || 'Active'}
+           </span>
         </div>
       </div>
       
       <div className="project-progress">
-        {/* ... progress bar ... */}
-        <div style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px' }}>
-             <div 
-               style={{ 
-                 width: `${progress}%`, 
-                 backgroundColor: '#4caf50', 
-                 height: '10px', 
-                 borderRadius: '5px' 
-               }} 
-             />
+        <div className="progress-bar-container">
+           <div 
+             className="progress-bar-fill"
+             style={{ width: `${progress}%` }} 
+           />
         </div>
-        <span>{progress}%</span>
+        <div style={{ fontSize: '0.8rem', marginTop: '5px', textAlign: 'right', color: '#86868B' }}>
+            {progress}% Complete
+        </div>
       </div>
 
       <div className="project-footer">
         <div className="project-team-avatars">
-          {/* ... team avatars ... */}
+           {project.team && project.team.members && project.team.members.slice(0, 3).map(member => (
+             <div key={member._id} className="member-avatar" title={member.name}>
+                {member.name ? member.name.charAt(0).toUpperCase() : '?'}
+             </div>
+           ))}
+           {project.team && project.team.members && project.team.members.length > 3 && (
+              <div className="member-avatar-more">
+                +{project.team.members.length - 3}
+              </div>
+           )}
         </div>
+        
         <div className="project-actions">
-          
-          {/* THIS IS THE FIX: Changed from Link to Button */}
           <button 
             className="btn-view-project" 
             onClick={handleViewClick}
@@ -74,10 +105,19 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
             View
           </button>
 
-          {isOwner && (
-            <button className="btn-delete-project" onClick={() => onDelete(project._id)}>
+          {/* Conditional Rendering: Only show if user owns the project */}
+          {isOwner ? (
+            <button 
+                className="btn-delete-project" 
+                onClick={handleDeleteClick}
+                title="Delete Project"
+            >
               <FaTrash />
             </button>
+          ) : (
+            /* Optional: Debugging helper - remove this else block later */
+            /* If you don't see the bin, it means isOwner is false. */
+            null 
           )}
         </div>
       </div>
@@ -109,18 +149,22 @@ const OngoingProjectsScreen = () => {
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
     } else {
-      dispatch(getUserDetails('profile'));
-      if (successDelete) {
-        dispatch({ type: PROJECT_DELETE_SUCCESS });
-        dispatch(listProjects());
-      } else {
-        dispatch(listProjects());
+      if (!userInfo.name) {
+          dispatch(getUserDetails('profile'));
       }
+      
+      // Reload projects if a delete or create action was successful
+      if (successDelete) {
+        dispatch({ type: PROJECT_DELETE_SUCCESS }); // Reset success state
+      }
+      
+      dispatch(listProjects());
     }
   }, [dispatch, navigate, userInfo, successDelete, successCreate]);
 
+  // The Handler passed down to the child component
   const deleteHandler = (id) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       dispatch(deleteProject(id));
     }
   };

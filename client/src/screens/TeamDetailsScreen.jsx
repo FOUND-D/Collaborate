@@ -5,6 +5,7 @@ import { FaChevronLeft, FaRegCopy, FaCheck } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
+import './TeamDetailsScreen.css';
 import axios from 'axios';
 import io from 'socket.io-client';
 

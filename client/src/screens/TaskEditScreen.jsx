@@ -1,208 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom'; // Import useParams and useNavigate
-import { Form, Button } from 'react-bootstrap';
+import React, { useEffect } from 'react';
+import './TaskScreen.css';
+import { LinkContainer } from 'react-router-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import FormContainer from '../components/FormContainer';
-import { createTask, updateTask, getTaskDetails } from '../actions/taskActions';
-import { listTeams } from '../actions/teamActions';
-import { listUsers } from '../actions/userActions';
-import { TASK_CREATE_RESET, TASK_UPDATE_RESET } from '../constants/taskConstants';
+import { useNavigate } from 'react-router-dom';
+import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa'; // <--- IMPORT ICONS
 
-const TaskEditScreen = () => { // Remove match and history props
-  const { id: taskId } = useParams(); // Use useParams hook
-  const navigate = useNavigate(); // Use useNavigate hook
+import Message from '../components/Message';
+import Loader from '../components/Loader';
+import { listTasks, deleteTask } from '../actions/taskActions';
+import { TASK_DELETE_SUCCESS } from '../constants/taskConstants';
 
-  const [name, setName] = useState('');
-  const [duration, setDuration] = useState(0);
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('To Do');
-  const [assignedTo, setAssignedTo] = useState('');
-  const [assignedToModel, setAssignedToModel] = useState('User');
-
+const TaskScreen = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const taskDetails = useSelector((state) => state.taskDetails);
-  const { loading, error, task } = taskDetails;
+  /* ===============================
+     REDUX STATE
+  =============================== */
+  const taskList = useSelector((state) => state.taskList);
+  const { loading, error, tasks } = taskList;
 
-  const taskUpdate = useSelector((state) => state.taskUpdate);
+  const taskDelete = useSelector((state) => state.taskDelete);
   const {
-    loading: loadingUpdate,
-    error: errorUpdate,
-    success: successUpdate,
-  } = taskUpdate;
+    loading: loadingDelete,
+    error: errorDelete,
+    success: successDelete,
+  } = taskDelete;
 
-  const taskCreate = useSelector((state) => state.taskCreate);
-  const {
-    loading: loadingCreate,
-    error: errorCreate,
-    success: successCreate,
-  } = taskCreate;
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
-  const teamList = useSelector((state) => state.teamList);
-  const { teams } = teamList;
-
-  const userList = useSelector((state) => state.userList);
-  const { users } = userList;
-
-
+  /* ===============================
+     EFFECT
+  =============================== */
   useEffect(() => {
-    dispatch(listTeams());
-    dispatch(listUsers());
-    if (successUpdate) {
-      dispatch({ type: TASK_UPDATE_RESET });
-      navigate('/tasks'); // Use navigate instead of history.push
-    } else {
-      if (taskId) { // Only dispatch if taskId exists (editing existing task)
-        if (!task || !task.name || task._id !== taskId) {
-          dispatch(getTaskDetails(taskId));
-        } else {
-          setName(task.name);
-          setDuration(task.duration);
-          setDescription(task.description);
-          setStatus(task.status);
-          setAssignedTo(task.assignee ? task.assignee._id : ''); // Use task.assignee
-          setAssignedToModel(task.assignedToModel || 'User'); // Default to 'User'
-        }
-      } else { // For new task creation, ensure fields are reset
-          setName('');
-          setDuration(0);
-          setDescription('');
-          setStatus('To Do');
-          setAssignedTo('');
-          setAssignedToModel('User');
-      }
+    if (!userInfo) {
+      navigate('/login');
     }
-  }, [dispatch, navigate, taskId, task, successUpdate]); // Update dependencies
-
-  useEffect(() => {
-    if (successCreate) {
-      dispatch({ type: TASK_CREATE_RESET });
-      navigate('/tasks');
-    }
-  }, [dispatch, navigate, successCreate]);
-
-  const submitHandler = (e) => {
-    e.preventDefault();
-    if (taskId) {
-      dispatch(updateTask({ _id: taskId, name, duration, description, status, assignedTo, assignedToModel }));
+    if (successDelete) {
+      dispatch({ type: TASK_DELETE_SUCCESS });
+      dispatch(listTasks());
     } else {
-      dispatch(createTask({ name, duration, description, status, assignedTo, assignedToModel }));
+      dispatch(listTasks());
+    }
+  }, [dispatch, navigate, userInfo, successDelete]);
+
+  /* ===============================
+     HANDLERS
+  =============================== */
+  const createTaskHandler = () => {
+    navigate('/task/create');
+  };
+
+  const deleteHandler = (id) => {
+    if (window.confirm('Delete this task permanently?')) {
+      dispatch(deleteTask(id));
     }
   };
 
+  /* ===============================
+     STATUS CLASS
+  =============================== */
+  const getStatusClass = (status) => {
+    if (!status) return '';
+    switch (status.toLowerCase()) {
+      case 'completed': return 'completed';
+      case 'pending': return 'pending';
+      case 'inprogress':
+      case 'in-progress': return 'inprogress';
+      default: return '';
+    }
+  };
+
+  /* ===============================
+     RENDER
+  =============================== */
   return (
-    <>
-      <Link to="/tasks" className="btn btn-light my-3">
-        Go Back
-      </Link>
-      <FormContainer>
-        <h1>{taskId ? 'Edit Task' : 'Create Task'}</h1>
-        {loadingUpdate && <h3>Loading...</h3>}
-        {errorUpdate && <h3>{errorUpdate}</h3>}
-        {loading ? (
-          <h3>Loading...</h3>
-        ) : error ? (
-          <h3>{error}</h3>
-        ) : (
-          <Form onSubmit={submitHandler}>
-            <Form.Group controlId="name">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+    <div className="task-page">
+      {/* Header */}
+      <div className="task-header">
+        <h1>Tasks</h1>
+        <button
+          className="create-task-btn"
+          onClick={createTaskHandler}
+        >
+          <FaPlus style={{ marginRight: '8px' }} /> Create Task
+        </button>
+      </div>
 
-            <Form.Group controlId="duration">
-              <Form.Label>Duration (in days)</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+      {/* Loading / Errors */}
+      {loadingDelete && <Loader />}
+      {errorDelete && <Message variant="danger">{errorDelete}</Message>}
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Message variant="danger">{error}</Message>
+      ) : (
+        /* Table Wrapper */
+        <div className="task-table-wrapper">
+          <table className="task-table">
+            {/* Head */}
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th></th>
+              </tr>
+            </thead>
 
-            <Form.Group controlId="description">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+            {/* Body */}
+            <tbody>
+              {tasks.map((task) => (
+                <tr key={task._id}>
+                  {/* ID */}
+                  <td className="task-id">
+                    {task._id}
+                  </td>
 
-            <Form.Group controlId="status">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                as="select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option>To Do</option>
-                <option>In Progress</option>
-                <option>Done</option>
-              </Form.Control>
-            </Form.Group>
+                  {/* Title */}
+                  <td className="task-title">
+                    {task.name}
+                  </td>
 
-            <Form.Group controlId="assignedToModel">
-              <Form.Label>Assign To</Form.Label>
-              <Form.Control
-                as="select"
-                value={assignedToModel}
-                onChange={(e) => setAssignedToModel(e.target.value)}
-              >
-                <option value="User">User</option>
-                <option value="Team">Team</option>
-              </Form.Control>
-            </Form.Group>
+                  {/* Status */}
+                  <td>
+                    <span className={`task-status ${getStatusClass(task.status)}`}>
+                      {task.status}
+                    </span>
+                  </td>
 
-            {assignedToModel === 'User' ? (
-              <Form.Group controlId="assignedTo">
-                <Form.Label>User</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                >
-                  <option value="">Select User</option>
-                  {users && users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-            ) : (
-              <Form.Group controlId="assignedTo">
-                <Form.Label>Team</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                >
-                  <option value="">Select Team</option>
-                  {teams && teams.map((team) => (
-                    <option key={team._id} value={team._id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-            )}
+                  {/* Assignee */}
+                  <td className="task-assignee">
+                    {task.assignee ? task.assignee.name : 'Unassigned'}
+                  </td>
 
-            <Button type="submit" variant="primary">
-              {taskId ? 'Update' : 'Create'}
-            </Button>
-          </Form>
-        )}
-      </FormContainer>
-    </>
+                  {/* Actions */}
+                  <td style={{ textAlign: 'right' }}>
+                    <LinkContainer to={`/task/${task._id}/edit`}>
+                      <button className="task-action-btn">
+                        <FaEdit />
+                      </button>
+                    </LinkContainer>
+
+                    {userInfo && task.owner === userInfo._id && (
+                      <button
+                        className="task-action-btn danger"
+                        onClick={() => deleteHandler(task._id)}
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default TaskEditScreen;
+export default TaskScreen;

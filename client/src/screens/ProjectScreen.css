@@ -1,7 +1,8 @@
 /* =====================================
-   DESIGN SYSTEM
+   DESIGN SYSTEM (Overridden by global.css)
 ===================================== */
 
+/*
 :root {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -28,6 +29,7 @@
   --transition:
     all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+*/
 
 /* =====================================
    PROJECT GRID
@@ -35,12 +37,10 @@
 
 .modern-project-list {
   display: grid;
-
   grid-template-columns: repeat(
     auto-fill,
     minmax(340px, 1fr)
   );
-
   gap: 2rem;
   margin-top: 2.5rem;
 }
@@ -50,25 +50,14 @@
 ===================================== */
 
 .project-list-item {
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff,
-      #f9fbff
-    );
-
-  border-radius: var(--radius-xl);
+  background: var(--background-secondary-cards);
+  border-radius: var(--radius-large);
   padding: 1.8rem;
-
   display: flex;
   flex-direction: column;
-
-  border: 1px solid var(--border-soft);
-
-  box-shadow: var(--shadow-soft);
-
-  transition: var(--transition);
-
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+  transition: var(--transition-main);
   position: relative;
   overflow: hidden;
 }
@@ -76,20 +65,17 @@
 /* Subtle glow line */
 .project-list-item::before {
   content: "";
-
   position: absolute;
   inset: 0;
-
   background:
     linear-gradient(
       120deg,
       transparent,
-      rgba(59,130,246,0.12),
+      rgba(10, 132, 255, 0.15),
       transparent
     );
-
   opacity: 0;
-  transition: var(--transition);
+  transition: var(--transition-main);
 }
 
 .project-list-item:hover::before {
@@ -98,7 +84,8 @@
 
 .project-list-item:hover {
   transform: translateY(-6px) scale(1.01);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-subtle);
+  border-color: rgba(10, 132, 255, 0.5);
 }
 
 /* =====================================
@@ -112,22 +99,17 @@
 
 .project-name-link {
   display: inline-block;
-
   font-size: 1.35rem;
   font-weight: 700;
-
-  color: var(--text-main);
+  color: var(--text-primary);
   text-decoration: none;
-
   margin-bottom: 0.75rem;
-
   letter-spacing: -0.02em;
-
-  transition: var(--transition);
+  transition: var(--transition-main);
 }
 
 .project-name-link:hover {
-  color: var(--primary);
+  color: var(--accent-color);
 }
 
 /* =====================================
@@ -138,27 +120,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-
   margin-bottom: 1.25rem;
 }
 
 .metadata-capsule {
-  background: var(--bg-soft);
-
-  color: var(--text-muted);
-
+  background: var(--background-tertiary-inputs);
+  color: var(--text-secondary);
   padding: 0.4rem 0.75rem;
-
-  border-radius: 999px;
-
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-
   font-size: 0.75rem;
   font-weight: 600;
-
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--border-color);
 }
 
 /* =====================================
@@ -172,26 +147,15 @@
 .progress-bar-container {
   height: 8px;
   width: 100%;
-
-  background: var(--bg-soft);
-
-  border-radius: 999px;
-
+  background: var(--background-tertiary-inputs);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-
-  background:
-    linear-gradient(
-      90deg,
-      var(--primary),
-      var(--primary-dark)
-    );
-
+  background: var(--accent-color);
   border-radius: inherit;
-
   transition: width 0.4s ease;
 }
 
@@ -203,7 +167,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 1rem;
 }
 
@@ -220,23 +183,16 @@
 .member-avatar-more {
   width: 34px;
   height: 34px;
-
   border-radius: 50%;
-
-  background: var(--bg-soft);
-
-  color: var(--text-muted);
-
+  background: var(--background-tertiary-inputs);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-weight: 600;
   font-size: 0.85rem;
-
-  border: 2px solid white;
-
-  transition: var(--transition);
+  border: 2px solid var(--background-secondary-cards);
+  transition: var(--transition-main);
 }
 
 .member-avatar:not(:first-child),
@@ -250,7 +206,7 @@
 }
 
 /* =====================================
-   PROJECT ACTIONS
+   PROJECT ACTIONS (Card View)
 ===================================== */
 
 .project-actions {
@@ -260,61 +216,49 @@
 
 /* View Button */
 .btn-view-project {
-  background:
-    linear-gradient(
-      135deg,
-      var(--primary),
-      var(--primary-dark)
-    );
-
+  background: var(--accent-color);
   color: white;
-
   padding: 0.5rem 1.1rem;
-
-  border-radius: 999px;
-
+  border-radius: var(--radius-pill);
   text-decoration: none;
   font-weight: 600;
-
   font-size: 0.85rem;
-
-  transition: var(--transition);
-
-  box-shadow:
-    0 4px 10px rgba(59,130,246,0.3);
+  transition: var(--transition-main);
+  box-shadow: var(--glow-accent);
 }
 
 .btn-view-project:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 18px rgba(59,130,246,0.35);
+  filter: brightness(1.1);
 }
 
 /* Delete */
 .btn-delete-project {
   width: 34px;
   height: 34px;
-
   background: transparent;
-
   border: none;
-
-  color: var(--text-muted);
-
+  color: var(--text-secondary);
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
-
-  transition: var(--transition);
+  transition: var(--transition-main);
 }
 
 .btn-delete-project:hover {
   background: rgba(239, 68, 68, 0.12);
   color: #ef4444;
+}
+
+.btn-delete-project svg {
+  fill: var(--text-secondary);
+  transition: var(--transition-main);
+}
+
+.btn-delete-project:hover svg {
+  fill: #ef4444;
 }
 
 /* =====================================
@@ -323,9 +267,7 @@
 
 .project-hero-section {
   max-width: 1100px;
-
   margin: 0 auto 4rem;
-
   padding: 3rem 1.5rem;
 }
 
@@ -333,20 +275,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 2rem;
 }
 
 .project-detail-title,
 .project-title-input {
   font-size: clamp(2.2rem, 5vw, 3rem);
-
   font-weight: 800;
-
   letter-spacing: -0.03em;
-
-  color: var(--text-main);
-
+  color: var(--text-primary);
   background: transparent;
   border: none;
 }
@@ -357,12 +294,9 @@
 
 .project-description-container {
   max-width: 900px;
-
   margin: 0 auto 3rem;
-
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-
   gap: 2.5rem;
 }
 
@@ -370,10 +304,11 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
+  color: var(--text-primary);
 }
 
 .project-description-text {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.7;
 }
 
@@ -384,28 +319,19 @@
 .project-meta-footer {
   display: flex;
   justify-content: center;
-
   gap: 0.75rem;
   flex-wrap: wrap;
-
   margin-bottom: 3rem;
 }
 
 .project-meta-item {
-  background: rgba(241,245,249,0.9);
-
-  backdrop-filter: blur(12px);
-
+  background: var(--background-tertiary-inputs);
   padding: 0.5rem 1rem;
-
-  border-radius: 999px;
-
+  border-radius: var(--radius-pill);
   font-size: 0.75rem;
   font-weight: 600;
-
-  color: var(--text-muted);
-
-  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 /* =====================================
@@ -413,16 +339,11 @@
 ===================================== */
 
 .modern-task-list {
-  background: var(--bg-card);
-
-  border-radius: var(--radius-xl);
-
+  background: var(--background-secondary-cards);
+  border-radius: var(--radius-large);
   padding: 0.5rem 2rem;
-
-  box-shadow: var(--shadow-soft);
-
-  border: 1px solid var(--border-soft);
-
+  box-shadow: none;
+  border: 1px solid var(--border-color);
   margin: 2rem 0;
 }
 
@@ -430,18 +351,14 @@
 .task-list-item {
   display: flex;
   align-items: center;
-
   gap: 1rem;
-
   padding: 1.2rem 0;
-
-  border-bottom: 1px solid var(--border-soft);
-
-  transition: var(--transition);
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-main);
 }
 
 .task-list-item:hover {
-  background: rgba(241,245,249,0.5);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .task-list-item:last-child {
@@ -455,23 +372,23 @@
 .task-checkbox {
   width: 22px;
   height: 22px;
-
   border-radius: 50%;
-
-  border: 2px solid var(--border-soft);
-
+  border: 2px solid var(--border-color);
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  transition: var(--transition);
+  transition: var(--transition-main);
 }
 
 .task-checkbox.checked {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.task-checkbox.checked svg {
+  color: white;
+  fill: white;
 }
 
 /* =====================================
@@ -484,20 +401,18 @@
 
 .task-name {
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
 .task-name.completed {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: line-through;
 }
 
 .task-description {
   margin-top: 0.25rem;
-
   font-size: 0.85rem;
-
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 /* =====================================
@@ -506,112 +421,151 @@
 
 .task-status-pill {
   padding: 0.25rem 0.7rem;
-
-  border-radius: 999px;
-
+  border-radius: var(--radius-pill);
   font-size: 0.7rem;
-
   font-weight: 600;
 }
 
 .task-status-pill.completed {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
 }
 
 .task-status-pill.pending {
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
 }
 
 .task-status-pill.inprogress {
-  background: #e0ecff;
-  color: #2563eb;
+  background: var(--status-inprogress-bg);
+  color: var(--status-inprogress-text);
 }
 
 .task-status-pill.blocked {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--status-blocked-bg);
+  color: var(--status-blocked-text);
 }
 
 /* =====================================
-   TASK ACTIONS
+   HEADER ACTIONS GROUP (New)
+===================================== */
+.project-header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.project-header-action-group .task-action-btn {
+  width: 42px;
+  height: 42px;
+  background-color: var(--background-tertiary-inputs);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+  margin-left: 0;
+}
+
+.project-header-action-group .task-action-btn:hover {
+  background-color: var(--background-secondary-cards);
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+}
+
+.project-header-action-group .task-action-btn svg {
+  fill: var(--text-secondary);
+  width: 16px;
+  height: 16px;
+}
+
+.project-header-action-group .task-action-btn:hover svg {
+  fill: var(--accent-color);
+}
+
+/* =====================================
+   TASK ACTIONS (List View)
 ===================================== */
 
 .task-action-btn {
   width: 32px;
   height: 32px;
-
-  background: transparent;
-
-  border: none;
-
   border-radius: 50%;
-
+  background-color: var(--background-tertiary-inputs); 
+  border: 1px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: var(--text-muted);
-
   cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+  transition: all 0.2s ease;
+}
 
-  transition: var(--transition);
+.task-action-btn svg {
+  fill: var(--text-secondary);
+  width: 14px;
+  height: 14px;
+  transition: fill 0.2s ease;
 }
 
 .task-action-btn:hover {
-  background: var(--bg-soft);
-  color: var(--text-main);
+  background-color: var(--background-secondary-cards);
+  transform: translateY(-1px);
+}
+
+.task-action-btn:hover svg {
+  fill: var(--text-primary);
 }
 
 /* =====================================
-   BUTTONS
+   BUTTONS (Updated)
 ===================================== */
 
+/* View Project Goal */
 .btn-outline-secondary {
-  border-radius: 999px;
-
-  padding: 0.5rem 1rem;
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 42px;
+  border-radius: var(--radius-pill);
+  padding: 0 1.25rem;
   font-weight: 600;
-
-  border: 1px solid var(--border-soft);
-
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
   background: transparent;
-
-  transition: var(--transition);
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: var(--transition-main);
+  cursor: pointer;
 }
 
 .btn-outline-secondary:hover {
-  background: var(--bg-soft);
+  background: var(--background-tertiary-inputs);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
-/* Gradient */
+/* Add Task */
 .btn-gradient {
-  background:
-    linear-gradient(
-      135deg,
-      var(--primary),
-      var(--primary-dark)
-    );
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 42px;
+  background: var(--accent-color);
   color: white !important;
-
-  border-radius: 999px;
-
-  padding: 0.55rem 1.2rem;
-
+  border-radius: var(--radius-pill);
+  padding: 0 1.5rem;
   font-weight: 600;
-
+  font-size: 0.9rem;
   border: none;
-
-  transition: var(--transition);
+  cursor: pointer;
+  box-shadow: var(--glow-accent);
+  transition: var(--transition-main);
 }
 
 .btn-gradient:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 20px rgba(59,130,246,0.3);
+  filter: brightness(1.1);
 }
 
 /* =====================================
@@ -619,7 +573,6 @@
 ===================================== */
 
 @media (max-width: 768px) {
-
   .project-description-container {
     grid-template-columns: 1fr;
   }
@@ -632,5 +585,16 @@
   .modern-task-list {
     padding: 1rem 1.2rem;
   }
+  
+  .project-hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .project-header-action-group {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
 }
-    
