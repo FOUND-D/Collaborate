@@ -28,7 +28,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
         <button className="sidebar-toggle" onClick={toggleSidebar}>
           {isSidebarOpen ? <FaTimes /> : <FaBars />}
         </button>
-        {isSidebarOpen && <h2 className="app-title">UniSync</h2>}
+        {isSidebarOpen && <h2 className="app-title">Collaborate</h2>}
       </div>
 
       <nav className="sidebar-nav">

@@ -1,263 +1,469 @@
+/* =====================================================
+   APP LAYOUT (APPLE DARK THEME)
+===================================================== */
+
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--background-main);
-  /* Added relative positioning for children context */
+  background: linear-gradient(180deg, #050507, #0b0c10);
   position: relative;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "Inter", sans-serif;
 }
+
+
+/* =====================================================
+   SIDEBAR BASE
+===================================================== */
 
 .sidebar {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(18, 18, 22, 0.82);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+
   color: var(--text-primary);
-  padding: 1rem 0;
+
+  padding: 1.2rem 0;
+
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease-in-out;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  
-  /* Essential for stacking context */
+
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  box-shadow:
+    inset -1px 0 0 rgba(255,255,255,0.05),
+    0 0 40px rgba(0,0,0,0.6);
+
   position: relative;
   z-index: 1000;
-  flex-shrink: 0; /* Prevents sidebar from squishing */
+
+  flex-shrink: 0;
 }
 
+
+/* =====================================================
+   SIDEBAR WIDTH STATES
+===================================================== */
+
 .sidebar-open {
-  width: 260px;
+  width: 270px;
 }
+
 .sidebar-closed {
-  width: 80px;
+  width: 84px;
 }
+
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
-  margin-bottom: 2rem;
+
+  padding: 0 1.6rem;
+  margin-bottom: 2.2rem;
+
   justify-content: flex-end;
 }
+
 .sidebar-open .sidebar-header {
   justify-content: space-between;
 }
+
 .sidebar-closed .sidebar-header {
   justify-content: center;
   padding: 0;
 }
 
+
 .app-title {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 700;
-  color: var(--text-primary);
+  letter-spacing: -0.02em;
+
+  color: #ffffff;
+
   margin: 0;
 }
 
+
+/* =====================================================
+   TOGGLE BUTTON
+===================================================== */
+
 .sidebar-toggle {
-  background: transparent;
-  border: none;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+
   color: var(--text-secondary);
-  font-size: 1.4rem;
+
+  font-size: 1.3rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-squircle);
+
+  padding: 0.45rem;
+
+  border-radius: 10px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  transition: all 0.25s ease;
 }
+
+.sidebar-toggle svg {
+  fill: var(--text-secondary);
+}
+
 .sidebar-toggle:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background: rgba(255,255,255,0.08);
+  transform: scale(1.05);
 }
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
 
 .sidebar-nav {
   flex-grow: 1;
+
   display: flex;
   flex-direction: column;
+
   padding: 0 1rem;
-  gap: 0.75rem;
+
+  gap: 0.6rem;
 }
+
 .sidebar-closed .sidebar-nav {
   padding: 0;
   align-items: center;
 }
 
+
+/* =====================================================
+   NAV ITEM
+===================================================== */
+
 .nav-item {
   display: flex;
   align-items: center;
+
   gap: 1rem;
-  padding: 0.85rem 1rem;
+
+  padding: 0.8rem 1.1rem;
+
   color: var(--text-secondary);
+
   text-decoration: none;
-  border-radius: 10px;
-  transition: all 0.2s ease-in-out;
+
+  border-radius: 12px;
+
   position: relative;
+
+  transition: all 0.25s ease;
 }
+
+
+/* Closed mode */
 
 .sidebar-closed .nav-item {
   justify-content: center;
-  padding: 1rem;
-  width: 56px;
-  height: 56px;
+
+  padding: 0;
+
+  width: 54px;
+  height: 54px;
+
   border-radius: 50%;
 }
+
 .sidebar-closed .nav-item:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-  transform: scale(1.1);
+  background: rgba(255,255,255,0.12);
+  transform: scale(1.12);
 }
+
+
+/* Open hover */
 
 .sidebar-open .nav-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
 }
+
+
+/* =====================================================
+   ACTIVE STATE (APPLE STYLE)
+===================================================== */
 
 .nav-item.active {
-  color: var(--primary-blue);
-  background-color: rgba(67, 133, 245, 0.1);
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10,132,255,0.25),
+      rgba(10,132,255,0.05)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(10,132,255,0.25),
+    0 0 14px rgba(10,132,255,0.25);
 }
+
+
+/* Active Indicator */
 
 .nav-item.active::before {
-  content: '';
+  content: "";
+
   position: absolute;
+
   left: 0;
   top: 50%;
+
   transform: translateY(-50%);
-  width: 4px;
+
+  width: 3px;
   height: 24px;
-  background-color: var(--primary-blue);
+
+  background: #0a84ff;
+
   border-radius: 0 4px 4px 0;
 }
+
 .sidebar-closed .nav-item.active::before {
   height: 18px;
-  width: 3px;
 }
 
+
+/* =====================================================
+   ICONS
+===================================================== */
+
 .nav-item svg {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
+
   min-width: 24px;
+
+  fill: var(--text-secondary);
+
+  transition: all 0.25s ease;
 }
+
+.nav-item.active svg {
+  fill: #0a84ff;
+}
+
 .sidebar-closed .nav-item svg {
   font-size: 1.7rem;
 }
 
+
+/* =====================================================
+   NAV TEXT
+===================================================== */
+
 .nav-text {
   white-space: nowrap;
+
   overflow: hidden;
   text-overflow: ellipsis;
+
   font-weight: 500;
+
+  letter-spacing: -0.01em;
 }
 
 .sidebar-closed .nav-text {
   display: none;
 }
+
+
+/* =====================================================
+   TOOLTIP (CLOSED MODE)
+===================================================== */
+
 .sidebar-closed .nav-item .tooltip {
   position: absolute;
+
   left: 100%;
-  margin-left: 15px;
-  padding: 8px 12px;
-  background-color: #333;
-  color: white;
-  border-radius: 6px;
+  margin-left: 14px;
+
+  padding: 7px 12px;
+
+  background: rgba(20,20,24,0.95);
+
+  color: #fff;
+
+  border-radius: 8px;
+
+  font-size: 0.85rem;
+
   white-space: nowrap;
-  font-size: 0.9rem;
+
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+  transition: all 0.2s ease;
+
   z-index: 1001;
 }
+
 .sidebar-closed .nav-item:hover .tooltip {
   opacity: 1;
   visibility: visible;
+  transform: translateX(4px);
 }
 
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
 .sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.1rem;
+
+  border-top: 1px solid rgba(255,255,255,0.08);
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
+
   gap: 1rem;
 }
+
 .sidebar-open .sidebar-footer {
   flex-direction: row;
   justify-content: space-between;
 }
 
+
+/* =====================================================
+   USER PROFILE
+===================================================== */
+
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--text-primary);
+
+  gap: 0.7rem;
+
+  color: #ffffff;
 }
+
 .user-avatar {
   width: 36px;
   height: 36px;
+
   border-radius: 50%;
-  background: var(--primary-blue);
+
+  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
+
   display: flex;
+
   justify-content: center;
   align-items: center;
+
   font-weight: 600;
-  color: #000000;
-  font-size: 0.9rem;
+
+  color: white;
+
+  font-size: 0.85rem;
+
+  box-shadow: 0 0 10px rgba(10,132,255,0.4);
 }
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 .logout-button {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+
+  gap: 0.7rem;
+
   background: none;
   border: none;
+
   color: var(--text-secondary);
+
   cursor: pointer;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  transition: all var(--transition-main);
+
+  padding: 0.45rem 0.7rem;
+
+  border-radius: 10px;
+
   width: 100%;
+
+  transition: all 0.25s ease;
 }
+
 .sidebar-closed .logout-button {
   justify-content: center;
 }
+
 .sidebar-open .logout-button {
   justify-content: flex-start;
 }
 
+
 .logout-button:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
 }
+
+.logout-button svg {
+  fill: var(--text-secondary);
+  transition: fill 0.25s ease;
+}
+
+.logout-button:hover svg {
+  fill: #ef4444;
+}
+
 .sidebar-closed .logout-text {
   display: none;
 }
 
-/* ------------------------------------------------ */
-/* FIXED SECTIONS BELOW TO RESOLVE CLICK ISSUES */
-/* ------------------------------------------------ */
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
 
 .main-content {
   flex-grow: 1;
-  padding: 2rem;
+
+  padding: 2.2rem;
+
   overflow-y: auto;
-  /* Removed transition margin-left; Flexbox handles the animation naturally via 'flex-grow' */
-  
-  /* IMPORTANT: Removed margin-left. 
-     Since .app-layout is 'display: flex', the content sits next to sidebar automatically. 
-     Adding margin here pushes it too far away or causes overlap issues. */
-  /* margin-left: 260px; <-- REMOVED */
 
-  /* IMPORTANT: Added z-index and position relative.
-     This ensures the content area is its own "layer", preventing 
-     the Sidebar shadow from blocking clicks. */
-  position: relative; 
+  position: relative;
   z-index: 1;
+
+  background:
+    linear-gradient(180deg, #08090d, #0f1117);
 }
 
-.main-content-shifted {
-  /* margin-left: 80px; <-- REMOVED */
-}
 
-/* ADD THIS CLASS: Ensures the button is absolutely clickable */
+/* =====================================================
+   BUTTON FIX
+===================================================== */
+
 .btn-view-project {
   position: relative;
   z-index: 9999;
+
   cursor: pointer;
 }
