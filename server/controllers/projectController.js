@@ -215,6 +215,7 @@ Your JSON output must follow this structure:
 // @route   GET /api/projects/:id
 // @access  Private
 const getProjectById = asyncHandler(async (req, res) => {
+    console.log(`Received request for project ID: ${req.params.id}`); // Debugging line
     // Check if req.params.id is a valid MongoDB ObjectId
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
         res.status(404);
@@ -240,6 +241,7 @@ const getProjectById = asyncHandler(async (req, res) => {
         });
 
     if (project) {
+        console.log('Project found:', project.name); // Debugging line
         // A function to recursively populate subTasks
         const processedTasks = new Set();
         const populateSubTasks = async (tasks) => {
