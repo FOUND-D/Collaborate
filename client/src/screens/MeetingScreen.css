@@ -83,7 +83,7 @@ body {
 }
 
 /* =========================================
-   VIDEO GRID (SMART SCALING)
+   VIDEO GRID (NORMAL MODE - SMART SCALING)
    ========================================= */
 
 .video-grid-container {
@@ -94,15 +94,10 @@ body {
 
   display: grid;
   
-  /* SCALING MAGIC:
-     1. 'auto-fit': Fits as many columns as possible.
-     2. 'minmax(350px, 1fr)':
-        - If few people: They grow larger (1fr).
-        - If many people: They shrink down to 350px, then wrap to new row.
-  */
+  /* SCALING MAGIC: Fits as many columns as possible */
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   
-  /* Centers the specific grid items vertically if they don't fill the screen */
+  /* Centers the specific grid items vertically */
   align-content: center; 
   justify-content: center;
   
@@ -111,31 +106,29 @@ body {
 }
 
 /* =========================================
-   PARTICIPANT TILE (16:9 SHAPE)
+   PARTICIPANT TILE
    ========================================= */
 
 .video-participant-container {
   position: relative;
   width: 100%;
   
-  /* ASPECT RATIO: 
-     Forces the tile to stay 16:9 Widescreen.
-     Prevents "long vertical strips".
-  */
+  /* Forces the tile to stay 16:9 Widescreen */
   aspect-ratio: 16 / 9; 
   
-  /* Prevents single user from stretching too wide on huge monitors */
+  /* Prevents single user from stretching too wide */
   max-width: 1400px;
   margin: 0 auto; 
 
-  background: #1c1c1e;
+  background: #1c1c1e; /* Dark Grey Placeholder when video is black/hidden */
   border-radius: var(--radius-lg);
   overflow: hidden;
   
-  /* Soft shadow for depth */
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   
   display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -146,13 +139,17 @@ body {
 .video-participant-container video {
   width: 100%;
   height: 100%;
-  /* Ensures video fills the 16:9 box without stretching/skewing */
   object-fit: cover; 
   background: #000;
-  opacity: 0.98; 
+  /* Ensure video is visible */
+  display: block; 
 }
 
 .local-video-flipped {
+  transform: scaleX(-1);
+}
+
+.remote-video-flipped {
   transform: scaleX(-1);
 }
 
@@ -168,7 +165,6 @@ body {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  /* Frosted Glass Pill */
   background: rgba(50, 50, 50, 0.6); 
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
@@ -184,13 +180,11 @@ body {
    ========================================= */
 
 .video-participant-container.speaking {
-  /* iOS Green Border */
   border: 2px solid var(--green);
-  /* Brighter, softer glow */
   box-shadow: 
     0 0 0 2px rgba(48, 209, 88, 0.1), 
     0 10px 40px rgba(48, 209, 88, 0.3); 
-  transform: scale(1.02); /* Subtle pop forward */
+  transform: scale(1.02);
   z-index: 5;
   animation: speakerPulse 2s infinite ease-in-out;
 }
@@ -226,17 +220,12 @@ body {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  /* Floating Glass Effect */
   background: rgba(20, 20, 20, 0.6);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
 }
-
-/* =========================================
-   BUTTONS
-   ========================================= */
 
 .btn {
   min-width: 120px;
@@ -276,41 +265,15 @@ body {
 }
 
 /* =========================================
-   MOBILE RESPONSIVENESS
-   ========================================= */
-
-@media (max-width: 768px) {
-  .video-grid-container {
-    /* Stack vertically on mobile */
-    grid-template-columns: 1fr;
-    /* Align to top on mobile so they scroll naturally */
-    align-content: start; 
-    gap: 12px;
-    padding: 1rem;
-  }
-  
-  .video-participant-container {
-    /* 4:3 Aspect ratio is usually better for mobile portrait screens */
-    aspect-ratio: 4 / 3; 
-    border-radius: 20px; 
-  }
-
-  .btn {
-    min-width: auto; 
-    flex: 1; 
-    font-size: 0.85rem;
-    padding: 0 1rem;
-  }
-}
-
-/* =========================================
    UTILITIES / ICONS
    ========================================= */
 
+/* IMPORTANT: If video is hidden (camera off), hide element so background shows */
 .hidden-video {
-    display: none;
+    display: none !important; 
 }
 
+/* Icon centered in the container when video is hidden */
 .video-overlay-icon {
     position: absolute;
     top: 50%;
@@ -318,7 +281,7 @@ body {
     transform: translate(-50%, -50%);
     color: var(--text-sub);
     z-index: 1;
-    font-size: 2.5rem; /* Larger icon */
+    font-size: 2.5rem; 
     opacity: 0.7;
 }
 
@@ -330,4 +293,139 @@ body {
     background: rgba(0,0,0,0.3);
     padding: 2px 6px;
     border-radius: 6px;
+}
+
+/* =========================================
+   SCREEN SHARING / LARGE VIEW LAYOUT
+   ========================================= */
+
+.video-grid-container.has-main-screen {
+  display: grid; 
+  /* 1fr = Main Screen (Takes remaining space)
+     300px = Sidebar (Fixed width for participants)
+  */
+  grid-template-columns: 1fr 300px; 
+  grid-template-rows: 1fr; 
+  gap: 15px; 
+  padding: 1.5rem;
+  overflow: hidden; /* Prevent double scrollbars */
+}
+
+/* The Main Screen / Shared Screen */
+.video-grid-container.has-main-screen .main-screen-share {
+  grid-column: 1; 
+  grid-row: 1; 
+  height: 100%;
+  width: 100%;
+  aspect-ratio: auto; /* Let it stretch */
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+  z-index: 10;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-grid-container.has-main-screen .main-screen-share video {
+  /* contain = show full screen content without cropping */
+  object-fit: contain; 
+  background: black;
+}
+
+/* The Sidebar (List of participants on the right) */
+.video-grid-container.has-main-screen .video-sidebar {
+  grid-column: 2; 
+  grid-row: 1; 
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; 
+  padding-right: 5px; 
+  gap: 10px; 
+}
+
+/* Hide Sidebar scrollbar */
+.video-grid-container.has-main-screen .video-sidebar::-webkit-scrollbar {
+  display: none;
+}
+.video-grid-container.has-main-screen .video-sidebar {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
+}
+
+/* Sidebar Participants */
+.video-grid-container.has-main-screen .video-participant-container:not(.main-screen-share) {
+  flex-shrink: 0;
+  width: 100%;
+  height: auto; 
+  /* Keeps sidebar videos 16:9 */
+  aspect-ratio: 16 / 9; 
+  border-radius: 12px;
+  background: #1c1c1e;
+}
+
+/* Sidebar Video Elements */
+.video-grid-container.has-main-screen .video-participant-container:not(.main-screen-share) video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+
+@media (max-width: 768px) {
+  /* Normal Grid on Mobile */
+  .video-grid-container {
+    grid-template-columns: 1fr;
+    align-content: start; 
+    gap: 12px;
+    padding: 1rem;
+  }
+  
+  .video-participant-container {
+    aspect-ratio: 4 / 3; 
+    border-radius: 20px; 
+  }
+
+  .btn {
+    min-width: auto; 
+    flex: 1; 
+    font-size: 0.85rem;
+    padding: 0 1rem;
+  }
+
+  /* Screen Sharing Grid on Mobile */
+  .video-grid-container.has-main-screen {
+    grid-template-columns: 1fr; /* Single column */
+    grid-template-rows: 2fr 1fr; /* Main screen top, participants bottom */
+    padding: 1rem;
+    gap: 12px;
+  }
+
+  .video-grid-container.has-main-screen .main-screen-share {
+    grid-column: 1;
+    grid-row: 1; 
+    height: 100%;
+    width: 100%;
+  }
+
+  .video-grid-container.has-main-screen .video-sidebar {
+    grid-column: 1;
+    grid-row: 2; 
+    flex-direction: row; /* Horizontal scroll */
+    overflow-x: auto; 
+    overflow-y: hidden;
+    padding-bottom: 5px; 
+    gap: 10px;
+  }
+  
+  .video-grid-container.has-main-screen .video-participant-container:not(.main-screen-share) {
+    width: 150px; /* Fixed width for horizontal scrolling */
+    height: auto;
+    aspect-ratio: 16/9;
+  }
 }
