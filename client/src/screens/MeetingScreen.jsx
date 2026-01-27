@@ -26,6 +26,8 @@ const MeetingScreen = () => {
   const [remoteMediaStatus, setRemoteMediaStatus] = useState({});
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isSharingScreen, setIsSharingScreen] = useState(false);
+  const screenStreamRef = useRef(null);
 
   // Audio Analysis
   const [speakingUsers, setSpeakingUsers] = useState({});
@@ -80,6 +82,9 @@ const MeetingScreen = () => {
       // 3. Stop Local Media
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop());
       }
 
       // 4. Close Audio Context
@@ -218,9 +223,18 @@ const MeetingScreen = () => {
       });
 
       // Add local tracks
-      localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
-      });
+      // Ensure we add the current active video track (camera or screen share)
+      const currentVideoTrack = isSharingScreen 
+        ? screenStreamRef.current?.getVideoTracks()[0] 
+        : localStream.getVideoTracks()[0];
+      const currentAudioTrack = localStream.getAudioTracks()[0];
+
+      if (currentVideoTrack) {
+        pc.addTrack(currentVideoTrack, localStream);
+      }
+      if (currentAudioTrack) {
+        pc.addTrack(currentAudioTrack, localStream);
+      }
 
       // Handle ICE Candidates
       pc.onicecandidate = (e) => {
@@ -238,10 +252,27 @@ const MeetingScreen = () => {
       pc.ontrack = (e) => {
         console.log(`Received track from ${targetUserId}`);
         setRemoteStreams((prev) => {
-          if (prev.some(s => s.userId === targetUserId)) return prev;
-          return [...prev, { stream: e.streams[0], userId: targetUserId, socketId: targetSocketId }];
+          // Check if a stream from this user already exists, if so, update it
+          const existingStreamIndex = prev.findIndex(s => s.userId === targetUserId);
+          const newStreamInfo = { 
+            stream: e.streams[0], 
+            userId: targetUserId, 
+            socketId: targetSocketId,
+            isScreenShare: e.track.kind === 'video' && e.streams[0].getVideoTracks()[0] !== localStream.getVideoTracks()[0] // Heuristic to detect screen share
+          };
+
+          if (existingStreamIndex > -1) {
+            const updatedStreams = [...prev];
+            updatedStreams[existingStreamIndex] = newStreamInfo;
+            return updatedStreams;
+          } else {
+            return [...prev, newStreamInfo];
+          }
         });
-        initRemoteAnalyser(e.streams[0], targetUserId);
+        // Re-init audio analyser if it's an audio track
+        if (e.track.kind === 'audio') {
+          initRemoteAnalyser(e.streams[0], targetUserId);
+        }
       };
 
       peerConnections[targetUserId] = pc;
@@ -304,18 +335,36 @@ const MeetingScreen = () => {
       }
     };
 
+    const onSharingScreen = ({ userId }) => {
+      setRemoteMediaStatus(prev => ({
+        ...prev,
+        [userId]: { ...prev[userId], isSharingScreen: true }
+      }));
+    };
+
+    const onStopSharingScreen = ({ userId }) => {
+      setRemoteMediaStatus(prev => ({
+        ...prev,
+        [userId]: { ...prev[userId], isSharingScreen: false }
+      }));
+    };
+
     socket.on("other-users", onOtherUsers);
     socket.on("offer", onOffer);
     socket.on("answer", onAnswer);
     socket.on("ice-candidate", onIceCandidate);
+    socket.on("sharing-screen", onSharingScreen);
+    socket.on("stop-sharing-screen", onStopSharingScreen);
 
     return () => {
       socket.off("other-users", onOtherUsers);
       socket.off("offer", onOffer);
       socket.off("answer", onAnswer);
       socket.off("ice-candidate", onIceCandidate);
+      socket.off("sharing-screen", onSharingScreen);
+      socket.off("stop-sharing-screen", onStopSharingScreen);
     };
-  }, [localStream, id]); // Depend on localStream (state), not Ref
+  }, [localStream, id, isSharingScreen]); // Depend on localStream (state), not Ref
 
   /* =====================================
      6. AUDIO ANALYSER HELPERs
@@ -389,6 +438,70 @@ const MeetingScreen = () => {
     navigate(`/team/${id}`);
   };
 
+  // Helper to replace video track across all peer connections
+  const replaceVideoTrack = (newTrack) => {
+    Object.values(peerConnections).forEach(pc => {
+      const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender) {
+        sender.replaceTrack(newTrack);
+      }
+    });
+  };
+
+  const startScreenShare = async () => {
+    try {
+      // Get screen share stream
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }); // Audio might cause issues, starting with video only
+      const screenVideoTrack = stream.getVideoTracks()[0];
+
+      // Store screen stream
+      screenStreamRef.current = stream;
+      setIsSharingScreen(true);
+
+      // Update local video display to screen share
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = screenStreamRef.current;
+      }
+      
+      // Replace video track in all peer connections
+      replaceVideoTrack(screenVideoTrack);
+
+      // Listen for screen share end event
+      screenVideoTrack.onended = () => {
+        stopScreenShare();
+      };
+
+      // Signal screen share to other participants
+      socketRef.current.emit("sharing-screen", { userId: userInfo._id });
+
+    } catch (error) {
+      console.error("Error starting screen share:", error);
+      setIsSharingScreen(false);
+    }
+  };
+
+  const stopScreenShare = () => {
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach(track => track.stop());
+      screenStreamRef.current = null;
+    }
+    setIsSharingScreen(false);
+
+    // Replace screen share track with local camera track
+    if (localStreamRef.current) {
+      const cameraVideoTrack = localStreamRef.current.getVideoTracks()[0];
+      replaceVideoTrack(cameraVideoTrack);
+
+      // Update local video display to camera
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+      }
+    }
+    
+    // Signal end of screen share to other participants
+    socketRef.current.emit("stop-sharing-screen", { userId: userInfo._id });
+  };
+
   /* =====================================
      8. RENDER
   ===================================== */
@@ -402,7 +515,7 @@ const MeetingScreen = () => {
       <div className="video-grid-container">
         {/* LOCAL VIDEO */}
         <div className={`video-participant-container ${speakingUsers.local ? "speaking" : ""}`}>
-          <video ref={localVideoRef} autoPlay muted playsInline />
+          <video ref={localVideoRef} autoPlay muted playsInline className={!isSharingScreen ? "local-video-flipped" : ""} />
           {!isCameraOn && (
             <div className="video-overlay-icon"><FaVideoSlash size={60} /></div>
           )}
@@ -416,6 +529,12 @@ const MeetingScreen = () => {
           const participant = participants.find((p) => p._id === remote.userId);
           const remoteCameraOn = remoteMediaStatus[remote.userId]?.cameraOn ?? true;
           const remoteMicOn = remoteMediaStatus[remote.userId]?.micOn ?? true;
+          const remoteIsSharingScreen = remoteMediaStatus[remote.userId]?.isSharingScreen ?? false;
+          
+          // Determine which stream to display
+          const displayStream = remoteIsSharingScreen 
+            ? remoteStreams.find(s => s.userId === remote.userId && s.isScreenShare)?.stream 
+            : remoteStreams.find(s => s.userId === remote.userId && !s.isScreenShare)?.stream;
 
           return (
             <div
@@ -425,18 +544,20 @@ const MeetingScreen = () => {
               <video
                 autoPlay
                 playsInline
-                className={!remoteCameraOn ? 'hidden-video' : ''}
+                className={!remoteCameraOn && !remoteIsSharingScreen ? 'hidden-video' : ''} // Hide if camera is off AND not screen sharing
                 ref={(ref) => {
-                  if (ref && ref.srcObject !== remote.stream) ref.srcObject = remote.stream;
+                  // Ensure we only update srcObject if it's actually a new stream
+                  if (ref && ref.srcObject !== displayStream) ref.srcObject = displayStream;
                 }}
               />
-              {!remoteCameraOn && (
+              {!remoteCameraOn && !remoteIsSharingScreen && (
                  <div className="video-overlay-icon"><FaVideoSlash size={60} /></div>
               )}
               <div className="participant-name">
                 {participant ? participant.name : "Guest"}
+                {remoteIsSharingScreen && " (Screen Sharing)"}
                 <span className="media-status-icons">
-                  {!remoteCameraOn && <FaVideoSlash size={12}/>}
+                  {!remoteCameraOn && !remoteIsSharingScreen && <FaVideoSlash size={12}/>}
                   {!remoteMicOn && <FaMicrophoneSlash size={12}/>}
                 </span>
               </div>
@@ -451,6 +572,9 @@ const MeetingScreen = () => {
         </button>
         <button className="btn" onClick={toggleMic}>
           {isMicOn ? "Mute Mic" : "Unmute Mic"}
+        </button>
+        <button className="btn" onClick={isSharingScreen ? stopScreenShare : startScreenShare}>
+          {isSharingScreen ? "Stop Sharing" : "Share Screen"}
         </button>
         <button className="btn btn-danger" onClick={leaveMeetingHandler}>
           Leave Meeting
