@@ -237,7 +237,7 @@ const ProjectScreen = () => {
                 )}
               </div>
 
-              <div className="project-progress-bar">
+              <div className="project-progress">
                 <div className="progress-bar-container">
                   <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
                 </div>
