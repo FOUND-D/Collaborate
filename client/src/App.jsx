@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Sidebar from './components/Sidebar';
 import LoginScreen from './screens/LoginScreen';
@@ -17,11 +17,14 @@ import MeetingScreen from './screens/MeetingScreen';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 
-const App = () => {
+const AppContent = () => {
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,9 +38,9 @@ const App = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); 
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
-  }, []); 
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -54,39 +57,49 @@ const App = () => {
   const mainContentClass = `main-content ${getShiftClass()}`;
 
   return (
-    <Router>
-      <div className="app-layout">
-        {/* Mobile-only toggle button (visible when sidebar is closed on mobile) */}
-        {isMobile && !isSidebarOpen && (
-          <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
-            <FaBars />
-          </button>
-        )}
+    <div className="app-layout">
+      {/* Mobile-only toggle button (visible when sidebar is closed on mobile) */}
+      {!isAuthPage && isMobile && !isSidebarOpen && (
+        <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
+          <FaBars />
+        </button>
+      )}
+
+      {!isAuthPage && (
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        <div className={mainContentClass}>
-          {status === SERVER_STATUS_OFFLINE && (
-            <div className="server-status-message">
-              Server is currently offline. It usually takes about a minute to start up. Please wait...
-            </div>
-          )}
-          <Routes>
-            <Route path="/" element={<HomeScreen />} exact />
-            <Route path="/login" element={<LoginScreen />} />
-            <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/teams" element={<TeamScreen />} />
-            <Route path="/team/:id" element={<TeamDetailsScreen />} />
-            <Route path="/team/:id/meeting" element={<MeetingScreen />} />
-            <Route path="/tasks" element={<TaskScreen />} />
-            <Route path="/task/create" element={<TaskEditScreen />} />
-            <Route path="/task/:id/edit" element={<TaskEditScreen />} />
-            <Route path="/project/create" element={<ProjectCreateScreen />} />
-            <Route path="/project/:id" element={<ProjectScreen />} />
-            <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
-            <Route path="/profile" element={<ProfileScreen />} />
-            {/* Add other routes here */}
-          </Routes>
-        </div>
+      )}
+
+      <div className={!isAuthPage ? mainContentClass : 'auth-page-wrapper'}>
+        {!isAuthPage && status === SERVER_STATUS_OFFLINE && (
+          <div className="server-status-message">
+            Server is currently offline. It usually takes about a minute to start up. Please wait...
+          </div>
+        )}
+        <Routes>
+          <Route path="/" element={<HomeScreen />} exact />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/register" element={<RegisterScreen />} />
+          <Route path="/teams" element={<TeamScreen />} />
+          <Route path="/team/:id" element={<TeamDetailsScreen />} />
+          <Route path="/team/:id/meeting" element={<MeetingScreen />} />
+          <Route path="/tasks" element={<TaskScreen />} />
+          <Route path="/task/create" element={<TaskEditScreen />} />
+          <Route path="/task/:id/edit" element={<TaskEditScreen />} />
+          <Route path="/project/create" element={<ProjectCreateScreen />} />
+          <Route path="/project/:id" element={<ProjectScreen />} />
+          <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
+          <Route path="/profile" element={<ProfileScreen />} />
+          {/* Add other routes here */}
+        </Routes>
       </div>
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 };
