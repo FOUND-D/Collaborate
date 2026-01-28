@@ -1,0 +1,17 @@
+name: Keep Render Server Awake
+
+on:
+  schedule:
+    # Run every 14 minutes to beat the 15-minute inactivity timeout
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows you to run this manually from the Actions tab for testing
+
+jobs:
+  ping_server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render URL
+        run: |
+          curl -I https://collaborate-arin.onrender.com
+        # Option: specific endpoint to avoid processing heavy data
+        # run: curl -I https://YOUR-APP-NAME.onrender.com/health
