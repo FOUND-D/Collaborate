@@ -22,6 +22,12 @@
   margin-left: 0;
 }
 
+.auth-page-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Responsive Grid Layouts */
 .grid-layout {
   display: grid;
