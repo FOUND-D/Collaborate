@@ -1,397 +1,250 @@
 /* =====================================================
-   CHAT SIDEBAR — FINAL ISOLATED VERSION
-   (SAFE WITH CHATSCREEN LAYOUT)
+   CHAT SIDEBAR — FINAL FIXED VERSION
+   (Includes Layout Wrappers)
 ===================================================== */
 
 :root {
   --accent: #0a84ff;
-
   --bg-glass: rgba(22, 22, 30, 0.94);
   --bg-soft: rgba(255, 255, 255, 0.05);
-
   --border-soft: rgba(255, 255, 255, 0.12);
-
   --text-main: rgba(255, 255, 255, 0.96);
   --text-muted: rgba(255, 255, 255, 0.65);
-
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-pill: 999px;
-
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
   --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
-
 /* =====================================================
-   ROOT CONTAINER
+   ROOT SIDEBAR COMPONENT
+   (Now Fluid: 100% Width/Height)
 ===================================================== */
 
 .chat-sidebar {
-
-  width: 280px;
-  min-width: 260px;
-  max-width: 320px;
-
-  height: 100vh;
-
   display: flex;
   flex-direction: column;
 
   background: var(--bg-glass);
-
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
-  border-right: 1px solid var(--border-soft);
-
-  box-shadow: var(--shadow-soft);
+  /* Border is handled by the wrapper now, but we keep a subtle one just in case */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 
   overflow: hidden;
-
   isolation: isolate;
+  box-sizing: border-box;
 }
-
 
 /* =====================================================
    HEADER
 ===================================================== */
 
 .cs-header {
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 14px 14px 10px;
-
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-
 .cs-brand {
-
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-
 .cs-logo {
-
   width: 38px;
   height: 38px;
-
   border-radius: 10px;
-
   background: rgba(255, 255, 255, 0.04);
-
   display: grid;
   place-items: center;
-
   font-weight: 700;
   font-size: 0.9rem;
-
   color: var(--text-main);
 }
 
-
 .cs-brand h3 {
-
   font-size: 0.95rem;
   font-weight: 700;
-
   margin: 0;
 }
 
-
 .cs-brand span {
-
   font-size: 0.7rem;
-
   color: var(--text-muted);
 }
-
 
 /* =====================================================
    SEARCH BAR
 ===================================================== */
 
 .cs-search {
-
   margin: 10px 12px 12px;
-
   padding: 6px 10px;
-
   background: var(--bg-soft);
-
   border-radius: var(--radius-pill);
-
   border: 1px solid rgba(255, 255, 255, 0.04);
-
   display: flex;
   align-items: center;
-
   gap: 6px;
 }
 
-
 .cs-search input {
-
   flex: 1;
-
   background: transparent;
   border: none;
-
   outline: none;
-
   color: var(--text-main);
-
   font-size: 0.85rem;
 }
 
-
 .cs-search input::placeholder {
-
   color: rgba(255, 255, 255, 0.45);
 }
 
-
 .cs-search button {
-
   background: none;
   border: none;
-
   color: var(--text-muted);
-
   cursor: pointer;
-
   font-size: 0.85rem;
 }
-
 
 /* =====================================================
    FILTER TABS
 ===================================================== */
 
 .cs-tabs {
-
   display: flex;
-
   gap: 8px;
-
   padding: 0 12px 10px;
 }
 
-
 .tab {
-
   flex: 1;
-
   padding: 5px 0;
-
   text-align: center;
-
   font-size: 0.72rem;
-
   border-radius: var(--radius-pill);
-
   cursor: pointer;
-
   color: var(--text-muted);
-
   transition: var(--transition);
 }
 
-
 .tab:hover {
-
   background: rgba(255, 255, 255, 0.04);
 }
 
-
 .tab.active {
-
   background: rgba(255, 255, 255, 0.06);
-
   color: var(--text-main);
-
   font-weight: 600;
 }
-
 
 /* =====================================================
    BODY / LIST AREA
 ===================================================== */
 
 .cs-body {
-
   flex: 1;
-
+  /* FIX: Critical for nested flex scrolling */
+  min-height: 0; 
   overflow-y: auto;
-
   padding: 4px 8px 10px;
-
   display: flex;
   flex-direction: column;
-
   gap: 16px;
 }
 
-
 /* =====================================================
-   SECTIONS
+   SECTIONS & ITEMS
 ===================================================== */
 
 .cs-title {
-
   font-size: 0.65rem;
-
   letter-spacing: 0.12em;
-
   text-transform: uppercase;
-
   color: var(--text-muted);
-
   margin: 0 6px 6px;
 }
 
-
 section {
-
   display: flex;
   flex-direction: column;
-
   gap: 6px;
 }
 
-
-/* =====================================================
-   CHAT ITEMS
-===================================================== */
-
 .cs-item {
-
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   padding: 8px 10px;
-
   border-radius: var(--radius-md);
-
   cursor: pointer;
-
   transition: var(--transition);
-
   min-height: 44px;
 }
 
-
 .cs-item:hover {
-
   background: rgba(255, 255, 255, 0.05);
-
   transform: translateX(2px);
 }
 
-
 .cs-item.active {
-
   background: var(--accent);
-
   color: white;
-
   box-shadow: 0 4px 12px rgba(10, 132, 255, 0.4);
 }
 
-
-/* =====================================================
-   AVATAR
-===================================================== */
-
 .cs-avatar {
-
   width: 40px;
   height: 40px;
-
   border-radius: 10px;
-
   background: rgba(255, 255, 255, 0.06);
-
   display: grid;
   place-items: center;
-
   font-weight: 700;
   font-size: 0.8rem;
-
   color: var(--text-main);
-
   flex-shrink: 0;
 }
 
-
-/* =====================================================
-   INFO
-===================================================== */
-
 .cs-info {
-
   flex: 1;
-
   min-width: 0;
-
   overflow: hidden;
 }
-
 
 .cs-info h4 {
-
   margin: 0;
-
   font-size: 0.85rem;
-
   font-weight: 600;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 
 .cs-info p {
-
   margin: 2px 0 0;
-
   font-size: 0.7rem;
-
   color: var(--text-muted);
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-
-/* =====================================================
-   EMPTY STATE
-===================================================== */
-
 .cs-empty {
-
   padding: 12px 8px;
-
   text-align: center;
-
   font-size: 0.8rem;
-
   color: var(--text-muted);
-
   font-style: italic;
 }
-
 
 /* =====================================================
    SCROLLBAR
@@ -401,19 +254,69 @@ section {
   width: 5px;
 }
 
-
 .cs-body::-webkit-scrollbar-thumb {
-
   background: rgba(255, 255, 255, 0.18);
-
   border-radius: 999px;
 }
 
-
 .cs-body::-webkit-scrollbar-thumb:hover {
-
   background: rgba(255, 255, 255, 0.28);
 }
+
+/* =====================================================
+   LAYOUT CONTAINERS (Use these in Parent Component)
+===================================================== */
+
+/* 1. The Main Wrapper */
+.chat-screen-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+
+  /* NEW */
+  align-items: stretch;
+}
+
+
+/* 2. The Sidebar Wrapper */
+/* Sidebar Wrapper */
+/* Sidebar Wrapper */
+.chat-docked {
+  flex: 0 0 auto; /* 🔥 Stop flex stretching */
+  
+  width: clamp(340px, 30vw, 440px);
+  min-width: 340px;
+  max-width: 440px;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  border-right: 1px solid var(--border-soft);
+}
+
+
+
+/* Chat Panel */
+.chat-panel {
+  flex: 1 1 auto; /* 🔥 Fill remaining space */
+  min-width: 0;
+
+  display: none;
+  background: transparent;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+/* When Chat Is Open */
+
+
+
+/* 4. ACTIVE STATE (When a user is selected) */
+
 
 
 /* =====================================================
@@ -421,13 +324,8 @@ section {
 ===================================================== */
 
 @media (max-width: 768px) {
-
+  
   .chat-sidebar {
-
-    width: 100%;
-
-    max-width: none;
-
-    height: 100%;
+    border-right: none;
   }
 }
