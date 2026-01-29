@@ -4,7 +4,8 @@
 
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden; /* Prevent the whole layout from scrolling */
   background: linear-gradient(180deg, #050507, #0b0c10);
   position: relative;
   color: var(--text-primary);
@@ -34,8 +35,8 @@
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
   box-shadow:
-    inset -1px 0 0 rgba(255, 255, 255, 0.05),
-    0 0 40px rgba(0, 0, 0, 0.6);
+    inset -1px 0 0 rgba(255,255,255,0.05),
+    0 0 40px rgba(0,0,0,0.6);
 
   position: relative;
   z-index: 1000;
@@ -97,8 +98,8 @@
 ===================================================== */
 
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
 
   color: var(--text-secondary);
 
@@ -121,7 +122,7 @@
 }
 
 .sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
   transform: scale(1.05);
 }
 
@@ -185,7 +186,7 @@
 }
 
 .sidebar-closed .nav-item:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255,255,255,0.12);
   transform: scale(1.12);
 }
 
@@ -193,7 +194,7 @@
 /* Open hover */
 
 .sidebar-open .nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.06);
   color: #ffffff;
 }
 
@@ -206,13 +207,15 @@
   color: #ffffff;
 
   background:
-    linear-gradient(90deg,
-      rgba(10, 132, 255, 0.25),
-      rgba(10, 132, 255, 0.05));
+    linear-gradient(
+      90deg,
+      rgba(10,132,255,0.25),
+      rgba(10,132,255,0.05)
+    );
 
   box-shadow:
-    inset 0 0 0 1px rgba(10, 132, 255, 0.25),
-    0 0 14px rgba(10, 132, 255, 0.25);
+    inset 0 0 0 1px rgba(10,132,255,0.25),
+    0 0 14px rgba(10,132,255,0.25);
 }
 
 
@@ -296,7 +299,7 @@
 
   padding: 7px 12px;
 
-  background: rgba(20, 20, 24, 0.95);
+  background: rgba(20,20,24,0.95);
 
   color: #fff;
 
@@ -309,7 +312,7 @@
   opacity: 0;
   visibility: hidden;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 
   transition: all 0.2s ease;
 
@@ -330,7 +333,7 @@
 .sidebar-footer {
   padding: 1.1rem;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255,255,255,0.08);
 
   display: flex;
   flex-direction: column;
@@ -357,14 +360,6 @@
   gap: 0.7rem;
 
   color: #ffffff;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  padding: 4px;
-  border-radius: 8px;
-}
-
-.user-profile:hover {
-  background: rgba(255, 255, 255, 0.1);
 }
 
 .user-avatar {
@@ -386,7 +381,7 @@
 
   font-size: 0.85rem;
 
-  box-shadow: 0 0 10px rgba(10, 132, 255, 0.4);
+  box-shadow: 0 0 10px rgba(10,132,255,0.4);
 }
 
 
@@ -426,7 +421,7 @@
 
 
 .logout-button:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239,68,68,0.15);
   color: #ef4444;
 }
 
@@ -467,9 +462,39 @@
    BUTTON FIX
 ===================================================== */
 
-.btn-view-project {
-  position: relative;
-  z-index: 9999;
+/* =====================================================
+   SPLIT SCREEN CHAT LAYOUT
+===================================================== */
 
-  cursor: pointer;
+.app-body {
+  display: flex;
+  flex-grow: 1;
 }
+
+.main-content {
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.main-content.chat-open {
+  width: calc(100% - 450px); /* Adjust chat panel width */
+}
+
+/* ChatPanel as a docked sidebar */
+.chat-screen-container.chat-panel {
+  width: 450px; /* Increased width */
+  border-left: 1px solid var(--border-color);
+  flex-shrink: 0;
+  position: static;
+  height: 100%; /* Occupy full height of the flex container */
+  border-radius: 0;
+  box-shadow: none;
+  display: flex; /* Make it a flex container to manage its children */
+  flex-direction: column;
+}
+
+.chat-screen-container.chat-panel .chat-main-area {
+  flex-grow: 1; /* Allow chat area to fill available space */
+  overflow-y: auto; /* Enable scrolling within the chat area */
+}
+

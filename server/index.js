@@ -15,13 +15,11 @@ const connectDB = require('./config/db'); // Import connectDB
 const userRoutes = require('./routes/userRoutes');
 
 const teamRoutes = require('./routes/teamRoutes');
-
 const taskRoutes = require('./routes/taskRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
-
 const { protect } = require('./middleware/authMiddleware');
-
 const Task = require('./models/Task');
 
 const Team = require('./models/Team');
@@ -198,6 +196,25 @@ io.on('connection', (socket) => {
   socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
   });
+
+  // Chat conversation events
+  socket.on('joinConversation', (conversationId) => {
+    socket.join(`conversation:${conversationId}`);
+    console.log(`User joined conversation: ${conversationId}`);
+  });
+
+  socket.on('leaveConversation', (conversationId) => {
+    socket.leave(`conversation:${conversationId}`);
+    console.log(`User left conversation: ${conversationId}`);
+  });
+
+  socket.on('newMessage', (message) => {
+    // The message object should contain the teamId or conversationId
+    const conversationId = message.team; // Assuming teamId is the conversationId
+    if (conversationId) {
+      socket.to(`conversation:${conversationId}`).emit('newMessage', message);
+    }
+  });
 });
 
 
@@ -235,15 +252,11 @@ app.use('/api/teams', teamRoutes);
 
 
 app.use('/api/tasks', taskRoutes);
-
 app.use('/api/projects', projectRoutes);
-
-
+app.use('/api/messages', messageRoutes);
 
 // Error Handling Middleware
-
 app.use(notFound);
-
 app.use(errorHandler);
 
 

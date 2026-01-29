@@ -3,9 +3,9 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaUser, FaComments } from 'react-icons/fa';
 
-const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
+const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -52,6 +52,16 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
           <span className="nav-text">Tasks</span>
           {!isSidebarOpen && <span className="tooltip">Tasks</span>}
         </NavLink>
+        <button className="nav-item" onClick={toggleChat}>
+          <FaComments />
+          <span className="nav-text">Chat</span>
+          {!isSidebarOpen && <span className="tooltip">Chat</span>}
+        </button>
+        <NavLink to="/profile" className={getNavLinkClass}>
+          <FaUser />
+          <span className="nav-text">Profile</span>
+          {!isSidebarOpen && <span className="tooltip">Profile</span>}
+        </NavLink>
         <NavLink to="/settings" className={getNavLinkClass}>
           <FaCog />
           <span className="nav-text">Settings</span>
@@ -61,16 +71,14 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
 
       {userInfo && (
         <div className="sidebar-footer">
-          <div
-            className="user-profile"
-            onClick={() => navigate('/profile')}
-            title="View Profile"
-          >
-            <div className="user-avatar">
-              {userInfo.name.charAt(0).toUpperCase()}
+          {isSidebarOpen && (
+            <div className="user-profile">
+              <div className="user-avatar">
+                {userInfo.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="user-name">{userInfo.name}</span>
             </div>
-            {isSidebarOpen && <span className="user-name">{userInfo.name}</span>}
-          </div>
+          )}
           <button className="logout-button" onClick={logoutHandler}>
             <FaSignOutAlt />
             {isSidebarOpen && <span className="logout-text">Logout</span>}
