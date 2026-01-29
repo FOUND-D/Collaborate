@@ -10,7 +10,7 @@ import '../screens/ChatScreen.css';
 
 const ChatPanel = ({ onClose, isDocked }) => {
   const [selectedChat, setSelectedChat] = useState(null);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(false);
 
   const dispatch = useDispatch();
   const pollingRef = useRef(null);
@@ -51,35 +51,60 @@ const ChatPanel = ({ onClose, isDocked }) => {
 
   return (
     <div className={`chat-screen-container chat-panel ${isDocked ? 'chat-panel-docked' : ''}`}>
-      <div className="chat-panel-header">
-        {selectedChat && (
-          <button className="chat-back-btn" onClick={handleBack}>
-            <FaArrowLeft />
-          </button>
-        )}
-        <span>{!selectedChat ? 'Chat' : selectedChat.name}</span>
-        <button className="chat-panel-close-btn" onClick={onClose}>
-          <FaTimes />
-        </button>
-      </div>
-
-      {!selectedChat ? (
+      
+      {/* 1. SIDEBAR AREA - Always Visible on Left */}
+      <div className="cp-sidebar-area">
         <ChatSidebar
           setSelectedChat={setSelectedChat}
           selectedChat={selectedChat}
         />
-      ) : (
-        <div className="chat-view">
-          <div className="chat-main-area">
-            {initialLoading ? (
-              <div className="chat-initial-loader">Loading messages...</div>
-            ) : (
-              <MessageList selectedChat={selectedChat} />
-            )}
+      </div>
+
+      {/* 2. MAIN CHAT AREA - Fills the Right Side */}
+      <div className="cp-main-area">
+        
+        {/* Header (Now inside the right pane) */}
+        <div className="chat-panel-header">
+          {selectedChat && (
+            <button className="chat-back-btn mobile-only" onClick={handleBack}>
+              <FaArrowLeft />
+            </button>
+          )}
+          
+          <div className="chat-header-info">
+             <h3>{!selectedChat ? 'Welcome' : selectedChat.name}</h3>
+             {selectedChat && <span>{selectedChat.type === 'team' ? 'Team Chat' : 'Direct Message'}</span>}
           </div>
-          {!initialLoading && <MessageInput selectedChat={selectedChat} />}
+
+          <button className="chat-panel-close-btn" onClick={onClose}>
+            <FaTimes />
+          </button>
         </div>
-      )}
+
+        {/* Content Body */}
+        <div className="chat-panel-body">
+          {!selectedChat ? (
+            /* EMPTY STATE (Fills the void when no chat is active) */
+            <div className="chat-empty-state">
+              <div className="empty-icon">👋</div>
+              <h3>Select a conversation</h3>
+              <p>Choose a team or member from the sidebar to start chatting.</p>
+            </div>
+          ) : (
+            /* ACTIVE CHAT VIEW */
+            <>
+              <div className="chat-messages-wrapper">
+                {initialLoading ? (
+                  <div className="chat-initial-loader">Loading messages...</div>
+                ) : (
+                  <MessageList selectedChat={selectedChat} />
+                )}
+              </div>
+              <MessageInput selectedChat={selectedChat} />
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
