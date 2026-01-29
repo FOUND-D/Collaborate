@@ -52,10 +52,19 @@
 /* Note: Since you imported ChatSidebar, these might be redundant 
    but good to keep for layout safety */
 .chat-sidebar {
-  width: 280px;
-  min-width: 260px;
-  height: 100%;
-  flex-shrink: 0; /* Prevents sidebar from being crushed */
+  display: flex;
+  flex-direction: column;
+
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* Border is handled by the wrapper now, but we keep a subtle one just in case */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+  overflow: hidden;
+  isolation: isolate;
+  box-sizing: border-box;
 }
 
 /* =====================================================
