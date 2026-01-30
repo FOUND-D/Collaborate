@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react';
 import './TaskScreen.css';
-
-import { LinkContainer } from 'react-router-bootstrap';
-
-import { Button } from 'react-bootstrap';
-
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaPlus, FaEdit, FaTrash, FaCheck, FaUser } from 'react-icons/fa';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 
-import { listTasks, deleteTask } from '../actions/taskActions';
+import { listTasks, deleteTask, updateTask } from '../actions/taskActions';
 import { TASK_DELETE_SUCCESS } from '../constants/taskConstants';
 
 
@@ -35,6 +31,9 @@ const TaskScreen = () => {
     success: successDelete,
   } = taskDelete;
 
+  const taskUpdate = useSelector((state) => state.taskUpdate);
+  const { success: successUpdate } = taskUpdate;
+
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
@@ -49,33 +48,31 @@ const TaskScreen = () => {
       navigate('/login');
     }
 
-    if (successDelete) {
-
-      dispatch({ type: TASK_DELETE_SUCCESS });
+    if (successDelete || successUpdate) {
+      if (successDelete) dispatch({ type: TASK_DELETE_SUCCESS });
       dispatch(listTasks());
-
     } else {
-
       dispatch(listTasks());
     }
 
-  }, [dispatch, navigate, userInfo, successDelete]);
+  }, [dispatch, navigate, userInfo, successDelete, successUpdate]);
 
 
   /* ===============================
      HANDLERS
   =============================== */
 
-  const createTaskHandler = () => {
-    navigate('/task/create');
-  };
 
 
   const deleteHandler = (id) => {
-
     if (window.confirm('Delete this task permanently?')) {
       dispatch(deleteTask(id));
     }
+  };
+
+  const handleTaskCheck = (task) => {
+    const newStatus = task.status === 'Completed' ? 'To Do' : 'Completed';
+    dispatch(updateTask({ ...task, status: newStatus }));
   };
 
 
@@ -84,23 +81,13 @@ const TaskScreen = () => {
   =============================== */
 
   const getStatusClass = (status) => {
-
-    if (!status) return '';
-
+    if (!status) return 'pending';
     switch (status.toLowerCase()) {
-
-      case 'completed':
-        return 'completed';
-
-      case 'pending':
-        return 'pending';
-
-      case 'inprogress':
-      case 'in-progress':
-        return 'inprogress';
-
-      default:
-        return '';
+      case 'completed': return 'completed';
+      case 'in progress':
+      case 'inprogress': return 'inprogress';
+      case 'blocked': return 'blocked';
+      default: return 'pending';
     }
   };
 
@@ -110,156 +97,100 @@ const TaskScreen = () => {
   =============================== */
 
   return (
-
     <div className="task-page">
 
-
       {/* Header */}
-
-      <div className="task-header">
-
-        <h1>Tasks</h1>
-
-        <button
-          className="create-task-btn"
-          onClick={createTaskHandler}
+      <div className="task-hero-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 className="project-detail-title">Tasks</h1>
+          <p className="project-detail-goal">Manage all your tasks in one place.</p>
+        </div>
+        <Link
+          to="/task/create"
+          className="btn-gradient"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
         >
-          <i className="fas fa-plus"></i> Create Task
-        </button>
-
+          <FaPlus /> Create Task
+        </Link>
       </div>
 
-
       {/* Loading / Errors */}
-
       {loadingDelete && <Loader />}
       {errorDelete && <Message variant="danger">{errorDelete}</Message>}
 
       {loading ? (
-
         <Loader />
-
       ) : error ? (
-
         <Message variant="danger">{error}</Message>
-
       ) : (
+        tasks && tasks.length === 0 ? (
+          <div className="empty-state-container" style={{ textAlign: 'center', padding: '3rem' }}>
+            <Message variant="info">No tasks found.</Message>
+            <Link to="/task/create" className="btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+              <FaPlus /> Create Your First Task
+            </Link>
+          </div>
+        ) : (
+          /* Modern List Wrapper */
+          <ul className="modern-task-list">
+            {tasks.map((task) => (
+              <li key={task._id} className="task-list-item">
 
+                {/* Checkbox */}
+                <div className="task-checkbox-container">
+                  <div
+                    className={`task-checkbox ${task.status === 'Completed' ? 'checked' : ''}`}
+                    onClick={() => handleTaskCheck(task)}
+                  >
+                    {task.status === 'Completed' && <FaCheck size="0.8em" />}
+                  </div>
+                </div>
 
-        /* Table Wrapper */
-
-        <div className="task-table-wrapper">
-
-
-          <table className="task-table">
-
-
-            {/* Head */}
-
-            <thead>
-
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Assigned To</th>
-                <th></th>
-              </tr>
-
-            </thead>
-
-
-            {/* Body */}
-
-            <tbody>
-
-              {tasks.map((task) => (
-
-                <tr key={task._id}>
-
-
-                  {/* ID */}
-
-                  <td className="task-id">
-                    {task._id}
-                  </td>
-
-
-                  {/* Title */}
-
-                  <td className="task-title">
+                {/* Details */}
+                <div className="task-details-main" onClick={() => navigate(`/task/${task._id}/edit`)} style={{ cursor: 'pointer' }}>
+                  <span className={`task-name ${task.status === 'Completed' ? 'completed' : ''}`}>
                     {task.name}
-                  </td>
-
-
-                  {/* Status */}
-
-                  <td>
-
-                    <span
-                      className={`task-status ${getStatusClass(task.status)}`}
-                    >
-                      {task.status}
-                    </span>
-
-                  </td>
-
-
-                  {/* Assignee */}
-
-                  <td className="task-assignee">
-
-                    {task.assignee
-                      ? task.assignee.name
-                      : 'Unassigned'}
-
-                  </td>
-
-
-                  {/* Actions */}
-
-                  <td>
-
-
-                    <LinkContainer to={`/task/${task._id}/edit`}>
-
-                      <button className="task-action-btn">
-
-                        <i className="fas fa-edit"></i>
-
-                      </button>
-
-                    </LinkContainer>
-
-
-                    {userInfo && task.owner === userInfo._id && (
-
-                      <button
-                        className="task-action-btn danger"
-                        onClick={() => deleteHandler(task._id)}
-                      >
-
-                        <i className="fas fa-trash"></i>
-
-                      </button>
-
+                  </span>
+                  <div className="task-description" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                    {task.assignee ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}>
+                        <FaUser size="0.7em" /> {task.assignee.name}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Unassigned</span>
                     )}
+                    {/* Optional: Add Project Name here if available in the future */}
+                  </div>
+                </div>
 
-                  </td>
+                {/* Metadata */}
+                <div className="task-metadata-group">
+                  <span className={`task-status-pill ${getStatusClass(task.status)}`}>
+                    {task.status}
+                  </span>
+                </div>
 
+                {/* Actions */}
+                <div className="task-actions-group" style={{ display: 'flex', alignItems: 'center' }}>
+                  <button className="task-action-btn" onClick={() => navigate(`/task/${task._id}/edit`)} title="Edit">
+                    <FaEdit />
+                  </button>
+                  {userInfo && task.owner === userInfo._id && (
+                    <button
+                      className="task-action-btn"
+                      onClick={() => deleteHandler(task._id)}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  )}
+                </div>
 
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
+              </li>
+            ))}
+          </ul>
+        )
       )}
-
     </div>
   );
 };
