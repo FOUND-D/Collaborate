@@ -15,7 +15,7 @@ const groq = new Groq({
 // @route   GET /api/projects
 // @access  Private
 const getProjects = asyncHandler(async (req, res) => {
-  const teamIds = req.user.teams ? req.user.teams.map(team => team._id) : [];
+  const teamIds = req.user.teams ? req.user.teams.filter(team => team).map(team => team._id) : [];
 
   const projects = await Project.find({
     $or: [{ owner: req.user._id }, { team: { $in: teamIds } }],
@@ -155,18 +155,18 @@ Your JSON output must follow this structure:
     const createdTasks = [];
     // First pass: Create tasks without dependencies to populate the name->ID map.
     for (const task of tasks) {
-            const newTask = new Task({
-              name: task.name,
-              description: task.description,
-              duration: task.duration,
-              priority: task.priority,
-              assumptions: task.assumptions,
-              dependencies: [], // Handled in the second pass
-              team: teamId,
-              project: createdProject._id,
-              owner: req.user._id,
-              parent: parentId,
-            });
+      const newTask = new Task({
+        name: task.name,
+        description: task.description,
+        duration: task.duration,
+        priority: task.priority,
+        assumptions: task.assumptions,
+        dependencies: [], // Handled in the second pass
+        team: teamId,
+        project: createdProject._id,
+        owner: req.user._id,
+        parent: parentId,
+      });
       const createdTask = await newTask.save();
       createdTasks.push(createdTask);
       allTasks.push(createdTask);
@@ -215,63 +215,63 @@ Your JSON output must follow this structure:
 // @route   GET /api/projects/:id
 // @access  Private
 const getProjectById = asyncHandler(async (req, res) => {
-    console.log(`Received request for project ID: ${req.params.id}`); // Debugging line
-    // Check if req.params.id is a valid MongoDB ObjectId
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-        res.status(404);
-        throw new Error('Invalid Project ID');
-    }
-    const project = await Project.findById(req.params.id)
-        .populate({
-            path: 'tasks',
-            select: 'name status duration priority assignee subTasks', // Explicitly select required fields
-            populate: {
-                path: 'assignee',
-                select: 'name email',
-            },
-        })
-        .populate('owner', 'name email')
-        .populate({ // Populate team with its members' names and emails
-            path: 'team',
-            select: 'name members', // Select team name and members
-            populate: {
-                path: 'members',
-                select: 'name email', // Select member name and email
-            },
-        });
+  console.log(`Received request for project ID: ${req.params.id}`); // Debugging line
+  // Check if req.params.id is a valid MongoDB ObjectId
+  if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+    res.status(404);
+    throw new Error('Invalid Project ID');
+  }
+  const project = await Project.findById(req.params.id)
+    .populate({
+      path: 'tasks',
+      select: 'name status duration priority assignee subTasks', // Explicitly select required fields
+      populate: {
+        path: 'assignee',
+        select: 'name email',
+      },
+    })
+    .populate('owner', 'name email')
+    .populate({ // Populate team with its members' names and emails
+      path: 'team',
+      select: 'name members', // Select team name and members
+      populate: {
+        path: 'members',
+        select: 'name email', // Select member name and email
+      },
+    });
 
-    if (project) {
-        console.log('Project found:', project.name); // Debugging line
-        // A function to recursively populate subTasks
-        const processedTasks = new Set();
-        const populateSubTasks = async (tasks) => {
-            for (let i = 0; i < tasks.length; i++) {
-                if (tasks[i] && tasks[i].subTasks && tasks[i].subTasks.length > 0) {
-                    // Check if the task has already been processed
-                    if (processedTasks.has(tasks[i]._id.toString())) {
-                        continue; // Skip if already processed
-                    }
-                    processedTasks.add(tasks[i]._id.toString());
+  if (project) {
+    console.log('Project found:', project.name); // Debugging line
+    // A function to recursively populate subTasks
+    const processedTasks = new Set();
+    const populateSubTasks = async (tasks) => {
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i] && tasks[i].subTasks && tasks[i].subTasks.length > 0) {
+          // Check if the task has already been processed
+          if (processedTasks.has(tasks[i]._id.toString())) {
+            continue; // Skip if already processed
+          }
+          processedTasks.add(tasks[i]._id.toString());
 
-                    tasks[i] = await tasks[i].populate({
-                        path: 'subTasks',
-                        select: 'name status duration priority assignee subTasks',
-                        populate: {
-                            path: 'assignee',
-                            select: 'name email',
-                        }
-                    });
-                    await populateSubTasks(tasks[i].subTasks);
-                }
+          tasks[i] = await tasks[i].populate({
+            path: 'subTasks',
+            select: 'name status duration priority assignee subTasks',
+            populate: {
+              path: 'assignee',
+              select: 'name email',
             }
-        };
+          });
+          await populateSubTasks(tasks[i].subTasks);
+        }
+      }
+    };
 
-        await populateSubTasks(project.tasks);
-        res.json(project);
-    } else {
-        res.status(404);
-        throw new Error('Project not found');
-    }
+    await populateSubTasks(project.tasks);
+    res.json(project);
+  } else {
+    res.status(404);
+    throw new Error('Project not found');
+  }
 });
 
 // @desc    Delete a project
