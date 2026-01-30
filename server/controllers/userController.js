@@ -75,7 +75,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       techStack: user.techStack,
-      teams: user.teams,
+      teams: user.teams.filter(t => t),
     });
   } else {
     res.status(404);
@@ -142,17 +142,17 @@ const getUsers = asyncHandler(async (req, res) => {
 // @route   GET /api/users/search
 // @access  Private
 const searchUsers = asyncHandler(async (req, res) => {
-    const keyword = req.query.search
-        ? {
-            $or: [
-                { name: { $regex: req.query.search, $options: 'i' } },
-                { email: { $regex: req.query.search, $options: 'i' } },
-            ],
-        }
-        : {};
+  const keyword = req.query.search
+    ? {
+      $or: [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { email: { $regex: req.query.search, $options: 'i' } },
+      ],
+    }
+    : {};
 
-    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
-    res.send(users);
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
 });
 
 
