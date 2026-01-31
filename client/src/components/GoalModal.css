@@ -1,93 +1,264 @@
+/* =====================================
+   MODAL OVERLAY
+===================================== */
+
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* Semi-transparent backdrop */
-  backdrop-filter: blur(5px); /* Subtle blur for depth */
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   z-index: 1000;
 }
 
+
+/* =====================================
+   MODAL CONTAINER
+===================================== */
+
 .modal-content {
-  background: #ffffff; /* White card */
-  border-radius: var(--radius-squircle, 16px);
-  padding: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh; /* Max height to prevent overflow */
-  overflow-y: auto; /* Enable scrolling for long content */
+  background: linear-gradient(
+    180deg,
+    #121826,
+    #0f1420
+  );
+
+  border-radius: 18px;
+  padding: 28px;
+
+  width: 92%;
+  max-width: 720px;
+  max-height: 90vh;
+
+  overflow-y: auto;
   position: relative;
+
+  color: #f1f5f9;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  animation: modalEnter 0.25s ease;
 }
+
+
+/* =====================================
+   HEADER
+===================================== */
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+
+/* =====================================
+   TITLE
+===================================== */
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--text-primary);
+
+  color: #f8fafc;
   margin: 0;
+
+  letter-spacing: -0.02em;
 }
+
+
+/* =====================================
+   CLOSE BUTTON
+===================================== */
 
 .modal-close-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.06);
   border: none;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 5px;
+
+  width: 36px;
+  height: 36px;
+
   border-radius: 50%;
-  transition: all var(--transition-main);
-}
-.modal-close-btn:hover {
-  background-color: #f2f2f7;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 1.4rem;
+  color: #cbd5f5;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
 }
 
-.modal-body {
-  margin-bottom: 20px;
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: scale(1.05);
 }
+
+
+/* =====================================
+   BODY
+===================================== */
+
+.modal-body {
+  margin-bottom: 22px;
+
+  color: #0a0a0a;
+  font-size: 0.95rem;
+}
+
+
+/* =====================================
+   FOOTER
+===================================== */
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Reusing existing project description styles for modal content */
-.project-description-container {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column on modal for better readability */
-    gap: 20px;
-    max-width: none; /* Override max-width from original */
-    margin: 0;
+
+/* =====================================
+   FIX WHITE PILLS / TOGGLES
+===================================== */
+
+.modal-content .segmented-control,
+.modal-content .tab-group,
+.modal-content .mode-switch,
+.modal-content .toggle-group,
+.modal-content .project-tabs,
+.modal-content .project-header-bar {
+  background: rgba(255, 255, 255, 0.06) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  backdrop-filter: blur(12px);
+
+  border-radius: 999px;
+  padding: 6px;
 }
+
+
+/* Buttons inside pill */
+
+.modal-content .segmented-control button,
+.modal-content .tab-group button,
+.modal-content .mode-switch button {
+  background: transparent !important;
+
+  color: #cbd5f5 !important;
+
+  border: none;
+
+  border-radius: 999px;
+
+  padding: 8px 18px;
+
+  font-weight: 600;
+}
+
+
+/* Active tab */
+
+.modal-content .segmented-control button.active,
+.modal-content .tab-group button.active,
+.modal-content .mode-switch button.active {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+
+  color: #ffffff !important;
+
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+
+/* =====================================
+   SCROLLBAR
+===================================== */
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+
+/* =====================================
+   PROJECT DESCRIPTION
+===================================== */
+
+.project-description-container {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  gap: 20px;
+
+  margin: 0;
+}
+
 
 .project-description-column h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+
+  margin-bottom: 8px;
+
+  color: #0f0f0f;
 }
+
 
 .project-description-text {
-    color: #424245; /* Medium-gray */
-    font-size: 1rem;
-    line-height: 1.6;
+  color: #cbd5f5;
+
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
+
 .project-description-text strong {
-    color: var(--text-primary);
-    font-weight: 600;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+
+/* =====================================
+   ANIMATION
+===================================== */
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

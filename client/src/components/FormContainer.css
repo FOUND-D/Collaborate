@@ -21,17 +21,18 @@
   border: 1px solid var(--border-color);
   /* Added border for clarity */
   border-radius: 10px;
-  background-color: #ffffff;
-  /* White background */
-  color: #000000;
-  /* Black text */
+  background-color: #0f0f0f;
+  color: #f0eaea;
   font-size: 1rem;
   box-sizing: border-box;
   margin-bottom: 1rem;
   transition: box-shadow var(--transition-main), border-color var(--transition-main);
 }
 
-.form-group .form-input:focus,
+.form-group .form-input:focus{
+  background-color: #0f0f0f;
+  color: #f5f5f5;
+}
 .modal .form-control:focus {
   outline: none;
   box-shadow: 0 0 0 4px rgba(46, 140, 251, 0.2);
