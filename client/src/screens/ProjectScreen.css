@@ -1,0 +1,746 @@
+/* =====================================
+   DESIGN SYSTEM (Overridden by global.css)
+===================================== */
+
+/*
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-soft: #f1f5f9;
+
+  --border-soft: #e2e8f0;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+
+  --shadow-soft:
+    0 6px 20px rgba(15, 23, 42, 0.06);
+
+  --shadow-hover:
+    0 16px 40px rgba(15, 23, 42, 0.12);
+
+  --transition:
+    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*/
+
+/* =====================================
+   PROJECT GRID
+===================================== */
+
+/* =====================================
+   PROJECT GRID
+===================================== */
+
+.modern-project-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,
+      minmax(340px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+  animation: slideInRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* =====================================
+   PROJECT CARD
+===================================== */
+
+.project-list-item {
+  background: var(--background-secondary-cards);
+  backdrop-filter: var(--glass-morphism);
+  border-radius: var(--radius-large);
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  border: var(--glass-border);
+  box-shadow: var(--shadow-subtle);
+  transition: var(--transition-main);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle glow line */
+.project-list-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg,
+      transparent,
+      rgba(46, 140, 251, 0.1),
+      transparent);
+  opacity: 0;
+  transition: var(--transition-main);
+  pointer-events: none;
+}
+
+.project-list-item:hover::before {
+  opacity: 1;
+}
+
+.project-list-item:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(46, 140, 251, 0.3);
+}
+
+/* =====================================
+   PROJECT INFO
+===================================== */
+
+.project-info {
+  flex-grow: 1;
+  margin-bottom: 1.2rem;
+}
+
+.project-name-link {
+  display: inline-block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  transition: var(--transition-main);
+}
+
+.project-name-link:hover {
+  color: var(--accent-color);
+  text-shadow: 0 0 10px rgba(46, 140, 251, 0.4);
+}
+
+/* =====================================
+   METADATA PILLS
+===================================== */
+
+.project-metadata-capsules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.metadata-capsule {
+  background: var(--background-tertiary-inputs);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  transition: var(--transition-fast);
+}
+
+.metadata-capsule:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-secondary);
+}
+
+/* =====================================
+   PROGRESS BAR
+===================================== */
+
+.project-progress {
+  margin-bottom: 1.4rem;
+}
+
+.progress-bar-container {
+  height: 8px;
+  width: 100%;
+  background: var(--background-tertiary-inputs);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: inherit;
+  transition: width 0.6s var(--transition-bounce);
+  box-shadow: 0 0 10px rgba(46, 140, 251, 0.5);
+}
+
+/* =====================================
+   FOOTER
+===================================== */
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* =====================================
+   AVATARS
+===================================== */
+
+.project-team-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.member-avatar,
+.member-avatar-more {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--background-tertiary-inputs);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 2px solid var(--background-secondary-cards);
+  transition: var(--transition-main);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.member-avatar:not(:first-child),
+.member-avatar-more {
+  margin-left: -10px;
+}
+
+.member-avatar:hover {
+  transform: scale(1.15) translateY(-2px);
+  z-index: 5;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* =====================================
+   PROJECT ACTIONS (Card View)
+===================================== */
+
+.project-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* View Button */
+.btn-view-project {
+  background: var(--accent-color);
+  background: var(--accent-gradient);
+  color: white;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: var(--transition-main);
+  box-shadow: var(--accent-glow);
+}
+
+.btn-view-project:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 5px 15px rgba(46, 140, 251, 0.4);
+}
+
+/* Delete */
+.btn-delete-project {
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.btn-delete-project:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger-color);
+}
+
+.btn-delete-project svg {
+  fill: var(--text-secondary);
+  transition: var(--transition-main);
+}
+
+.btn-delete-project:hover svg {
+  fill: var(--danger-color);
+}
+
+/* =====================================
+   PROJECT HERO
+===================================== */
+
+.project-hero-section,
+.project-hero-header {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto 4rem;
+  padding: 3rem 2rem;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.project-hero-title-and-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.project-detail-goal {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  max-width: 800px;
+  line-height: 1.6;
+}
+
+.project-hero-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.project-detail-title,
+.project-title-input {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+}
+
+.project-title-input:focus {
+  border-bottom: 2px solid var(--accent-color);
+  -webkit-text-fill-color: var(--text-primary);
+}
+
+/* =====================================
+   DESCRIPTION
+===================================== */
+
+.project-description-container {
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 3rem;
+  background: var(--background-secondary-cards);
+  backdrop-filter: var(--glass-morphism);
+  border: var(--glass-border);
+  padding: 2rem;
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-subtle);
+}
+
+.project-description-column h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-description-column h3::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.project-description-text {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+/* =====================================
+   META FOOTER
+===================================== */
+
+.project-meta-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.project-meta-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(5px);
+}
+
+/* =====================================
+   TASK LIST
+===================================== */
+
+.modern-task-list {
+  background: var(--background-secondary-cards);
+  backdrop-filter: var(--glass-morphism);
+  border-radius: var(--radius-large);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-subtle);
+  border: var(--glass-border);
+  margin: 2rem 0;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Task Row */
+.task-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-main);
+  border-radius: var(--radius-small);
+  margin-bottom: 4px;
+}
+
+.task-list-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(6px);
+}
+
+.task-list-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Animation Entry */
+/* Uses nth-child to stagger animations. Can go up to 20 items. */
+.task-list-item:nth-child(1) {
+  animation: fadeIn 0.4s ease forwards 0.1s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.task-list-item:nth-child(2) {
+  animation: fadeIn 0.4s ease forwards 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.task-list-item:nth-child(3) {
+  animation: fadeIn 0.4s ease forwards 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.task-list-item:nth-child(4) {
+  animation: fadeIn 0.4s ease forwards 0.4s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.task-list-item:nth-child(5) {
+  animation: fadeIn 0.4s ease forwards 0.5s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.task-list-item:nth-child(6) {
+  animation: fadeIn 0.4s ease forwards 0.6s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* =====================================
+   CHECKBOX
+===================================== */
+
+.task-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-bounce);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.task-checkbox:hover {
+  border-color: var(--accent-color);
+}
+
+.task-checkbox.checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(46, 140, 251, 0.6);
+}
+
+.task-checkbox.checked svg {
+  color: white;
+  fill: white;
+}
+
+/* =====================================
+   TASK CONTENT
+===================================== */
+
+.task-details-main {
+  flex: 1;
+}
+
+.task-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.task-name.completed {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.task-description {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* =====================================
+   STATUS
+===================================== */
+
+.task-status-pill {
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.task-status-pill.completed {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+  border: 1px solid rgba(50, 215, 75, 0.2);
+}
+
+.task-status-pill.pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border: 1px solid rgba(161, 161, 170, 0.2);
+}
+
+.task-status-pill.inprogress {
+  background: var(--status-inprogress-bg);
+  color: var(--status-inprogress-text);
+  border: 1px solid rgba(10, 132, 255, 0.2);
+}
+
+.task-status-pill.blocked {
+  background: var(--status-blocked-bg);
+  color: var(--status-blocked-text);
+  border: 1px solid rgba(255, 69, 58, 0.2);
+}
+
+/* =====================================
+   HEADER ACTIONS GROUP (New)
+===================================== */
+.project-header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.project-header-action-group .task-action-btn {
+  width: 44px;
+  height: 44px;
+  background-color: var(--background-secondary-cards);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-subtle);
+  margin-left: 0;
+}
+
+.project-header-action-group .task-action-btn:hover {
+  background-color: var(--accent-color);
+  transform: translateY(-3px);
+  border-color: var(--accent-color);
+  box-shadow: var(--accent-glow);
+}
+
+.project-header-action-group .task-action-btn svg {
+  fill: var(--text-secondary);
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+}
+
+.project-header-action-group .task-action-btn:hover svg {
+  fill: white;
+}
+
+/* =====================================
+   TASK ACTIONS (List View)
+===================================== */
+
+.task-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.task-action-btn svg {
+  fill: var(--text-secondary);
+  width: 16px;
+  height: 16px;
+  transition: fill 0.2s ease;
+}
+
+.task-action-btn:hover {
+  background-color: var(--background-tertiary-inputs);
+  transform: scale(1.1);
+  border-color: var(--border-color);
+}
+
+.task-action-btn:hover svg {
+  fill: var(--text-primary);
+}
+
+/* =====================================
+   BUTTONS (Updated)
+===================================== */
+
+/* View Project Goal */
+.btn-outline-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  padding: 0 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: var(--transition-main);
+  cursor: pointer;
+}
+
+.btn-outline-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  color: white;
+}
+
+/* Add Task */
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  background: var(--accent-gradient);
+  color: white !important;
+  border-radius: var(--radius-pill);
+  padding: 0 1.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--accent-glow);
+  transition: var(--transition-main);
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 20px rgba(46, 140, 251, 0.5);
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media (max-width: 768px) {
+  .project-description-container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .project-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .modern-task-list {
+    padding: 1rem 1rem;
+  }
+
+  .project-hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .project-header-action-group {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .task-list-item {
+    flex-wrap: wrap;
+  }
+
+  .task-details-main {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

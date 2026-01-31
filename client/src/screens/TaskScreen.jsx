@@ -1,0 +1,198 @@
+import React, { useEffect } from 'react';
+import './TaskScreen.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaPlus, FaEdit, FaTrash, FaCheck, FaUser } from 'react-icons/fa';
+
+import Message from '../components/Message';
+import Loader from '../components/Loader';
+
+import { listTasks, deleteTask, updateTask } from '../actions/taskActions';
+import { TASK_DELETE_SUCCESS } from '../constants/taskConstants';
+
+
+const TaskScreen = () => {
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+
+  /* ===============================
+     REDUX STATE
+  =============================== */
+
+  const taskList = useSelector((state) => state.taskList);
+  const { loading, error, tasks } = taskList;
+
+  const taskDelete = useSelector((state) => state.taskDelete);
+  const {
+    loading: loadingDelete,
+    error: errorDelete,
+    success: successDelete,
+  } = taskDelete;
+
+  const taskUpdate = useSelector((state) => state.taskUpdate);
+  const { success: successUpdate } = taskUpdate;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+
+  /* ===============================
+     EFFECT
+  =============================== */
+
+  useEffect(() => {
+
+    if (!userInfo) {
+      navigate('/login');
+    }
+
+    if (successDelete || successUpdate) {
+      if (successDelete) dispatch({ type: TASK_DELETE_SUCCESS });
+      dispatch(listTasks());
+    } else {
+      dispatch(listTasks());
+    }
+
+  }, [dispatch, navigate, userInfo, successDelete, successUpdate]);
+
+
+  /* ===============================
+     HANDLERS
+  =============================== */
+
+
+
+  const deleteHandler = (id) => {
+    if (window.confirm('Delete this task permanently?')) {
+      dispatch(deleteTask(id));
+    }
+  };
+
+  const handleTaskCheck = (task) => {
+    const newStatus = task.status === 'Completed' ? 'To Do' : 'Completed';
+    dispatch(updateTask({ ...task, status: newStatus }));
+  };
+
+
+  /* ===============================
+     STATUS CLASS
+  =============================== */
+
+  const getStatusClass = (status) => {
+    if (!status) return 'pending';
+    switch (status.toLowerCase()) {
+      case 'completed': return 'completed';
+      case 'in progress':
+      case 'inprogress': return 'inprogress';
+      case 'blocked': return 'blocked';
+      default: return 'pending';
+    }
+  };
+
+
+  /* ===============================
+     RENDER
+  =============================== */
+
+  return (
+    <div className="task-page">
+
+      {/* Header */}
+      <div className="task-hero-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 className="project-detail-title">Tasks</h1>
+          <p className="project-detail-goal">Manage all your tasks in one place.</p>
+        </div>
+        <Link
+          to="/task/create"
+          className="btn-gradient"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
+        >
+          <FaPlus /> Create Task
+        </Link>
+      </div>
+
+      {/* Loading / Errors */}
+      {loadingDelete && <Loader />}
+      {errorDelete && <Message variant="danger">{errorDelete}</Message>}
+
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Message variant="danger">{error}</Message>
+      ) : (
+        tasks && tasks.length === 0 ? (
+          <div className="empty-state-container" style={{ textAlign: 'center', padding: '3rem' }}>
+            <Message variant="info">No tasks found.</Message>
+            <Link to="/task/create" className="btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+              <FaPlus /> Create Your First Task
+            </Link>
+          </div>
+        ) : (
+          /* Modern List Wrapper */
+          <ul className="modern-task-list">
+            {tasks.map((task) => (
+              <li key={task._id} className="task-list-item">
+
+                {/* Checkbox */}
+                <div className="task-checkbox-container">
+                  <div
+                    className={`task-checkbox ${task.status === 'Completed' ? 'checked' : ''}`}
+                    onClick={() => handleTaskCheck(task)}
+                  >
+                    {task.status === 'Completed' && <FaCheck size="0.8em" />}
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="task-details-main" onClick={() => navigate(`/task/${task._id}/edit`)} style={{ cursor: 'pointer' }}>
+                  <span className={`task-name ${task.status === 'Completed' ? 'completed' : ''}`}>
+                    {task.name}
+                  </span>
+                  <div className="task-description" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                    {task.assignee ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}>
+                        <FaUser size="0.7em" /> {task.assignee.name}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Unassigned</span>
+                    )}
+                    {/* Optional: Add Project Name here if available in the future */}
+                  </div>
+                </div>
+
+                {/* Metadata */}
+                <div className="task-metadata-group">
+                  <span className={`task-status-pill ${getStatusClass(task.status)}`}>
+                    {task.status}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="task-actions-group" style={{ display: 'flex', alignItems: 'center' }}>
+                  <button className="task-action-btn" onClick={() => navigate(`/task/${task._id}/edit`)} title="Edit">
+                    <FaEdit />
+                  </button>
+                  {userInfo && task.owner === userInfo._id && (
+                    <button
+                      className="task-action-btn"
+                      onClick={() => deleteHandler(task._id)}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  )}
+                </div>
+
+              </li>
+            ))}
+          </ul>
+        )
+      )}
+    </div>
+  );
+};
+
+export default TaskScreen;

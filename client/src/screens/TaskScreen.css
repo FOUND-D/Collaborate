@@ -1,0 +1,19 @@
+/* =====================================================
+   TASK SCREEN CONTAINER
+   ===================================================== */
+
+.task-page {
+  /* Maintain the dark layout wrapper */
+  padding: 2.5rem;
+  min-height: 100vh;
+  /* Use global tokens if available, or fallback */
+  background: var(--bg-main, linear-gradient(180deg,#040507,#0c0e15));
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .task-page {
+    padding: 1.5rem;
+  }
+}

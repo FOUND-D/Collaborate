@@ -1,0 +1,123 @@
+:root {
+  /* Dark Apple/iOS Minimalist Theme */
+  --background-main: #000000;
+  --background-secondary-cards: #1C1C1E;
+  --background-tertiary-inputs: #2C2C2E;
+  --text-primary: #F5F5F7;
+  --text-secondary: #86868B;
+  --accent-color: #0A84FF;
+  --border-color: #38383A;
+  
+  /* Visual Effects */
+  --radius-large: 20px;
+  --radius-medium: 14px;
+  --radius-small: 12px;
+  --radius-pill: 999px;
+
+  --shadow-subtle: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glow-accent: 0 0 15px rgba(10, 132, 255, 0.3);
+
+  --glass-morphism: rgba(28, 28, 30, 0.75);
+
+  /* Status Pill Colors */
+  --status-completed-bg: #1A3D2A;
+  --status-completed-text: #34D399;
+  --status-pending-bg: #313135;
+  --status-pending-text: #A1A1AA;
+  --status-inprogress-bg: #1C3D5D;
+  --status-inprogress-text: #60A5FA;
+  --status-blocked-bg: #4A2424;
+  --status-blocked-text: #F87171;
+
+  --transition-main: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Typography */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Browser Defaults */
+  color-scheme: dark; 
+  color: var(--text-primary);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--background-main); 
+  color: var(--text-primary);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  font-weight: 500;
+  color: var(--accent-color);
+  text-decoration: inherit;
+  transition: color var(--transition-main);
+}
+a:hover { 
+  filter: brightness(1.1);
+}
+
+h1, h2, h3, h4, h5, h6 { 
+  color: var(--text-primary); 
+}
+
+/* Prominent Button Style */
+.btn-primary {
+  background-color: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 0.8em 1.4em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-main);
+  box-shadow: var(--glow-accent);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px rgba(10, 132, 255, 0.5);
+}
+
+/* Tertiary Button Style */
+.btn-tertiary {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: none;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition-main), background-color var(--transition-main);
+}
+.btn-tertiary:hover {
+  background-color: rgba(10, 132, 255, 0.15);
+}
+
+button {
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-color);
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: var(--background-tertiary-inputs);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-main);
+}
+button:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+button:focus, button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}

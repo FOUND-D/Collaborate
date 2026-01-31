@@ -1,0 +1,559 @@
+/* =====================================================
+   APPLE DARK DESIGN SYSTEM (Overridden by global.css)
+===================================================== */
+
+/*
+:root {
+
+  /* Accent *\/
+  --primary: #0a84ff;
+  --primary-glow: rgba(10,132,255,0.45);
+
+  /* Backgrounds *\/
+  --bg-main: linear-gradient(180deg,#040507,#0c0e15);
+  --bg-glass: rgba(22,22,28,0.92);
+  --bg-soft: rgba(255,255,255,0.05);
+
+  /* Borders *\/
+  --border-soft: rgba(255,255,255,0.12);
+
+  /* Text *\/
+  --text-main: #ffffff;
+  --text-muted: #cbd5f5;
+
+  /* Radius *\/
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+
+  /* Shadows *\/
+  --shadow-soft:
+    0 15px 45px rgba(0,0,0,0.7);
+
+  --shadow-hover:
+    0 30px 80px rgba(0,0,0,0.9);
+
+  /* Motion *\/
+  --transition:
+    all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+*/
+
+
+/* =====================================================
+   BASE PAGE
+===================================================== */
+
+.teams-dashboard-page {
+
+  max-width: 1300px;
+  margin: auto;
+
+  padding: 3.5rem 1.5rem;
+
+  min-height: 100vh;
+
+  background: var(--bg-main);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "Inter",
+    sans-serif;
+}
+
+
+/* =====================================================
+   HERO HEADER
+===================================================== */
+
+.project-hero-header {
+
+  margin-bottom: 3rem;
+  padding-bottom: 1.6rem;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+
+.project-detail-title {
+
+  font-size: clamp(2.2rem,5vw,3rem);
+  font-weight: 800;
+
+  letter-spacing: -0.03em;
+
+  color: var(--text-main);
+
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+
+
+.project-detail-goal {
+
+  margin-top: 0.6rem;
+
+  font-size: 1rem;
+
+  color: var(--text-muted);
+
+  opacity: 0.9;
+}
+
+
+/* =====================================================
+   ACTION CARDS
+===================================================== */
+
+.action-cards-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
+
+  gap: 2rem;
+
+  margin-bottom: 3.5rem;
+}
+
+
+.action-card {
+
+  background: var(--bg-glass);
+
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+
+  border: 1px solid var(--border-soft);
+
+  border-radius: var(--radius-xl);
+
+  padding: 2.4rem;
+
+  display: flex;
+  flex-direction: column;
+
+  cursor: pointer;
+
+  box-shadow: var(--shadow-soft);
+
+  transition: var(--transition);
+
+  position: relative;
+  overflow: hidden;
+}
+
+
+/* Glow */
+
+.action-card::before {
+
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(10,132,255,0.2),
+      transparent
+    );
+
+  opacity: 0;
+
+  transition: var(--transition);
+}
+
+
+.action-card:hover::before {
+  opacity: 1;
+}
+
+
+.action-card:hover {
+
+  transform: translateY(-8px) scale(1.01);
+
+  box-shadow:
+    var(--shadow-hover),
+    0 0 35px var(--primary-glow);
+}
+
+
+/* Content */
+
+.action-card-icon {
+
+  font-size: 2.4rem;
+
+  color: var(--primary);
+
+  margin-bottom: 1.4rem;
+}
+
+
+.action-card-title {
+
+  font-size: 1.3rem;
+  font-weight: 700;
+
+  color: var(--text-main);
+
+  margin-bottom: 0.6rem;
+}
+
+
+.action-card-description {
+
+  font-size: 0.92rem;
+
+  color: var(--text-muted);
+
+  line-height: 1.6;
+
+  margin-bottom: 1.6rem;
+
+  flex-grow: 1;
+}
+
+
+.action-card-link {
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 0.4rem;
+
+  font-size: 0.85rem;
+
+  color: var(--primary);
+
+  font-weight: 600;
+}
+
+
+.action-card:hover .action-card-link svg {
+  transform: translateX(5px);
+}
+
+
+/* =====================================================
+   TEAM GRID
+===================================================== */
+
+.modern-team-list {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill,minmax(320px,1fr));
+
+  gap: 2.2rem;
+
+  margin-top: 2.8rem;
+}
+
+
+/* =====================================================
+   TEAM CARD
+===================================================== */
+
+.team-card {
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(24,24,32,0.95),
+      rgba(14,14,20,0.95)
+    );
+
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+
+  border: 1px solid rgba(255,255,255,0.14);
+
+  border-radius: var(--radius-xl);
+
+  padding: 2rem;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  transition: var(--transition);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+
+/* Inner Glow */
+
+.team-card::after {
+
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255,255,255,0.07),
+      transparent 60%
+    );
+
+  pointer-events: none;
+}
+
+
+/* Hover */
+
+.team-card:hover {
+
+  transform: translateY(-8px) scale(1.015);
+
+  box-shadow:
+    var(--shadow-hover),
+    0 0 35px rgba(10,132,255,0.25);
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.team-card-header-wrapper {
+
+  display: flex;
+  align-items: center;
+
+  gap: 1rem;
+
+  margin-bottom: 1.2rem;
+
+  padding-bottom: 0.8rem;
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+
+/* Avatar */
+
+.team-avatar {
+
+  width: 54px;
+  height: 54px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(135deg,#0a84ff,#5ac8fa);
+
+  color: white;
+
+  font-weight: 800;
+  font-size: 1.1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 0 0 3px rgba(10,132,255,0.25),
+    0 0 16px rgba(10,132,255,0.7);
+}
+
+
+/* Name */
+
+.team-card-name {
+
+  font-size: 1.35rem;
+  font-weight: 700;
+
+  color: #ffffff;
+
+  letter-spacing: -0.01em;
+
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+
+/* =====================================================
+   META
+===================================================== */
+
+.team-card-meta {
+
+  margin-top: 1rem;
+
+  font-size: 0.88rem;
+
+  color: #cbd5f5;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.55rem;
+}
+
+
+.team-card-meta-item {
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.5rem;
+
+  opacity: 0.9;
+}
+
+
+.team-card-meta-item svg {
+
+  color: #93c5fd;
+}
+
+
+/* =====================================================
+   DELETE BUTTON
+===================================================== */
+
+.team-card-delete {
+
+  position: absolute;
+
+  top: 1rem;
+  right: 1rem;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+
+.team-card-delete:hover {
+
+  background: rgba(239,68,68,0.18);
+  color: #ef4444;
+
+  transform: scale(1.15);
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state-container {
+
+  text-align: center;
+
+  padding: 3rem;
+
+  color: var(--text-muted);
+
+  opacity: 0.85;
+}
+
+
+/* =====================================================
+   MEMBER CHIPS
+===================================================== */
+
+.member-chip-group {
+
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 0.6rem;
+
+  margin-top: 1rem;
+}
+
+
+.member-chip {
+
+  background: var(--bg-soft);
+
+  border-radius: 999px;
+
+  padding: 0.45rem 0.9rem;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.4rem;
+
+  font-size: 0.78rem;
+
+  font-weight: 600;
+
+  color: var(--text-main);
+
+  border: 1px solid var(--border-soft);
+}
+
+
+.member-avatar-circle {
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .action-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modern-team-list {
+    grid-template-columns: 1fr;
+  }
+
+  .project-hero-header {
+    text-align: center;
+  }
+
+}

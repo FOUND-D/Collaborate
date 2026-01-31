@@ -1,0 +1,132 @@
+/* Chat Popup Container */
+.chat-popup-container {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  width: 340px;
+  max-width: 90vw;
+  z-index: 1050;
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(100%); /* Start hidden */
+}
+
+.chat-popup-container.open {
+  transform: translateY(0);
+}
+
+/* Header */
+.chat-popup-header {
+  padding: 12px 16px;
+  background-color: var(--color-background-tertiary);
+  border-bottom: 1px solid var(--color-border);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.chat-popup-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-popup-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.chat-popup-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.chat-popup-close-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.chat-popup-close-btn:hover {
+  background-color: var(--color-background-hover);
+}
+
+/* Body (Message Area) */
+.chat-popup-body {
+  height: 350px;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: var(--color-background-primary);
+  flex-grow: 1;
+}
+
+/* Styling for MessageList component within the popup */
+.chat-popup-body .message-list {
+  padding: 0;
+}
+
+/* Footer (Input Area) */
+.chat-popup-footer {
+  padding: 12px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-background-secondary);
+}
+
+.chat-popup-footer .message-input-form {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-popup-footer .message-input-field {
+  flex: 1;
+  background-color: var(--color-background-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  border-radius: 20px;
+  padding: 10px 15px;
+}
+
+.chat-popup-footer .message-input-field::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.chat-popup-footer .message-input-send-btn {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-popup-footer .message-input-send-btn:hover {
+  background-color: var(--color-primary-dark);
+}
