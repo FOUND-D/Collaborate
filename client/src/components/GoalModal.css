@@ -12,57 +12,140 @@
   z-index: 1000;
 }
 
+/* ================================
+   MODAL CONTAINER
+================================ */
+
 .modal-content {
-  background: #ffffff; /* White card */
-  border-radius: var(--radius-squircle, 16px);
-  padding: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh; /* Max height to prevent overflow */
-  overflow-y: auto; /* Enable scrolling for long content */
+  background: linear-gradient(
+    180deg,
+    #121826,
+    #0f1420
+  );
+
+  border-radius: var(--radius-squircle, 18px);
+  padding: 28px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  width: 92%;
+  max-width: 720px;
+  max-height: 90vh;
+
+  overflow-y: auto;
   position: relative;
+
+  color: #f1f5f9;
+  line-height: 1.6;
 }
+
+
+/* ================================
+   HEADER
+================================ */
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+
+/* ================================
+   TITLE
+================================ */
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--text-primary);
+
+  color: #f8fafc;
   margin: 0;
+
+  letter-spacing: -0.02em;
 }
+
+
+/* ================================
+   CLOSE BUTTON
+================================ */
 
 .modal-close-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.06);
   border: none;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 5px;
+
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  transition: all var(--transition-main);
-}
-.modal-close-btn:hover {
-  background-color: #f2f2f7;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 1.4rem;
+  color: #cbd5f5;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
 }
 
-.modal-body {
-  margin-bottom: 20px;
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: scale(1.05);
 }
+
+
+/* ================================
+   BODY
+================================ */
+
+.modal-body {
+  margin-bottom: 22px;
+
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+
+/* ================================
+   FOOTER
+================================ */
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* ================================
+   SCROLLBAR (OPTIONAL)
+================================ */
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* Reusing existing project description styles for modal content */
