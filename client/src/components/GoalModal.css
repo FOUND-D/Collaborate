@@ -16,10 +16,9 @@
   z-index: 1000;
 }
 
-
-/* =====================================
+/* ================================
    MODAL CONTAINER
-===================================== */
+================================ */
 
 .modal-content {
   background: linear-gradient(
@@ -28,8 +27,14 @@
     #0f1420
   );
 
-  border-radius: 18px;
+  border-radius: var(--radius-squircle, 18px);
   padding: 28px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
   width: 92%;
   max-width: 720px;
@@ -39,20 +44,14 @@
   position: relative;
 
   color: #f1f5f9;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.85),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
+  line-height: 1.6;
   animation: modalEnter 0.25s ease;
 }
 
 
-/* =====================================
+/* ================================
    HEADER
-===================================== */
+================================ */
 
 .modal-header {
   display: flex;
@@ -66,9 +65,9 @@
 }
 
 
-/* =====================================
+/* ================================
    TITLE
-===================================== */
+================================ */
 
 .modal-title {
   font-size: 1.6rem;
@@ -81,9 +80,9 @@
 }
 
 
-/* =====================================
+/* ================================
    CLOSE BUTTON
-===================================== */
+================================ */
 
 .modal-close-btn {
   background: rgba(255, 255, 255, 0.06);
@@ -91,7 +90,6 @@
 
   width: 36px;
   height: 36px;
-
   border-radius: 50%;
 
   display: grid;
@@ -112,21 +110,21 @@
 }
 
 
-/* =====================================
+/* ================================
    BODY
-===================================== */
+================================ */
 
 .modal-body {
   margin-bottom: 22px;
 
-  color: #0a0a0a;
+  color: #e2e8f0;
   font-size: 0.95rem;
 }
 
 
-/* =====================================
+/* ================================
    FOOTER
-===================================== */
+================================ */
 
 .modal-footer {
   display: flex;
@@ -135,6 +133,24 @@
   padding-top: 16px;
 
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* ================================
+   SCROLLBAR (OPTIONAL)
+================================ */
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 

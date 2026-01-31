@@ -1,0 +1,79 @@
+/* AUTH LAYOUT - RECONSTRUCTED & RELIABLE */
+.auth-layout-container {
+  /* Force full viewport coverage, ignoring parent constraints if necessary */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  /* Sit on top of everything to banish the black void */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Premium Dark Background */
+  background-color: #050505;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(46, 140, 251, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.15) 0px, transparent 50%);
+  background-size: 100% 100%;
+}
+
+/* The Card Itself */
+.auth-form-side {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(20, 20, 22, 0.85);
+  /* Solid enough to be legible, transparent enough for vibe */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  padding: 3rem 2.5rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
+
+  animation: scaleIn 0.5s ease-out backwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Ensure global styling integration for children */
+.auth-form-side .auth-title {
+  color: white;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.auth-form-side .form-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.2s;
+}
+
+.auth-form-side .form-group input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(46, 140, 251, 0.25);
+}
+
+.auth-form-side label {
+  color: #a1a1a6;
+}
