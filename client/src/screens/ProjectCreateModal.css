@@ -1,1 +1,297 @@
+/* =====================================
+   DARK MODAL DESIGN SYSTEM
+===================================== */
 
+:root {
+  --bg-overlay: rgba(0, 0, 0, 0.65);
+
+  --glass-bg: rgba(20, 24, 33, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+
+  --accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.4);
+
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --input-border: rgba(255, 255, 255, 0.08);
+
+  --surface: rgba(255, 255, 255, 0.06);
+}
+
+/* =====================================
+   MODAL OVERLAY
+===================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: var(--bg-overlay);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 2000;
+
+  animation: fadeIn 0.25s ease;
+}
+
+/* =====================================
+   MODAL CONTAINER
+===================================== */
+
+.modal-content {
+  width: 92%;
+  max-width: 560px;
+
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px);
+
+  border-radius: 22px;
+  padding: 2.75rem 2.5rem;
+
+  border: 1px solid var(--glass-border);
+
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  position: relative;
+
+  animation: scaleUp 0.3s ease;
+}
+
+/* =====================================
+   CLOSE BUTTON
+===================================== */
+
+.modal-close-btn {
+  position: absolute;
+  top: 1.4rem;
+  right: 1.4rem;
+
+  background: var(--surface);
+  border: none;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--text-muted);
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================
+   HEADINGS
+===================================== */
+
+.modal-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+
+  color: var(--text-main);
+  text-align: center;
+
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+}
+
+.modal-description {
+  text-align: center;
+
+  color: var(--text-muted);
+  font-size: 0.95rem;
+
+  margin-bottom: 2.2rem;
+}
+
+/* =====================================
+   SEGMENTED CONTROL
+===================================== */
+
+.segmented-control {
+  display: flex;
+
+  background: var(--surface);
+  border-radius: 14px;
+
+  padding: 5px;
+  margin-bottom: 2.2rem;
+
+  border: 1px solid var(--glass-border);
+}
+
+.segmented-control button {
+  flex: 1;
+
+  padding: 0.7rem 1rem;
+
+  border: none;
+  background: transparent;
+
+  border-radius: 10px;
+
+  color: var(--text-muted);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.segmented-control button:hover {
+  color: var(--text-main);
+}
+
+.segmented-control button.active {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    #2563eb
+  );
+
+  color: white;
+
+  box-shadow:
+    0 6px 16px var(--accent-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* =====================================
+   FORM INPUTS
+===================================== */
+
+.form-input {
+  width: 100%;
+
+  background: var(--input-bg);
+
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+
+  padding: 0.8rem 1rem;
+
+  color: var(--text-main);
+  font-size: 0.95rem;
+
+  transition: all 0.25s ease;
+}
+
+.form-input::placeholder {
+  color: #64748b;
+}
+
+.form-input:focus {
+  outline: none;
+
+  border-color: var(--accent);
+
+  background: rgba(255, 255, 255, 0.06);
+
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* =====================================
+   ACTION BUTTONS
+===================================== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  margin-top: 2.4rem;
+}
+
+/* PRIMARY */
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    #2563eb
+  );
+
+  color: white;
+
+  padding: 0.7rem 1.6rem;
+
+  border-radius: 999px;
+  border: none;
+
+  font-weight: 600;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 24px var(--accent-glow);
+
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 32px var(--accent-glow);
+}
+
+/* SECONDARY */
+
+.btn-secondary {
+  background: transparent;
+  border: none;
+
+  color: var(--text-muted);
+
+  font-weight: 600;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  color: var(--text-main);
+}
+
+/* =====================================
+   ANIMATIONS
+===================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
