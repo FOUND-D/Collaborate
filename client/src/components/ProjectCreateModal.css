@@ -48,8 +48,8 @@
 
   background: linear-gradient(
     180deg,
-    #ffffff,
-    #f9fbff
+    #0e0d0d,
+    #0c0c0c
   );
 
   padding: 2.5rem 2.5rem 2.75rem;
@@ -123,7 +123,7 @@
 .modal-toggle {
   display: flex;
   gap: 0.75rem;
-  background: #f1f5f9;
+  background: #0a0a0a;
   padding: 0.4rem;
   border-radius: 999px;
 }
@@ -176,6 +176,7 @@
 ================================ */
 .floating-label {
   position: relative;
+  background-color: black;
 }
 
 .form-input {
@@ -197,7 +198,7 @@
 .form-input:focus {
   outline: none;
 
-  background: #ffffff;
+  background: #111111;
 
   border-color: var(--primary);
 
@@ -219,7 +220,7 @@
 
   pointer-events: none;
 
-  background: white;
+  background: rgb(14, 13, 13);
   padding: 0 0.3rem;
 
   transition: var(--transition);
@@ -263,7 +264,7 @@ select.form-input {
     var(--primary-dark)
   );
 
-  color: white;
+  color: rgb(8, 8, 8);
   font-weight: 600;
 
   border: none;

@@ -13,7 +13,7 @@
 }
 
 .modal-content {
-  background: #ffffff; /* White card */
+  background: #070707; /* White card */
   border-radius: var(--radius-squircle, 16px);
   padding: 24px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
@@ -72,6 +72,7 @@
     gap: 20px;
     max-width: none; /* Override max-width from original */
     margin: 0;
+    color:black;
 }
 
 .project-description-column h3 {
@@ -85,6 +86,7 @@
     color: #424245; /* Medium-gray */
     font-size: 1rem;
     line-height: 1.6;
+    color:black;
 }
 
 .project-description-text strong {
