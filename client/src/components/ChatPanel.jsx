@@ -1,23 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { FaArrowLeft, FaTimes } from 'react-icons/fa';
-import ChatSidebar from './ChatSidebar';
+import { useDispatch } from 'react-redux';
+import { FaArrowLeft, FaTimes, FaExpand } from 'react-icons/fa';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { listMessages } from '../actions/messageActions';
-import { listTeams } from '../actions/teamActions';
 import '../screens/ChatScreen.css';
 
-const ChatPanel = ({ onClose, isDocked }) => {
-  const [selectedChat, setSelectedChat] = useState(null);
+const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
   const [initialLoading, setInitialLoading] = useState(false);
 
   const dispatch = useDispatch();
   const pollingRef = useRef(null);
-
-  useEffect(() => {
-    dispatch(listTeams());
-  }, [dispatch]);
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -50,60 +43,44 @@ const ChatPanel = ({ onClose, isDocked }) => {
   };
 
   return (
-    <div className={`chat-screen-container chat-panel ${isDocked ? 'chat-panel-docked' : ''}`}>
-      
-      {/* 1. SIDEBAR AREA - Always Visible on Left */}
-      <div className="cp-sidebar-area">
-        <ChatSidebar
-          setSelectedChat={setSelectedChat}
-          selectedChat={selectedChat}
-        />
-      </div>
+    <div className="chat-panel-content">
+      {/* HEADER */}
+      <div className="chat-panel-header">
+        {isDocked && (
+          <button className="chat-back-btn mobile-only" onClick={onClose} /* Using onClose as back for mobile/docked context if needed */>
+            <FaArrowLeft />
+          </button>
+        )}
 
-      {/* 2. MAIN CHAT AREA - Fills the Right Side */}
-      <div className="cp-main-area">
-        
-        {/* Header (Now inside the right pane) */}
-        <div className="chat-panel-header">
-          {selectedChat && (
-            <button className="chat-back-btn mobile-only" onClick={handleBack}>
-              <FaArrowLeft />
+        <div className="chat-header-info">
+          <h3>{selectedChat ? selectedChat.name : 'Chat'}</h3>
+          {selectedChat && <span>{selectedChat.type === 'team' ? 'Team Chat' : 'Direct Message'}</span>}
+        </div>
+
+        <div className="chat-header-actions">
+          {isDocked && onExpand && (
+            <button className="chat-panel-action-btn" onClick={onExpand} title="Open Full Screen">
+              <FaExpand />
             </button>
           )}
-          
-          <div className="chat-header-info">
-             <h3>{!selectedChat ? 'Welcome' : selectedChat.name}</h3>
-             {selectedChat && <span>{selectedChat.type === 'team' ? 'Team Chat' : 'Direct Message'}</span>}
-          </div>
-
-          <button className="chat-panel-close-btn" onClick={onClose}>
-            <FaTimes />
-          </button>
-        </div>
-
-        {/* Content Body */}
-        <div className="chat-panel-body">
-          {!selectedChat ? (
-            /* EMPTY STATE (Fills the void when no chat is active) */
-            <div className="chat-empty-state">
-              <div className="empty-icon">👋</div>
-              <h3>Select a conversation</h3>
-              <p>Choose a team or member from the sidebar to start chatting.</p>
-            </div>
-          ) : (
-            /* ACTIVE CHAT VIEW */
-            <>
-              <div className="chat-messages-wrapper">
-                {initialLoading ? (
-                  <div className="chat-initial-loader">Loading messages...</div>
-                ) : (
-                  <MessageList selectedChat={selectedChat} />
-                )}
-              </div>
-              <MessageInput selectedChat={selectedChat} />
-            </>
+          {isDocked && (
+            <button className="chat-panel-close-btn" onClick={onClose}>
+              <FaTimes />
+            </button>
           )}
         </div>
+      </div>
+
+      {/* BODY */}
+      <div className="chat-panel-body">
+        <div className="chat-messages-wrapper">
+          {initialLoading ? (
+            <div className="chat-initial-loader">Loading messages...</div>
+          ) : (
+            <MessageList selectedChat={selectedChat} />
+          )}
+        </div>
+        <MessageInput selectedChat={selectedChat} />
       </div>
     </div>
   );
