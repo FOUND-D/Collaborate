@@ -25,17 +25,15 @@
 .auth-form-side {
   width: 100%;
   max-width: 440px;
-  background: rgba(20, 20, 22, 0.85);
+  background: var(--glass-bg-heavy);
   /* Solid enough to be legible, transparent enough for vibe */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 
   padding: 3rem 2.5rem;
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 
   animation: scaleIn 0.5s ease-out backwards;
 }

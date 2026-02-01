@@ -7,7 +7,7 @@
   --text-secondary: #86868B;
   --accent-color: #0A84FF;
   --border-color: #38383A;
-  
+
   /* Visual Effects */
   --radius-large: 20px;
   --radius-medium: 14px;
@@ -17,7 +17,12 @@
   --shadow-subtle: 0 8px 32px rgba(0, 0, 0, 0.4);
   --glow-accent: 0 0 15px rgba(10, 132, 255, 0.3);
 
-  --glass-morphism: rgba(28, 28, 30, 0.75);
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(28, 28, 30, 0.65);
+  --glass-bg-heavy: rgba(28, 28, 30, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-backdrop: blur(16px) saturate(140%);
 
   /* Status Pill Colors */
   --status-completed-bg: #1A3D2A;
@@ -30,14 +35,14 @@
   --status-blocked-text: #F87171;
 
   --transition-main: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Typography */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  
+
   /* Browser Defaults */
-  color-scheme: dark; 
+  color-scheme: dark;
   color: var(--text-primary);
 }
 
@@ -45,7 +50,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--background-main); 
+  background: var(--background-main);
   color: var(--text-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -58,12 +63,18 @@ a {
   text-decoration: inherit;
   transition: color var(--transition-main);
 }
-a:hover { 
+
+a:hover {
   filter: brightness(1.1);
 }
 
-h1, h2, h3, h4, h5, h6 { 
-  color: var(--text-primary); 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-primary);
 }
 
 /* Prominent Button Style */
@@ -97,6 +108,7 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   transition: color var(--transition-main), background-color var(--transition-main);
 }
+
 .btn-tertiary:hover {
   background-color: rgba(10, 132, 255, 0.15);
 }
@@ -113,11 +125,31 @@ button {
   cursor: pointer;
   transition: all var(--transition-main);
 }
+
 button:hover {
   border-color: var(--accent-color);
   transform: translateY(-1px);
 }
-button:focus, button:focus-visible {
+
+button:focus,
+button:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
+}
+
+/* Utility Glass Class */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-heavy {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }

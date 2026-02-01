@@ -53,14 +53,15 @@
 ===================================== */
 
 .project-list-item {
-  background: var(--background-secondary-cards);
-  backdrop-filter: var(--glass-morphism);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
   border-radius: var(--radius-large);
   padding: 1.8rem;
   display: flex;
   flex-direction: column;
-  border: var(--glass-border);
-  box-shadow: var(--shadow-subtle);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   transition: var(--transition-main);
   position: relative;
   overflow: hidden;
@@ -344,12 +345,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 3rem;
-  background: var(--background-secondary-cards);
-  backdrop-filter: var(--glass-morphism);
-  border: var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
   padding: 2rem;
   border-radius: var(--radius-large);
-  box-shadow: var(--shadow-subtle);
+  box-shadow: var(--glass-shadow);
 }
 
 .project-description-column h3 {
@@ -406,12 +408,13 @@
 ===================================== */
 
 .modern-task-list {
-  background: var(--background-secondary-cards);
-  backdrop-filter: var(--glass-morphism);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
   border-radius: var(--radius-large);
   padding: 1rem 2rem;
-  box-shadow: var(--shadow-subtle);
-  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
   margin: 2rem 0;
   width: 100%;
   max-width: 1200px;

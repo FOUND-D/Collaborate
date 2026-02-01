@@ -21,7 +21,8 @@
   border: 1px solid var(--border-color);
   /* Added border for clarity */
   border-radius: 10px;
-  background-color: #0f0f0f;
+  background-color: rgba(15, 15, 15, 0.6);
+  backdrop-filter: blur(4px);
   color: #f0eaea;
   font-size: 1rem;
   box-sizing: border-box;
