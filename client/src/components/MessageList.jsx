@@ -9,29 +9,25 @@ const MessageList = ({ selectedChat }) => {
   const messagesEndRef = useRef(null);
 
   const messageList = useSelector((state) => state.messageList);
-  const { loading, error, messages } = messageList;
+  const { loading, error, messages = [] } = messageList || {}; // Default to empty object and empty array
 
-  const { userInfo } = useSelector((state) => state.userLogin);
+  const userLogin = useSelector((state) => state.userLogin);
+  const userInfo = userLogin?.userInfo;
 
-  useEffect(() => {
-    if (selectedChat) {
-      dispatch(listMessages(selectedChat.type, selectedChat.id));
-    }
-  }, [dispatch, selectedChat]);
-
+  // Scroll to bottom and mark as read
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-    if (messages.length > 0) {
+    if (messages && messages.length > 0 && userInfo) {
       const unreadMessages = messages
-        .filter((msg) => !msg.readBy.includes(userInfo._id))
+        .filter((msg) => msg.readBy && !msg.readBy.includes(userInfo._id))
         .map((msg) => msg._id);
 
       if (unreadMessages.length > 0) {
         dispatch(markMessagesAsRead(unreadMessages));
       }
     }
-  }, [messages, dispatch, userInfo._id]);
+  }, [messages, dispatch, userInfo]);
 
   return (
     <div className="message-list">
@@ -41,7 +37,7 @@ const MessageList = ({ selectedChat }) => {
         <div className="error-message">{error}</div>
       ) : (
         <>
-          {messages.length === 0 ? (
+          {!messages || messages.length === 0 ? (
             <div className="empty-chat-message">
               <h3>No messages yet. Start the conversation!</h3>
             </div>
