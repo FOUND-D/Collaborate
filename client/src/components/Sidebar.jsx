@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaUser, FaComments, FaBook, FaBookOpen, FaQuestionCircle } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
@@ -68,11 +68,6 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <span className="nav-text">Chat</span>
             {!isSidebarOpen && <span className="tooltip">Chat</span>}
           </button>
-          <NavLink to="/profile" className={getNavLinkClass}>
-            <FaUser />
-            <span className="nav-text">Profile</span>
-            {!isSidebarOpen && <span className="tooltip">Profile</span>}
-          </NavLink>
           <NavLink to="/settings" className={getNavLinkClass}>
             <FaCog />
             <span className="nav-text">Settings</span>
@@ -82,18 +77,15 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
 
         {userInfo && (
           <div className="sidebar-footer">
-            {isSidebarOpen && (
-              <div className="user-profile">
-                <div className="user-avatar">
-                  {userInfo.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="user-name">{userInfo.name}</span>
+            <NavLink to="/profile" className="user-profile-link" title="Profile">
+              <div className="user-avatar">
+                {userInfo.name.charAt(0).toUpperCase()}
               </div>
-            )}
-            <button className="logout-button" onClick={logoutHandler}>
+              {isSidebarOpen && <span className="user-name">{userInfo.name}</span>}
+            </NavLink>
+            <button className="logout-button" onClick={logoutHandler} title="Logout">
               <FaSignOutAlt />
               {isSidebarOpen && <span className="logout-text">Logout</span>}
-              {!isSidebarOpen && <span className="tooltip">Logout</span>}
             </button>
           </div>
         )}

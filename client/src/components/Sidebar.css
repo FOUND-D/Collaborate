@@ -361,6 +361,10 @@
    FOOTER
 ===================================================== */
 
+/* =====================================================
+   FOOTER
+===================================================== */
+
 .sidebar-footer {
   padding: 1.1rem;
 
@@ -377,20 +381,34 @@
 .sidebar-open .sidebar-footer {
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 }
 
 
 /* =====================================================
-   USER PROFILE
+   USER PROFILE LINK
 ===================================================== */
 
-.user-profile {
+.user-profile-link {
   display: flex;
   align-items: center;
 
   gap: 0.7rem;
 
   color: #ffffff;
+  text-decoration: none;
+
+  padding: 0.4rem;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+
+  /* Ensure it doesn't shrink in flex row */
+  flex-shrink: 0;
+}
+
+.user-profile-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .user-avatar {
@@ -423,6 +441,7 @@
 .logout-button {
   display: flex;
   align-items: center;
+  justify-content: center;
 
   gap: 0.7rem;
 
@@ -433,23 +452,19 @@
 
   cursor: pointer;
 
-  padding: 0.45rem 0.7rem;
+  padding: 0.45rem;
 
   border-radius: 10px;
 
-  width: 100%;
-
   transition: all 0.25s ease;
-}
 
-.sidebar-closed .logout-button {
-  justify-content: center;
+  /* When closed, width is strict. When open, it fits content or auto */
 }
 
 .sidebar-open .logout-button {
-  justify-content: flex-start;
+  width: auto;
+  /* Don't force 100% width in row mode */
 }
-
 
 .logout-button:hover {
   background: rgba(239, 68, 68, 0.15);
@@ -459,6 +474,8 @@
 .logout-button svg {
   fill: var(--text-secondary);
   transition: fill 0.25s ease;
+  width: 20px;
+  height: 20px;
 }
 
 .logout-button:hover svg {
@@ -468,6 +485,12 @@
 .sidebar-closed .logout-text {
   display: none;
 }
+
+/* Hide Logout TEXT in open mode if it makes things too crowded, 
+   or keep it if there is space. 
+   Given width 270px, Name + Avatar (approx 100-150px) + Logout (80px), it might fit.
+   Let's keep it for now.
+*/
 
 
 /* =====================================================
