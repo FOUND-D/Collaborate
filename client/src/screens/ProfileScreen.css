@@ -1,5 +1,5 @@
 .profile-page-wrapper {
-    background-color: #f0f2f5; /* Light grey background for the page */
+    background-color: var(--background-main);
     padding: 1rem;
     min-height: 100vh;
 }
@@ -8,15 +8,16 @@
     max-width: 600px;
     margin: 3rem auto;
     padding: 2rem;
-    background-color: #ffffff; /* Pure white card background */
-    border-radius: 16px; /* Soft rounded corners */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-    color: #333; /* Darker text for better readability on white */
+    background-color: var(--background-secondary-cards);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-subtle);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .profile-card-container h2 {
     text-align: center;
-    color: #111; /* Very dark text for the header */
+    color: var(--text-primary);
     margin-bottom: 2.5rem;
     font-size: 2rem;
     font-weight: 700;
@@ -30,8 +31,8 @@
     display: block;
     margin-bottom: 0.5rem;
     font-size: 1rem;
-    color: #555;
-    margin-left: 20px; /* Align with pill-shaped input padding */
+    color: var(--text-secondary);
+    margin-left: 20px;
 }
 
 .profile-card-container input[type='text'],
@@ -39,56 +40,56 @@
 .profile-card-container input[type='password'] {
     width: 100%;
     padding: 12px 20px;
-    border-radius: 50px; /* Pill-shaped */
-    background-color: #f3f4f6; /* Light grey input background */
-    border: 1px solid transparent; /* No visible border by default */
-    color: #333;
+    border-radius: var(--radius-pill);
+    background-color: var(--background-tertiary-inputs);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: all var(--transition-main);
 }
 
-.profile-card-container input[type='text']:focus,
-.profile-card-container input[type='email']:focus,
-.profile-card-container input[type='password']:focus {
-    border-color: #1A73E8; /* Blue border on focus */
+.profile-card-container input:focus {
+    border-color: var(--accent-color);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
 }
 
 .profile-buttons-container {
     display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    gap: 1rem; /* Space between buttons */
+    justify-content: flex-end;
+    gap: 1rem;
     margin-top: 2rem;
 }
 
 .profile-card-container .btn {
     padding: 12px 24px;
-    border-radius: 50px; /* Pill-shaped buttons */
+    border-radius: var(--radius-pill);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all var(--transition-main);
     border: 1px solid transparent;
 }
 
 .profile-card-container .btn-primary {
-    background-color: #1A73E8;
-    color: #ffffff;
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: var(--glow-accent);
 }
 
 .profile-card-container .btn-primary:hover:not(:disabled) {
-    background-color: #155ab3; /* Darker blue on hover */
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
 .profile-card-container .btn-secondary {
-    background-color: #ffffff;
-    color: #1A73E8;
-    border: 1px solid #1A73E8;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 
 .profile-card-container .btn-secondary:hover:not(:disabled) {
-    background-color: rgba(26, 115, 232, 0.05); /* Very light blue background on hover */
+    background-color: rgba(10, 132, 255, 0.1);
 }
 
 .profile-card-container .btn:disabled {
@@ -96,25 +97,13 @@
     cursor: not-allowed;
 }
 
-/* Specific styling for messages */
+/* Messages */
 .profile-card-container .message {
     padding: 0.8rem 1.2rem;
     margin-bottom: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--radius-medium);
     text-align: center;
     font-size: 1rem;
-}
-
-.profile-card-container .message.variant-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-}
-
-.profile-card-container .message.variant-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.2);
 }
 
 .profile-card-container .loader-container {
@@ -124,20 +113,14 @@
     min-height: 50px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .profile-card-container {
         margin: 1rem;
         padding: 1.5rem;
     }
 
-    .profile-card-container h2 {
-        font-size: 1.8rem;
-    }
-
     .profile-buttons-container {
-        flex-direction: column-reverse; /* Stack buttons on small screens */
-        gap: 0.8rem;
+        flex-direction: column-reverse;
     }
 
     .profile-card-container .btn {
