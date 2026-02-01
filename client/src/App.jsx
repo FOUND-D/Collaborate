@@ -15,7 +15,7 @@ import TeamDetailsScreen from './screens/TeamDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MeetingScreen from './screens/MeetingScreen';
 import ChatScreen from './screens/ChatScreen';
-import ChatPanel from './components/ChatPanel';
+import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 
@@ -42,9 +42,9 @@ const App = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); 
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
-  }, []); 
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -91,10 +91,11 @@ const App = () => {
               <Route path="/project/:id" element={<ProjectScreen />} />
               <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
               <Route path="/profile" element={<ProfileScreen />} />
-              {/* Add other routes here */}
+              <Route path="/chat" element={<ChatScreen />} />
+              <Route path="/chat/:id" element={<ChatScreen />} />
             </Routes>
           </div>
-          {isChatOpen && <ChatPanel onClose={toggleChat} isDocked={true} />}
+          {isChatOpen && <ChatDocked onClose={toggleChat} />}
         </div>
       </div>
     </Router>
