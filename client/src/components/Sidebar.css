@@ -9,7 +9,7 @@
   /* Prevent the whole layout from scrolling */
   background: linear-gradient(180deg, #050507, #0b0c10);
   position: relative;
-  color: var(--text-primary);
+  color: black;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
     "Inter", sans-serif;
 }
