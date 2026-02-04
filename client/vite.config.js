@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://collaborate-arin.onrender.com', // Your backend server
+        target: 'https://collaborate-1.onrender.com', // Your backend server
         changeOrigin: true,
       },
     },
