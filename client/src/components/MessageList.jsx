@@ -10,6 +10,7 @@ const MessageList = ({ selectedChat }) => {
 
   const messageList = useSelector((state) => state.messageList);
   const { loading, error, messages = [] } = messageList || {}; // Default to empty object and empty array
+  console.log('Messages received in MessageList (after backend fix):', messages); // Temporary log for debugging
 
   const userLogin = useSelector((state) => state.userLogin);
   const userInfo = userLogin?.userInfo;

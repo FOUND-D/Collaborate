@@ -25,7 +25,7 @@ import {
   export const messageListReducer = (state = { messages: [] }, action) => {
     switch (action.type) {
       case MESSAGE_LIST_REQUEST:
-        return { loading: true, messages: [] };
+        return { ...state, loading: true };
       case MESSAGE_LIST_SUCCESS:
         return { loading: false, messages: action.payload };
       case MESSAGE_RECEIVE:

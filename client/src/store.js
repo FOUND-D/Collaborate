@@ -37,6 +37,10 @@ import {
   projectCreateReducer, 
   projectUpdateReducer 
 } from './reducers/projectReducers';
+import {
+  messageListReducer, // Import messageListReducer
+  messageSendReducer, // Import messageSendReducer
+} from './reducers/messageReducers'; // Import message reducers
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -72,6 +76,8 @@ const rootReducer = combineReducers({
   projectCreate: projectCreateReducer,
   projectUpdate: projectUpdateReducer,
   serverStatus: serverStatusReducer,
+  messageList: messageListReducer, // Add messageListReducer
+  messageSend: messageSendReducer, // Add messageSendReducer
 });
 
 // 4. Wrap your root reducer with the persist function

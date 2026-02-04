@@ -96,9 +96,11 @@
 .chat-panel-body {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Important for inner scrolling */
+  flex-direction: column; /* Stack children vertically */
+  height: 100%;           /* Force full height of parent */
+  overflow: hidden;       /* Prevent double scrollbars */
   position: relative;
+  background-image: radial-gradient(circle at center, #111 0%, #000 100%);
 }
 
 .chat-messages-wrapper {
