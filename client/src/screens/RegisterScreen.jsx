@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
 import { useDispatch, useSelector } from 'react-redux';
+import api from '../utils/api';
 import { register } from '../actions/userActions';
 // import FormContainer from '../components/FormContainer'; // Removed
 import AuthLayout from '../components/AuthLayout'; // New import
+import Loader from '../components/Loader';
 
 const RegisterScreen = () => { // Remove location and history props
   const [name, setName] = useState('');
@@ -11,6 +13,8 @@ const RegisterScreen = () => { // Remove location and history props
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
+  const [image, setImage] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const dispatch = useDispatch();
   const location = useLocation(); // Use useLocation hook
@@ -20,6 +24,29 @@ const RegisterScreen = () => { // Remove location and history props
   const { loading, error, userInfo } = userRegister;
 
   const redirect = location.search ? location.search.split('=')[1] : '/';
+
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    setUploading(true);
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      const { data } = await api.post('/api/upload', formData, config);
+
+      setImage(data);
+      setUploading(false);
+    } catch (error) {
+      console.error(error);
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (userInfo) {
@@ -32,7 +59,7 @@ const RegisterScreen = () => { // Remove location and history props
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
     } else {
-      dispatch(register(name, email, password));
+      dispatch(register(name, email, password, image));
     }
   };
 
@@ -87,6 +114,17 @@ const RegisterScreen = () => { // Remove location and history props
               className="form-input"
             />
             <label htmlFor="confirmPassword">Confirm Password</label>
+          </div>
+          <div className="form-group">
+            <label htmlFor="image">Profile Image (Optional)</label>
+            <input
+              type="file"
+              id="image-file"
+              label="Choose File"
+              custom
+              onChange={uploadFileHandler}
+            />
+            {uploading && <Loader />}
           </div>
           <button type="submit" className="btn btn-primary btn-full-width">Register</button>
         </form>

@@ -1,22 +1,17 @@
 const express = require('express');
-
+const path = require('path');
+const fs = require('fs');
 const http = require('http'); // Import http module
-
 const { Server } = require("socket.io"); // Import Server from socket.io
-
 const Groq = require('groq-sdk');
-
 const cors = require('cors'); // Import cors
-
 const dotenv = require('dotenv'); // Import dotenv
-
 const connectDB = require('./config/db'); // Import connectDB
-
 const userRoutes = require('./routes/userRoutes');
-
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 const { protect } = require('./middleware/authMiddleware');
@@ -58,7 +53,17 @@ const port = process.env.PORT || 3003;
 
 app.use(cors()); // Use cors middleware
 
-app.use(express.json()); // For parsing application/json
+
+
+app.use(express.json({ limit: '50mb' })); // For parsing application/json with increased limit
+
+
+
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // For parsing application/x-www-form-urlencoded with increased limit
+
+
+
+
 
 
 
@@ -254,6 +259,14 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
+
+app.use('/api/upload', uploadRoutes);
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+app.use('/uploads', express.static(uploadsDir));
 
 // Error Handling Middleware
 app.use(notFound);

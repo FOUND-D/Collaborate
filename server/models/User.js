@@ -31,6 +31,11 @@ const userSchema = mongoose.Schema(
         ref: 'Team',
       },
     ],
+    profileImage: {
+      type: String,
+      required: false,
+      default: '',
+    },
     reputationScore: {
         type: Number,
         default: 0,
@@ -42,9 +47,9 @@ const userSchema = mongoose.Schema(
 );
 
 // Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);

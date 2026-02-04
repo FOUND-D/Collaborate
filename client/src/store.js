@@ -10,6 +10,7 @@ import {
   userListReducer,
   userDetailsReducer,
   userUpdateProfileReducer,
+  userUpdateProfileImageReducer,
 } from './reducers/userReducers';
 import { serverStatusReducer } from './reducers/serverReducers';
 
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
   userList: userListReducer,
   userDetails: userDetailsReducer,
   userUpdateProfile: userUpdateProfileReducer,
+  userUpdateProfileImage: userUpdateProfileImageReducer,
   teamList: teamListReducer,
   teamCreate: teamCreateReducer,
   teamJoin: teamJoinReducer,

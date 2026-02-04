@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
 import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
+import { HARDCODED_BACKEND_URL } from '../utils/api';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -79,7 +80,18 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           <div className="sidebar-footer">
             <NavLink to="/profile" className="user-profile-link" title="Profile">
               <div className="user-avatar">
-                {userInfo.name.charAt(0).toUpperCase()}
+                {userInfo.profileImage ? (
+                  <img
+                    src={
+                      userInfo.profileImage.startsWith('data:image')
+                        ? userInfo.profileImage
+                        : `${HARDCODED_BACKEND_URL}${userInfo.profileImage}`
+                    }
+                    alt={userInfo.name}
+                  />
+                ) : (
+                  userInfo.name.charAt(0).toUpperCase()
+                )}
               </div>
               {isSidebarOpen && <span className="user-name">{userInfo.name}</span>}
             </NavLink>

@@ -17,6 +17,9 @@ import {
   USER_UPDATE_PROFILE_REQUEST,
   USER_UPDATE_PROFILE_SUCCESS,
   USER_UPDATE_PROFILE_FAIL,
+  USER_UPDATE_PROFILE_IMAGE_REQUEST,
+  USER_UPDATE_PROFILE_IMAGE_SUCCESS,
+  USER_UPDATE_PROFILE_IMAGE_FAIL,
 } from '../constants/userConstants';
 
 export const login = (email, password) => async (dispatch) => {
@@ -60,7 +63,7 @@ export const logout = () => (dispatch) => {
   dispatch({ type: USER_LOGOUT });
 };
 
-export const register = (name, email, password) => async (dispatch) => {
+export const register = (name, email, password, image) => async (dispatch) => {
   try {
     dispatch({
       type: USER_REGISTER_REQUEST,
@@ -74,7 +77,7 @@ export const register = (name, email, password) => async (dispatch) => {
 
     const { data } = await api.post(
       '/api/users/register',
-      { name, email, password },
+      { name, email, password, profileImage: image },
       config
     );
 
@@ -218,15 +221,17 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
 
     const { data } = await api.patch(`/api/users/profile`, user, config);
 
+    const updatedUserInfo = { ...userInfo, ...data };
+
     dispatch({
       type: USER_UPDATE_PROFILE_SUCCESS,
-      payload: data,
+      payload: updatedUserInfo,
     });
     dispatch({
       type: USER_LOGIN_SUCCESS,
-      payload: data,
+      payload: updatedUserInfo,
     });
-    localStorage.setItem('userInfo', JSON.stringify(data));
+    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
   } catch (error) {
     const message =
       error.response && error.response.data.message
@@ -237,6 +242,51 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
     }
     dispatch({
       type: USER_UPDATE_PROFILE_FAIL,
+      payload: message,
+    });
+  }
+};
+
+export const updateUserProfileImage = (user) => async (dispatch, getState) => {
+  try {
+    dispatch({
+      type: USER_UPDATE_PROFILE_IMAGE_REQUEST,
+    });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await api.patch(`/api/users/profile/image`, user, config);
+
+    const updatedUserInfo = { ...userInfo, ...data };
+
+    dispatch({
+      type: USER_UPDATE_PROFILE_IMAGE_SUCCESS,
+      payload: updatedUserInfo,
+    });
+    dispatch({
+      type: USER_LOGIN_SUCCESS,
+      payload: updatedUserInfo,
+    });
+    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
+    dispatch({
+      type: USER_UPDATE_PROFILE_IMAGE_FAIL,
       payload: message,
     });
   }

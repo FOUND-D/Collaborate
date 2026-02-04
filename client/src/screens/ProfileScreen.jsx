@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserDetails, updateUserProfile } from '../actions/userActions';
+import api, { HARDCODED_BACKEND_URL } from '../utils/api';
+import {
+  getUserDetails,
+  updateUserProfile,
+  updateUserProfileImage,
+} from '../actions/userActions';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import './ProfileScreen.css'; // Import the new CSS file
@@ -15,49 +20,77 @@ const ProfileScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [image, setImage] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const userDetails = useSelector((state) => state.userDetails);
-  const { loading, error, user } = userDetails;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
-  const { success } = userUpdateProfile;
+  const { success, loading, error } = userUpdateProfile;
 
   const [isDirty, setIsDirty] = useState(false);
+
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    setUploading(true);
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      const { data } = await api.post('/api/upload', formData, config);
+
+      setImage(data);
+      await dispatch(updateUserProfileImage({ image: data }));
+      setUploading(false);
+    } catch (error) {
+      console.error(error);
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (!userInfo) {
       navigate('/login');
     } else {
-      if (!user || !user.name || success) {
-        dispatch({ type: 'USER_UPDATE_PROFILE_RESET' });
-        dispatch(getUserDetails('profile'));
-      } else {
-        setName(user.name);
-        setEmail(user.email);
-        setRole(user.role);
-        if (Array.isArray(user.techStack)) {
-          setTechStack(user.techStack.join(','));
-        }
+      setName(userInfo.name);
+      setEmail(userInfo.email);
+      setRole(userInfo.role);
+      if (Array.isArray(userInfo.techStack)) {
+        setTechStack(userInfo.techStack.join(','));
+      }
+      if (userInfo.profileImage) {
+        setImage(userInfo.profileImage);
       }
     }
-  }, [dispatch, navigate, userInfo, user, success]);
+  }, [dispatch, navigate, userInfo]);
 
   useEffect(() => {
-    if (user) {
-      const isNameChanged = name !== user.name;
-      const isEmailChanged = email !== user.email;
-      const isRoleChanged = role !== user.role;
-      const isTechStackChanged = techStack !== (Array.isArray(user.techStack) ? user.techStack.join(',') : '');
+    if (userInfo) {
+      const isNameChanged = name !== userInfo.name;
+      const isEmailChanged = email !== userInfo.email;
+      const isRoleChanged = role !== userInfo.role;
+      const isTechStackChanged =
+        techStack !== (Array.isArray(userInfo.techStack) ? userInfo.techStack.join(',') : '');
       const isPasswordChanged = password !== '';
-      setIsDirty(isNameChanged || isEmailChanged || isRoleChanged || isTechStackChanged || isPasswordChanged);
+      setIsDirty(
+        isNameChanged ||
+          isEmailChanged ||
+          isRoleChanged ||
+          isTechStackChanged ||
+          isPasswordChanged
+      );
     }
-  }, [name, email, role, techStack, password, user]);
+  }, [name, email, role, techStack, password, userInfo]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -65,7 +98,7 @@ const ProfileScreen = () => {
       setMessage('Passwords do not match');
     } else {
       const updatedData = {
-        id: user._id,
+        id: userInfo._id,
         name,
         email,
         role,
@@ -90,7 +123,34 @@ const ProfileScreen = () => {
             <Loader />
           </div>
         )}
+        <img
+          src={
+            image && image.startsWith('data:image')
+              ? image
+              : `${HARDCODED_BACKEND_URL}${image}`
+          }
+          alt={name}
+          className="profile-image"
+        />
         <form onSubmit={submitHandler}>
+          <div className="form-group">
+            <label htmlFor="image">Image</label>
+            <input
+              type="text"
+              id="image"
+              placeholder="Enter image url"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            />
+            <input
+              type="file"
+              id="image-file"
+              label="Choose File"
+              custom
+              onChange={uploadFileHandler}
+            />
+            {uploading && <Loader />}
+          </div>
           <div className="form-group">
             <label htmlFor="name">Name</label>
             <input

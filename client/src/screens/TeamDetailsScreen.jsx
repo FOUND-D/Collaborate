@@ -8,6 +8,7 @@ import { getTeamDetails } from '../actions/teamActions';
 import './TeamDetailsScreen.css';
 import axios from 'axios';
 import io from 'socket.io-client';
+import { HARDCODED_BACKEND_URL } from '../utils/api';
 
 let socket; // Declare socket once globally
 
@@ -175,7 +176,18 @@ const TeamDetailsScreen = () => {
                     className="member-avatar-circle" 
                     style={{ backgroundColor: getPastelColor(member._id) }}
                   >
-                    {member.name.charAt(0).toUpperCase()}
+                    {member.profileImage ? (
+                      <img
+                        src={
+                          member.profileImage.startsWith('data:image')
+                            ? member.profileImage
+                            : `${HARDCODED_BACKEND_URL}${member.profileImage}`
+                        }
+                        alt={member.name}
+                      />
+                    ) : (
+                      member.name.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <span>{member.name}</span>
                 </div>

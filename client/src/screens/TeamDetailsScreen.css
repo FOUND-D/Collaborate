@@ -311,6 +311,13 @@
   box-shadow: 0 0 6px rgba(255,255,255,0.25);
 }
 
+.member-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 
 /* =====================================================
    PROJECT CARD

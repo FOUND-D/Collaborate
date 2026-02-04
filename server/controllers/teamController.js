@@ -9,8 +9,8 @@ const asyncHandler = require('../middleware/asyncHandler');
 // @access  Private
 const getTeamById = asyncHandler(async (req, res) => {
   const team = await Team.findById(req.params.id)
-    .populate('owner', 'name email')
-    .populate('members', 'name email')
+    .populate('owner', 'name email profileImage')
+    .populate('members', 'name email profileImage')
     .populate({
       path: 'projects',
       model: 'Project',
@@ -55,9 +55,9 @@ const getTeams = asyncHandler(async (req, res) => {
   const teams = await Team.find({
     $or: [{ owner: req.user._id }, { members: req.user._id }],
   })
-    .populate('owner', 'name email')
-    .populate('members', 'name email')
-    .populate('pendingJoinRequests', 'name email');
+    .populate('owner', 'name email profileImage')
+    .populate('members', 'name email profileImage')
+    .populate('pendingJoinRequests', 'name email profileImage');
 
   res.status(200).json(teams);
 });

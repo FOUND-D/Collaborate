@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, techStack } = req.body;
+  const { name, email, password, role, techStack, profileImage } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -22,6 +22,7 @@ const registerUser = asyncHandler(async (req, res) => {
     password,
     role,
     techStack,
+    profileImage,
   });
 
   if (user) {
@@ -31,6 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       techStack: user.techStack,
+      profileImage: user.profileImage,
       token: generateToken(user._id),
     });
   } else {
@@ -54,6 +56,7 @@ const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       techStack: user.techStack,
+      profileImage: user.profileImage,
       token: generateToken(user._id),
     });
   } else {
@@ -130,6 +133,30 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update user profile image
+// @route   PATCH /api/users/profile/image
+// @access  Private
+const updateUserProfileImage = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.profileImage = req.body.image;
+    const updatedUser = await user.save();
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      techStack: updatedUser.techStack,
+      profileImage: updatedUser.profileImage,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private
@@ -163,4 +190,5 @@ module.exports = {
   getUsers,
   getUserProfile,
   updateUserProfile,
+  updateUserProfileImage,
 };
