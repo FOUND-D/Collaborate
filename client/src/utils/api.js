@@ -5,7 +5,7 @@ import { setServerOffline, setServerOnline } from '../actions/serverActions';
 // --- CONFIGURATION ---
 // 1. The "Unbreakable" Fallback
 // If Vite/Vercel variables fail, this hardcoded string saves the day.
-export const HARDCODED_BACKEND_URL = "http://localhost:3002"; 
+export const HARDCODED_BACKEND_URL = "https://collaborate-arin.onrender.com"; 
 
 // 2. Initial Setup
 // We set the baseURL here, but we will ALSO double-check it in the interceptor
