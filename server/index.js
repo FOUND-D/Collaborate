@@ -51,7 +51,11 @@ const port = process.env.PORT || 3003;
 
 
 
-app.use(cors()); // Use cors middleware
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+})); // Use cors middleware
 
 
 
