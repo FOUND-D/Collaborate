@@ -3,7 +3,7 @@ const redis = require('redis');
 // Initialize Client
 const redisClient = redis.createClient({
     username: 'default',
-    password: 'hxYD81Yyu2MbC6WTXNkRbDYyqiIYTKc', // Your password
+    password: 'hxYD81Yyu2MbC6WTXNkRbvDYqyiIYTKc', // Your password
     socket: {
         // UPDATED HOST:
         host: 'redis-19707.c330.asia-south1-1.gce.cloud.redislabs.com',
