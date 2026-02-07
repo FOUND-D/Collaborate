@@ -11,8 +11,7 @@ const redisClient = redis.createClient({
         port: 19707,
         
         // KEEP TLS SETTINGS:
-        tls: true,
-        rejectUnauthorized: false 
+        
     }
 });
 
