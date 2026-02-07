@@ -4,6 +4,7 @@ const Team = require('../models/Team');
 const Groq = require('groq-sdk');
 const dotenv = require('dotenv');
 const asyncHandler = require('../middleware/asyncHandler');
+const { getOrSet, invalidate } = require('../services/cacheService');
 
 dotenv.config();
 
@@ -15,28 +16,33 @@ const groq = new Groq({
 // @route   GET /api/projects
 // @access  Private
 const getProjects = asyncHandler(async (req, res) => {
-  const teamIds = req.user.teams ? req.user.teams.filter(team => team).map(team => team._id) : [];
+  const userId = req.user._id;
+  const key = `user:${userId}:projects`;
 
-  const projects = await Project.find({
-    $or: [{ owner: req.user._id }, { team: { $in: teamIds } }],
-  })
-    .populate('owner', 'name email')
-    .populate({ // Populate team with its members' names and emails
-      path: 'team',
-      select: 'name members', // Select team name and members
-      populate: {
-        path: 'members',
-        select: 'name email', // Select member name and email
-      },
+  const projects = await getOrSet(key, async () => {
+    const teamIds = req.user.teams ? req.user.teams.filter(team => team).map(team => team._id) : [];
+
+    return await Project.find({
+      $or: [{ owner: userId }, { team: { $in: teamIds } }],
     })
-    .populate({ // Populate tasks with status and assignee details
-      path: 'tasks',
-      select: 'status', // Include status for progress calculation
-      populate: {
-        path: 'assignee',
-        select: 'name email',
-      },
-    });
+      .populate('owner', 'name email')
+      .populate({ // Populate team with its members' names and emails
+        path: 'team',
+        select: 'name members', // Select team name and members
+        populate: {
+          path: 'members',
+          select: 'name email', // Select member name and email
+        },
+      })
+      .populate({ // Populate tasks with status and assignee details
+        path: 'tasks',
+        select: 'status', // Include status for progress calculation
+        populate: {
+          path: 'assignee',
+          select: 'name email',
+        },
+      });
+  });
 
   res.json(projects);
 });
@@ -147,6 +153,8 @@ Your JSON output must follow this structure:
   });
 
   const createdProject = await project.save();
+  await invalidate(`project:${createdProject._id}`); // Invalidate cache for the new project
+  await invalidate(`user:${req.user._id}:projects`); // Invalidate user's projects list
 
   const allTasks = [];
   const taskNameToIdMap = new Map();
@@ -215,33 +223,40 @@ Your JSON output must follow this structure:
 // @route   GET /api/projects/:id
 // @access  Private
 const getProjectById = asyncHandler(async (req, res) => {
-  console.log(`Received request for project ID: ${req.params.id}`); // Debugging line
+  const projectId = req.params.id;
+
   // Check if req.params.id is a valid MongoDB ObjectId
-  if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+  if (!projectId.match(/^[0-9a-fA-F]{24}$/)) {
     res.status(404);
     throw new Error('Invalid Project ID');
   }
-  const project = await Project.findById(req.params.id)
-    .populate({
-      path: 'tasks',
-      select: 'name status duration priority assignee subTasks', // Explicitly select required fields
-      populate: {
-        path: 'assignee',
-        select: 'name email',
-      },
-    })
-    .populate('owner', 'name email')
-    .populate({ // Populate team with its members' names and emails
-      path: 'team',
-      select: 'name members', // Select team name and members
-      populate: {
-        path: 'members',
-        select: 'name email', // Select member name and email
-      },
-    });
+  
+  const project = await getOrSet(`project:${projectId}`, async () => {
+    console.log(`Received request for project ID: ${projectId}`); // Debugging line
+    const foundProject = await Project.findById(projectId)
+      .populate({
+        path: 'tasks',
+        select: 'name status duration priority assignee subTasks', // Explicitly select required fields
+        populate: {
+          path: 'assignee',
+          select: 'name email',
+        },
+      })
+      .populate('owner', 'name email')
+      .populate({ // Populate team with its members' names and emails
+        path: 'team',
+        select: 'name members', // Select team name and members
+        populate: {
+          path: 'members',
+          select: 'name email', // Select member name and email
+        },
+      });
 
-  if (project) {
-    console.log('Project found:', project.name); // Debugging line
+    if (!foundProject) {
+      return null;
+    }
+
+    console.log('Project found:', foundProject.name); // Debugging line
     // A function to recursively populate subTasks
     const processedTasks = new Set();
     const populateSubTasks = async (tasks) => {
@@ -265,8 +280,11 @@ const getProjectById = asyncHandler(async (req, res) => {
         }
       }
     };
+    await populateSubTasks(foundProject.tasks);
+    return foundProject;
+  });
 
-    await populateSubTasks(project.tasks);
+  if (project) {
     res.json(project);
   } else {
     res.status(404);
@@ -278,7 +296,8 @@ const getProjectById = asyncHandler(async (req, res) => {
 // @route   DELETE /api/projects/:id
 // @access  Private
 const deleteProject = asyncHandler(async (req, res) => {
-  const project = await Project.findById(req.params.id);
+  const projectId = req.params.id;
+  const project = await Project.findById(projectId);
 
   if (project) {
     if (project.owner.toString() !== req.user._id.toString()) {
@@ -290,6 +309,8 @@ const deleteProject = asyncHandler(async (req, res) => {
     await Task.deleteMany({ project: project._id });
 
     await project.deleteOne();
+    await invalidate(`project:${projectId}`); // Invalidate cache
+    await invalidate(`user:${req.user._id}:projects`); // Invalidate user's projects list
     res.json({ message: 'Project removed' });
   } else {
     res.status(404);
@@ -318,6 +339,8 @@ const createProject = asyncHandler(async (req, res) => {
   });
 
   const createdProject = await project.save();
+  await invalidate(`project:${createdProject._id}`); // Invalidate cache for the new project
+  await invalidate(`user:${req.user._id}:projects`); // Invalidate user's projects list
 
   if (teamId) {
     const team = await Team.findById(teamId);
@@ -335,8 +358,9 @@ const createProject = asyncHandler(async (req, res) => {
 // @access  Private
 const updateProject = asyncHandler(async (req, res) => {
   const { name, goal, dueDate, teamId } = req.body;
+  const projectId = req.params.id;
 
-  const project = await Project.findById(req.params.id);
+  const project = await Project.findById(projectId);
 
   if (project) {
     if (project.owner.toString() !== req.user._id.toString()) {
@@ -350,6 +374,8 @@ const updateProject = asyncHandler(async (req, res) => {
     project.team = teamId || project.team;
 
     const updatedProject = await project.save();
+    await invalidate(`project:${projectId}`); // Invalidate cache
+    await invalidate(`user:${req.user._id}:projects`); // Invalidate user's projects list
     res.json(updatedProject);
   } else {
     res.status(404);

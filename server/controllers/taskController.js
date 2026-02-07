@@ -1,6 +1,7 @@
 const Task = require('../models/Task');
 const Team = require('../models/Team');
 const asyncHandler = require('../middleware/asyncHandler');
+const { getOrSet, invalidate } = require('../services/cacheService');
 
 // @desc    Create a new task
 // @route   POST /api/tasks
@@ -21,6 +22,7 @@ const createTask = asyncHandler(async (req, res) => {
   });
 
   const createdTask = await task.save();
+  await invalidate(`project:${createdTask.project}:tasks`);
   res.status(201).json(createdTask);
 });
 
@@ -75,6 +77,7 @@ const updateTask = asyncHandler(async (req, res) => {
         task.status = status || task.status;
 
         const updatedTask = await task.save();
+        await invalidate(`project:${updatedTask.project}:tasks`);
         res.json(updatedTask);
     } else {
         res.status(404);
@@ -99,11 +102,27 @@ const deleteTask = asyncHandler(async (req, res) => {
             throw new Error('Not authorized as task owner');
         }
         await task.deleteOne(); // Use deleteOne instead of deprecated remove()
+        await invalidate(`project:${task.project}:tasks`);
         res.json({ message: 'Task removed' });
     } else {
         res.status(404);
         throw new Error('Task not found');
     }
+});
+
+
+// @desc    Get all tasks for a project
+// @route   GET /api/projects/:projectId/tasks
+// @access  Private
+const getProjectTasks = asyncHandler(async (req, res) => {
+    const projectId = req.params.projectId;
+    const key = `project:${projectId}:tasks`;
+
+    const tasks = await getOrSet(key, async () => {
+        return await Task.find({ project: projectId });
+    });
+
+    res.json(tasks);
 });
 
 
@@ -113,4 +132,5 @@ module.exports = {
   getTaskById,
   updateTask,
   deleteTask,
+  getProjectTasks,
 };
