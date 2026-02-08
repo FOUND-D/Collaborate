@@ -21,9 +21,9 @@
   border: 1px solid var(--border-color);
   /* Added border for clarity */
   border-radius: 10px;
-  background-color: rgba(15, 15, 15, 0.6);
+  background-color: var(--background-tertiary-inputs);
   backdrop-filter: blur(4px);
-  color: #f0eaea;
+  color: var(--text-primary);
   font-size: 1rem;
   box-sizing: border-box;
   margin-bottom: 1rem;
@@ -31,8 +31,9 @@
 }
 
 .form-group .form-input:focus {
-  background-color: #0f0f0f;
-  color: #f5f5f5;
+  background-color: var(--background-tertiary-inputs);
+  color: var(--text-primary);
+  border-color: var(--accent-color);
 }
 
 .modal .form-control:focus {
