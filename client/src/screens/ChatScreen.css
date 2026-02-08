@@ -3,15 +3,26 @@
 ===================================================== */
 
 :root {
-  --chat-bg-main: #000000;
-  --chat-bg-sidebar: #101012;
-  --chat-bg-input: #1C1C1E;
-  --chat-border: #2C2C2E;
-  --chat-accent: #0A84FF;
-  --chat-text-primary: #F5F5F7;
-  --chat-text-secondary: #86868B;
-  --chat-bubble-received: #1C1C1E;
-  --chat-bubble-sent: #0A84FF;
+  /* Default (Dark) Mappings */
+  --chat-bg-main: var(--background-main);
+  --chat-bg-sidebar: var(--background-secondary-cards);
+  --chat-bg-input: var(--background-tertiary-inputs);
+  --chat-border: var(--border-color);
+  --chat-accent: var(--accent-color);
+  --chat-text-primary: var(--text-primary);
+  --chat-text-secondary: var(--text-secondary);
+  --chat-bubble-received: var(--background-secondary-cards);
+  --chat-bubble-sent: var(--accent-color);
+}
+
+/* Light Theme Overrides for Chat Specifics */
+.light-theme {
+  --chat-bg-main: var(--background-main);
+  --chat-bg-sidebar: #f2f2f7;
+  /* Slightly darker than main bg */
+  --chat-bg-input: #e5e5ea;
+  --chat-bubble-received: #e5e5ea;
+  --chat-text-secondary: #8e8e93;
 }
 
 /* =====================================================
@@ -86,7 +97,8 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--chat-border);
-  background-color: rgba(28, 28, 30, 0.95);
+  background-color: var(--glass-bg-heavy);
+  backdrop-filter: blur(10px);
 }
 
 .docked-header h3 {
@@ -124,8 +136,8 @@
 .chat-drawer-action:hover,
 .chat-panel-action-btn:hover,
 .chat-panel-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: var(--background-tertiary-inputs);
+  color: var(--text-primary);
 }
 
 .docked-content {
@@ -147,11 +159,16 @@
 /* Adjust ChatPanel when inside drawer */
 .docked-content .chat-panel-content {
   display: flex;
-  flex-direction: column; /* Stack Header on top of Body */
-  flex: 1;                /* Grow to fill the parent (cp-main-area) */
-  height: 100%;           /* Force full height */
-  width: 100%;            /* Force full width */
-  overflow: hidden;       /* Prevent outer scrollbars, let inner body scroll */
+  flex-direction: column;
+  /* Stack Header on top of Body */
+  flex: 1;
+  /* Grow to fill the parent (cp-main-area) */
+  height: 100%;
+  /* Force full height */
+  width: 100%;
+  /* Force full width */
+  overflow: hidden;
+  /* Prevent outer scrollbars, let inner body scroll */
   position: relative;
   background-color: var(--chat-bg-main);
 }
@@ -176,7 +193,7 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--chat-border);
-  background-color: rgba(28, 28, 30, 0.8);
+  background-color: var(--glass-bg);
   backdrop-filter: blur(10px);
 }
 
@@ -226,11 +243,16 @@
 .chat-panel-body {
   flex: 1;
   display: flex;
-  flex-direction: column; /* Stack children vertically */
-  height: 100%;           /* Force full height of parent */
-  overflow: hidden;       /* Prevent double scrollbars */
+  flex-direction: column;
+  /* Stack children vertically */
+  height: 100%;
+  /* Force full height of parent */
+  overflow: hidden;
+  /* Prevent double scrollbars */
   position: relative;
-  background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+  background: var(--chat-bg-main);
+  /* Use subtle gradient only if desired, but respect theme.
+     Or use a transparent radial gradient over base color. */
 }
 
 .chat-messages-wrapper {
@@ -314,19 +336,29 @@
 ===================================================== */
 .message-input-form {
   display: flex;
-  padding: 10px 20px; /* Add some padding around the input */
-  background-color: var(--chat-bg-main); /* Ensure background is consistent */
-  border-top: 1px solid var(--chat-border); /* Separator from messages */
-  align-items: center; /* Vertically align items */
-  gap: 10px; /* Space between input and button */
-  width: 100%; /* Ensure it spans the full width */
-  margin-top: auto; /* This is the key to push it to the bottom */
-  box-sizing: border-box; /* Include padding in width */
-  flex-shrink: 0; /* Prevent the input form from shrinking */
+  padding: 10px 20px;
+  /* Add some padding around the input */
+  background-color: var(--chat-bg-main);
+  /* Ensure background is consistent */
+  border-top: 1px solid var(--chat-border);
+  /* Separator from messages */
+  align-items: center;
+  /* Vertically align items */
+  gap: 10px;
+  /* Space between input and button */
+  width: 100%;
+  /* Ensure it spans the full width */
+  margin-top: auto;
+  /* This is the key to push it to the bottom */
+  box-sizing: border-box;
+  /* Include padding in width */
+  flex-shrink: 0;
+  /* Prevent the input form from shrinking */
 }
 
 .message-input-field {
-  flex: 1; /* Allow input to grow and take available space */
+  flex: 1;
+  /* Allow input to grow and take available space */
   padding: 10px 15px;
   border-radius: 20px;
   border: 1px solid var(--chat-border);
@@ -334,7 +366,8 @@
   color: var(--chat-text-primary);
   font-size: 0.95rem;
   outline: none;
-  resize: none; /* Prevent manual resizing */
+  resize: none;
+  /* Prevent manual resizing */
 }
 
 .message-input-field::placeholder {
@@ -355,8 +388,10 @@
 }
 
 .message-input-send-btn:hover {
-  background-color: var(--chat-accent); /* Using the same accent for now, or define --chat-accent-dark */
-  opacity: 0.8; /* Simple hover effect */
+  background-color: var(--chat-accent);
+  /* Using the same accent for now, or define --chat-accent-dark */
+  opacity: 0.8;
+  /* Simple hover effect */
 }
 
 /* =====================================================
@@ -366,27 +401,33 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  gap: 10px; /* Space between messages */
+  gap: 10px;
+  /* Space between messages */
 }
 
 .message-container {
-  display: flex; /* Use flexbox for alignment */
+  display: flex;
+  /* Use flexbox for alignment */
   width: 100%;
 }
 
 .message-content {
-  max-width: 70%; /* Limit bubble width */
+  max-width: 70%;
+  /* Limit bubble width */
   padding: 10px 15px;
-  border-radius: 18px; /* Rounded corners for bubbles */
+  border-radius: 18px;
+  /* Rounded corners for bubbles */
   color: var(--chat-text-primary);
   font-size: 0.9rem;
   line-height: 1.4;
-  word-wrap: break-word; /* Ensure long words break */
+  word-wrap: break-word;
+  /* Ensure long words break */
   position: relative;
 }
 
 .message-content p {
-  margin: 0; /* Remove default paragraph margin */
+  margin: 0;
+  /* Remove default paragraph margin */
 }
 
 .sender-name {
@@ -403,7 +444,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  justify-content: flex-end; /* Align timestamp to right within bubble */
+  justify-content: flex-end;
+  /* Align timestamp to right within bubble */
 }
 
 .read-receipt {
@@ -412,39 +454,50 @@
 }
 
 .read-receipt.read {
-  color: var(--chat-accent); /* Accent color for read status */
+  color: var(--chat-accent);
+  /* Accent color for read status */
 }
 
 /* --- Received Messages (Others) --- */
 .message-container:not(.current-user) {
-  justify-content: flex-start; /* Align to left */
+  justify-content: flex-start;
+  /* Align to left */
 }
 
 .message-container:not(.current-user) .message-content {
-  background-color: var(--chat-bubble-received); /* Grey background */
-  border-bottom-left-radius: 4px; /* Pointed corner */
+  background-color: var(--chat-bubble-received);
+  /* Grey background */
+  border-bottom-left-radius: 4px;
+  /* Pointed corner */
 }
 
 /* --- Sent Messages (Current User) --- */
 .message-container.current-user {
-  justify-content: flex-end; /* Align to right */
+  justify-content: flex-end;
+  /* Align to right */
 }
 
 .message-container.current-user .message-content {
-  background-color: var(--chat-bubble-sent); /* Blue background */
-  color: white; /* White text */
-  border-bottom-right-radius: 4px; /* Pointed corner */
+  background-color: var(--chat-bubble-sent);
+  /* Blue background */
+  color: white;
+  /* White text */
+  border-bottom-right-radius: 4px;
+  /* Pointed corner */
 }
 
 .message-container.current-user .sender-name {
-  display: none; /* Hide sender name for self-sent messages */
+  display: none;
+  /* Hide sender name for self-sent messages */
 }
 
 /* Ensure text color is white for all messages inside .message-content p */
 .message-content p {
-  color: var(--chat-text-primary); /* Default for others */
+  color: var(--chat-text-primary);
+  /* Default for others */
 }
 
 .message-container.current-user .message-content p {
-  color: white; /* Override for self-sent */
+  color: white;
+  /* Override for self-sent */
 }
