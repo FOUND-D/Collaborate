@@ -15,11 +15,15 @@ import TeamDetailsScreen from './screens/TeamDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MeetingScreen from './screens/MeetingScreen';
 import ChatScreen from './screens/ChatScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
-const App = () => {
+// Inner App component that uses theme context
+const AppContent = () => {
+  const { theme } = useTheme();
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -91,6 +95,7 @@ const App = () => {
               <Route path="/project/:id" element={<ProjectScreen />} />
               <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
               <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="/settings" element={<SettingsScreen />} />
               <Route path="/chat" element={<ChatScreen />} />
               <Route path="/chat/:id" element={<ChatScreen />} />
             </Routes>
@@ -99,6 +104,15 @@ const App = () => {
         </div>
       </div>
     </Router>
+  );
+};
+
+// Main App component that wraps everything with ThemeProvider
+const App = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 
