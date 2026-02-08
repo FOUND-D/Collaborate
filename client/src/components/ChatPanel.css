@@ -5,15 +5,15 @@
 .chat-panel {
   /* FIX: Row direction places Sidebar (left) and Chat (right) side-by-side */
   display: flex;
-  flex-direction: row; 
-  
+  flex-direction: row;
+
   width: 100%;
   height: 100%;
-  
-  background: rgba(22, 22, 30, 0.94);
+
+  background: var(--glass-bg-heavy);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  
+
   overflow: hidden;
 }
 
@@ -24,10 +24,10 @@
   /* Fixed width for the sidebar */
   width: 280px;
   min-width: 260px;
-  
+
   height: 100%;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  
+  border-right: 1px solid var(--border-color);
+
   display: flex;
   flex-direction: column;
 }
@@ -38,10 +38,11 @@
 .cp-main-area {
   /* FIX: Flex 1 makes this grow to fill ALL remaining empty space */
   flex: 1;
-  
+
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Prevents overflow issues */
+  min-width: 0;
+  /* Prevents overflow issues */
   height: 100%;
   position: relative;
 }
@@ -52,32 +53,32 @@
 .chat-panel-header {
   height: 60px;
   flex-shrink: 0;
-  
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+
   padding: 0 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--glass-bg);
 }
 
 .chat-header-info h3 {
   margin: 0;
   font-size: 1rem;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .chat-header-info span {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
 }
 
 .chat-panel-close-btn {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 1.1rem;
   padding: 8px;
@@ -96,11 +97,14 @@
 .chat-panel-body {
   flex: 1;
   display: flex;
-  flex-direction: column; /* Stack children vertically */
-  height: 100%;           /* Force full height of parent */
-  overflow: hidden;       /* Prevent double scrollbars */
+  flex-direction: column;
+  /* Stack children vertically */
+  height: 100%;
+  /* Force full height of parent */
+  overflow: hidden;
+  /* Prevent double scrollbars */
   position: relative;
-  background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+  background: var(--chat-bg-main);
 }
 
 .chat-messages-wrapper {
@@ -120,7 +124,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   text-align: center;
   padding: 20px;
 }
@@ -132,7 +136,7 @@
 }
 
 .chat-empty-state h3 {
-  color: white;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
@@ -144,6 +148,7 @@
 }
 
 @media (max-width: 768px) {
+
   /* On mobile, stack them and hide one based on state */
   .chat-panel {
     position: relative;
@@ -155,13 +160,13 @@
     z-index: 10;
     background: #16161e;
   }
-  
+
   .cp-main-area {
     width: 100%;
     z-index: 20;
     background: #16161e;
   }
-  
+
   .mobile-only {
     display: block;
     margin-right: 12px;
