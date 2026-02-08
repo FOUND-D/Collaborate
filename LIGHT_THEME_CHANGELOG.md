@@ -48,3 +48,26 @@ This document outlines the comprehensive changes made to implement and refine th
 - The application now fully supports switching between Light and Dark themes without visual regressions.
 - All text, inputs, and backgrounds adapt dynamically to the active theme.
 - Accessibility is improved with better contrast ratios and semantic variable usage.
+
+## 6. Input Contrast Fixes
+- **FormContainer.css**:
+  - Replaced hardcoded `#0f0f0f` and `#f0eaea` with `var(--background-tertiary-inputs)` and `var(--text-primary)` to ensure inputs are legible in both themes.
+  - Resolved "White Text on White Background" issue in Light Mode.
+- **ProjectCreateModal.css**:
+  - Refactored to use global theme variables instead of local hardcoded dark tokens.
+  - Fixed modal inputs to correctly display dark text on light backgrounds in Light Mode.
+
+## 7. Modal & Task Creation Fixes
+- **ProjectCreateModal.css (Components)**:
+  - Completely refactored to remove hardcoded dark theme colors.
+  - Implemented `var(--background-tertiary-inputs)` and `var(--text-primary)` for inputs.
+  - Updated buttons and labels to use global theme variables.
+- **Cleanup**:
+  - Removed duplicate/unused CSS files: `src/screens/ProjectCreateModal.css` and `src/screens/FormContainer.css` to prevent style conflicts.
+- **TaskSideDrawer.css**:
+  - Verified it uses `var(--background-main)` and inherits global input styles, ensuring task creation inputs are legible in Light Mode.
+
+## 8. Task Screen Fixes
+- **TaskEditScreen.jsx**:
+  - Identified hardcoded inline style `color: 'white'` applied to input fields, which caused invisible text in Light Mode.
+  - Replaced it with `color: 'var(--text-primary)'` to ensure text is visible in both Light and Dark modes.
