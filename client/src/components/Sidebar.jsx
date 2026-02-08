@@ -3,14 +3,16 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaSun, FaMoon } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import { HARDCODED_BACKEND_URL } from '../utils/api';
+import { useTheme } from '../context/ThemeContext';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -98,6 +100,15 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <button className="logout-button" onClick={logoutHandler} title="Logout">
               <FaSignOutAlt />
               {isSidebarOpen && <span className="logout-text">Logout</span>}
+            </button>
+            <button
+              className="theme-toggle-button"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <FaSun className="theme-icon sun" /> : <FaMoon className="theme-icon moon" />}
+              {isSidebarOpen && <span className="theme-text">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
+              {!isSidebarOpen && <span className="tooltip">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
             </button>
           </div>
         )}
