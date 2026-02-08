@@ -1,17 +1,5 @@
-/* ================================
-   ROOT VARIABLES
-================================ */
-:root {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --bg-light: #f8fafc;
-  --border-light: #e2e8f0;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --transition: all 0.25s ease;
-}
+/* Dark Modal Design System - Adaptive to Global Theme */
+/* Using global variables defined in global.css and light-theme.css */
 
 /* ================================
    MODAL OVERLAY
@@ -19,7 +7,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.25);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(10px);
   z-index: 3000;
 
@@ -34,6 +22,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -46,16 +35,13 @@
   width: 95%;
   max-width: 550px;
 
-  background: linear-gradient(
-    180deg,
-    #0e0d0d,
-    #0c0c0c
-  );
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px);
 
   padding: 2.5rem 2.5rem 2.75rem;
   border-radius: var(--radius-lg);
 
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border-color);
 
   box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.15),
@@ -71,6 +57,7 @@
     transform: scale(0.95) translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -84,7 +71,7 @@
   width: 36px;
   height: 36px;
 
-  background: #f1f5f9;
+  background: var(--background-tertiary-inputs);
   border-radius: 50%;
   border: none;
 
@@ -92,15 +79,15 @@
   align-items: center;
   justify-content: center;
 
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
 
   transition: var(--transition);
 }
 
 .modal-close-btn:hover {
-  background: #e2e8f0;
-  color: var(--text-main);
+  background: var(--background-secondary-cards);
+  color: var(--text-primary);
   transform: rotate(90deg);
 }
 
@@ -108,7 +95,7 @@
    HEADER
 ================================ */
 .text-center h2 {
-  color: var(--text-main);
+  color: var(--text-primary);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -123,7 +110,7 @@
 .modal-toggle {
   display: flex;
   gap: 0.75rem;
-  background: #0a0a0a;
+  background: var(--background-tertiary-inputs);
   padding: 0.4rem;
   border-radius: 999px;
 }
@@ -146,22 +133,22 @@
   font-size: 0.9rem;
   font-weight: 600;
 
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
 
   transition: var(--transition);
 }
 
 .toggle-btn.active {
-  background: white;
-  color: var(--primary);
+  background: var(--background-main);
+  color: var(--accent-color);
 
   box-shadow:
     0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
 .toggle-btn:hover:not(.active) {
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
 /* ================================
@@ -176,62 +163,47 @@
 ================================ */
 .floating-label {
   position: relative;
-  background-color: black;
+  background-color: transparent;
 }
 
 .form-input {
   width: 100%;
-
   padding: 0.85rem 1rem;
-
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-
-  background: var(--bg-light);
-
+  border: 1px solid var(--border-color);
+  background: var(--background-tertiary-inputs);
   font-size: 0.95rem;
-  color: var(--text-main);
-
+  color: var(--text-primary);
   transition: var(--transition);
 }
 
 .form-input:focus {
   outline: none;
-
-  background: #111111;
-
-  border-color: var(--primary);
-
-  box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: var(--background-tertiary-inputs);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--glow-accent);
 }
 
-/* Label */
 .floating-label label {
   position: absolute;
-
   left: 1rem;
   top: 50%;
-
   transform: translateY(-50%);
-
   font-size: 0.85rem;
-  color: var(--text-muted);
-
+  color: var(--text-secondary);
   pointer-events: none;
-
-  background: rgb(14, 13, 13);
+  background: var(--background-main);
   padding: 0 0.3rem;
-
   transition: var(--transition);
+  border-radius: 4px;
 }
 
 /* When input has value */
-.form-input:not(:placeholder-shown) + label,
-.form-input:focus + label {
+.form-input:not(:placeholder-shown)+label,
+.form-input:focus+label {
   top: -0.45rem;
   font-size: 0.75rem;
-  color: var(--primary);
+  color: var(--accent-color);
 }
 
 /* ================================
@@ -258,55 +230,37 @@ select.form-input {
 
 /* Primary */
 .btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--primary-dark)
-  );
-
-  color: rgb(8, 8, 8);
+  background: var(--accent-gradient);
+  color: #fff;
   font-weight: 600;
-
   border: none;
   border-radius: var(--radius-md);
-
   padding: 0.8rem 1rem;
-
   cursor: pointer;
-
   transition: var(--transition);
-
-  box-shadow:
-    0 6px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 6px 12px var(--glow-accent);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 10px 20px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 10px 20px var(--glow-accent);
 }
 
 /* Secondary */
 .btn-secondary {
   background: transparent;
-
-  border: 1px solid var(--border-light);
-
-  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-weight: 600;
-
   border-radius: var(--radius-md);
-
   padding: 0.8rem 1rem;
-
   cursor: pointer;
-
   transition: var(--transition);
 }
 
 .btn-secondary:hover {
-  background: #f8fafc;
-  color: var(--text-main);
+  background: var(--background-tertiary-inputs);
+  color: var(--text-primary);
 }
 
 /* ================================
