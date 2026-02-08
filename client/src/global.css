@@ -1,3 +1,5 @@
+@import "./light-theme.css";
+
 :root {
   /* Dark Apple/iOS Minimalist Theme */
   --background-main: #000000;
@@ -6,6 +8,7 @@
   --text-primary: #F5F5F7;
   --text-secondary: #86868B;
   --accent-color: #0A84FF;
+  --accent-gradient: linear-gradient(135deg, #0A84FF, #5AC8FA);
   --border-color: #38383A;
 
   /* Visual Effects */
