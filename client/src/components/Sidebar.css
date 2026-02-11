@@ -85,36 +85,7 @@
   gap: 12px;
 }
 
-.user-guide-btn-header {
-  background: transparent;
-  border: none;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin-left: 0.2rem;
-  transition: transform 0.2s ease;
-}
 
-.user-guide-icon-img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  transition: opacity 0.2s ease;
-}
-
-.user-guide-btn-header:hover {
-  transform: scale(1.1);
-  background: transparent;
-  /* Ensure no bg on hover */
-}
-
-.user-guide-btn-header:hover .user-guide-icon-img {
-  opacity: 0.8;
-}
 
 .sidebar-closed .sidebar-header {
   justify-content: center;
@@ -760,4 +731,62 @@
 
 .light-theme .app-layout {
   background: linear-gradient(180deg, #ffffff, #f5f5f7);
+}
+
+
+
+/* User Guide Button in Header */
+.user-guide-btn-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  /* Subtle background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* Align with Collaborate text */
+  margin-right: auto;
+  /* Push everything else to the right, effectively placing this on the left if needed, but here it just sits in flow */
+  font-size: 0.85rem;
+}
+
+.user-guide-btn-header:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.user-guide-icon {
+  font-size: 0.9rem;
+}
+
+.user-guide-text {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Light Theme Overrides */
+.light-theme .user-guide-btn-header {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+
+.light-theme .user-guide-btn-header:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+/* Ensure header-left flex container properly aligns items */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  /* Ensure it spans to allow buttons to be separated if needed */
 }

@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaSun, FaMoon } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaSun, FaMoon, FaBook } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import { HARDCODED_BACKEND_URL } from '../utils/api';
 import { useTheme } from '../context/ThemeContext';
@@ -40,9 +40,11 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           </div>
           {isSidebarOpen && (
             <button className="user-guide-btn-header" onClick={() => setIsGuideOpen(true)} title="User Guide">
-              <img src="/user-guide-book-blue.png" alt="User Guide" className="user-guide-icon-img" />
+              <FaBook className="user-guide-icon" />
+              <span className="user-guide-text">Guide</span>
             </button>
           )}
+
         </div>
 
         <nav className="sidebar-nav">
@@ -71,6 +73,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <span className="nav-text">Chat</span>
             {!isSidebarOpen && <span className="tooltip">Chat</span>}
           </button>
+
           <NavLink to="/settings" className={getNavLinkClass}>
             <FaCog />
             <span className="nav-text">Settings</span>
