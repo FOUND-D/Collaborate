@@ -131,7 +131,7 @@ const MeetingScreen = () => {
       ? "https://collaborate-arin.onrender.com"
       : "http://localhost:3002";
 
-    const socket = io(BACKEND_URL, { transports: ['websocket'] });
+    const socket = io(BACKEND_URL);
     socketRef.current = socket;
 
     socket.on('connect', () => {
@@ -228,6 +228,10 @@ const MeetingScreen = () => {
     };
 
     const handleOffer = async ({ senderSocketId, sdp, senderUserId }) => {
+      if (!sdp) {
+        console.error("Received offer with null SDP from", senderUserId);
+        return;
+      }
       const pc = createPeerConnection(senderUserId, senderSocketId, false);
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
       const answer = await pc.createAnswer();
@@ -336,16 +340,22 @@ const MeetingScreen = () => {
     peerConnections.current[targetUserId] = pc;
 
     if (isInitiator) {
-      pc.createOffer().then(offer => {
-        pc.setLocalDescription(offer);
-        socketRef.current.emit("offer", {
-          target: targetSocketId,
-          sdp: pc.localDescription,
-          senderUserId: userInfoRef.current._id,
-          targetUserId: targetUserId,
-          senderSocketId: socketRef.current.id
-        });
-      });
+      pc.createOffer()
+        .then(offer => pc.setLocalDescription(offer))
+        .then(() => {
+          if (pc.localDescription) {
+            socketRef.current.emit("offer", {
+              target: targetSocketId,
+              sdp: pc.localDescription,
+              senderUserId: userInfoRef.current._id,
+              targetUserId: targetUserId,
+              senderSocketId: socketRef.current.id
+            });
+          } else {
+            console.error("WebRTC Error: pc.localDescription is null after setLocalDescription.");
+          }
+        })
+        .catch(error => console.error("WebRTC Error during offer creation or setLocalDescription:", error));
     }
 
     return pc;

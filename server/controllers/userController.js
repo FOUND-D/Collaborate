@@ -69,16 +69,35 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate('teams');
+  const user = await User.findById(req.user._id).populate({
+    path: 'teams',
+    populate: {
+      path: 'projects',
+      model: 'Project'
+    }
+  });
 
   if (user) {
+    const userProjects = user.teams.reduce((acc, team) => {
+      // Filter out null/undefined teams and projects within teams
+      if (team && team.projects) {
+        team.projects.forEach(project => {
+          if (project && !acc.some(p => p._id.equals(project._id))) {
+            acc.push(project);
+          }
+        });
+      }
+      return acc;
+    }, []);
+
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       techStack: user.techStack,
-      teams: user.teams.filter(t => t),
+      teams: user.teams ? user.teams.filter(t => t) : [], // Still include teams, but ensure they are not null
+      projects: userProjects,
     });
   } else {
     res.status(404);
