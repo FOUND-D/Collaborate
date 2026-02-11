@@ -177,3 +177,26 @@
     cursor: pointer;
   }
 }
+
+/* =====================================================
+   LIGHT THEME OVERRIDES — ChatPanel
+===================================================== */
+
+.light-theme .chat-panel-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1C1C1E;
+}
+
+@media (max-width: 768px) {
+  .light-theme .cp-sidebar-area {
+    background: #F2F2F7;
+  }
+
+  .light-theme .cp-main-area {
+    background: #FFFFFF;
+  }
+
+  .light-theme .mobile-only {
+    color: #1C1C1E;
+  }
+}
