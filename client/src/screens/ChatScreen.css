@@ -22,6 +22,7 @@
   /* Slightly darker than main bg */
   --chat-bg-input: #e5e5ea;
   --chat-bubble-received: #e5e5ea;
+  --chat-text-primary: #1C1C1E;
   --chat-text-secondary: #8e8e93;
 }
 
@@ -500,4 +501,49 @@
 .message-container.current-user .message-content p {
   color: white;
   /* Override for self-sent */
+}
+
+/* =====================================================
+   LIGHT THEME OVERRIDES — ChatScreen
+===================================================== */
+
+.light-theme .chat-screen-container {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .chat-docked-drawer {
+  background-color: #F2F2F7;
+  box-shadow: -5px 0 40px rgba(0, 0, 0, 0.12);
+}
+
+.light-theme .docked-header {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.light-theme .chat-drawer-close:hover,
+.light-theme .chat-drawer-action:hover,
+.light-theme .chat-panel-action-btn:hover,
+.light-theme .chat-panel-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: #1C1C1E;
+}
+
+.light-theme .message-container:not(.current-user) .message-content {
+  color: #1C1C1E;
+}
+
+.light-theme .message-container:not(.current-user) .message-content p {
+  color: #1C1C1E;
+}
+
+.light-theme .message-timestamp {
+  color: #48484a;
+}
+
+.light-theme .sender-name {
+  color: #48484a;
+}
+
+.light-theme .read-receipt {
+  color: #48484a;
 }
