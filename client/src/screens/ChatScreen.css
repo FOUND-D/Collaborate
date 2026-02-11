@@ -547,3 +547,18 @@
 .light-theme .read-receipt {
   color: #48484a;
 }
+
+.light-theme .message-input-field {
+  background-color: #FFFFFF;
+  color: #1C1C1E;
+  border: 1px solid #D1D1D6;
+}
+
+.light-theme .message-input-field::placeholder {
+  color: #8e8e93;
+}
+
+.light-theme .message-input-form {
+  background-color: #F2F2F7;
+  border-top: 1px solid #D1D1D6;
+}
