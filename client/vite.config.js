@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://collaborate-1.onrender.com', // Your backend server
+        target: 'http://localhost:3003',
         changeOrigin: true,
       },
     },
