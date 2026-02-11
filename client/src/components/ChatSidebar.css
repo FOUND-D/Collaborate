@@ -153,7 +153,7 @@
 .cs-body {
   flex: 1;
   /* FIX: Critical for nested flex scrolling */
-  min-height: 0; 
+  min-height: 0;
   overflow-y: auto;
   padding: 4px 8px 10px;
   display: flex;
@@ -209,7 +209,7 @@ section {
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: .8rem;
   color: var(--text-main);
   flex-shrink: 0;
 }
@@ -284,8 +284,9 @@ section {
 /* Sidebar Wrapper */
 /* Sidebar Wrapper */
 .chat-docked {
-  flex: 0 0 auto; /* 🔥 Stop flex stretching */
-  
+  flex: 0 0 auto;
+  /* 🔥 Stop flex stretching */
+
   width: clamp(340px, 30vw, 440px);
   min-width: 340px;
   max-width: 440px;
@@ -301,7 +302,8 @@ section {
 
 /* Chat Panel */
 .chat-panel {
-  flex: 1 1 auto; /* 🔥 Fill remaining space */
+  flex: 1 1 auto;
+  /* 🔥 Fill remaining space */
   min-width: 0;
 
   display: none;
@@ -324,8 +326,106 @@ section {
 ===================================================== */
 
 @media (max-width: 768px) {
-  
+
   .chat-sidebar {
     border-right: none;
   }
+}
+
+/* =====================================================
+   LIGHT THEME OVERRIDES
+===================================================== */
+
+.light-theme .chat-sidebar {
+  background: rgba(242, 242, 247, 0.95);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .cs-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .cs-logo {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1C1C1E;
+}
+
+.light-theme .cs-brand h3 {
+  color: #1C1C1E;
+}
+
+.light-theme .cs-brand span {
+  color: #48484a;
+}
+
+.light-theme .cs-search {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .cs-search input {
+  color: #1C1C1E;
+}
+
+.light-theme .cs-search input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .cs-search button {
+  color: #48484a;
+}
+
+.light-theme .tab {
+  color: #48484a;
+}
+
+.light-theme .tab:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .tab.active {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1C1C1E;
+}
+
+.light-theme .cs-title {
+  color: #48484a;
+}
+
+.light-theme .cs-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .cs-item.active {
+  background: var(--accent-color);
+  color: white;
+}
+
+.light-theme .cs-avatar {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1C1C1E;
+}
+
+.light-theme .cs-info h4 {
+  color: #1C1C1E;
+}
+
+.light-theme .cs-info p {
+  color: #48484a;
+}
+
+.light-theme .cs-empty {
+  color: #48484a;
+}
+
+.light-theme .cs-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.light-theme .cs-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.light-theme .chat-docked {
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
