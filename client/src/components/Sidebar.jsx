@@ -41,7 +41,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           {isSidebarOpen && (
             <button className="user-guide-btn-header" onClick={() => setIsGuideOpen(true)} title="User Guide">
               <FaBook className="user-guide-icon" />
-              <span className="user-guide-text">Guide</span>
+              <span className="user-guide-text"></span>
             </button>
           )}
 
