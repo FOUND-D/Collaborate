@@ -739,19 +739,18 @@
 .user-guide-btn-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0;
   background: rgba(255, 255, 255, 0.08);
-  /* Subtle background */
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-
-  /* Align with Collaborate text */
   margin-right: auto;
-  /* Push everything else to the right, effectively placing this on the left if needed, but here it just sits in flow */
   font-size: 0.85rem;
 }
 
