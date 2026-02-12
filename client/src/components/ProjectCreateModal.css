@@ -54,13 +54,15 @@
 
 @keyframes scaleIn {
   from {
-    transform: scale(0.95) translateY(20px);
+    transform: scale(0.9) translateY(20px);
     opacity: 0;
+    filter: blur(4px);
   }
 
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
+    filter: blur(0);
   }
 }
 
@@ -88,7 +90,8 @@
 .modal-close-btn:hover {
   background: var(--background-secondary-cards);
   color: var(--text-primary);
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
 }
 
 /* ================================
@@ -142,13 +145,15 @@
 .toggle-btn.active {
   background: var(--background-main);
   color: var(--accent-color);
-
   box-shadow:
-    0 3px 6px rgba(0, 0, 0, 0.08);
+    0 3px 8px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(10, 132, 255, 0.15);
+  transform: scale(1.02);
 }
 
 .toggle-btn:hover:not(.active) {
   color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 /* ================================
