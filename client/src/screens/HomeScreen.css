@@ -1,3 +1,30 @@
+.home-dashboard-page {
+    animation: fadeIn 0.4s ease-out both;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.home-dashboard-page .project-hero-header {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    margin-bottom: 1rem;
+}
+
+.home-dashboard-page .project-detail-title {
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
+}
+
+.home-dashboard-page .project-detail-goal {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+}
+
 .dashboard-title {
     font-size: 3rem;
     font-weight: 800;
@@ -9,26 +36,53 @@
     letter-spacing: -0.03em;
 }
 
+/* =====================================================
+   ACTION CARDS GRID (Staggered entry)
+===================================================== */
+
 .action-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
     margin-bottom: 2.5rem;
-    animation: fadeIn 0.8s ease-out;
+    width: 100%;
+    max-width: 1200px;
 }
 
+/* Each card staggers in from bottom */
+.action-cards-grid>*:nth-child(1) {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+}
+
+.action-cards-grid>*:nth-child(2) {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+}
+
+.action-cards-grid>*:nth-child(3) {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
+}
+
+.action-cards-grid>*:nth-child(4) {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
+}
+
+/* =====================================================
+   ACTION CARD (Premium interactive)
+===================================================== */
+
 .action-card {
-    background-color: var(--background-secondary-cards);
-    backdrop-filter: var(--glass-morphism);
-    border: var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-large);
     padding: 2.5rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    transition: all var(--transition-bounce);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     box-shadow: var(--shadow-subtle);
     position: relative;
     overflow: hidden;
@@ -36,24 +90,99 @@
     text-decoration: none;
 }
 
+/* Animated gradient overlay on hover */
 .action-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(46, 140, 251, 0.1), transparent);
+    background: linear-gradient(135deg,
+            rgba(10, 132, 255, 0.12),
+            rgba(90, 200, 250, 0.06),
+            transparent);
     opacity: 0;
-    transition: 0.3s;
+    transition: opacity 0.5s ease;
+}
+
+/* Animated border glow */
+.action-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+            rgba(10, 132, 255, 0.4),
+            rgba(90, 200, 250, 0.2),
+            rgba(191, 90, 242, 0.3),
+            rgba(10, 132, 255, 0.4));
+    background-size: 300% 300%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1px;
+    animation: gradientShift 4s ease infinite;
 }
 
 .action-card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(46, 140, 251, 0.4);
+    transform: translateY(-10px) scale(1.02);
     box-shadow: var(--shadow-hover);
 }
 
 .action-card:hover::before {
     opacity: 1;
 }
+
+.action-card:hover::after {
+    opacity: 1;
+}
+
+.action-card:active {
+    transform: translateY(-4px) scale(0.99);
+    transition-duration: 0.1s;
+}
+
+/* =====================================================
+   ACTION CARD – AI CARD (Special glow)
+===================================================== */
+
+.action-card.ai-card {
+    border-color: rgba(191, 90, 242, 0.15);
+}
+
+.action-card.ai-card::before {
+    background: linear-gradient(135deg,
+            rgba(191, 90, 242, 0.12),
+            rgba(90, 200, 250, 0.06),
+            transparent);
+}
+
+.action-card.ai-card::after {
+    background: linear-gradient(135deg,
+            rgba(191, 90, 242, 0.4),
+            rgba(90, 200, 250, 0.3),
+            rgba(10, 132, 255, 0.3),
+            rgba(191, 90, 242, 0.4));
+    background-size: 300% 300%;
+    animation: gradientShift 3s ease infinite;
+}
+
+.action-card.ai-card:hover {
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(191, 90, 242, 0.2);
+}
+
+
+/* =====================================================
+   ACTION CARD ELEMENTS
+===================================================== */
 
 .action-card-icon {
     font-size: 3rem;
@@ -63,12 +192,22 @@
     -webkit-background-clip: unset;
     background-clip: unset;
     -webkit-text-fill-color: unset;
-    transition: transform var(--transition-bounce);
-    filter: drop-shadow(0 0 10px rgba(46, 140, 251, 0.3));
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    filter: drop-shadow(0 0 10px rgba(10, 132, 255, 0.3));
 }
 
 .action-card:hover .action-card-icon {
-    transform: scale(1.1) rotate(5deg);
+    transform: scale(1.15) rotate(8deg) translateY(-4px);
+    filter: drop-shadow(0 0 18px rgba(10, 132, 255, 0.5));
+}
+
+.ai-card .action-card-icon {
+    color: #BF5AF2;
+    filter: drop-shadow(0 0 10px rgba(191, 90, 242, 0.3));
+}
+
+.ai-card:hover .action-card-icon {
+    filter: drop-shadow(0 0 18px rgba(191, 90, 242, 0.5));
 }
 
 .action-card-title {
@@ -76,23 +215,58 @@
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
+    transition: color 0.3s;
 }
 
 .action-card-description {
     font-size: 0.95rem;
     color: var(--text-secondary);
     line-height: 1.6;
+    flex-grow: 1;
+    margin-bottom: 1.2rem;
 }
 
+.action-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.action-card-link svg {
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.action-card:hover .action-card-link svg {
+    transform: translateX(6px);
+}
+
+.action-card:hover .action-card-link {
+    text-shadow: 0 0 12px rgba(10, 132, 255, 0.3);
+}
+
+.ai-card .action-card-link {
+    color: #BF5AF2;
+}
+
+
+/* =====================================================
+   PENDING REQUESTS SECTION
+===================================================== */
+
 .pending-requests-section {
-    background-color: var(--background-secondary-cards);
-    backdrop-filter: var(--glass-morphism);
-    border: var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-large);
     padding: 2rem;
     margin-bottom: 2.5rem;
     box-shadow: var(--shadow-subtle);
-    animation: fadeIn 0.6s ease-out 0.2s backwards;
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
 }
 
 .request-item {
@@ -104,11 +278,12 @@
     border-radius: var(--radius-medium);
     margin-bottom: 1rem;
     border: 1px solid transparent;
-    transition: var(--transition-fast);
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .request-item:hover {
     border-color: var(--accent-color);
     background-color: rgba(44, 44, 46, 0.95);
-    transform: translateX(4px);
+    transform: translateX(6px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
