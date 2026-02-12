@@ -84,10 +84,10 @@ const ProfileScreen = () => {
       const isPasswordChanged = password !== '';
       setIsDirty(
         isNameChanged ||
-          isEmailChanged ||
-          isRoleChanged ||
-          isTechStackChanged ||
-          isPasswordChanged
+        isEmailChanged ||
+        isRoleChanged ||
+        isTechStackChanged ||
+        isPasswordChanged
       );
     }
   }, [name, email, role, techStack, password, userInfo]);
@@ -141,14 +141,24 @@ const ProfileScreen = () => {
               placeholder="Enter image url"
               value={image}
               onChange={(e) => setImage(e.target.value)}
+              style={{ display: 'none' }}
             />
-            <input
-              type="file"
-              id="image-file"
-              label="Choose File"
-              custom
-              onChange={uploadFileHandler}
-            />
+            <div className="file-input-wrapper">
+              <label htmlFor="image-file" className="btn-secondary" style={{ display: 'inline-block', cursor: 'pointer', marginBottom: '0.5rem' }}>
+                Change Profile Photo
+              </label>
+              <input
+                type="file"
+                id="image-file"
+                label="Choose File"
+                custom
+                onChange={uploadFileHandler}
+                style={{ display: 'none' }}
+              />
+              <span style={{ marginLeft: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                {uploading ? 'Uploading...' : ''}
+              </span>
+            </div>
             {uploading && <Loader />}
           </div>
           <div className="form-group">

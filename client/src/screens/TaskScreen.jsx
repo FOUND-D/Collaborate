@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './TaskScreen.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaCheck, FaUser } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaCheck, FaUser, FaClipboardList } from 'react-icons/fa';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -124,8 +124,33 @@ const TaskScreen = () => {
         <Message variant="danger">{error}</Message>
       ) : (
         tasks && tasks.length === 0 ? (
-          <div className="empty-state-container" style={{ textAlign: 'center', padding: '3rem' }}>
-            <Message variant="info">No tasks found.</Message>
+          <div className="empty-state-container" style={{
+            textAlign: 'center',
+            padding: '4rem 2rem',
+            background: 'rgba(255, 255, 255, 0.03)',
+            borderRadius: '16px',
+            border: '1px dashed rgba(255, 255, 255, 0.1)',
+            marginTop: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
+              padding: '1.5rem',
+              borderRadius: '50%',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FaClipboardList size={40} color="#34d399" />
+            </div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>No Tasks Yet</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '400px' }}>
+              Your task list is empty. Create a task to stay organized and keep track of your work.
+            </p>
             <Link to="/task/create" className="btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
               <FaPlus /> Create Your First Task
             </Link>
