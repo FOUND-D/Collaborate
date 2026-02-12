@@ -8,8 +8,16 @@
   --text-primary: #F5F5F7;
   --text-secondary: #86868B;
   --accent-color: #0A84FF;
+  --accent-color-rgb: 10, 132, 255;
   --accent-gradient: linear-gradient(135deg, #0A84FF, #5AC8FA);
+  --accent-gradient-vivid: linear-gradient(135deg, #0A84FF 0%, #5AC8FA 40%, #BF5AF2 100%);
   --border-color: #38383A;
+  --danger-color: #FF453A;
+
+  /* Extended Palette */
+  --purple-accent: #BF5AF2;
+  --teal-accent: #5AC8FA;
+  --green-accent: #34D399;
 
   /* Visual Effects */
   --radius-large: 20px;
@@ -18,7 +26,10 @@
   --radius-pill: 999px;
 
   --shadow-subtle: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(10, 132, 255, 0.12);
+  --shadow-elevated: 0 30px 80px rgba(0, 0, 0, 0.7);
   --glow-accent: 0 0 15px rgba(10, 132, 255, 0.3);
+  --accent-glow: 0 4px 14px rgba(10, 132, 255, 0.35);
 
   /* Glassmorphism Variables */
   --glass-bg: rgba(28, 28, 30, 0.65);
@@ -37,7 +48,12 @@
   --status-blocked-bg: #4A2424;
   --status-blocked-text: #F87171;
 
+  /* Transitions – Rich Motion Curves */
   --transition-main: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-spring: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-smooth: 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Typography */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -64,11 +80,12 @@ a {
   font-weight: 500;
   color: var(--accent-color);
   text-decoration: inherit;
-  transition: color var(--transition-main);
+  transition: color var(--transition-main), filter var(--transition-main);
 }
 
 a:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.2);
+  text-shadow: 0 0 12px rgba(var(--accent-color-rgb), 0.3);
 }
 
 h1,
@@ -82,7 +99,7 @@ h6 {
 
 /* Prominent Button Style */
 .btn-primary {
-  background-color: var(--accent-color);
+  background: var(--accent-gradient);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-pill);
@@ -90,14 +107,34 @@ h6 {
   font-size: 1em;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-main);
+  transition: all var(--transition-bounce);
   box-shadow: var(--glow-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.02);
   filter: brightness(1.1);
-  box-shadow: 0 0 20px rgba(10, 132, 255, 0.5);
+  box-shadow: 0 8px 30px rgba(var(--accent-color-rgb), 0.5);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:active {
+  transform: translateY(-1px) scale(0.98);
+  transition-duration: 0.1s;
 }
 
 /* Tertiary Button Style */
@@ -109,11 +146,12 @@ h6 {
   font-size: 1em;
   font-weight: 500;
   cursor: pointer;
-  transition: color var(--transition-main), background-color var(--transition-main);
+  transition: color var(--transition-main), background-color var(--transition-main), transform var(--transition-main);
 }
 
 .btn-tertiary:hover {
-  background-color: rgba(10, 132, 255, 0.15);
+  background-color: rgba(var(--accent-color-rgb), 0.15);
+  transform: translateY(-1px);
 }
 
 button {
@@ -127,11 +165,18 @@ button {
   color: var(--text-primary);
   cursor: pointer;
   transition: all var(--transition-main);
+  position: relative;
 }
 
 button:hover {
   border-color: var(--accent-color);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0px);
+  transition-duration: 0.08s;
 }
 
 button:focus,
@@ -147,6 +192,12 @@ button:focus-visible {
   -webkit-backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  transition: box-shadow var(--transition-main), border-color var(--transition-main);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-hover);
 }
 
 .glass-panel-heavy {
@@ -155,4 +206,15 @@ button:focus-visible {
   -webkit-backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+}
+
+/* Full width button variant */
+.btn-full-width {
+  width: 100%;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(var(--accent-color-rgb), 0.3);
+  color: var(--text-primary);
 }
