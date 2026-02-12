@@ -7,13 +7,14 @@
   inset: 0;
 
   background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   z-index: 1000;
+  animation: fadeIn 0.25s ease-out both;
 }
 
 /* ================================
@@ -21,11 +22,9 @@
 ================================ */
 
 .modal-content {
-  background: linear-gradient(
-    180deg,
-    #121826,
-    #0f1420
-  );
+  background: linear-gradient(180deg,
+      #121826,
+      #0f1420);
 
   border-radius: var(--radius-squircle, 18px);
   padding: 28px;
@@ -100,13 +99,14 @@
 
   cursor: pointer;
 
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .modal-close-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  transform: scale(1.05);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
 }
 
 
@@ -270,11 +270,13 @@
 @keyframes modalEnter {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(12px);
+    transform: scale(0.92) translateY(16px);
+    filter: blur(4px);
   }
 
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+    filter: blur(0);
   }
 }
