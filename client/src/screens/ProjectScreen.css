@@ -2,41 +2,8 @@
    DESIGN SYSTEM (Overridden by global.css)
 ===================================== */
 
-/*
-:root {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-soft: #f1f5f9;
-
-  --border-soft: #e2e8f0;
-
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-
-  --radius-xl: 22px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-
-  --shadow-soft:
-    0 6px 20px rgba(15, 23, 42, 0.06);
-
-  --shadow-hover:
-    0 16px 40px rgba(15, 23, 42, 0.12);
-
-  --transition:
-    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-*/
-
 /* =====================================
-   PROJECT GRID
-===================================== */
-
-/* =====================================
-   PROJECT GRID
+   PROJECT GRID (Staggered animation)
 ===================================== */
 
 .modern-project-list {
@@ -45,11 +12,51 @@
       minmax(340px, 1fr));
   gap: 2rem;
   margin-top: 2.5rem;
-  animation: slideInRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Staggered entrance */
+.modern-project-list>*:nth-child(1) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s both;
+}
+
+.modern-project-list>*:nth-child(2) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both;
+}
+
+.modern-project-list>*:nth-child(3) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
+}
+
+.modern-project-list>*:nth-child(4) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.16s both;
+}
+
+.modern-project-list>*:nth-child(5) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s both;
+}
+
+.modern-project-list>*:nth-child(6) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.24s both;
+}
+
+.modern-project-list>*:nth-child(7) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.28s both;
+}
+
+.modern-project-list>*:nth-child(8) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.32s both;
+}
+
+.modern-project-list>*:nth-child(9) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.36s both;
+}
+
+.modern-project-list>*:nth-child(10) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.40s both;
 }
 
 /* =====================================
-   PROJECT CARD
+   PROJECT CARD (Enhanced interactive)
 ===================================== */
 
 .project-list-item {
@@ -62,34 +69,41 @@
   flex-direction: column;
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  transition: var(--transition-main);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle glow line */
+/* Animated gradient background sweep */
 .project-list-item::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
     linear-gradient(120deg,
-      transparent,
-      rgba(46, 140, 251, 0.1),
-      transparent);
+      transparent 20%,
+      rgba(10, 132, 255, 0.08) 50%,
+      transparent 80%);
+  background-size: 200% 100%;
   opacity: 0;
-  transition: var(--transition-main);
+  transition: opacity 0.4s ease;
   pointer-events: none;
 }
 
 .project-list-item:hover::before {
   opacity: 1;
+  animation: shimmer 2s ease infinite;
 }
 
 .project-list-item:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-8px) scale(1.015);
   box-shadow: var(--shadow-hover);
-  border-color: rgba(46, 140, 251, 0.3);
+  border-color: rgba(10, 132, 255, 0.3);
+}
+
+.project-list-item:active {
+  transform: translateY(-4px) scale(1.005);
+  transition-duration: 0.1s;
 }
 
 /* =====================================
@@ -109,16 +123,33 @@
   text-decoration: none;
   margin-bottom: 0.75rem;
   letter-spacing: -0.02em;
-  transition: var(--transition-main);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+/* Animated underline on hover */
+.project-name-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .project-name-link:hover {
   color: var(--accent-color);
-  text-shadow: 0 0 10px rgba(46, 140, 251, 0.4);
+}
+
+.project-name-link:hover::after {
+  width: 100%;
 }
 
 /* =====================================
-   METADATA PILLS
+   METADATA PILLS (Animated entry)
 ===================================== */
 
 .project-metadata-capsules {
@@ -139,16 +170,18 @@
   font-size: 0.75rem;
   font-weight: 600;
   border: 1px solid var(--border-color);
-  transition: var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .metadata-capsule:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--text-secondary);
+  background: rgba(10, 132, 255, 0.1);
+  border-color: rgba(10, 132, 255, 0.3);
+  color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
 /* =====================================
-   PROGRESS BAR
+   PROGRESS BAR (Animated fill)
 ===================================== */
 
 .project-progress {
@@ -162,14 +195,32 @@
   border-radius: var(--radius-pill);
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 .progress-bar-fill {
   height: 100%;
   background: var(--accent-gradient);
   border-radius: inherit;
-  transition: width 0.6s var(--transition-bounce);
-  box-shadow: 0 0 10px rgba(46, 140, 251, 0.5);
+  transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 12px rgba(10, 132, 255, 0.5);
+  position: relative;
+}
+
+/* Shimmer sweep on the progress bar */
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 /* =====================================
@@ -184,7 +235,7 @@
 }
 
 /* =====================================
-   AVATARS
+   AVATARS (Interactive hover)
 ===================================== */
 
 .project-team-avatars {
@@ -205,7 +256,7 @@
   font-weight: 600;
   font-size: 0.85rem;
   border: 2px solid var(--background-secondary-cards);
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
@@ -215,10 +266,10 @@
 }
 
 .member-avatar:hover {
-  transform: scale(1.15) translateY(-2px);
+  transform: scale(1.2) translateY(-4px);
   z-index: 5;
   border-color: var(--accent-color);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 16px rgba(10, 132, 255, 0.3);
 }
 
 /* =====================================
@@ -232,7 +283,6 @@
 
 /* View Button */
 .btn-view-project {
-  background: var(--accent-color);
   background: var(--accent-gradient);
   color: white;
   padding: 0.5rem 1.1rem;
@@ -240,14 +290,36 @@
   text-decoration: none;
   font-weight: 600;
   font-size: 0.85rem;
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: var(--accent-glow);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-view-project::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .btn-view-project:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
   filter: brightness(1.1);
-  box-shadow: 0 5px 15px rgba(46, 140, 251, 0.4);
+  box-shadow: 0 8px 20px rgba(10, 132, 255, 0.4);
+}
+
+.btn-view-project:hover::before {
+  opacity: 1;
+}
+
+.btn-view-project:active {
+  transform: translateY(-1px) scale(0.98);
+  transition-duration: 0.08s;
 }
 
 /* Delete */
@@ -262,17 +334,18 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .btn-delete-project:hover {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.15);
   color: var(--danger-color);
+  transform: scale(1.15) rotate(10deg);
 }
 
 .btn-delete-project svg {
   fill: var(--text-secondary);
-  transition: var(--transition-main);
+  transition: all 0.3s ease;
 }
 
 .btn-delete-project:hover svg {
@@ -280,7 +353,7 @@
 }
 
 /* =====================================
-   PROJECT HERO
+   PROJECT HERO (Animated header)
 ===================================== */
 
 .project-hero-section,
@@ -289,7 +362,7 @@
   width: 100%;
   margin: 0 auto 4rem;
   padding: 3rem 2rem;
-  animation: fadeIn 0.8s ease-out;
+  animation: fadeInDown 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .project-hero-title-and-action {
@@ -304,6 +377,7 @@
   font-size: 1.1rem;
   max-width: 800px;
   line-height: 1.6;
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
 }
 
 .project-hero-actions {
@@ -313,6 +387,7 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1.5rem;
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
 }
 
 .project-detail-title,
@@ -321,11 +396,6 @@
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
-  /* Removed hardcoded gradient to support light mode */
-  /* background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%); */
-  /* -webkit-background-clip: text; */
-  /* background-clip: text; */
-  /* -webkit-text-fill-color: transparent; */
   border: none;
   outline: none;
   padding: 0;
@@ -338,7 +408,7 @@
 }
 
 /* =====================================
-   DESCRIPTION
+   DESCRIPTION (Glass panel)
 ===================================== */
 
 .project-description-container {
@@ -354,6 +424,13 @@
   padding: 2rem;
   border-radius: var(--radius-large);
   box-shadow: var(--glass-shadow);
+  animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.project-description-container:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .project-description-column h3 {
@@ -374,6 +451,7 @@
   border-radius: 50%;
   background: var(--accent-color);
   box-shadow: 0 0 8px var(--accent-color);
+  animation: pulseGlow 2s ease-in-out infinite;
 }
 
 .project-description-text {
@@ -403,10 +481,17 @@
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.project-meta-item:hover {
+  background: rgba(10, 132, 255, 0.08);
+  border-color: rgba(10, 132, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 /* =====================================
-   TASK LIST
+   TASK LIST (Enhanced animation)
 ===================================== */
 
 .modern-task-list {
@@ -422,6 +507,7 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
 }
 
 /* Task Row */
@@ -431,14 +517,16 @@
   gap: 1.5rem;
   padding: 1.5rem 1rem;
   border-bottom: 1px solid var(--border-color);
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   border-radius: var(--radius-small);
   margin-bottom: 4px;
+  position: relative;
 }
 
 .task-list-item:hover {
   background: rgba(255, 255, 255, 0.03);
-  transform: translateX(6px);
+  transform: translateX(8px);
+  box-shadow: -4px 0 0 var(--accent-color);
 }
 
 .task-list-item:last-child {
@@ -446,46 +534,49 @@
   margin-bottom: 0;
 }
 
-/* Animation Entry */
-/* Uses nth-child to stagger animations. Can go up to 20 items. */
+/* Staggered animation entry */
 .task-list-item:nth-child(1) {
-  animation: fadeIn 0.4s ease forwards 0.1s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both;
 }
 
 .task-list-item:nth-child(2) {
-  animation: fadeIn 0.4s ease forwards 0.2s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s both;
 }
 
 .task-list-item:nth-child(3) {
-  animation: fadeIn 0.4s ease forwards 0.3s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
 }
 
 .task-list-item:nth-child(4) {
-  animation: fadeIn 0.4s ease forwards 0.4s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s both;
 }
 
 .task-list-item:nth-child(5) {
-  animation: fadeIn 0.4s ease forwards 0.5s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both;
 }
 
 .task-list-item:nth-child(6) {
-  animation: fadeIn 0.4s ease forwards 0.6s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.30s both;
+}
+
+.task-list-item:nth-child(7) {
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
+}
+
+.task-list-item:nth-child(8) {
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.40s both;
+}
+
+.task-list-item:nth-child(9) {
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.45s both;
+}
+
+.task-list-item:nth-child(10) {
+  animation: fadeInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.50s both;
 }
 
 /* =====================================
-   CHECKBOX
+   CHECKBOX (Bouncy animation)
 ===================================== */
 
 .task-checkbox {
@@ -497,19 +588,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-bounce);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   background: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 }
 
 .task-checkbox:hover {
   border-color: var(--accent-color);
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(10, 132, 255, 0.2);
 }
 
 .task-checkbox.checked {
   background: var(--accent-color);
   border-color: var(--accent-color);
   transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(46, 140, 251, 0.6);
+  box-shadow: 0 0 14px rgba(10, 132, 255, 0.6);
+  animation: popIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .task-checkbox.checked svg {
@@ -529,13 +624,13 @@
   font-weight: 600;
   font-size: 1.05rem;
   color: var(--text-primary);
-  transition: var(--transition-fast);
+  transition: all 0.3s ease;
 }
 
 .task-name.completed {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   text-decoration: line-through;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .task-description {
@@ -545,7 +640,7 @@
 }
 
 /* =====================================
-   STATUS
+   STATUS PILLS (Subtle pulse on hover)
 ===================================== */
 
 .task-status-pill {
@@ -556,12 +651,21 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.task-status-pill:hover {
+  transform: scale(1.05);
 }
 
 .task-status-pill.completed {
   background: var(--status-completed-bg);
   color: var(--status-completed-text);
   border: 1px solid rgba(50, 215, 75, 0.2);
+}
+
+.task-status-pill.completed:hover {
+  box-shadow: 0 0 12px rgba(50, 215, 75, 0.3);
 }
 
 .task-status-pill.pending {
@@ -576,14 +680,22 @@
   border: 1px solid rgba(10, 132, 255, 0.2);
 }
 
+.task-status-pill.inprogress:hover {
+  box-shadow: 0 0 12px rgba(10, 132, 255, 0.2);
+}
+
 .task-status-pill.blocked {
   background: var(--status-blocked-bg);
   color: var(--status-blocked-text);
   border: 1px solid rgba(255, 69, 58, 0.2);
 }
 
+.task-status-pill.blocked:hover {
+  box-shadow: 0 0 12px rgba(255, 69, 58, 0.2);
+}
+
 /* =====================================
-   HEADER ACTIONS GROUP (New)
+   HEADER ACTIONS GROUP
 ===================================== */
 .project-header-action-group {
   display: flex;
@@ -602,7 +714,7 @@
 
 .project-header-action-group .task-action-btn:hover {
   background-color: var(--accent-color);
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.05);
   border-color: var(--accent-color);
   box-shadow: var(--accent-glow);
 }
@@ -616,6 +728,7 @@
 
 .project-header-action-group .task-action-btn:hover svg {
   fill: white;
+  transform: scale(1.1);
 }
 
 /* =====================================
@@ -634,19 +747,19 @@
   cursor: pointer;
   padding: 0;
   margin-left: 0.75rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .task-action-btn svg {
   fill: var(--text-secondary);
   width: 16px;
   height: 16px;
-  transition: fill 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .task-action-btn:hover {
   background-color: var(--background-tertiary-inputs);
-  transform: scale(1.1);
+  transform: scale(1.12) rotate(5deg);
   border-color: var(--border-color);
 }
 
@@ -655,7 +768,7 @@
 }
 
 /* =====================================
-   BUTTONS (Updated)
+   BUTTONS (Enhanced with motion)
 ===================================== */
 
 /* View Project Goal */
@@ -673,15 +786,31 @@
   background: transparent;
   color: var(--text-primary);
   box-shadow: none;
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-outline-secondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 132, 255, 0.08);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: inherit;
 }
 
 .btn-outline-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
   border-color: var(--accent-color);
   transform: translateY(-2px);
   color: white;
+}
+
+.btn-outline-secondary:hover::before {
+  transform: scaleX(1);
 }
 
 /* Add Task */
@@ -700,13 +829,33 @@
   border: none;
   cursor: pointer;
   box-shadow: var(--accent-glow);
-  transition: var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .btn-gradient:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-3px) scale(1.03);
   filter: brightness(1.1);
-  box-shadow: 0 8px 20px rgba(46, 140, 251, 0.5);
+  box-shadow: 0 8px 25px rgba(10, 132, 255, 0.5);
+}
+
+.btn-gradient:hover::before {
+  opacity: 1;
+}
+
+.btn-gradient:active {
+  transform: translateY(-1px) scale(0.98);
+  transition-duration: 0.08s;
 }
 
 /* =====================================
