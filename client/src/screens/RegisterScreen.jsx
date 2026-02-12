@@ -20,8 +20,11 @@ const RegisterScreen = () => { // Remove location and history props
   const location = useLocation(); // Use useLocation hook
   const navigate = useNavigate(); // Use useNavigate hook
 
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
   const userRegister = useSelector((state) => state.userRegister);
-  const { loading, error, userInfo } = userRegister;
+  const { loading, error } = userRegister;
 
   const redirect = location.search ? location.search.split('=')[1] : '/';
 
