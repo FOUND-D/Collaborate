@@ -1,39 +1,147 @@
 .home-dashboard-page {
     animation: fadeIn 0.4s ease-out both;
     min-height: 80vh;
+    padding: 2rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* =====================================================
+   DASHBOARD HEADER
+   ===================================================== */
+
+.dashboard-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.user-name {
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.header-date {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================================
+   STATS GRID
+   ===================================================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.stat-card {
+    background: rgba(30, 30, 32, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.5s ease-out both;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    background: rgba(40, 40, 42, 0.8);
+}
+
+.stat-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    font-size: 1.8rem;
 }
 
-.home-dashboard-page .project-hero-header {
-    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    margin-bottom: 1rem;
+.blue-gradient .stat-icon-wrapper {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+    color: #60a5fa;
+    border: 1px solid rgba(96, 165, 250, 0.2);
 }
 
-.home-dashboard-page .project-detail-title {
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.03em;
+.purple-gradient .stat-icon-wrapper {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.1));
+    color: #a78bfa;
+    border: 1px solid rgba(167, 139, 250, 0.2);
 }
 
-.home-dashboard-page .project-detail-goal {
-    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+.green-gradient .stat-icon-wrapper {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.2);
 }
 
-.dashboard-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 2rem;
-    background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.03em;
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.section-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    padding-left: 0.5rem;
+    border-left: 4px solid var(--accent-color);
 }
 
 /* =====================================================
