@@ -15,7 +15,7 @@
 }
 
 .skeleton-loader {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.2) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 75%);
   background-size: 200% 100%;
   border-radius: 8px;
   animation: shimmer 1.5s infinite;
@@ -245,15 +245,16 @@
 }
 
 .server-status-message {
-  background-color: var(--status-warning);
+  background: linear-gradient(90deg, rgba(255, 193, 7, 0.9), rgba(255, 152, 0, 0.9));
   color: #000000;
   text-align: center;
   padding: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   position: sticky;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  /* Ensure it's above other content */
+  animation: fadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  font-size: 0.9rem;
 }
