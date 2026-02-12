@@ -1,12 +1,11 @@
 /* =====================================================
-   APP LAYOUT (APPLE DARK THEME)
+   APP LAYOUT (APPLE DARK THEME – ENHANCED)
 ===================================================== */
 
 .app-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  /* Prevent the whole layout from scrolling */
   background: linear-gradient(180deg, #050507, #0b0c10);
   position: relative;
   color: black;
@@ -14,9 +13,38 @@
     "Inter", sans-serif;
 }
 
+/* Animated ambient orbs behind the layout */
+.app-layout::before,
+.app-layout::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+  z-index: 0;
+}
+
+.app-layout::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.08) 0%, transparent 70%);
+  top: -10%;
+  left: -5%;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.app-layout::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(191, 90, 242, 0.06) 0%, transparent 70%);
+  bottom: -10%;
+  right: -5%;
+  animation: orbFloat 25s ease-in-out infinite reverse;
+}
+
 
 /* =====================================================
-   SIDEBAR BASE
+   SIDEBAR BASE (Animated)
 ===================================================== */
 
 .sidebar {
@@ -33,7 +61,9 @@
   display: flex;
   flex-direction: column;
 
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    padding 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.4s ease;
 
   box-shadow:
     inset -1px 0 0 rgba(255, 255, 255, 0.05),
@@ -43,11 +73,14 @@
   z-index: 1000;
 
   flex-shrink: 0;
+
+  /* Subtle top-edge highlight */
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 
 /* =====================================================
-   SIDEBAR WIDTH STATES
+   SIDEBAR WIDTH STATES (Animated)
 ===================================================== */
 
 .sidebar-open {
@@ -58,10 +91,6 @@
   width: 84px;
 }
 
-
-/* =====================================================
-   HEADER
-===================================================== */
 
 /* =====================================================
    HEADER
@@ -83,9 +112,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
-
-
 
 .sidebar-closed .sidebar-header {
   justify-content: center;
@@ -98,6 +126,11 @@
   letter-spacing: -0.02em;
   color: #ffffff;
   margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #a8b4c8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInLeft 0.4s ease-out both;
 }
 
 
@@ -116,18 +149,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .sidebar-toggle svg {
   fill: var(--text-secondary);
   width: 16px;
   height: 16px;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .sidebar-toggle:hover {
   background: rgba(255, 255, 255, 0.08);
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-toggle:hover svg {
+  transform: rotate(90deg);
 }
 
 
@@ -137,13 +176,10 @@
 
 .sidebar-nav {
   flex-grow: 1;
-
   display: flex;
   flex-direction: column;
-
   padding: 0 1rem;
-
-  gap: 0.6rem;
+  gap: 0.35rem;
 }
 
 .sidebar-closed .sidebar-nav {
@@ -153,58 +189,65 @@
 
 
 /* =====================================================
-   NAV ITEM
+   NAV ITEM (Enhanced with animations)
 ===================================================== */
 
 .nav-item {
   display: flex;
   align-items: center;
-
   gap: 1rem;
-
   padding: 0.8rem 1.1rem;
-
   color: var(--text-secondary);
-
   text-decoration: none;
-
   border-radius: 12px;
-
   position: relative;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
 
-  transition: all 0.25s ease;
+/* Animated hover background sweep */
+.nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 132, 255, 0.08), transparent);
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: inherit;
+}
+
+.sidebar-open .nav-item:hover::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 
 /* Closed mode */
-
 .sidebar-closed .nav-item {
   justify-content: center;
-
   padding: 0;
-
   width: 54px;
   height: 54px;
-
   border-radius: 50%;
 }
 
 .sidebar-closed .nav-item:hover {
   background: rgba(255, 255, 255, 0.12);
-  transform: scale(1.12);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(10, 132, 255, 0.15);
 }
 
 
 /* Open hover */
-
 .sidebar-open .nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
+  transform: translateX(4px);
 }
 
 
 /* =====================================================
-   ACTIVE STATE (APPLE STYLE)
+   ACTIVE STATE (APPLE STYLE – Glowing)
 ===================================================== */
 
 .nav-item.active {
@@ -221,47 +264,52 @@
 }
 
 
-/* Active Indicator */
-
+/* Active Indicator – Animated on mount */
 .nav-item.active::before {
   content: "";
-
   position: absolute;
-
   left: 0;
   top: 50%;
-
   transform: translateY(-50%);
-
   width: 3px;
   height: 24px;
-
   background: #0a84ff;
-
   border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 8px rgba(10, 132, 255, 0.6);
+  animation: scaleInBounce 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .sidebar-closed .nav-item.active::before {
-  height: 18px;
+  display: none;
+}
+
+/* Active glow for closed sidebar */
+.sidebar-closed .nav-item.active {
+  background: rgba(10, 132, 255, 0.15);
+  box-shadow: 0 0 20px rgba(10, 132, 255, 0.3);
 }
 
 
 /* =====================================================
-   ICONS
+   ICONS (Animated hover)
 ===================================================== */
 
 .nav-item svg {
   font-size: 1.45rem;
-
   min-width: 24px;
-
   fill: var(--text-secondary);
-
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  z-index: 1;
 }
 
 .nav-item.active svg {
   fill: #0a84ff;
+  filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.5));
+}
+
+.nav-item:hover svg {
+  transform: scale(1.1);
 }
 
 .sidebar-closed .nav-item svg {
@@ -270,18 +318,17 @@
 
 
 /* =====================================================
-   NAV TEXT
+   NAV TEXT (Animated entry)
 ===================================================== */
 
 .nav-text {
   white-space: nowrap;
-
   overflow: hidden;
   text-overflow: ellipsis;
-
   font-weight: 500;
-
   letter-spacing: -0.01em;
+  z-index: 1;
+  position: relative;
 }
 
 .sidebar-closed .nav-text {
@@ -290,63 +337,47 @@
 
 
 /* =====================================================
-   TOOLTIP (CLOSED MODE)
+   TOOLTIP (CLOSED MODE – Enhanced)
 ===================================================== */
 
 .sidebar-closed .nav-item .tooltip {
   position: absolute;
-
   left: 100%;
   margin-left: 14px;
-
-  padding: 7px 12px;
-
+  padding: 7px 14px;
   background: rgba(20, 20, 24, 0.95);
-
+  backdrop-filter: blur(10px);
   color: #fff;
-
-  border-radius: 8px;
-
+  border-radius: 10px;
   font-size: 0.85rem;
-
   white-space: nowrap;
-
   opacity: 0;
   visibility: hidden;
-
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-
-  transition: all 0.2s ease;
-
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 1001;
+  transform: translateX(-8px);
 }
 
 .sidebar-closed .nav-item:hover .tooltip {
   opacity: 1;
   visibility: visible;
-  transform: translateX(4px);
+  transform: translateX(0px);
 }
 
 
 /* =====================================================
-   FOOTER
-===================================================== */
-
-/* =====================================================
-   FOOTER
+   FOOTER (Animated)
 ===================================================== */
 
 .sidebar-footer {
   padding: 1.1rem;
-
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-
   display: flex;
   flex-direction: column;
-
   align-items: center;
-
   gap: 1rem;
+  animation: fadeInUp 0.4s ease-out 0.2s both;
 }
 
 .sidebar-open .sidebar-footer {
@@ -357,51 +388,45 @@
 
 
 /* =====================================================
-   USER PROFILE LINK
+   USER PROFILE LINK (Enhanced hover)
 ===================================================== */
 
 .user-profile-link {
   display: flex;
   align-items: center;
-
   gap: 0.7rem;
-
   color: #ffffff;
   text-decoration: none;
-
   padding: 0.4rem;
   border-radius: 10px;
-  transition: all 0.25s ease;
-
-  /* Ensure it doesn't shrink in flex row */
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   flex-shrink: 0;
 }
 
 .user-profile-link:hover {
   background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
-
   border-radius: 50%;
-
   background: linear-gradient(135deg, #0a84ff, #5ac8fa);
-
   display: flex;
-
   justify-content: center;
   align-items: center;
-
   font-weight: 600;
-
   color: white;
-
   font-size: 0.85rem;
-
   box-shadow: 0 0 10px rgba(10, 132, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.user-profile-link:hover .user-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(10, 132, 255, 0.6);
 }
 
 .user-avatar img {
@@ -412,88 +437,66 @@
 }
 
 
-
 /* =====================================================
-   LOGOUT
+   LOGOUT (Enhanced animation)
 ===================================================== */
 
 .logout-button {
   display: flex;
   align-items: center;
   justify-content: center;
-
   gap: 0.7rem;
-
   background: none;
   border: none;
-
   color: var(--text-secondary);
-
   cursor: pointer;
-
   padding: 0.45rem;
-
   border-radius: 10px;
-
-  transition: all 0.25s ease;
-
-  /* When closed, width is strict. When open, it fits content or auto */
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .sidebar-open .logout-button {
   width: auto;
-  /* Don't force 100% width in row mode */
 }
 
 .logout-button:hover {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+  transform: translateX(2px);
 }
 
 .logout-button svg {
   fill: var(--text-secondary);
-  transition: fill 0.25s ease;
+  transition: all 0.3s ease;
   width: 20px;
   height: 20px;
 }
 
 .logout-button:hover svg {
   fill: #ef4444;
+  transform: rotate(-10deg);
 }
 
 .sidebar-closed .logout-text {
   display: none;
 }
 
-/* Hide Logout TEXT in open mode if it makes things too crowded, 
-   or keep it if there is space. 
-   Given width 270px, Name + Avatar (approx 100-150px) + Logout (80px), it might fit.
-   Let's keep it for now.
-*/
-
 
 /* =====================================================
-   MAIN CONTENT
+   MAIN CONTENT (Enhanced transitions)
 ===================================================== */
 
 .main-content {
   flex-grow: 1;
-
   padding: 2.2rem;
-
   overflow-y: auto;
-
   position: relative;
   z-index: 1;
-
-  background:
-    linear-gradient(180deg, #08090d, #0f1117);
+  background: linear-gradient(180deg, #08090d, #0f1117);
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  width: 100%;
 }
 
-
-/* =====================================================
-   BUTTON FIX
-===================================================== */
 
 /* =====================================================
    SPLIT SCREEN CHAT LAYOUT
@@ -504,42 +507,32 @@
   flex-grow: 1;
 }
 
-.main-content {
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-}
-
 .main-content.chat-open {
   width: calc(100% - 450px);
-  /* Adjust chat panel width */
 }
 
 /* ChatPanel as a docked sidebar */
 .chat-screen-container.chat-panel {
   width: 450px;
-  /* Increased width */
   border-left: 1px solid var(--border-color);
   flex-shrink: 0;
   position: static;
   height: 100%;
-  /* Occupy full height of the flex container */
   border-radius: 0;
   box-shadow: none;
   display: flex;
-  /* Make it a flex container to manage its children */
   flex-direction: column;
+  animation: fadeInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .chat-screen-container.chat-panel .chat-main-area {
   flex-grow: 1;
-  /* Allow chat area to fill available space */
   overflow-y: auto;
-  /* Enable scrolling within the chat area */
 }
 
 
 /* =====================================================
-   THEME TOGGLE BUTTON
+   THEME TOGGLE BUTTON (Enhanced animations)
 ===================================================== */
 
 .theme-toggle-button {
@@ -553,7 +546,7 @@
   cursor: pointer;
   padding: 0.5rem 0.8rem;
   border-radius: 10px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -576,7 +569,7 @@
 }
 
 .theme-toggle-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.03);
   border-color: rgba(255, 193, 7, 0.3);
   box-shadow: 0 4px 20px rgba(255, 193, 7, 0.2);
 }
@@ -584,17 +577,21 @@
 .theme-icon {
   font-size: 1.1rem;
   z-index: 1;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.theme-toggle-button:hover .theme-icon {
+  transform: rotate(30deg) scale(1.2);
 }
 
 .theme-icon.sun {
   color: #ffc107;
-  filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.5));
+  filter: drop-shadow(0 0 6px rgba(255, 193, 7, 0.6));
 }
 
 .theme-icon.moon {
   color: #7c8cd1;
-  filter: drop-shadow(0 0 4px rgba(124, 140, 209, 0.5));
+  filter: drop-shadow(0 0 6px rgba(124, 140, 209, 0.6));
 }
 
 .theme-text {
@@ -622,22 +619,29 @@
   margin-left: 14px;
   padding: 7px 12px;
   background: rgba(20, 20, 24, 0.95);
+  backdrop-filter: blur(10px);
   color: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.85rem;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 1001;
+  transform: translateX(-8px);
 }
 
 .sidebar-closed .theme-toggle-button:hover .tooltip {
   opacity: 1;
   visibility: visible;
-  transform: translateX(4px);
+  transform: translateX(0px);
 }
+
+
+/* =====================================================
+   LIGHT THEME OVERRIDES
+===================================================== */
 
 /* Light theme adjustments for sidebar */
 .light-theme .sidebar {
@@ -647,6 +651,10 @@
 
 .light-theme .sidebar-header .app-title {
   color: var(--text-primary);
+  background: linear-gradient(135deg, #1C1C1E 0%, #48484a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .light-theme .sidebar-toggle {
@@ -733,9 +741,23 @@
   background: linear-gradient(180deg, #ffffff, #f5f5f7);
 }
 
+.light-theme .app-layout::before {
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.06) 0%, transparent 70%);
+}
+
+.light-theme .app-layout::after {
+  background: radial-gradient(circle, rgba(191, 90, 242, 0.04) 0%, transparent 70%);
+}
+
+.light-theme .nav-item::after {
+  background: linear-gradient(90deg, rgba(0, 122, 255, 0.06), transparent);
+}
 
 
-/* User Guide Button in Header */
+/* =====================================================
+   USER GUIDE BUTTON IN HEADER
+===================================================== */
+
 .user-guide-btn-header {
   display: flex;
   align-items: center;
@@ -749,7 +771,7 @@
   height: 34px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   margin-right: auto;
   font-size: 0.85rem;
 }
@@ -757,7 +779,8 @@
 .user-guide-btn-header:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  transform: translateY(-1px);
+  transform: translateY(-2px) rotate(-5deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .user-guide-icon {
@@ -787,5 +810,4 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  /* Ensure it spans to allow buttons to be separated if needed */
 }
