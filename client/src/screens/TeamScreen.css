@@ -1,382 +1,229 @@
 /* =====================================================
-   APPLE DARK DESIGN SYSTEM (Overridden by global.css)
+   APPLE DARK DESIGN SYSTEM – TEAMS PAGE (ENHANCED)
 ===================================================== */
 
-/*
-:root {
-
-  /* Accent *\/
-  --primary: #0a84ff;
-  --primary-glow: rgba(10,132,255,0.45);
-
-  /* Backgrounds *\/
-  --bg-main: linear-gradient(180deg,#040507,#0c0e15);
-  --bg-glass: rgba(22,22,28,0.92);
-  --bg-soft: rgba(255,255,255,0.05);
-
-  /* Borders *\/
-  --border-soft: rgba(255,255,255,0.12);
-
-  /* Text *\/
-  --text-main: #ffffff;
-  --text-muted: #cbd5f5;
-
-  /* Radius *\/
-  --radius-xl: 22px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-
-  /* Shadows *\/
-  --shadow-soft:
-    0 15px 45px rgba(0,0,0,0.7);
-
-  --shadow-hover:
-    0 30px 80px rgba(0,0,0,0.9);
-
-  /* Motion *\/
-  --transition:
-    all 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-*/
-
-
 /* =====================================================
-   BASE PAGE
+   BASE PAGE (Animated entrance)
 ===================================================== */
 
 .teams-dashboard-page {
-
   max-width: 1300px;
   margin: auto;
-
   padding: 3.5rem 1.5rem;
-
   min-height: 100vh;
-
   background: var(--background-main);
   color: var(--text-primary);
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
     "SF Pro Display",
     "Inter",
     sans-serif;
+  animation: fadeIn 0.4s ease-out both;
 }
 
 
 /* =====================================================
-   HERO HEADER
+   HERO HEADER (Animated)
 ===================================================== */
 
 .project-hero-header {
-
   margin-bottom: 3rem;
   padding-bottom: 1.6rem;
-
   border-bottom: 1px solid var(--border-color);
+  animation: fadeInDown 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-
 .project-detail-title {
-
   font-size: clamp(2.2rem, 5vw, 3rem);
   font-weight: 800;
-
   letter-spacing: -0.03em;
-
   color: var(--text-primary);
-
   text-shadow: none;
 }
 
-
 .project-detail-goal {
-
   margin-top: 0.6rem;
-
   font-size: 1rem;
-
   color: var(--text-secondary);
-
   opacity: 0.9;
 }
 
 
 /* =====================================================
-   ACTION CARDS
+   ACTION CARDS (Already styled in HomeScreen.css)
 ===================================================== */
 
 .action-cards-grid {
-
   display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(320px, 1fr));
-
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
-
   margin-bottom: 3.5rem;
 }
 
 
-.action-card {
+/* =====================================================
+   TEAM GRID (Staggered)
+===================================================== */
 
-  background: var(--glass-bg);
+.modern-team-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.2rem;
+  margin-top: 2.8rem;
+}
 
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
+/* Staggered entry animation */
+.modern-team-list>*:nth-child(1) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s both;
+}
 
+.modern-team-list>*:nth-child(2) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both;
+}
+
+.modern-team-list>*:nth-child(3) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
+}
+
+.modern-team-list>*:nth-child(4) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.16s both;
+}
+
+.modern-team-list>*:nth-child(5) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s both;
+}
+
+.modern-team-list>*:nth-child(6) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.24s both;
+}
+
+.modern-team-list>*:nth-child(7) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.28s both;
+}
+
+.modern-team-list>*:nth-child(8) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.32s both;
+}
+
+.modern-team-list>*:nth-child(9) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.36s both;
+}
+
+.modern-team-list>*:nth-child(10) {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.40s both;
+}
+
+
+/* =====================================================
+   TEAM CARD (Premium interactive)
+===================================================== */
+
+.team-card {
+  background: var(--background-secondary-cards);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-large);
-
-  padding: 2.4rem;
-
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-
-  cursor: pointer;
-
   box-shadow: var(--shadow-subtle);
-
-  transition: var(--transition-main);
-
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 
-/* Glow */
-
-.action-card::before {
-
+/* Animated radial glow on hover */
+.team-card::after {
   content: "";
-
   position: absolute;
   inset: 0;
-
+  border-radius: inherit;
   background:
-    linear-gradient(120deg,
-      transparent,
-      rgba(10, 132, 255, 0.2),
-      transparent);
-
+    radial-gradient(circle at 30% 30%,
+      rgba(10, 132, 255, 0.08),
+      transparent 60%);
   opacity: 0;
-
-  transition: var(--transition);
+  transition: opacity 0.5s ease;
+  pointer-events: none;
 }
 
-
-.action-card:hover::before {
+.team-card:hover::after {
   opacity: 1;
 }
 
 
-.action-card:hover {
-
-  transform: translateY(-8px) scale(1.01);
-
-  box-shadow:
-    var(--shadow-hover),
-    0 0 35px var(--primary-glow);
-}
-
-
-/* Content */
-
-.action-card-icon {
-
-  font-size: 2.4rem;
-
-  color: var(--primary);
-
-  margin-bottom: 1.4rem;
-}
-
-
-.action-card-title {
-
-  font-size: 1.3rem;
-  font-weight: 700;
-
-  color: var(--text-primary);
-
-  margin-bottom: 0.6rem;
-}
-
-
-.action-card-description {
-
-  font-size: 0.92rem;
-
-  color: var(--text-secondary);
-
-  line-height: 1.6;
-
-  margin-bottom: 1.6rem;
-
-  flex-grow: 1;
-}
-
-
-.action-card-link {
-
-  display: inline-flex;
-  align-items: center;
-
-  gap: 0.4rem;
-
-  font-size: 0.85rem;
-
-  color: var(--primary);
-
-  font-weight: 600;
-}
-
-
-.action-card:hover .action-card-link svg {
-  transform: translateX(5px);
-}
-
-
-/* =====================================================
-   TEAM GRID
-===================================================== */
-
-.modern-team-list {
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fill, minmax(320px, 1fr));
-
-  gap: 2.2rem;
-
-  margin-top: 2.8rem;
-}
-
-
-/* =====================================================
-   TEAM CARD
-===================================================== */
-
-.team-card {
-
-  background: var(--background-secondary-cards);
-
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-large);
-
-  padding: 2rem;
-
-  display: flex;
-  flex-direction: column;
-
-  box-shadow: var(--shadow-subtle);
-
-  transition: var(--transition-main);
-
-  position: relative;
-
-  overflow: hidden;
-}
-
-
-/* Inner Glow */
-
-.team-card::after {
-
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(circle at top left,
-      rgba(255, 255, 255, 0.07),
-      transparent 60%);
-
-  pointer-events: none;
-}
-
-
 /* Hover */
-
 .team-card:hover {
-
   transform: translateY(-8px) scale(1.015);
-
   box-shadow:
     var(--shadow-hover),
-    0 0 35px rgba(10, 132, 255, 0.25);
+    0 0 35px rgba(10, 132, 255, 0.15);
+  border-color: rgba(10, 132, 255, 0.2);
+}
+
+.team-card:active {
+  transform: translateY(-4px) scale(1.005);
+  transition-duration: 0.1s;
 }
 
 
 /* =====================================================
-   HEADER
+   TEAM CARD HEADER
 ===================================================== */
 
 .team-card-header-wrapper {
-
   display: flex;
   align-items: center;
-
   gap: 1rem;
-
   margin-bottom: 1.2rem;
-
   padding-bottom: 0.8rem;
-
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 
 /* Avatar */
-
 .team-avatar {
-
   width: 54px;
   height: 54px;
-
   border-radius: 50%;
-
-  background:
-    linear-gradient(135deg, #0a84ff, #5ac8fa);
-
+  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
   color: white;
-
   font-weight: 800;
   font-size: 1.1rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow:
     0 0 0 3px rgba(10, 132, 255, 0.25),
-    0 0 16px rgba(10, 132, 255, 0.7);
+    0 0 16px rgba(10, 132, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.team-card:hover .team-avatar {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow:
+    0 0 0 3px rgba(10, 132, 255, 0.4),
+    0 0 25px rgba(10, 132, 255, 0.6);
 }
 
 
 /* Name */
-
 .team-card-name {
-
   font-size: 1.35rem;
   font-weight: 700;
-
   color: var(--text-primary);
-
   letter-spacing: -0.01em;
-
   text-shadow: none;
+  transition: color 0.3s;
+}
+
+.team-card:hover .team-card-name {
+  color: var(--accent-color);
 }
 
 
@@ -385,34 +232,34 @@
 ===================================================== */
 
 .team-card-meta {
-
   margin-top: 1rem;
-
   font-size: 0.88rem;
-
   color: var(--text-secondary);
-
   display: flex;
   flex-direction: column;
-
   gap: 0.55rem;
 }
 
-
 .team-card-meta-item {
-
   display: flex;
   align-items: center;
-
   gap: 0.5rem;
-
   opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
+.team-card:hover .team-card-meta-item {
+  opacity: 1;
+  transform: translateX(4px);
+}
 
 .team-card-meta-item svg {
-
   color: #93c5fd;
+  transition: transform 0.3s;
+}
+
+.team-card:hover .team-card-meta-item svg {
+  transform: scale(1.15);
 }
 
 
@@ -421,35 +268,31 @@
 ===================================================== */
 
 .team-card-delete {
-
   position: absolute;
-
   top: 1rem;
   right: 1rem;
-
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-
-  color: var(--text-muted);
-
+  color: var(--text-secondary);
   cursor: pointer;
-
-  transition: var(--transition);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0;
+  transform: scale(0.8);
 }
 
+.team-card:hover .team-card-delete {
+  opacity: 1;
+  transform: scale(1);
+}
 
 .team-card-delete:hover {
-
   background: rgba(239, 68, 68, 0.18);
   color: #ef4444;
-
-  transform: scale(1.15);
+  transform: scale(1.15) rotate(10deg) !important;
 }
 
 
@@ -458,73 +301,60 @@
 ===================================================== */
 
 .empty-state-container {
-
   text-align: center;
-
-  padding: 3rem;
-
-  color: var(--text-muted);
-
-  opacity: 0.85;
+  padding: 4rem 3rem;
+  color: var(--text-secondary);
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 
 /* =====================================================
-   MEMBER CHIPS
+   MEMBER CHIPS (Enhanced)
 ===================================================== */
 
 .member-chip-group {
-
   display: flex;
   flex-wrap: wrap;
-
   gap: 0.6rem;
-
   margin-top: 1rem;
 }
 
-
 .member-chip {
-
   background: var(--background-tertiary-inputs);
-
   border-radius: 999px;
-
   padding: 0.45rem 0.9rem;
-
   display: flex;
   align-items: center;
-
   gap: 0.4rem;
-
   font-size: 0.78rem;
-
   font-weight: 600;
-
   color: var(--text-primary);
-
   border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.member-chip:hover {
+  background: rgba(10, 132, 255, 0.1);
+  border-color: rgba(10, 132, 255, 0.3);
+  transform: translateY(-2px) scale(1.03);
+}
 
 .member-avatar-circle {
-
   width: 22px;
   height: 22px;
-
   border-radius: 50%;
-
-  background: var(--primary);
-
+  background: var(--accent-gradient);
   color: white;
-
   font-size: 0.7rem;
-
   font-weight: 700;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.member-chip:hover .member-avatar-circle {
+  transform: scale(1.15);
 }
 
 
@@ -545,5 +375,4 @@
   .project-hero-header {
     text-align: center;
   }
-
 }
