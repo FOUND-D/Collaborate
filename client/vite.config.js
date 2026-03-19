@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const backendTarget = env.VITE_API_URL || 'http://localhost:3002';
-  const socketTarget = env.VITE_SOCKET_URL || 'http://localhost:3002';
+  const backendTarget = env.VITE_API_URL || 'https://collaborate-arin.onrender.com';
+  const socketTarget = env.VITE_SOCKET_URL || 'https://collaborate-arin.onrender.com';
 
   return {
     plugins: [react()],

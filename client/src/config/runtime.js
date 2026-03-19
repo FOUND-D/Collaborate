@@ -15,13 +15,13 @@ const normalizeUrl = (value) => {
 };
 
 export const BACKEND_URL =
-  normalizeUrl(import.meta.env.VITE_API_URL) || LOCAL_URLS.api;
+  normalizeUrl(import.meta.env.VITE_API_URL) || PRODUCTION_URLS.api;
 
 export const SOCKET_URL =
-  normalizeUrl(import.meta.env.VITE_SOCKET_URL) || LOCAL_URLS.socket;
+  normalizeUrl(import.meta.env.VITE_SOCKET_URL) || PRODUCTION_URLS.socket;
 
 export const MCP_GATEWAY_URL =
-  normalizeUrl(import.meta.env.VITE_MCP_GATEWAY_URL) || LOCAL_URLS.mcpGateway;
+  normalizeUrl(import.meta.env.VITE_MCP_GATEWAY_URL) || PRODUCTION_URLS.mcpGateway;
 
 export const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 15000;
 
