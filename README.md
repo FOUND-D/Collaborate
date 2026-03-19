@@ -1,203 +1,405 @@
-# Project Collaboration Tool
+# Collaborate
 
-This project is a full-stack application designed to facilitate team collaboration on projects, featuring AI-powered project task generation and comprehensive user, team, project, and task management.
+Collaborate is a full-stack team collaboration platform with project planning, AI-assisted task breakdown, team operations, task tracking, chat, and browser-based video meetings.
 
 ## Table of Contents
+- [Overview](#overview)
+- [Current Status](#current-status)
+- [Core Implemented Features](#core-implemented-features)
+- [Web App Screens and User Flows](#web-app-screens-and-user-flows)
+- [Backend API Capabilities](#backend-api-capabilities)
+- [Real-Time Architecture (Socket.IO + WebRTC)](#real-time-architecture-socketio--webrtc)
+- [Data Model Overview](#data-model-overview)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Local Setup](#local-setup)
+- [Environment Variables](#environment-variables)
+- [Known Limitations and Technical Debt](#known-limitations-and-technical-debt)
+- [Future Features Roadmap](#future-features-roadmap)
+- [Suggested Milestones](#suggested-milestones)
 
-- [Project Collaboration Tool](#project-collaboration-tool)
-  - [Table of Contents](#table-of-contents)
-  - [Description](#description)
-  - [Features](#features)
-    - [User Authentication](#user-authentication)
-    - [Team Management](#team-management)
-    - [Project Management](#project-management)
-    - [Task Management](#task-management)
-  - [Technologies Used](#technologies-used)
-  - [Setup Instructions](#setup-instructions)
-    - [Prerequisites](#prerequisites)
-    - [Backend Setup (Server)](#backend-setup-server)
-    - [Frontend Setup (Client)](#frontend-setup-client)
-  - [Usage Notes / Important Information](#usage-notes--important-information)
-  - [Folder Structure Overview](#folder-structure-overview)
+## Overview
+Collaborate is designed for teams that want one workspace for:
+- Team formation and membership approvals
+- Creating projects manually or with AI-generated task roadmaps
+- Managing tasks (including parent/sub-task trees)
+- Team and direct messaging
+- Live team meetings with media controls and screen sharing
 
-## Description
+The repository is a monorepo with:
+- `server/` (Node.js + Express + MongoDB + Socket.IO)
+- `client/` (React + Redux + Vite)
+- `mobile/` (Flutter starter app)
 
-This application provides a platform for users to manage projects, form teams, and organize tasks efficiently. It leverages AI to assist in breaking down project goals into actionable tasks, streamlining the initial planning phase. Secure user authentication, robust team management, and detailed project and task tracking are core to its functionality.
+## Current Status
+The project is functional as a web platform with:
+- Authentication and profile management
+- Team CRUD (owner-scoped actions + join request workflow)
+- Project CRUD plus AI project generation
+- Task CRUD and project-linked editing
+- Real-time meeting rooms with WebRTC signaling
+- Team/direct messaging with polling and read receipts
 
-## Features
+The Flutter app is currently a base scaffold and is not yet feature-parity with the web app.
 
-### User Authentication
+## Core Implemented Features
 
-Manages user registration, login, and session management.
+### 1. Authentication and User Account
+- Register and login using email/password
+- JWT-based auth on protected APIs
+- Persisted web login via `redux-persist` (`userLogin` slice)
+- Logout support from sidebar
+- User profile fetch/update (`name`, `email`, `role`, `techStack`, optional password change)
+- Token refresh behavior on profile update (new token returned)
 
--   **Register (`/register`)**:
-    -   **Fields**: Name, Email, Password, Confirm Password.
-    -   **"Register" Button**: Submits the provided details to create a new user account. Upon successful registration, the user is automatically logged in and redirected.
-    -   **"Have an Account? Login" Link**: Navigates to the login screen for existing users.
--   **Login (`/login`)**:
-    -   **Fields**: Email, Password.
-    -   **"Sign In" Button**: Authenticates the user with the provided credentials. On successful login, the user's session is established, and they are redirected to the application dashboard.
-    -   **"New Customer? Register" Link**: Navigates to the registration screen for new users.
--   **Logout (Navigation Bar)**:
-    -   **"Logout" Dropdown Item**: Clears the user's session information from local storage and Redux state, effectively logging them out and redirecting to the login page.
+### 2. Team Collaboration Management
+- Create team (creator becomes owner + first member)
+- List teams where user is owner or member
+- View single team details (`owner`, `members`, `projects`)
+- Join request workflow:
+  - User submits join request by team ID
+  - Owner can approve or reject
+- Owner-only team deletion
+- Membership synchronization to user records
+- Team card and detail views in UI
+- Copy team ID support for invite flow
 
-### Team Management
+### 3. Project Management
+- List projects available to user (owned or team-accessible)
+- Create project manually
+- Create project with AI (`/api/projects/ai`)
+- View project details including owner/team/task context
+- Update project metadata (currently owner-restricted)
+- Delete project (owner only)
+- Team linkage for projects when assigned to a team
 
-Allows users to create, join, and manage teams, including approval workflows for join requests.
+### 4. AI-Assisted Project Breakdown
+- AI model call through Groq SDK (`openai/gpt-oss-120b`)
+- Prompt enforces structured JSON roadmap generation
+- Converts roadmap to persisted task hierarchy:
+  - Top-level phases/tasks
+  - Nested subtasks (recursive)
+  - Dependency mapping by task name
+  - Duration, priority, assumptions
+- Auto-attaches generated tasks to project
+- Optionally links generated tasks/projects to a team
 
--   **View Teams (`/teams`)**: Displays a table of all teams the logged-in user is either an owner or a member of.
-    -   **Table Columns**: Team ID, Team Name, Owner's Name, List of Members, List of Pending Join Requests.
-    -   **"Create Team" Button (Header)**: Opens a modal form to create a new team.
-        -   **Modal Field**: Team Name.
-        -   **Modal "Create" Button**: Submits the team name. The current user becomes the owner and a default member of the new team.
-    -   **"Join Team" Button (Header)**: Opens a modal form to send a request to join an existing team.
-        -   **Modal Field**: Team ID.
-        -   **Modal "Join" Button**: Sends a join request to the specified team. The request will appear in the "Pending Requests" column of the target team for its owner to review.
-    -   **"Edit" Button (Pencil Icon, Table Row)**: (Functionality for editing team details not explicitly detailed but typically allows modification of team name or other properties).
-    -   **"Delete" Button (Trash Icon, Table Row)**: *Visible only to the team owner.* Deletes the team after a confirmation prompt. This also removes the team from all members' user profiles and deletes associated tasks.
-    -   **Join Request Management (Table Row, for Team Owners)**:
-        -   **"Approve" Button (Checkmark Icon)**: *Visible only to the team owner.* Approves a user's pending join request, adding them to the team.
-        -   **"Reject" Button (Times Icon)**: *Visible only to the team owner.* Rejects a user's pending join request.
+### 5. Task Management
+- Create tasks via API and UI
+- Task list for current user (assignee or owner)
+- Edit task details (status, priority, duration, due date, project, etc.)
+- Quick toggle completion from list/details
+- Delete task (owner-only in backend)
+- Recursive sub-task rendering in project detail view
+- Side drawer task editing from project screen
 
-### Project Management
+### 6. Team and Direct Messaging
+- Team chat messages
+- Direct messages (conversation auto-created when needed)
+- Message history endpoints by team or conversation
+- Mark messages as read (`readBy` updates)
+- Chat panel UI with:
+  - Team list + direct member list
+  - Search/filter tabs
+  - Message list + input
+  - Polling refresh every 4 seconds for active chat
 
-Enables creation of projects, with AI assistance for task generation, and viewing/managing existing projects.
+### 7. Live Meetings and Real-Time Presence
+- Start team meeting (member-only, one active meeting per team)
+- End meeting and retrieve active meeting state
+- Team room presence and participant updates via Socket.IO
+- WebRTC signaling:
+  - Offer/answer exchange
+  - ICE candidate relay
+- Media controls:
+  - Camera toggle
+  - Mic toggle
+  - Screen sharing with dynamic track replacement
+- Participant status indicators (camera/mic/speaking)
+- Join/leave room lifecycle events
 
--   **Create Project with AI (`/create-project`)**: Allows users to define a new project and use AI to generate an initial task roadmap.
-    -   **Fields**:
-        -   **Project Name**: Select an existing task name or enter a new one.
-        -   **Project Goal**: Select an existing task description or provide a detailed goal for the AI.
-        -   **Due Date**: Specify the target completion date for the project.
-        -   **Assign Team (Optional)**: Assign the project to an existing team.
-    -   **"Generate Project" Button**: Submits the project details. The AI (via Groq API) processes the "Project Goal" to generate a list of tasks, durations, and dependencies, which are then used to create the project and its initial tasks.
--   **View Ongoing Projects (`/ongoing-projects`)**: Displays a list of all projects where the logged-in user is either the owner or a member of the assigned team.
-    -   **Project Card**: Each card provides a summary of a project, including:
-        -   Project Name
-        -   Project Goal
-        -   Due Date
-        -   Assigned Team (if any)
-        -   Project Owner
-        -   Number of Tasks
-    -   **"View Project" Link (on Project Card)**: Navigates to the detailed view of the specific project.
-    -   **"Delete" Button (Trash Icon, on Project Card)**: *Visible only to the project owner.* Deletes the project and all its associated tasks after a confirmation prompt.
--   **View Project Details (`/project/:id`)**: Provides a comprehensive view of a specific project.
-    -   Displays project overview, details of associated tasks, and potentially options to add new tasks or edit project information (functionality to be confirmed/implemented).
+### 8. UX and Application Behavior
+- Responsive sidebar with mobile toggle
+- Docked chat panel with close/back interactions
+- Dashboard shortcuts to key flows
+- Server offline indicator in app shell
+- Consistent loading and message components across screens
 
-### Task Management
+## Web App Screens and User Flows
+Main routed screens in `client/src/App.jsx`:
+- `/` -> Dashboard (Home)
+- `/login` -> Login
+- `/register` -> Register
+- `/teams` -> Team listing, create/join, request approvals
+- `/team/:id` -> Team details, member list, meeting controls
+- `/team/:id/meeting` -> WebRTC meeting UI
+- `/tasks` -> Task list + quick actions
+- `/task/create` -> Create task
+- `/task/:id/edit` -> Edit task
+- `/project/create` -> AI project creation flow
+- `/project/:id` -> Project details, progress, nested tasks, task drawer
+- `/projects/ongoing` -> Project listing and creation modal
+- `/profile` -> User profile and credentials updates
 
-Facilitates the creation, viewing, updating, and deletion of individual tasks.
+## Backend API Capabilities
+Base URL prefix: `/api`
 
--   **View Tasks (`/tasks` or within a Project Detail screen)**: Displays a list of tasks relevant to the user or project.
-    -   **Table Columns**: Task Name, Description, Status, Due Date, Assigned To.
-    -   **"Edit" Button (Pencil Icon, Table Row)**: Navigates to the task editing screen.
-    -   **"Delete" Button (Trash Icon, Table Row)**: Deletes the task after a confirmation prompt.
--   **Create Task**: While not explicitly a dedicated screen, tasks are created as part of the "Generate Project" AI feature, or can typically be added manually within a project's detail view.
-    -   **Fields (expected for manual creation)**: Task Name, Description, Due Date, Assignee, Status, Associated Project.
--   **Update Task (`/tasks/:id/edit`)**: Allows modification of an existing task's details.
-    -   **Fields**: Task Name, Description, Due Date, Assignee, Status.
-    -   **"Update Task" Button**: Saves the changes made to the task.
+### User Routes (`/api/users`)
+- `POST /register`
+- `POST /login`
+- `GET /` (protected, list users)
+- `GET /search?search=...` (protected)
+- `GET /profile` (protected)
+- `PATCH /profile` (protected)
 
-## Technologies Used
+### Team Routes (`/api/teams`)
+- `POST /` (create team)
+- `GET /` (list accessible teams)
+- `GET /:id` (team details)
+- `DELETE /:id` (owner-only)
+- `PUT /:id/members` (add member, owner-only)
+- `POST /:id/join` (submit join request)
+- `PUT /:id/join` (approve/reject join request, owner-only)
 
-### Frontend (Client)
+### Meeting Routes (`/api/teams/:teamId/meetings`)
+- `POST /` (start meeting)
+- `GET /` (get active meeting)
+- `PUT /:meetingId` (end meeting)
 
--   **React**: A JavaScript library for building user interfaces.
--   **Redux**: A predictable state container for JavaScript apps.
--   **React Router DOM**: For declarative routing in React applications.
--   **Axios**: Promise-based HTTP client for the browser and Node.js.
--   **Bootstrap & React-Bootstrap**: For responsive and mobile-first frontend component styling.
--   **Vite**: A fast build tool for modern web projects.
+### Project Routes (`/api/projects`)
+- `GET /` (list accessible projects)
+- `POST /` (manual project create)
+- `POST /ai` (AI project create)
+- `GET /:id` (project details with task tree)
+- `PUT /:id` (owner-only update)
+- `DELETE /:id` (owner-only delete)
 
-### Backend (Server)
+### Task Routes (`/api/tasks`)
+- `POST /` (create task)
+- `GET /` (list user tasks)
+- `GET /:id` (task details)
+- `PUT /:id` (update task)
+- `DELETE /:id` (owner-only delete)
 
--   **Node.js**: JavaScript runtime environment.
--   **Express.js**: Fast, unopinionated, minimalist web framework for Node.js.
--   **Mongoose**: MongoDB object data modeling (ODM) for Node.js.
--   **JSON Web Tokens (JWT)**: For secure authentication and authorization.
--   **Bcryptjs**: For hashing passwords securely.
--   **Dotenv**: To load environment variables from a `.env` file.
--   **Groq SDK**: For integrating AI capabilities, specifically for task generation.
+### Message Routes (`/api/messages`)
+- `POST /` (send message: team/direct/conversation)
+- `GET /team/:teamId`
+- `GET /conversation/:conversationId`
+- `PUT /read` (mark as read)
 
-### Database
+## Real-Time Architecture (Socket.IO + WebRTC)
+Socket server is initialized in `server/index.js` and attached to HTTP server.
 
--   **MongoDB**: A NoSQL document database.
+### Meeting/Presence Events
+- `joinTeamRoom`
+- `startMeeting`
+- `endMeeting`
+- `userJoined`
+- `userLeft`
+- `participantsUpdated`
+- `user-connected`
+- `user-disconnected`
+- `toggle-camera`
+- `toggle-mic`
+- `camera-toggled`
+- `mic-toggled`
 
-## Setup Instructions
+### WebRTC Signaling Events
+- `offer`
+- `answer`
+- `ice-candidate`
+
+### Chat Events
+- `joinConversation`
+- `leaveConversation`
+- `newMessage`
+- `chat message` (legacy/global broadcast handler)
+
+## Data Model Overview
+Key MongoDB models:
+- `User`: identity, auth fields, role, tech stack, team references
+- `Team`: owner, members, pending join requests, linked tasks/projects
+- `Project`: name, goal, owner, optional team, tasks, due date
+- `Task`: project-linked work item with dependencies, priority, assumptions, parent/subTasks
+- `Meeting`: team room with `active|inactive` status and starter
+- `Conversation`: direct-message participant set
+- `Message`: chat payload linked to team or conversation + `readBy`
+
+## Tech Stack
+
+### Backend
+- Node.js
+- Express
+- MongoDB + Mongoose
+- JWT auth (`jsonwebtoken`)
+- Password hashing (`bcryptjs`)
+- Groq SDK (AI roadmap generation)
+- Socket.IO (realtime layer)
+
+### Frontend
+- React (Vite)
+- Redux + Redux Thunk
+- Redux Persist
+- React Router
+- Axios
+- React Icons + Bootstrap
+- Socket.IO client
+
+### Mobile
+- Flutter (starter)
+- `socket_io_client`, `intl` dependencies declared
+
+## Repository Structure
+```text
+collaborate/
+  client/
+    src/
+      actions/
+      reducers/
+      screens/
+      components/
+      constants/
+      utils/
+  server/
+    config/
+    controllers/
+    middleware/
+    models/
+    routes/
+    utils/
+  mobile/
+    lib/
+    ios/
+    android/
+    web/
+    macos/
+    windows/
+```
+
+## Local Setup
 
 ### Prerequisites
+- Node.js 18+
+- npm
+- MongoDB (local or Atlas)
+- Groq API key (for AI project generation)
 
--   Node.js (LTS version recommended)
--   MongoDB instance (local or cloud-based, e.g., MongoDB Atlas)
--   A Groq API Key (for AI-powered project creation)
+### 1. Backend Setup
+```bash
+cd server
+npm install
+```
+Create `server/.env`:
+```env
+NODE_ENV=development
+PORT=3002
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+GROQ_API_KEY=your_groq_api_key
+```
+Run backend:
+```bash
+npm start
+```
 
-### Backend Setup (Server)
+### 2. Frontend Setup
+```bash
+cd client
+npm install
+npm run dev
+```
 
-1.  Navigate to the `server` directory:
-    ```bash
-    cd server
-    ```
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Create a `.env` file in the `server` directory with the following variables:
-    ```env
-    NODE_ENV=development
-    PORT=3002
-    MONGO_URI=<Your MongoDB Connection String>
-    JWT_SECRET=<A strong, random secret key for JWT>
-    GROQ_API_KEY=<Your Groq API Key>
-    ```
-    *   Replace `<Your MongoDB Connection String>` with your MongoDB URI (e.g., from MongoDB Atlas).
-    *   Replace `<A strong, random secret key for JWT>` with a unique, secure string. You can generate one using `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-    *   Replace `<Your Groq API Key>` with your API key obtained from Groq for AI services.
-4.  Start the server:
-    ```bash
-    npm start
-    ```
-    The server should start on `http://localhost:3002`.
+### 3. Mobile (Optional, current scaffold)
+```bash
+cd mobile
+flutter pub get
+flutter run
+```
 
-### Frontend Setup (Client)
+## Environment Variables
+Used by backend:
+- `PORT`
+- `MONGO_URI`
+- `JWT_SECRET`
+- `GROQ_API_KEY`
+- `NODE_ENV`
 
-1.  Navigate to the `client` directory:
-    ```bash
-    cd client
-    ```
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Start the client development server:
-    ```bash
-    npm run dev
-    ```
-    The client application should be accessible via your browser, typically at `http://localhost:5173`.
+Frontend currently uses a hardcoded API fallback URL in `client/src/utils/api.js`:
+- `https://collaborate-arin.onrender.com`
 
-## Usage Notes / Important Information
+## Known Limitations and Technical Debt
+- `client/src/actions/taskActions.js` uses `axios.delete` without importing `axios` (delete task flow risk).
+- Task model requires `project`, but create-task UI allows `No Project`; this can cause backend validation errors.
+- API status values in model defaults (`pending`) and UI labels (`To Do`, `In Progress`, etc.) are inconsistent.
+- Project deletion removes tasks but may leave stale task references on teams.
+- Some legacy/duplicate route files exist at `server/*.js` while active routes are in `server/routes/`.
+- Chat panel relies on polling; websocket-based live updates are only partially wired.
+- Meeting screen contains high-complexity real-time logic in a single component and can be modularized.
+- There is a `/settings` sidebar route but no matching screen route in `App.jsx`.
 
--   **JWT Token Staleness**: When a user's team memberships or permissions change (e.g., joining a new team, being approved for a team), their active JSON Web Token (JWT) on the client-side might not immediately reflect these changes. To ensure the application correctly recognizes updated roles or team affiliations, **users must log out and log back in** after any such changes. This will procure a new, updated JWT.
--   **401 Unauthorized Errors**: If you encounter 401 errors, ensure you are logged in and your session is active. If issues persist after logging in, try clearing your browser's local storage and logging in again to refresh your authentication token.
--   **AI Task Generation**: The "Create Project with AI" feature relies on the Groq API. Ensure your `GROQ_API_KEY` is correctly configured in the server's `.env` file.
--   **Error Handling**: The application includes client-side and server-side error handling, displaying messages for invalid inputs, authentication failures, and API issues.
+## Future Features Roadmap
 
-## Folder Structure Overview
+### A. Product Features (High Value)
+- Role-based access control (admin/owner/member permissions by endpoint)
+- Team invitations by email/link (not only Team ID copy/paste)
+- Task comments, attachments, and activity timeline
+- Kanban board + sprint planning views
+- Recurring tasks and reminders
+- Global search across users, teams, projects, tasks, and messages
+- Notification center (in-app + email) for mentions, assignments, due dates, approvals
+- Calendar/timeline visualization (Gantt for dependencies)
+- Dashboard analytics (velocity, completion rate, overdue trends)
 
--   `client/`: Contains the React frontend application.
-    -   `src/`: Main source code.
-        -   `actions/`: Redux actions for API calls.
-        -   `components/`: Reusable React components.
-        -   `constants/`: Redux action types and other constants.
-        -   `reducers/`: Redux reducers to manage state.
-        -   `screens/`: Top-level React components representing different views/pages.
-    -   `public/`: Static assets.
--   `server/`: Contains the Node.js/Express.js backend application.
-    -   `config/`: Database connection setup.
-    -   `controllers/`: Logic for handling API requests.
-    -   `middleware/`: Express middleware (e.g., authentication, error handling).
-    -   `models/`: Mongoose schemas for MongoDB collections.
-    -   `routes/`: API route definitions.
-    -   `utils/`: Utility functions (e.g., JWT token generation).
--   `mobile/`: (Present in the repository, but not detailed in this README; likely a Flutter or similar mobile application).
--   `.env`: (Located in `server/`) Environment variables for backend configuration (ignored by Git).
--   `.gitignore`: Specifies intentionally untracked files to ignore.
--   `GEMINI.md`: Notes related to project interactions with Gemini.
+### B. AI and Automation
+- AI re-planning when deadlines slip
+- Auto-risk detection and mitigation suggestions
+- Story-point estimation and sprint capacity suggestions
+- AI-generated standup summaries from completed work
+- AI chat assistant over project context (tasks, dependencies, blockers)
+
+### C. Messaging and Meetings
+- True websocket live chat updates (replace polling as default)
+- Typing indicators, presence states, unread badges
+- File/image sharing in chat
+- Threaded replies and pinned messages
+- Meeting recording metadata and post-meeting notes
+- Meeting agenda templates and action-item extraction
+
+### D. Mobile Expansion
+- Full Flutter parity with web features
+- Push notifications
+- Offline task updates with sync
+- Mobile-first meeting controls and chat UX
+
+### E. Platform and Engineering
+- Centralized validation layer (`zod`/`joi`) for all API payloads
+- API versioning and OpenAPI/Swagger docs
+- Unit/integration/E2E test suites (backend + frontend)
+- CI/CD pipeline with lint/test/build gates
+- Observability (structured logging, tracing, performance metrics)
+- Security hardening (rate limits, refresh token strategy, CSP, stricter CORS)
+- Multi-tenant workspace support
+
+### F. Integrations
+- GitHub/GitLab task linking
+- Slack/Discord notifications
+- Google/Outlook calendar sync
+- Jira/Linear import-export bridges
+- Cloud storage attachments (S3/GCS)
+
+## Suggested Milestones
+
+### Milestone 1 (Stability)
+- Fix current known bugs and schema/UI mismatches
+- Add tests for auth, team join, project AI flow, and task CRUD
+- Replace chat polling with socket-based subscription updates
+
+### Milestone 2 (Collaboration Depth)
+- Add comments, notifications, and improved role permissions
+- Add chat quality-of-life features (typing, unread counters, attachments)
+- Add project timeline/Gantt visualization
+
+### Milestone 3 (Scale and Ecosystem)
+- Launch mobile feature parity
+- Add integrations (GitHub, calendars, Slack)
+- Add analytics and AI operational assistant

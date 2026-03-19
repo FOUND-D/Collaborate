@@ -19,23 +19,29 @@
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--border-color);
-  /* Added border for clarity */
   border-radius: 10px;
-  background-color: #ffffff;
-  /* White background */
-  color: #000000;
-  /* Black text */
+  background-color: var(--background-tertiary-inputs);
+  backdrop-filter: blur(4px);
+  color: var(--text-primary);
   font-size: 1rem;
   box-sizing: border-box;
   margin-bottom: 1rem;
-  transition: box-shadow var(--transition-main), border-color var(--transition-main);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.form-group .form-input:focus,
+.form-group .form-input:focus {
+  background-color: var(--background-tertiary-inputs);
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15), 0 0 16px rgba(10, 132, 255, 0.08);
+  transform: translateY(-1px);
+}
+
 .modal .form-control:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(46, 140, 251, 0.2);
+  box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
   border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .form-container-custom label {
@@ -58,24 +64,30 @@
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.form-group.floating-label label {
   position: absolute;
   top: 0.9rem;
   left: 1rem;
   color: #6e6e73;
-  /* Darker gray for visibility on white/light */
   font-size: 1rem;
   pointer-events: none;
-  transition: all var(--transition-main);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   background-color: transparent;
   padding: 0 4px;
   border-radius: 4px;
 }
 
-.form-group .form-input:focus~label,
-.form-group .form-input:not(:placeholder-shown)~label {
+.form-group.floating-label .form-input:focus~label,
+.form-group.floating-label .form-input:not(:placeholder-shown)~label {
   transform: translateY(-1.6rem) translateX(-0.5rem) scale(0.85);
   font-weight: 600;
   color: var(--accent-color);
-  background-color: #ffffff;
+  background-color: var(--background-main);
+  text-shadow: 0 0 8px rgba(10, 132, 255, 0.2);
+}
+
+/* Light theme override for floating label background */
+.light-theme .form-group.floating-label .form-input:focus~label,
+.light-theme .form-group.floating-label .form-input:not(:placeholder-shown)~label {
+  background-color: var(--background-main);
 }

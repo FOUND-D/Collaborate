@@ -129,7 +129,7 @@ const TaskEditScreen = () => {
             <input
               type="text"
               className="form-input" // Utilizing global CSS input class if available or fallback
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
               placeholder="Enter task name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -142,7 +142,7 @@ const TaskEditScreen = () => {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Description</label>
             <textarea
               className="form-input"
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
               placeholder="Enter description"
               rows={4}
               value={description}
@@ -156,7 +156,7 @@ const TaskEditScreen = () => {
             <input
               type="number"
               className="form-input"
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
               placeholder="Estimated hours"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
@@ -169,7 +169,7 @@ const TaskEditScreen = () => {
             <div className="form-group">
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
               <select
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
@@ -183,7 +183,7 @@ const TaskEditScreen = () => {
             <div className="form-group">
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Priority</label>
               <select
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
               >
@@ -199,7 +199,7 @@ const TaskEditScreen = () => {
           <div className="form-group" style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Project (Optional)</label>
             <select
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
             >
@@ -216,7 +216,7 @@ const TaskEditScreen = () => {
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Due Date</label>
               <input
                 type="date"
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'white' }}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
               />

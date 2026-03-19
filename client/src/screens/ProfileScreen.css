@@ -1,37 +1,90 @@
 .profile-page-wrapper {
-    background-color: #f0f2f5; /* Light grey background for the page */
+    background-color: var(--background-main);
     padding: 1rem;
     min-height: 100vh;
+    animation: fadeIn 0.4s ease-out both;
 }
 
 .profile-card-container {
     max-width: 600px;
     margin: 3rem auto;
-    padding: 2rem;
-    background-color: #ffffff; /* Pure white card background */
-    border-radius: 16px; /* Soft rounded corners */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-    color: #333; /* Darker text for better readability on white */
+    padding: 2.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border-radius: var(--radius-large);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    transition: box-shadow 0.3s, border-color 0.3s;
 }
+
+.profile-card-container:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 2rem;
+    display: block;
+    border: 4px solid var(--accent-color);
+    box-shadow: 0 0 20px rgba(10, 132, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: scaleIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+}
+
+.profile-image:hover {
+    transform: scale(1.05) rotate(-3deg);
+    box-shadow: 0 0 30px rgba(10, 132, 255, 0.5);
+}
+
 
 .profile-card-container h2 {
     text-align: center;
-    color: #111; /* Very dark text for the header */
+    color: var(--text-primary);
     margin-bottom: 2.5rem;
     font-size: 2rem;
     font-weight: 700;
+    animation: fadeInDown 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
 }
 
 .profile-card-container .form-group {
     margin-bottom: 1.25rem;
+    animation: fadeInUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.profile-card-container .form-group:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.profile-card-container .form-group:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.profile-card-container .form-group:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.profile-card-container .form-group:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.profile-card-container .form-group:nth-child(5) {
+    animation-delay: 0.3s;
 }
 
 .profile-card-container label {
     display: block;
     margin-bottom: 0.5rem;
     font-size: 1rem;
-    color: #555;
-    margin-left: 20px; /* Align with pill-shaped input padding */
+    color: var(--text-secondary);
+    margin-left: 20px;
+    transition: color 0.3s;
 }
 
 .profile-card-container input[type='text'],
@@ -39,56 +92,67 @@
 .profile-card-container input[type='password'] {
     width: 100%;
     padding: 12px 20px;
-    border-radius: 50px; /* Pill-shaped */
-    background-color: #f3f4f6; /* Light grey input background */
-    border: 1px solid transparent; /* No visible border by default */
-    color: #333;
+    border-radius: var(--radius-pill);
+    background-color: var(--background-tertiary-inputs);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.profile-card-container input[type='text']:focus,
-.profile-card-container input[type='email']:focus,
-.profile-card-container input[type='password']:focus {
-    border-color: #1A73E8; /* Blue border on focus */
+.profile-card-container input:focus {
+    border-color: var(--accent-color);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+    box-shadow:
+        0 0 0 3px rgba(10, 132, 255, 0.2),
+        0 0 16px rgba(10, 132, 255, 0.1);
+    transform: translateY(-1px);
 }
 
 .profile-buttons-container {
     display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    gap: 1rem; /* Space between buttons */
+    justify-content: flex-end;
+    gap: 1rem;
     margin-top: 2rem;
+    animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
 }
 
 .profile-card-container .btn {
     padding: 12px 24px;
-    border-radius: 50px; /* Pill-shaped buttons */
+    border-radius: var(--radius-pill);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     border: 1px solid transparent;
 }
 
 .profile-card-container .btn-primary {
-    background-color: #1A73E8;
-    color: #ffffff;
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--glow-accent);
 }
 
 .profile-card-container .btn-primary:hover:not(:disabled) {
-    background-color: #155ab3; /* Darker blue on hover */
+    transform: translateY(-3px) scale(1.02);
+    filter: brightness(1.1);
+    box-shadow: 0 8px 25px rgba(10, 132, 255, 0.4);
+}
+
+.profile-card-container .btn-primary:active:not(:disabled) {
+    transform: translateY(-1px) scale(0.98);
+    transition-duration: 0.08s;
 }
 
 .profile-card-container .btn-secondary {
-    background-color: #ffffff;
-    color: #1A73E8;
-    border: 1px solid #1A73E8;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 
 .profile-card-container .btn-secondary:hover:not(:disabled) {
-    background-color: rgba(26, 115, 232, 0.05); /* Very light blue background on hover */
+    background-color: rgba(10, 132, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 .profile-card-container .btn:disabled {
@@ -96,25 +160,14 @@
     cursor: not-allowed;
 }
 
-/* Specific styling for messages */
+/* Messages */
 .profile-card-container .message {
     padding: 0.8rem 1.2rem;
     margin-bottom: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--radius-medium);
     text-align: center;
     font-size: 1rem;
-}
-
-.profile-card-container .message.variant-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-}
-
-.profile-card-container .message.variant-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.2);
+    animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .profile-card-container .loader-container {
@@ -124,20 +177,14 @@
     min-height: 50px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .profile-card-container {
         margin: 1rem;
         padding: 1.5rem;
     }
 
-    .profile-card-container h2 {
-        font-size: 1.8rem;
-    }
-
     .profile-buttons-container {
-        flex-direction: column-reverse; /* Stack buttons on small screens */
-        gap: 0.8rem;
+        flex-direction: column-reverse;
     }
 
     .profile-card-container .btn {

@@ -1,0 +1,240 @@
+/* User Guide Modal Styles */
+
+.user-guide-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.user-guide-container {
+    background-color: #1C1C1E;
+    /* Dark Card Background */
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleIn 0.3s ease-out;
+}
+
+.user-guide-header {
+    padding: 20px 25px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guide-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.guide-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #F5F5F7;
+}
+
+.guide-icon-main {
+    font-size: 1.4rem;
+    color: #0A84FF;
+}
+
+.guide-close-btn {
+    background: transparent;
+    border: none;
+    color: #86868B;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.guide-close-btn:hover {
+    color: #F5F5F7;
+}
+
+.user-guide-content {
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.welcome-section h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    color: #F5F5F7;
+}
+
+.welcome-section p {
+    color: #86868B;
+    font-size: 1rem;
+    margin-bottom: 30px;
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.guide-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.guide-card:hover {
+    transform: translateY(-3px);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.guide-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+}
+
+.color-blue {
+    background: rgba(10, 132, 255, 0.15);
+    color: #0A84FF;
+}
+
+.color-green {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+}
+
+.color-purple {
+    background: rgba(175, 82, 222, 0.15);
+    color: #AF52DE;
+}
+
+.color-orange {
+    background: rgba(255, 149, 0, 0.15);
+    color: #FF9500;
+}
+
+.guide-card h4 {
+    margin: 0 0 8px 0;
+    color: #F5F5F7;
+    font-size: 1.1rem;
+}
+
+.guide-card p {
+    margin: 0;
+    color: #86868B;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.guide-tips {
+    background-color: rgba(10, 132, 255, 0.05);
+    border: 1px solid rgba(10, 132, 255, 0.15);
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.guide-tips h4 {
+    margin: 0 0 12px 0;
+    color: #0A84FF;
+    font-size: 1rem;
+}
+
+.guide-tips ul {
+    padding-left: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.guide-tips li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #dbe4f0;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.guide-tips li:last-child {
+    margin-bottom: 0;
+}
+
+.guide-tips li svg {
+    color: #0A84FF;
+    flex-shrink: 0;
+}
+
+.user-guide-footer {
+    padding: 20px 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-got-it {
+    background-color: #0A84FF;
+    color: #FFF;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-got-it:hover {
+    background-color: #0071e3;
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .user-guide-container {
+        width: 95%;
+        height: 95vh;
+    }
+}

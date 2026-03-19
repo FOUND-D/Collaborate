@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'; // Add useDispatch
 import Sidebar from './components/Sidebar';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -15,16 +15,38 @@ import TeamDetailsScreen from './screens/TeamDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MeetingScreen from './screens/MeetingScreen';
 import ChatScreen from './screens/ChatScreen';
-import ChatPanel from './components/ChatPanel';
+import SettingsScreen from './screens/SettingsScreen';
+import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { logout } from './actions/userActions'; // Import logout
+import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
 
-const App = () => {
+// Inner App component that uses theme context
+const AppContent = () => {
+  const dispatch = useDispatch(); // Initialize dispatch
+  const { theme } = useTheme();
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Cross-tab Login Synchronization
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'userInfo') {
+        if (e.newValue) {
+          dispatch({ type: USER_LOGIN_SUCCESS, payload: JSON.parse(e.newValue) });
+        } else {
+          dispatch(logout()); // Use action creator if possible, or simple dispatch
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [dispatch]);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -42,9 +64,9 @@ const App = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); 
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
-  }, []); 
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -91,13 +113,24 @@ const App = () => {
               <Route path="/project/:id" element={<ProjectScreen />} />
               <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
               <Route path="/profile" element={<ProfileScreen />} />
-              {/* Add other routes here */}
+              <Route path="/settings" element={<SettingsScreen />} />
+              <Route path="/chat" element={<ChatScreen />} />
+              <Route path="/chat/:id" element={<ChatScreen />} />
             </Routes>
           </div>
-          {isChatOpen && <ChatPanel onClose={toggleChat} isDocked={true} />}
+          {isChatOpen && <ChatDocked onClose={toggleChat} />}
         </div>
       </div>
     </Router>
+  );
+};
+
+// Main App component that wraps everything with ThemeProvider
+const App = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 

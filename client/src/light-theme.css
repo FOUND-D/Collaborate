@@ -1,0 +1,37 @@
+.light-theme {
+  /* Light Theme Variables */
+  --background-main: #FFFFFF;
+  --background-secondary-cards: #F2F2F7;
+  --background-tertiary-inputs: #E5E5EA;
+  --text-primary: #1C1C1E;
+  --text-secondary: #48484a;
+  --accent-color: #007AFF;
+  --accent-gradient: linear-gradient(135deg, #007AFF, #5AC8FA);
+  /* Slightly adjusted for light theme vibrancy */
+  --border-color: #D1D1D6;
+
+  /* Glassmorphism Variables for Light Theme - adjusted for visibility */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  /* Lighter background */
+  --glass-bg-heavy: rgba(255, 255, 255, 0.9);
+  /* Lighter heavy background */
+  --glass-border: rgba(0, 0, 0, 0.1);
+  /* Darker border for contrast */
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  /* Lighter shadow */
+  --glass-backdrop: blur(16px) saturate(180%);
+  /* Adjusted saturation */
+
+  /* Status Pill Colors for Light Theme - Adjusted for contrast */
+  --status-completed-bg: #D4EDDA;
+  --status-completed-text: #155724;
+  --status-pending-bg: #E0E0E0;
+  --status-pending-text: #424242;
+  --status-inprogress-bg: #CCE5FF;
+  --status-inprogress-text: #004085;
+  --status-blocked-bg: #F8D7DA;
+  --status-blocked-text: #721C24;
+
+  /* Override color-scheme */
+  color-scheme: light;
+}

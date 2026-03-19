@@ -1,4 +1,5 @@
 @import url('./global.css');
+@import url('./animations.css');
 @import url('./components/Sidebar.css');
 @import url('./components/AuthLayout.css');
 @import url('./components/FormContainer.css');
@@ -11,8 +12,10 @@
 @import url('./miscellaneous.css');
 @import url('./screens/MeetingScreen.css');
 @import url('./screens/ChatScreen.css');
+
 /* Emergency fix to ensure buttons are clickable */
 .app-body {
   position: relative;
-  z-index: 1; /* Ensures content sits above background layers */
+  z-index: 1;
+  /* Ensures content sits above background layers */
 }

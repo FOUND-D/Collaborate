@@ -71,7 +71,9 @@ export const sendMessage = (messageData) => async (dispatch, getState) => {
 =============================== */
 
 export const listMessages =
+
   (type, id, silent = false) =>
+
   async (dispatch, getState) => {
 
     try {
@@ -79,45 +81,101 @@ export const listMessages =
       /* Only show loader on first load */
 
       if (!silent) {
+
         dispatch({ type: MESSAGE_LIST_REQUEST });
+
       }
 
 
+
       const {
+
         userLogin: { userInfo },
+
       } = getState();
 
 
+
       const config = {
+
         headers: {
+
           Authorization: `Bearer ${userInfo.token}`,
+
         },
+
       };
 
 
-      const { data } = await api.get(
-        `/api/messages/${type}/${id}`,
-        config
-      );
+
+            const { data } = await api.get(
 
 
-      dispatch({
-        type: MESSAGE_LIST_SUCCESS,
-        payload: data,
-      });
+
+              `/api/messages/${type}/${id}`,
+
+
+
+              config
+
+
+
+            );
+
+
+
+      
+
+
+
+            // Ensure data is an array before dispatching
+
+
+
+            const messagesPayload = Array.isArray(data) ? data : (data ? [data] : []);
+
+
+
+      
+
+
+
+            dispatch({
+
+
+
+              type: MESSAGE_LIST_SUCCESS,
+
+
+
+              payload: messagesPayload,
+
+
+
+            });
+
+
 
     } catch (error) {
 
       if (!silent) {
 
         dispatch({
+
           type: MESSAGE_LIST_FAIL,
+
           payload:
+
             error.response?.data?.message ||
+
             error.message,
+
         });
+
       }
+
     }
+
   };
 
 

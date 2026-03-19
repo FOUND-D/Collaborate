@@ -10,6 +10,7 @@ import {
   userListReducer,
   userDetailsReducer,
   userUpdateProfileReducer,
+  userUpdateProfileImageReducer,
 } from './reducers/userReducers';
 import { serverStatusReducer } from './reducers/serverReducers';
 
@@ -36,6 +37,11 @@ import {
   projectCreateReducer, 
   projectUpdateReducer 
 } from './reducers/projectReducers';
+import {
+  messageListReducer, // Import messageListReducer
+  messageMarkReadReducer,
+  messageSendReducer, // Import messageSendReducer
+} from './reducers/messageReducers'; // Import message reducers
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -52,6 +58,7 @@ const rootReducer = combineReducers({
   userList: userListReducer,
   userDetails: userDetailsReducer,
   userUpdateProfile: userUpdateProfileReducer,
+  userUpdateProfileImage: userUpdateProfileImageReducer,
   teamList: teamListReducer,
   teamCreate: teamCreateReducer,
   teamJoin: teamJoinReducer,
@@ -70,6 +77,9 @@ const rootReducer = combineReducers({
   projectCreate: projectCreateReducer,
   projectUpdate: projectUpdateReducer,
   serverStatus: serverStatusReducer,
+  messageList: messageListReducer, // Add messageListReducer
+  messageMarkRead: messageMarkReadReducer,
+  messageSend: messageSendReducer, // Add messageSendReducer
 });
 
 // 4. Wrap your root reducer with the persist function

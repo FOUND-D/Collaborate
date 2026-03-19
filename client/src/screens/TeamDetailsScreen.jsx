@@ -8,6 +8,7 @@ import { getTeamDetails } from '../actions/teamActions';
 import './TeamDetailsScreen.css';
 import axios from 'axios';
 import io from 'socket.io-client';
+import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
 
 let socket; // Declare socket once globally
 
@@ -46,7 +47,7 @@ const TeamDetailsScreen = () => {
   useEffect(() => {
     dispatch(getTeamDetails(id));
 
-    socket = io(process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002');
+    socket = io(SOCKET_URL);
 
     const fetchMeeting = async () => {
       try {
@@ -175,7 +176,18 @@ const TeamDetailsScreen = () => {
                     className="member-avatar-circle" 
                     style={{ backgroundColor: getPastelColor(member._id) }}
                   >
-                    {member.name.charAt(0).toUpperCase()}
+                    {member.profileImage ? (
+                      <img
+                        src={
+                          member.profileImage.startsWith('data:image')
+                            ? member.profileImage
+                            : `${BACKEND_URL}${member.profileImage}`
+                        }
+                        alt={member.name}
+                      />
+                    ) : (
+                      member.name.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <span>{member.name}</span>
                 </div>

@@ -3,17 +3,52 @@
    ===================================================== */
 
 .task-page {
-  /* Maintain the dark layout wrapper */
+  /* Maintain the layout wrapper */
   padding: 2.5rem;
   min-height: 100vh;
-  /* Use global tokens if available, or fallback */
-  background: var(--bg-main, linear-gradient(180deg,#040507,#0c0e15));
+  /* Use global tokens */
+  background: var(--background-main);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
-  color: white;
+  color: var(--text-primary);
 }
 
 @media (max-width: 900px) {
   .task-page {
     padding: 1.5rem;
   }
+}
+
+/* =====================================================
+   FILTERS
+   ===================================================== */
+.task-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.task-filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.task-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.task-filter-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }

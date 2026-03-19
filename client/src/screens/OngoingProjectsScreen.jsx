@@ -81,9 +81,33 @@ const OngoingProjectsScreen = () => {
       ) : (
         <div className="modern-project-list">
           {projects.length === 0 ? (
-            <div className="empty-state-container">
-              <Message variant='info'>No ongoing projects found. Start by creating one!</Message>
-              <button className="btn btn-primary" onClick={openModal}>
+            <div className="empty-state-container" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4rem 2rem',
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '16px',
+              border: '1px dashed rgba(255, 255, 255, 0.1)',
+              marginTop: '2rem'
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))',
+                padding: '1.5rem',
+                borderRadius: '50%',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FaCalendarAlt size={40} color="#a5b4fc" />
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>No Ongoing Projects</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center', maxWidth: '400px' }}>
+                You don't have any active projects yet. Create one to start tracking your progress and collaborating with your team.
+              </p>
+              <button className="btn-gradient" onClick={openModal}>
                 <FaPlus /> Create Your First Project
               </button>
             </div>
