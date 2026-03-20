@@ -39,6 +39,7 @@ import {
 } from './reducers/projectReducers';
 import {
   messageListReducer, // Import messageListReducer
+  messageMarkReadReducer,
   messageSendReducer, // Import messageSendReducer
 } from './reducers/messageReducers'; // Import message reducers
 
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
   projectUpdate: projectUpdateReducer,
   serverStatus: serverStatusReducer,
   messageList: messageListReducer, // Add messageListReducer
+  messageMarkRead: messageMarkReadReducer,
   messageSend: messageSendReducer, // Add messageSendReducer
 });
 

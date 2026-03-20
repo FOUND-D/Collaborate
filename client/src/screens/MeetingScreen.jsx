@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import io from "socket.io-client";
 import { FaVideo, FaVideoSlash, FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { SOCKET_URL } from '../config/runtime';
 
 /* =========================================================================
    1. ISOLATED VIDEO COMPONENT
@@ -126,12 +127,7 @@ const MeetingScreen = () => {
     initMedia();
 
     // 4. Initialize Socket & Events
-    // Use a production-aware URL
-    const BACKEND_URL = process.env.NODE_ENV === "production"
-      ? "https://collaborate-arin.onrender.com"
-      : "http://localhost:3002";
-
-    const socket = io(BACKEND_URL);
+    const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
     socket.on('connect', () => {

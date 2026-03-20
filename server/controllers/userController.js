@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, techStack, profileImage } = req.body;
+  const { name, email, password, role, techStack } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -22,7 +22,6 @@ const registerUser = asyncHandler(async (req, res) => {
     password,
     role,
     techStack,
-    profileImage,
   });
 
   if (user) {
@@ -32,7 +31,6 @@ const registerUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       techStack: user.techStack,
-      profileImage: user.profileImage,
       token: generateToken(user._id),
     });
   } else {
@@ -56,7 +54,6 @@ const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       techStack: user.techStack,
-      profileImage: user.profileImage,
       token: generateToken(user._id),
     });
   } else {
@@ -69,35 +66,16 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate({
-    path: 'teams',
-    populate: {
-      path: 'projects',
-      model: 'Project'
-    }
-  });
+  const user = await User.findById(req.user._id).populate('teams');
 
   if (user) {
-    const userProjects = user.teams.reduce((acc, team) => {
-      // Filter out null/undefined teams and projects within teams
-      if (team && team.projects) {
-        team.projects.forEach(project => {
-          if (project && !acc.some(p => p._id.equals(project._id))) {
-            acc.push(project);
-          }
-        });
-      }
-      return acc;
-    }, []);
-
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       techStack: user.techStack,
-      teams: user.teams ? user.teams.filter(t => t) : [], // Still include teams, but ensure they are not null
-      projects: userProjects,
+      teams: user.teams.filter(t => t),
     });
   } else {
     res.status(404);
@@ -152,30 +130,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user profile image
-// @route   PATCH /api/users/profile/image
-// @access  Private
-const updateUserProfileImage = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    user.profileImage = req.body.image;
-    const updatedUser = await user.save();
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      techStack: updatedUser.techStack,
-      profileImage: updatedUser.profileImage,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
-});
-
-
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private
@@ -209,5 +163,4 @@ module.exports = {
   getUsers,
   getUserProfile,
   updateUserProfile,
-  updateUserProfileImage,
 };

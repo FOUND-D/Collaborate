@@ -3,7 +3,6 @@ const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const Team = require('../models/Team');
 const User = require('../models/User');
-const { getOrSet, invalidate } = require('../services/cacheService');
 
 // @desc    Send a new message
 // @route   POST /api/messages
@@ -25,7 +24,6 @@ const sendMessage = asyncHandler(async (req, res) => {
       content,
       team: teamId,
     });
-    await invalidate(`team:${teamId}:messages`); // Invalidate team messages cache
   } else if (recipientId) {
     // Sending a direct message
     let conversation = await Conversation.findOne({
@@ -50,7 +48,6 @@ const sendMessage = asyncHandler(async (req, res) => {
         content,
         conversation: conversationId,
     });
-    await invalidate(`conversation:${conversationId}:messages`); // Invalidate conversation messages cache
   } else {
     res.status(400);
     throw new Error('Either teamId, recipientId, or conversationId is required');
@@ -66,15 +63,9 @@ const sendMessage = asyncHandler(async (req, res) => {
 // @route   GET /api/messages/team/:teamId
 // @access  Private
 const getTeamMessages = asyncHandler(async (req, res) => {
-    const teamId = req.params.teamId;
-    
-    // Short TTL (e.g., 10 seconds) because chat moves fast
-    const messages = await getOrSet(`team:${teamId}:messages`, async () => {
-        return await Message.find({ team: teamId })
-            .sort({ createdAt: -1 }) // Latest first
-            .limit(50)               // Only cache recent history
-            .populate('sender', 'name email');
-    }, 10); // 10 seconds TTL
+    const messages = await Message.find({ team: req.params.teamId })
+        .populate('sender', 'name email')
+        .sort({ createdAt: 1 });
 
     res.json(messages);
 });
@@ -83,15 +74,9 @@ const getTeamMessages = asyncHandler(async (req, res) => {
 // @route   GET /api/messages/conversation/:conversationId
 // @access  Private
 const getConversationMessages = asyncHandler(async (req, res) => {
-    const conversationId = req.params.conversationId;
-    
-    // Short TTL (e.g., 10-30 seconds) because chat moves fast
-    const messages = await getOrSet(`conversation:${conversationId}:messages`, async () => {
-        return await Message.find({ conversation: conversationId })
-            .populate('sender', 'name email')
-            .sort({ createdAt: -1 }) // Latest first
-            .limit(50);               // Only cache recent history
-    }, 10); // 10 seconds TTL
+    const messages = await Message.find({ conversation: req.params.conversationId })
+        .populate('sender', 'name email')
+        .sort({ createdAt: 1 });
 
     res.json(messages);
 });

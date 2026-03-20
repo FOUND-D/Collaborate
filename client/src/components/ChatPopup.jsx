@@ -6,6 +6,7 @@ import MessageInput from './MessageInput';
 import { listMessages } from '../actions/messageActions';
 import './ChatPopup.css';
 import io from 'socket.io-client';
+import { SOCKET_URL } from '../config/runtime';
 
 let socket;
 
@@ -21,7 +22,7 @@ const ChatPopup = ({ team, onClose }) => {
     dispatch(listMessages(selectedChat.type, selectedChat.id));
 
     // Setup socket connection
-    socket = io(process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002');
+    socket = io(SOCKET_URL);
     socket.emit('joinConversation', selectedChat.id);
 
     // Listen for new messages

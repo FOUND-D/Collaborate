@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import api, { HARDCODED_BACKEND_URL } from '../utils/api';
+import api from '../utils/api';
 import {
   getUserDetails,
   updateUserProfile,
   updateUserProfileImage,
 } from '../actions/userActions';
+import { BACKEND_URL } from '../config/runtime';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import './ProfileScreen.css'; // Import the new CSS file
@@ -127,7 +128,7 @@ const ProfileScreen = () => {
           src={
             image && image.startsWith('data:image')
               ? image
-              : `${HARDCODED_BACKEND_URL}${image}`
+              : `${BACKEND_URL}${image}`
           }
           alt={name}
           className="profile-image"

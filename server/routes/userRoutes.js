@@ -7,7 +7,6 @@ const {
   getUsers,
   getUserProfile,
   updateUserProfile,
-  updateUserProfileImage,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -19,7 +18,5 @@ router
   .route('/profile')
   .get(protect, getUserProfile)
   .patch(protect, updateUserProfile);
-
-router.route('/profile/image').patch(protect, updateUserProfileImage);
 
 module.exports = router;
