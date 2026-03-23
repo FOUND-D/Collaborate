@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, techStack } = req.body;
+  const { name, email, password, role, techStack, profileImage } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -21,6 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     role,
+    profileImage,
     techStack,
   });
 
@@ -30,6 +31,7 @@ const registerUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      profileImage: user.profileImage,
       techStack: user.techStack,
       token: generateToken(user._id),
     });
@@ -53,6 +55,7 @@ const loginUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      profileImage: user.profileImage,
       techStack: user.techStack,
       token: generateToken(user._id),
     });
@@ -74,6 +77,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      profileImage: user.profileImage,
       techStack: user.techStack,
       teams: user.teams.filter(t => t),
     });
@@ -87,7 +91,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @route   PATCH /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const { name, email, role, techStack, password } = req.body;
+  const { name, email, role, techStack, password, profileImage } = req.body;
 
   const updateFields = {};
 
@@ -109,6 +113,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     updateFields.password = await bcrypt.hash(password, salt);
   }
 
+  if (profileImage !== undefined) {
+    updateFields.profileImage = profileImage;
+  }
+
   const updatedUser = await User.findByIdAndUpdate(
     req.user._id,
     { $set: updateFields },
@@ -121,6 +129,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       role: updatedUser.role,
+      profileImage: updatedUser.profileImage,
       techStack: updatedUser.techStack,
       token: generateToken(updatedUser._id),
     });
@@ -136,6 +145,34 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
   res.status(200).json(users);
+});
+
+// @desc    Update user profile image
+// @route   PATCH /api/users/profile/image
+// @access  Private
+const updateUserProfileImage = asyncHandler(async (req, res) => {
+  const { image } = req.body;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { profileImage: image || '' } },
+    { new: true, runValidators: true }
+  ).select('-password');
+
+  if (updatedUser) {
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      profileImage: updatedUser.profileImage,
+      techStack: updatedUser.techStack,
+      token: generateToken(updatedUser._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
 });
 
 // @desc    Search for users
@@ -163,4 +200,5 @@ module.exports = {
   getUsers,
   getUserProfile,
   updateUserProfile,
+  updateUserProfileImage,
 };

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import api from '../utils/api';
 import {
   getUserDetails,
   updateUserProfile,
@@ -37,26 +36,23 @@ const ProfileScreen = () => {
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
+    if (!file) return;
     setUploading(true);
 
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      };
-
-      const { data } = await api.post('/api/upload', formData, config);
-
-      setImage(data);
-      await dispatch(updateUserProfileImage({ image: data }));
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      setImage(dataUrl);
+      try {
+        await dispatch(updateUserProfileImage({ image: dataUrl }));
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.onerror = () => {
       setUploading(false);
-    } catch (error) {
-      console.error(error);
-      setUploading(false);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {

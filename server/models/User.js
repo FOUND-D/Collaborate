@@ -21,6 +21,10 @@ const userSchema = mongoose.Schema(
       required: true,
       default: 'Developer',
     },
+    profileImage: {
+      type: String,
+      default: '',
+    },
     techStack: {
       type: [String],
       default: [],

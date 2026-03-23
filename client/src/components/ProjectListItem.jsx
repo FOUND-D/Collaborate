@@ -49,36 +49,39 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
 
   return (
     <div className="project-list-item">
-      <div className="project-info">
+      <div className="project-card-top">
+        <div className="project-info">
         <Link to={`/project/${project._id}`} className="project-name-link">
           {project.name}
         </Link>
-        <div className="project-metadata-capsules">
-          {project.dueDate && (
-            <span className="metadata-capsule">
-              <FaCalendarAlt /> Due: {new Date(project.dueDate).toLocaleDateString()}
-            </span>
-          )}
-          {project.owner && (
-            <span className="metadata-capsule">
-              <FaUser /> {project.owner.name}
-            </span>
-          )}
-           <span className="metadata-capsule">
-             {project.status || 'Active'}
-           </span>
+          <div className="project-metadata-capsules">
+            {project.dueDate && (
+              <span className="metadata-capsule">
+                <FaCalendarAlt /> Due: {new Date(project.dueDate).toLocaleDateString()}
+              </span>
+            )}
+            {project.owner && (
+              <span className="metadata-capsule">
+                <FaUser /> {project.owner.name}
+              </span>
+            )}
+          </div>
         </div>
+        <span className={`status-badge ${(project.status || 'Active').toLowerCase().replace(/\s+/g, '')}`}>
+          {project.status || 'Active'}
+        </span>
       </div>
       
       <div className="project-progress">
+        <div className="project-progress-row">
+          <span className="project-progress-label">Progress</span>
+          <span className="project-progress-pct">{progress}% Complete</span>
+        </div>
         <div className="progress-bar-container">
            <div 
              className="progress-bar-fill"
              style={{ width: `${progress}%` }} 
            />
-        </div>
-        <div style={{ fontSize: '0.8rem', marginTop: '5px', textAlign: 'right', color: '#86868B' }}>
-            {progress}% Complete
         </div>
       </div>
 
@@ -111,6 +114,7 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
                 className="btn-delete-project" 
                 onClick={handleDeleteClick}
                 title="Delete Project"
+                type="button"
             >
               <FaTrash />
             </button>

@@ -34,7 +34,7 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
 
   return (
     <>
-      <li className="task-list-item" style={{ paddingLeft: `${level * 32}px` }}>
+      <div className="task-list-item" style={{ marginLeft: `${level * 24}px` }}>
         <div className="task-checkbox-container">
           <div className={`task-checkbox ${isCompleted ? 'checked' : ''}`} onClick={() => onCheck(task)}>
             {isCompleted && <FaCheck size="0.8em" />}
@@ -59,21 +59,21 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
         </div>
         <div className="task-actions-group">
           {task.subTasks && task.subTasks.length > 0 && (
-            <button className="task-action-btn" onClick={() => setSubtasksVisible(!subtasksVisible)}>
+            <button className="task-action-btn" onClick={() => setSubtasksVisible(!subtasksVisible)} type="button">
               {subtasksVisible ? <FaMinus /> : <FaPlus />}
             </button>
           )}
-          <button className="task-action-btn" onClick={() => onEdit(task._id)}>
+          <button className="task-action-btn" onClick={() => onEdit(task._id)} type="button">
             <FaEdit />
           </button>
         </div>
-      </li>
+      </div>
       {subtasksVisible && task.subTasks && (
-        <ul className="modern-task-list" style={{ margin: 0, padding: 0, boxShadow: 'none' }}>
+        <div className="modern-task-list subtask-list">
           {task.subTasks.map(subtask => (
             <TaskItem key={subtask._id} task={subtask} onCheck={onCheck} onEdit={onEdit} level={level + 1} />
           ))}
-        </ul>
+        </div>
       )}
     </>
   );
@@ -180,10 +180,10 @@ const ProjectScreen = () => {
                       <FaEdit />
                     </button>
                   )}
-                  <button className="btn-outline-secondary" onClick={() => setIsGoalModalOpen(true)}>
+                  <button className="btn-outline-secondary" onClick={() => setIsGoalModalOpen(true)} type="button">
                     <FaExternalLinkAlt /> View Project Goal
                   </button>
-                  <button className="btn-gradient" onClick={handleAddTask}>
+                  <button className="btn-gradient" onClick={handleAddTask} type="button">
                     <FaPlus /> Add Task
                   </button>
                 </div>
@@ -250,16 +250,16 @@ const ProjectScreen = () => {
             {project.tasks && project.tasks.length === 0 ? (
               <Message variant="info">
                 No tasks generated for this project.
-                <button className="btn btn-primary btn-small ml-2" onClick={handleAddTask}>
+                <button className="btn btn-primary btn-small ml-2" onClick={handleAddTask} type="button">
                   Add First Task
                 </button>
               </Message>
             ) : (
-              <ul className="modern-task-list">
+              <div className="modern-task-list">
                 {project.tasks && project.tasks.map((task) => (
                   <TaskItem key={task._id} task={task} onCheck={handleTaskCheck} onEdit={handleEditTask} />
                 ))}
-              </ul>
+              </div>
             )}
           </>
         )

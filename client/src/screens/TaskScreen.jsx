@@ -111,18 +111,12 @@ const TaskScreen = () => {
 
   return (
     <div className="task-page">
-
-      {/* Header */}
-      <div className="task-hero-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 className="project-detail-title">Tasks</h1>
-          <p className="project-detail-goal">Manage all your tasks in one place.</p>
+      <div className="page-header">
+        <div className="page-header-left">
+          <h1>Tasks</h1>
+          <p>Manage all your tasks in one place.</p>
         </div>
-        <Link
-          to="/task/create"
-          className="btn-gradient"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
-        >
+        <Link to="/task/create" className="btn-create">
           <FaPlus /> Create Task
         </Link>
       </div>
@@ -150,18 +144,7 @@ const TaskScreen = () => {
         <Message variant="danger">{error}</Message>
       ) : (
         tasks && tasks.length === 0 ? (
-          <div className="empty-state-container" style={{
-            textAlign: 'center',
-            padding: '4rem 2rem',
-            background: 'rgba(255, 255, 255, 0.03)',
-            borderRadius: '16px',
-            border: '1px dashed rgba(255, 255, 255, 0.1)',
-            marginTop: '2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <div className="task-empty-state">
             <div style={{
               background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
               padding: '1.5rem',
@@ -183,16 +166,13 @@ const TaskScreen = () => {
           </div>
         ) : (
           filteredTasks.length === 0 ? (
-            <div className="empty-state-container" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+            <div className="task-empty-state task-empty-state-compact">
               <p>No tasks found with status "{activeFilter}".</p>
             </div>
           ) : (
-            /* Modern List Wrapper */
-            <ul className="modern-task-list">
+            <div className="modern-task-list">
               {filteredTasks.map((task) => (
-                <li key={task._id} className="task-list-item">
-
-                  {/* Checkbox */}
+                <div key={task._id} className="task-list-item">
                   <div className="task-checkbox-container">
                     <div
                       className={`task-checkbox ${task.status === 'Completed' ? 'checked' : ''}`}
@@ -202,33 +182,29 @@ const TaskScreen = () => {
                     </div>
                   </div>
 
-                  {/* Details */}
                   <div className="task-details-main" onClick={() => navigate(`/task/${task._id}/edit`)} style={{ cursor: 'pointer' }}>
                     <span className={`task-name ${task.status === 'Completed' ? 'completed' : ''}`}>
                       {task.name}
                     </span>
-                    <div className="task-description" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                    <div className="task-description">
                       {task.assignee ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}>
+                        <span className="task-assignee-meta">
                           <FaUser size="0.7em" /> {task.assignee.name}
                         </span>
                       ) : (
-                        <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>Unassigned</span>
+                        <span className="task-assignee-meta muted">Unassigned</span>
                       )}
-                      {/* Optional: Add Project Name here if available in the future */}
                     </div>
                   </div>
 
-                  {/* Metadata */}
                   <div className="task-metadata-group">
                     <span className={`task-status-pill ${getStatusClass(task.status)}`}>
                       {task.status}
                     </span>
                   </div>
 
-                  {/* Actions */}
-                  <div className="task-actions-group" style={{ display: 'flex', alignItems: 'center' }}>
-                    <button className="task-action-btn" onClick={() => navigate(`/task/${task._id}/edit`)} title="Edit">
+                  <div className="task-actions-group">
+                    <button className="task-action-btn" onClick={() => navigate(`/task/${task._id}/edit`)} title="Edit" type="button">
                       <FaEdit />
                     </button>
                     {userInfo && task.owner === userInfo._id && (
@@ -236,15 +212,15 @@ const TaskScreen = () => {
                         className="task-action-btn"
                         onClick={() => deleteHandler(task._id)}
                         title="Delete"
+                        type="button"
                       >
                         <FaTrash />
                       </button>
                     )}
                   </div>
-
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )
         ))}
     </div>

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload } from 'react-icons/fa';
-import api from '../utils/api';
 import { register } from '../actions/userActions';
 import Loader from '../components/Loader';
 import '../styles/auth.css';
@@ -42,22 +41,18 @@ const RegisterScreen = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setPreviewUrl(URL.createObjectURL(file));
-    const formData = new FormData();
-    formData.append('image', file);
     setUploading(true);
-
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      };
-      const { data } = await api.post('/api/upload', formData, config);
-      setImage(data);
-    } finally {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setPreviewUrl(dataUrl);
+      setImage(dataUrl);
       setUploading(false);
-    }
+    };
+    reader.onerror = () => {
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const submitHandler = (e) => {

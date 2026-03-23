@@ -147,7 +147,9 @@ const TeamScreen = () => {
 
       <div className="action-cards-grid">
         <div className="action-card" onClick={handleShowCreate}>
-          <FaPlus className="action-card-icon" />
+          <div className="action-card-icon-wrap">
+            <FaPlus className="action-card-icon" />
+          </div>
           <h3 className="action-card-title">Create New Team</h3>
           <p className="action-card-description">Start a new collaboration hub.</p>
           <span className="action-card-link">
@@ -155,7 +157,9 @@ const TeamScreen = () => {
           </span>
         </div>
         <div className="action-card" onClick={handleShowJoin}>
-          <FaUsers className="action-card-icon" />
+          <div className="action-card-icon-wrap">
+            <FaUsers className="action-card-icon" />
+          </div>
           <h3 className="action-card-title">Join Existing Team</h3>
           <p className="action-card-description">Connect with an existing team.</p>
           <span className="action-card-link">

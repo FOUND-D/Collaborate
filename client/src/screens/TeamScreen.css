@@ -7,18 +7,14 @@
 ===================================================== */
 
 .teams-dashboard-page {
-  max-width: 1300px;
-  margin: auto;
-  padding: 3.5rem 1.5rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 32px 44px;
   min-height: 100vh;
-  background: var(--background-main);
+  background: #080a0c;
   color: var(--text-primary);
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "Inter",
-    sans-serif;
+  font-family: 'DM Sans', sans-serif;
   animation: fadeIn 0.4s ease-out both;
 }
 
@@ -28,25 +24,25 @@
 ===================================================== */
 
 .project-hero-header {
-  margin-bottom: 3rem;
-  padding-bottom: 1.6rem;
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
   animation: fadeInDown 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .project-detail-title {
-  font-size: clamp(2.2rem, 5vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
   text-shadow: none;
 }
 
 .project-detail-goal {
   margin-top: 0.6rem;
-  font-size: 1rem;
-  color: var(--text-secondary);
-  opacity: 0.9;
+  font-size: 13px;
+  color: rgba(241,245,249,.40);
+  opacity: 1;
 }
 
 
@@ -56,9 +52,69 @@
 
 .action-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.action-card {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+
+.action-card:hover {
+  background: #111519;
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+
+.action-card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  background: rgba(59,130,246,0.10);
+  color: #60a5fa;
+}
+
+.action-card-title {
+  font-size: 14px;
+  font-weight: 650;
+  color: #f1f5f9;
+  letter-spacing: -0.1px;
+}
+
+.action-card-description {
+  font-size: 12px;
+  color: rgba(241,245,249,0.38);
+  line-height: 1.55;
+}
+
+.action-card-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  transition: gap 0.18s;
+}
+
+.action-card:hover .action-card-link {
+  gap: 8px;
 }
 
 
@@ -68,9 +124,9 @@
 
 .modern-team-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2.2rem;
-  margin-top: 2.8rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
 }
 
 /* Staggered entry animation */
@@ -120,16 +176,14 @@
 ===================================================== */
 
 .team-card {
-  background: var(--background-secondary-cards);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-large);
-  padding: 2rem;
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-subtle);
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: none;
+  transition: border-color 0.18s, transform 0.18s;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -158,11 +212,9 @@
 
 /* Hover */
 .team-card:hover {
-  transform: translateY(-8px) scale(1.015);
-  box-shadow:
-    var(--shadow-hover),
-    0 0 35px rgba(10, 132, 255, 0.15);
-  border-color: rgba(10, 132, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.13);
 }
 
 .team-card:active {
@@ -178,44 +230,39 @@
 .team-card-header-wrapper {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.2rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 
 /* Avatar */
 .team-avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #0a84ff, #5ac8fa);
   color: white;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow:
-    0 0 0 3px rgba(10, 132, 255, 0.25),
-    0 0 16px rgba(10, 132, 255, 0.4);
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
   flex-shrink: 0;
 }
 
 .team-card:hover .team-avatar {
-  transform: scale(1.1) rotate(-5deg);
-  box-shadow:
-    0 0 0 3px rgba(10, 132, 255, 0.4),
-    0 0 25px rgba(10, 132, 255, 0.6);
+  transform: scale(1.05);
 }
 
 
 /* Name */
 .team-card-name {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 650;
   color: var(--text-primary);
   letter-spacing: -0.01em;
   text-shadow: none;
@@ -232,12 +279,12 @@
 ===================================================== */
 
 .team-card-meta {
-  margin-top: 1rem;
+  margin-top: 12px;
   font-size: 0.88rem;
-  color: var(--text-secondary);
+  color: rgba(241,245,249,.35);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 8px;
 }
 
 .team-card-meta-item {
@@ -269,17 +316,17 @@
 
 .team-card-delete {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 34px;
-  height: 34px;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  color: var(--text-secondary);
+  border-radius: 6px;
+  color: rgba(239,68,68,0.45);
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.13s;
   opacity: 0;
   transform: scale(0.8);
 }
@@ -290,9 +337,10 @@
 }
 
 .team-card-delete:hover {
-  background: rgba(239, 68, 68, 0.18);
+  background: rgba(239,68,68,0.09);
+  border: 1px solid rgba(239,68,68,0.35);
   color: #ef4444;
-  transform: scale(1.15) rotate(10deg) !important;
+  transform: scale(1.05) !important;
 }
 
 
@@ -302,7 +350,7 @@
 
 .empty-state-container {
   text-align: center;
-  padding: 4rem 3rem;
+  padding: 72px 24px;
   color: var(--text-secondary);
   animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -363,6 +411,9 @@
 ===================================================== */
 
 @media (max-width: 768px) {
+  .teams-dashboard-page {
+    padding: 24px 20px;
+  }
 
   .action-cards-grid {
     grid-template-columns: 1fr;
