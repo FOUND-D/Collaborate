@@ -13,11 +13,12 @@
 @import url('./screens/MeetingScreen.css');
 @import url('./screens/ChatScreen.css');
 
-/* Emergency fix to ensure buttons are clickable */
-.app-body {
-  position: relative;
-  z-index: 1;
-  /* Ensures content sits above background layers */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
@@ -46,6 +47,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  min-height: 100%;
 }
 
 @keyframes fadeInUp {
