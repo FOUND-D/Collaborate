@@ -18,23 +18,41 @@ const buildSlug = async (name, excludeId = null) => {
 const hasOrgAccess = (org, userId) => org.members.some((m) => m.user.toString() === userId.toString());
 const getUserRole = (org, userId) => org.members.find((m) => m.user.toString() === userId.toString())?.role;
 
-const createOrganisation = asyncHandler(async (req, res) => {
-  const { name, description = '', logo = '' } = req.body;
-  if (!name) return res.status(400).json({ message: 'Organisation name is required' });
+const createOrganisation = async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    const { name, description = '', logo = '' } = body;
 
-  const slug = await buildSlug(name);
-  const org = await Organisation.create({
-    name,
-    slug,
-    description,
-    logo,
-    owner: req.user._id,
-    members: [{ user: req.user._id, role: 'owner' }],
-  });
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Organisation name is required' });
+    }
 
-  await User.findByIdAndUpdate(req.user._id, { $addToSet: { organisations: org._id } });
-  res.status(201).json(org);
-});
+    const slug = await buildSlug(name.trim());
+    const org = await Organisation.create({
+      name: name.trim(),
+      slug,
+      description,
+      logo,
+      owner: req.user._id,
+      members: [{ user: req.user._id, role: 'owner' }],
+    });
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { organisations: org._id },
+    });
+
+    return res.status(201).json(org);
+  } catch (err) {
+    console.error(err);
+    if (err?.code === 11000) {
+      return res.status(409).json({ message: 'Organisation slug already exists' });
+    }
+    if (err?.name === 'ValidationError') {
+      return res.status(400).json({ message: err.message });
+    }
+    return next(err);
+  }
+};
 
 const getMyOrganisations = asyncHandler(async (req, res) => {
   const orgs = await Organisation.find({ 'members.user': req.user._id })

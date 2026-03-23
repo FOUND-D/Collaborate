@@ -29,14 +29,6 @@ const Team = require('./models/Team');
 
 
 
-dotenv.config(); // Load environment variables
-
-
-
-connectDB(); // Connect to MongoDB
-
-
-
 const app = express();
 
 const server = http.createServer(app); // Create http server
@@ -60,6 +52,7 @@ const port = process.env.PORT || 3003;
 app.use(cors()); // Use cors middleware
 
 app.use(express.json()); // For parsing application/json
+app.use(express.urlencoded({ extended: true })); // For parsing form submissions
 
 
 
@@ -261,12 +254,17 @@ app.use('/api/messages', messageRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+const startServer = async () => {
+  try {
+    dotenv.config(); // Load environment variables
+    await connectDB(); // Connect to MongoDB before listening
+    server.listen(port, () => {
+      console.log(`Example app listening at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
 
-
-
-
-server.listen(port, () => {
-
-  console.log(`Example app listening at http://localhost:${port}`);
-
-});
+startServer();

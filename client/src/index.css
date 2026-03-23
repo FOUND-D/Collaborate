@@ -19,6 +19,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
 :root {
@@ -48,6 +49,40 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   min-height: 100%;
+  width: 100%;
+}
+
+.app-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+.app-body {
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--bg-base);
+}
+
+.main-content,
+.main-content-shifted {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
 }
 
 @keyframes fadeInUp {
