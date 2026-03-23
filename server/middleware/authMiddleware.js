@@ -1,38 +1,42 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.js');
-const asyncHandler = require('./asyncHandler.js');
 
-const protect = asyncHandler(async (req, res, next) => {
-  let token;
+const protect = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = await User.findById(decoded.id).select('-password').populate('teams');
-
-      if (!req.user) {
-        res.status(401);
-        throw new Error('Not authorized, user not found');
-      }
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401);
-      throw new Error('Not authorized, token failed');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token, not authorized' });
     }
-  }
 
-  if (!token) {
-    res.status(401);
-    throw new Error('Not authorized, no token');
+    const token = authHeader.split(' ')[1];
+
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET env var is not set');
+      return res.status(500).json({ message: 'Server misconfiguration' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select('-password');
+
+    if (!user) {
+      return res.status(401).json({ message: 'User no longer exists' });
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error('protect middleware error:', err.message);
+    if (
+      err.name === 'JsonWebTokenError' ||
+      err.name === 'TokenExpiredError' ||
+      err.name === 'CastError'
+    ) {
+      return res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+    return res.status(500).json({ message: 'Auth middleware error' });
   }
-});
+};
 
 module.exports = { protect };

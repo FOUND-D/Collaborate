@@ -56,8 +56,11 @@ const organisationSchema = new mongoose.Schema(
       },
     ],
     settings: {
-      allowMemberInvites: { type: Boolean, default: false },
-      requireApprovalToJoin: { type: Boolean, default: true },
+      type: Object,
+      default: {
+        allowMemberInvites: false,
+        requireApprovalToJoin: true,
+      },
     },
   },
   { timestamps: true }
