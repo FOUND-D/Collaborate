@@ -20,12 +20,21 @@ const getUserRole = (org, userId) => org.members.find((m) => m.user.toString() =
 
 const createOrganisation = async (req, res, next) => {
   try {
+    console.log('createOrganisation request received');
     if (!req.user || !req.user._id) {
+      console.warn('createOrganisation missing req.user context');
       return res.status(401).json({ message: 'Not authorized, user context missing' });
     }
 
     const body = req.body || {};
     const { name, description = '', logo = '' } = body;
+
+    console.log('createOrganisation payload:', {
+      userId: req.user._id?.toString?.() || req.user._id,
+      hasName: Boolean(name),
+      hasDescription: Boolean(description),
+      hasLogo: Boolean(logo),
+    });
 
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Organisation name is required' });
@@ -47,7 +56,7 @@ const createOrganisation = async (req, res, next) => {
 
     return res.status(201).json(org);
   } catch (err) {
-    console.error(err);
+    console.error('createOrganisation error:', err);
     if (err?.code === 11000) {
       return res.status(409).json({ message: 'Organisation slug already exists' });
     }

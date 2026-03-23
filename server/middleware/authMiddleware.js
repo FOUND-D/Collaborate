@@ -3,6 +3,7 @@ const User = require('../models/User.js');
 
 const protect = async (req, res, next) => {
   try {
+    console.log('protect middleware: auth header present =', Boolean(req.headers.authorization));
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,6 +18,7 @@ const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('protect middleware: token decoded for user id =', decoded.id);
 
     const user = await User.findById(decoded.id).select('-password');
 
