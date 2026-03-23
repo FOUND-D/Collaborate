@@ -16,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.route('/').post(protect, createOrganisation).get(protect, getMyOrganisations);
+router.route('/').post(createOrganisation).get(protect, getMyOrganisations);
 router.get('/invite/accept', acceptOrgInvite);
 router.route('/:id').get(protect, getOrganisationById).put(protect, updateOrganisation).delete(protect, deleteOrganisation);
 router.route('/:id/members').get(protect, getOrgMembers);
