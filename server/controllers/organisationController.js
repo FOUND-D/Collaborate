@@ -20,6 +20,10 @@ const getUserRole = (org, userId) => org.members.find((m) => m.user.toString() =
 
 const createOrganisation = async (req, res, next) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'Not authorized, user context missing' });
+    }
+
     const body = req.body || {};
     const { name, description = '', logo = '' } = body;
 
