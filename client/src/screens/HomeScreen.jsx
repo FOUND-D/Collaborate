@@ -6,6 +6,7 @@ import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCh
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
+import { FaBuilding, FaPlus } from 'react-icons/fa';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -50,99 +51,91 @@ const HomeScreen = () => {
 
 
   return (
-    <div className="home-dashboard-page">
+    <div className="dashboard-page">
       {!currentOrg && (
         <div className="onboarding-banner">
-          <div className="onboarding-banner-text">
-            <h3>You're not part of any organisation yet</h3>
-            <p>Create or join one to unlock team collaboration, projects, and more.</p>
+          <div className="onboarding-banner-left">
+            <div className="onboarding-banner-icon"><FaBuilding /></div>
+            <div className="onboarding-banner-text">
+              <h3 className="onboarding-banner-title">You're not part of any organisation yet</h3>
+              <p className="onboarding-banner-sub">Create or join one to unlock team collaboration, projects, and more.</p>
+            </div>
           </div>
-          <Link to="/organisations/create" className="onboarding-banner-btn">Create Organisation</Link>
+          <Link to="/organisations/create" className="onboarding-banner-btn"><FaPlus /> Create Organisation</Link>
         </div>
       )}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1 className="welcome-title">
-            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'},
-            <span className="user-name"> {userInfo ? userInfo.name.split(' ')[0] : 'Guest'}</span>
-          </h1>
-          <p className="welcome-subtitle">
-            Here's what's happening in your workspace today.
-          </p>
-        </div>
-        <div className="header-date">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+      <div className="dashboard-greeting">
+        <div className="dashboard-greeting-top">
+          <div>
+            <h1 className="dashboard-title">
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'},
+              <span className="name-accent"> {userInfo ? userInfo.name.split(' ')[0] : 'Guest'}</span>
+            </h1>
+            <p className="dashboard-subtitle">
+              Here's what's happening in your workspace today.
+            </p>
+          </div>
+          <div className="dashboard-date-badge">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </div>
         </div>
       </div>
+      <div className="dashboard-divider" />
 
-      {/* Stats Row */}
-      <div className="stats-grid">
-        <div className="stat-card blue-gradient">
-          <div className="stat-icon-wrapper">
+      <div className="stat-cards-row">
+        <div className="stat-card">
+          <div className="stat-icon-box blue">
             <FaProjectDiagram />
           </div>
-          <div className="stat-content">
-            <span className="stat-value">{stats.projectCount}</span>
-            <span className="stat-label">Active Projects</span>
+          <div>
+            <div className="stat-value">{stats.projectCount}</div>
+            <div className="stat-label">Active Projects</div>
           </div>
         </div>
-
-        <div className="stat-card purple-gradient">
-          <div className="stat-icon-wrapper">
+        <div className="stat-card">
+          <div className="stat-icon-box purple">
             <FaClipboardList />
           </div>
-          <div className="stat-content">
-            <span className="stat-value">{stats.taskCount}</span>
-            <span className="stat-label">Pending Tasks</span>
+          <div>
+            <div className="stat-value">{stats.taskCount}</div>
+            <div className="stat-label">Pending Tasks</div>
           </div>
         </div>
-
-        <div className="stat-card green-gradient">
-          <div className="stat-icon-wrapper">
+        <div className="stat-card">
+          <div className="stat-icon-box green">
             <FaCheckCircle />
           </div>
-          <div className="stat-content">
-            <span className="stat-value">{stats.completionRate}%</span>
-            <span className="stat-label">Completion Rate</span>
+          <div>
+            <div className="stat-value">{stats.completionRate}%</div>
+            <div className="stat-label">Completion Rate</div>
           </div>
         </div>
       </div>
 
-      <h2 className="section-heading">Quick Actions</h2>
+      <div className="section-header-row">
+        <div className="section-header-bar" />
+        <div className="section-header-title">Quick Actions</div>
+      </div>
 
-      <div className="action-cards-grid">
-        <Link to="/projects/ongoing" className="action-card">
-          <FaProjectDiagram className="action-card-icon" />
-          <h3 className="action-card-title">View Ongoing Projects</h3>
-          <p className="action-card-description">
-            Jump back into your projects and see what's new.
-          </p>
-          <span className="action-card-link">
-            Go to Projects <FaArrowRight />
-          </span>
+      <div className="quick-actions-grid">
+        <Link to="/projects/ongoing" className="quick-card">
+          <div className="quick-card-icon-wrap blue"><FaProjectDiagram /></div>
+          <h3 className="quick-card-title">View Ongoing Projects</h3>
+          <p className="quick-card-desc">Jump back into your projects and see what's new.</p>
+          <span className="quick-card-link blue">Go to Projects <FaArrowRight /></span>
         </Link>
-
-        <Link to="/teams" className="action-card">
-          <FaUsers className="action-card-icon" />
-          <h3 className="action-card-title">Manage Your Teams</h3>
-          <p className="action-card-description">
-            Collaborate with your team members and manage roles.
-          </p>
-          <span className="action-card-link">
-            Go to Teams <FaArrowRight />
-          </span>
+        <Link to="/teams" className="quick-card">
+          <div className="quick-card-icon-wrap purple"><FaUsers /></div>
+          <h3 className="quick-card-title">Manage Your Teams</h3>
+          <p className="quick-card-desc">Collaborate with your team members and manage roles.</p>
+          <span className="quick-card-link purple">Go to Teams <FaArrowRight /></span>
         </Link>
-
         {userInfo && (
-          <Link to="/project/create" className="action-card ai-card">
-            <FaMagic className="action-card-icon" />
-            <h3 className="action-card-title">Create Project with AI</h3>
-            <p className="action-card-description">
-              Let our AI assistant build a project plan for you.
-            </p>
-            <span className="action-card-link">
-              Start Now <FaArrowRight />
-            </span>
+          <Link to="/project/create" className="quick-card">
+            <div className="quick-card-icon-wrap blue"><FaMagic /></div>
+            <h3 className="quick-card-title">Create Project with AI</h3>
+            <p className="quick-card-desc">Let our AI assistant build a project plan for you.</p>
+            <span className="quick-card-link blue">Start Now <FaArrowRight /></span>
           </Link>
         )}
       </div>

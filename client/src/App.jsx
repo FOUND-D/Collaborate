@@ -102,7 +102,7 @@ const AppContent = () => {
     }
   };
 
-  const mainContentClass = `main-content ${getShiftClass()} ${isChatOpen ? 'chat-open' : ''}`;
+  const mainContentClass = `main-content app-main ${getShiftClass()} ${isChatOpen ? 'chat-open' : ''}`;
 
   return (
     <div className="app-layout">

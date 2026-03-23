@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
+import { FaArrowRight, FaBuilding, FaPlus } from 'react-icons/fa';
 import { listMyOrganisations } from '../actions/organisationActions';
+import '../styles/auth.css';
+import './OrganisationScreens.css';
 
 const OrganisationsScreen = () => {
   const dispatch = useDispatch();
@@ -15,29 +17,37 @@ const OrganisationsScreen = () => {
   }, [dispatch]);
 
   return (
-    <div className="home-dashboard-page">
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1 className="welcome-title">Your Organisations</h1>
-          <p className="welcome-subtitle">Create or open an organisation to manage teams and projects.</p>
+    <div className="orgs-page">
+      <div className="orgs-page-header">
+        <div>
+          <h1>Your Organisations</h1>
+          <p>Create or open an organisation to manage teams and projects.</p>
         </div>
-        <button className="onboarding-banner-btn" onClick={() => navigate('/organisations/create')}>
-          <FaPlus /> Create Organisation
-        </button>
+        <button className="btn-create" onClick={() => navigate('/organisations/create')}><FaPlus /> Create Organisation</button>
       </div>
       {loading ? null : organisations.length === 0 ? (
-        <div className="onboarding-banner">
-          <div className="onboarding-banner-text">
-            <h3>No organisations yet</h3>
-            <p>Create your first organisation to start collaborating with your team.</p>
-          </div>
+        <div className="empty-state">
+          <div className="empty-state-icon"><FaBuilding /></div>
+          <div className="empty-state-title">No organisations yet</div>
+          <div className="empty-state-sub">Create your first organisation to start collaborating with your team.</div>
+          <button className="btn-create" onClick={() => navigate('/organisations/create')}><FaPlus /> Create Organisation</button>
         </div>
       ) : (
-        <div className="action-cards-grid">
+        <div className="orgs-grid">
           {organisations.map((org) => (
-            <div key={org._id} className="action-card" onClick={() => navigate(`/organisations/${org._id}`)}>
-              <h3 className="action-card-title">{org.name}</h3>
-              <p className="action-card-description">{org.slug}</p>
+            <div key={org._id} className="org-card" onClick={() => navigate(`/organisations/${org._id}`)}>
+              <div className="org-card-header">
+                <div className="org-card-avatar">{org.name.charAt(0).toUpperCase()}</div>
+                <div className="org-card-title">
+                  <div className="org-card-name">{org.name}</div>
+                  <div className="org-card-slug">{org.slug}</div>
+                </div>
+                <div className={`org-card-role ${org.role || 'member'}`}>{org.role || 'member'}</div>
+              </div>
+              <div className="org-card-stats">
+                <div className="org-stat"><div className="org-stat-value">{org.members?.length || 0}</div><div className="org-stat-label">Members</div></div>
+                <div className="org-stat"><div className="org-stat-value">{org.teams?.length || 0}</div><div className="org-stat-label">Teams</div></div>
+              </div>
             </div>
           ))}
         </div>

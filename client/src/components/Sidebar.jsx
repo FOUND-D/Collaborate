@@ -3,18 +3,15 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaSun, FaMoon, FaBook } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
-import { useTheme } from '../context/ThemeContext';
-import { BACKEND_URL } from '../config/runtime';
 import OrgSwitcher from './OrgSwitcher';
+import { BACKEND_URL } from '../config/runtime';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { theme, toggleTheme, isDark } = useTheme();
-
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
@@ -23,106 +20,82 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
     navigate('/', { replace: true });
   };
 
-  // The NavLink `className` prop can accept a function to conditionally apply classes.
-  const getNavLinkClass = ({ isActive }) => {
-    return isActive ? 'nav-item active' : 'nav-item';
-  };
+  const getNavLinkClass = ({ isActive }) => (isActive ? 'nav-item active' : 'nav-item');
+  const collapsed = !isSidebarOpen;
 
   return (
     <>
       <UserGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
-      <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+      <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'} ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <div className="header-left">
-            <button className="sidebar-toggle" onClick={toggleSidebar}>
-              {isSidebarOpen ? <FaTimes /> : <FaBars />}
-            </button>
-            {isSidebarOpen && <h2 className="app-title">Collaborate</h2>}
+          <div className="sidebar-logo-row">
+            <div className="sidebar-logo-icon"><FaBuilding color="#fff" size={12} /></div>
+            <span className="sidebar-logo-text">Collaborate</span>
           </div>
-          {isSidebarOpen && (
-            <button className="user-guide-btn-header" onClick={() => setIsGuideOpen(true)} title="User Guide">
-              <FaBook className="user-guide-icon" />
-              <span className="user-guide-text"></span>
-            </button>
-          )}
-
+          <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
+            {isSidebarOpen ? <FaTimes /> : <FaBars />}
+          </button>
         </div>
 
-        <OrgSwitcher collapsed={!isSidebarOpen} />
+        <OrgSwitcher collapsed={collapsed} />
 
+        <div className="sidebar-section-label">Workspace</div>
         <nav className="sidebar-nav">
           <NavLink to="/dashboard" end className={getNavLinkClass}>
-            <FaTachometerAlt />
-            <span className="nav-text">Dashboard</span>
-            {!isSidebarOpen && <span className="tooltip">Dashboard</span>}
+            <FaTachometerAlt className="nav-item-icon" />
+            <span className="nav-item-label">Dashboard</span>
           </NavLink>
           <NavLink to="/projects" className={getNavLinkClass}>
-            <FaFolder />
-            <span className="nav-text">Projects</span>
-            {!isSidebarOpen && <span className="tooltip">Projects</span>}
+            <FaFolder className="nav-item-icon" />
+            <span className="nav-item-label">Projects</span>
           </NavLink>
           <NavLink to="/teams" className={getNavLinkClass}>
-            <FaUsers />
-            <span className="nav-text">Teams</span>
-            {!isSidebarOpen && <span className="tooltip">Teams</span>}
+            <FaUsers className="nav-item-icon" />
+            <span className="nav-item-label">Teams</span>
           </NavLink>
           <NavLink to="/tasks" className={getNavLinkClass}>
-            <FaTasks />
-            <span className="nav-text">Tasks</span>
-            {!isSidebarOpen && <span className="tooltip">Tasks</span>}
+            <FaTasks className="nav-item-icon" />
+            <span className="nav-item-label">Tasks</span>
           </NavLink>
           <button className="nav-item" onClick={toggleChat}>
-            <FaComments />
-            <span className="nav-text">Chat</span>
-            {!isSidebarOpen && <span className="tooltip">Chat</span>}
+            <FaComments className="nav-item-icon" />
+            <span className="nav-item-label">Chat</span>
           </button>
-
-          <NavLink to="/settings" className={getNavLinkClass}>
-            <FaCog />
-            <span className="nav-text">Settings</span>
-            {!isSidebarOpen && <span className="tooltip">Settings</span>}
-          </NavLink>
-          <NavLink to="/organisations" className={getNavLinkClass}>
-            <FaUsers />
-            <span className="nav-text">Organisations</span>
-            {!isSidebarOpen && <span className="tooltip">Organisations</span>}
-          </NavLink>
         </nav>
 
-        {userInfo && (
-          <div className="sidebar-footer sidebar-bottom-section">
-            <NavLink to="/profile" className="user-profile-link" title="Profile">
-              <div className="user-avatar">
+        <div style={{ flex: 1 }} />
+
+        <div className="sidebar-section-label">Account</div>
+        <NavLink to="/organisations" className={getNavLinkClass}>
+          <FaBuilding className="nav-item-icon" />
+          <span className="nav-item-label">Organisations</span>
+        </NavLink>
+        <NavLink to="/settings" className={getNavLinkClass}>
+          <FaCog className="nav-item-icon" />
+          <span className="nav-item-label">Settings</span>
+        </NavLink>
+
+        <div className="sidebar-bottom">
+          {userInfo && (
+            <NavLink to="/profile" className="sidebar-user-row">
+              <div className="sidebar-user-avatar">
                 {userInfo.profileImage ? (
                   <img
-                    src={
-                      userInfo.profileImage.startsWith('data:image')
-                        ? userInfo.profileImage
-                        : `${BACKEND_URL}${userInfo.profileImage}`
-                    }
+                    src={userInfo.profileImage.startsWith('data:image') ? userInfo.profileImage : `${BACKEND_URL}${userInfo.profileImage}`}
                     alt={userInfo.name}
                   />
                 ) : (
                   userInfo.name.charAt(0).toUpperCase()
                 )}
               </div>
-              {isSidebarOpen && <span className="user-name">{userInfo.name}</span>}
+              <span className="sidebar-user-name">{userInfo.name}</span>
             </NavLink>
-            <button className="logout-button" onClick={logoutHandler} title="Logout">
-              <FaSignOutAlt />
-              {isSidebarOpen && <span className="logout-text">Logout</span>}
-            </button>
-            <button
-              className="theme-toggle-button theme-toggle"
-              onClick={toggleTheme}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {isDark ? <FaSun className="theme-icon sun" /> : <FaMoon className="theme-icon moon" />}
-              {isSidebarOpen && <span className="theme-text theme-toggle-label">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
-              {!isSidebarOpen && <span className="tooltip">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
-            </button>
-          </div>
-        )}
+          )}
+          <button className="sidebar-logout-btn" onClick={logoutHandler}>
+            <FaSignOutAlt className="nav-item-icon" />
+            <span className="sidebar-logout-label">Logout</span>
+          </button>
+        </div>
       </div>
     </>
   );
