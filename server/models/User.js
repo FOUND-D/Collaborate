@@ -31,6 +31,12 @@ const userSchema = mongoose.Schema(
         ref: 'Team',
       },
     ],
+    organisations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organisation',
+      },
+    ],
     reputationScore: {
         type: Number,
         default: 0,

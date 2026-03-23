@@ -1,0 +1,46 @@
+.register-page .login-left-quote {
+  max-width: 360px;
+}
+
+.register-form-container {
+  max-width: 420px;
+}
+
+.file-upload {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-upload:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+
+.file-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-upload span {
+  pointer-events: none;
+}
+
+.register-page .login-form-container {
+  max-width: 420px;
+}

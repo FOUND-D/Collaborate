@@ -56,7 +56,7 @@
   --transition-smooth: 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Typography */
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'DM Sans', 'Inter', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 

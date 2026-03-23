@@ -64,6 +64,8 @@ const TeamScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const orgCurrent = useSelector((state) => state.orgCurrent);
+  const currentOrg = orgCurrent.organisation;
 
   useEffect(() => {
     dispatch({ type: TEAM_CREATE_RESET });
@@ -106,7 +108,7 @@ const TeamScreen = () => {
 
   const submitCreateTeamHandler = (e) => {
     e.preventDefault();
-    dispatch(createTeam(createTeamName));
+    dispatch(createTeam(createTeamName, currentOrg?._id));
   };
 
   const submitJoinTeamHandler = (e) => {
@@ -130,6 +132,12 @@ const TeamScreen = () => {
 
   return (
     <div className="teams-dashboard-page">
+      {currentOrg && (
+        <div className="teams-context-bar">
+          <span className="teams-context-label">Teams in</span>
+          <span className="teams-context-org">{currentOrg.name}</span>
+        </div>
+      )}
       <div className="project-hero-header">
         <h1 className="project-detail-title">Your Teams</h1>
         <p className="project-detail-goal">

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'; // Add useDispatch
 import Sidebar from './components/Sidebar';
+import LandingPage from './screens/LandingPage';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import TeamScreen from './screens/TeamScreen';
@@ -16,6 +17,10 @@ import ProfileScreen from './screens/ProfileScreen';
 import MeetingScreen from './screens/MeetingScreen';
 import ChatScreen from './screens/ChatScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import OrganisationsScreen from './screens/OrganisationsScreen';
+import CreateOrganisationScreen from './screens/CreateOrganisationScreen';
+import OrganisationDetailScreen from './screens/OrganisationDetailScreen';
+import AcceptInviteScreen from './screens/AcceptInviteScreen';
 import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
@@ -23,15 +28,29 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { logout } from './actions/userActions'; // Import logout
 import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
 
+const ProtectedRoute = ({ children }) => {
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+  const location = useLocation();
+
+  if (!userInfo) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return children;
+};
+
 // Inner App component that uses theme context
 const AppContent = () => {
   const dispatch = useDispatch(); // Initialize dispatch
   const { theme } = useTheme();
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const isPublicRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
   // Cross-tab Login Synchronization
   useEffect(() => {
@@ -73,6 +92,9 @@ const AppContent = () => {
   };
 
   const getShiftClass = () => {
+    if (isPublicRoute) {
+      return 'public-route';
+    }
     if (isMobile) {
       return isSidebarOpen ? 'main-content-shifted' : '';
     } else {
@@ -83,15 +105,14 @@ const AppContent = () => {
   const mainContentClass = `main-content ${getShiftClass()} ${isChatOpen ? 'chat-open' : ''}`;
 
   return (
-    <Router>
-      <div className="app-layout">
+    <div className="app-layout">
         {/* Mobile-only toggle button (visible when sidebar is closed on mobile) */}
-        {isMobile && !isSidebarOpen && (
+        {!isPublicRoute && isMobile && !isSidebarOpen && (
           <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
             <FaBars />
           </button>
         )}
-        <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} toggleChat={toggleChat} />
+        {!isPublicRoute && <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} toggleChat={toggleChat} />}
         <div className="app-body">
           <div className={mainContentClass}>
             {status === SERVER_STATUS_OFFLINE && (
@@ -100,7 +121,9 @@ const AppContent = () => {
               </div>
             )}
             <Routes>
-              <Route path="/" element={<HomeScreen />} exact />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/dashboard" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
+              <Route path="/projects" element={<ProtectedRoute><OngoingProjectsScreen /></ProtectedRoute>} />
               <Route path="/login" element={<LoginScreen />} />
               <Route path="/register" element={<RegisterScreen />} />
               <Route path="/teams" element={<TeamScreen />} />
@@ -116,12 +139,16 @@ const AppContent = () => {
               <Route path="/settings" element={<SettingsScreen />} />
               <Route path="/chat" element={<ChatScreen />} />
               <Route path="/chat/:id" element={<ChatScreen />} />
+              <Route path="/organisations" element={<ProtectedRoute><OrganisationsScreen /></ProtectedRoute>} />
+              <Route path="/organisations/create" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
+              <Route path="/organisations/:id" element={<ProtectedRoute><OrganisationDetailScreen /></ProtectedRoute>} />
+              <Route path="/invite/accept" element={<AcceptInviteScreen />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
           {isChatOpen && <ChatDocked onClose={toggleChat} />}
         </div>
-      </div>
-    </Router>
+    </div>
   );
 };
 
@@ -129,7 +156,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </ThemeProvider>
   );
 };

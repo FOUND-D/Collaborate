@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock } from 'react-icons/fa';
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
+import { listMyOrganisations } from '../actions/organisationActions';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,9 @@ const HomeScreen = () => {
 
   const taskList = useSelector((state) => state.taskList);
   const { tasks } = taskList;
+  const orgCurrent = useSelector((state) => state.orgCurrent);
+  const orgList = useSelector((state) => state.orgList);
+  const currentOrg = orgCurrent.organisation || orgList.organisations?.[0];
 
   // Animation state for numbers
   const [stats, setStats] = useState({ projectCount: 0, taskCount: 0, completionRate: 0 });
@@ -24,6 +28,7 @@ const HomeScreen = () => {
     if (userInfo) {
       dispatch(listProjects());
       dispatch(listTasks());
+      dispatch(listMyOrganisations());
     }
   }, [dispatch, userInfo]);
 
@@ -46,6 +51,15 @@ const HomeScreen = () => {
 
   return (
     <div className="home-dashboard-page">
+      {!currentOrg && (
+        <div className="onboarding-banner">
+          <div className="onboarding-banner-text">
+            <h3>You're not part of any organisation yet</h3>
+            <p>Create or join one to unlock team collaboration, projects, and more.</p>
+          </div>
+          <Link to="/organisations/create" className="onboarding-banner-btn">Create Organisation</Link>
+        </div>
+      )}
       <div className="dashboard-header">
         <div className="header-content">
           <h1 className="welcome-title">

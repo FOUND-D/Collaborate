@@ -1,0 +1,49 @@
+From cbb5f6edebf9913834332bdc15a78379e33ba6b5 Mon Sep 17 00:00:00 2001
+From: ArinDixit06 <id2013663@gmail.com>
+Date: Thu, 19 Mar 2026 12:36:11 +0530
+Subject: [PATCH 2/2] Switch client defaults back to production URLs
+
+---
+ client/src/config/runtime.js | 6 +++---
+ client/vite.config.js        | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/client/src/config/runtime.js b/client/src/config/runtime.js
+index 19bd594..d4069de 100644
+--- a/client/src/config/runtime.js
++++ b/client/src/config/runtime.js
+@@ -15,13 +15,13 @@ const normalizeUrl = (value) => {
+ };
+ 
+ export const BACKEND_URL =
+-  normalizeUrl(import.meta.env.VITE_API_URL) || LOCAL_URLS.api;
++  normalizeUrl(import.meta.env.VITE_API_URL) || PRODUCTION_URLS.api;
+ 
+ export const SOCKET_URL =
+-  normalizeUrl(import.meta.env.VITE_SOCKET_URL) || LOCAL_URLS.socket;
++  normalizeUrl(import.meta.env.VITE_SOCKET_URL) || PRODUCTION_URLS.socket;
+ 
+ export const MCP_GATEWAY_URL =
+-  normalizeUrl(import.meta.env.VITE_MCP_GATEWAY_URL) || LOCAL_URLS.mcpGateway;
++  normalizeUrl(import.meta.env.VITE_MCP_GATEWAY_URL) || PRODUCTION_URLS.mcpGateway;
+ 
+ export const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 15000;
+ 
+diff --git a/client/vite.config.js b/client/vite.config.js
+index d0fdc5c..0599934 100644
+--- a/client/vite.config.js
++++ b/client/vite.config.js
+@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
+ 
+ export default defineConfig(({ mode }) => {
+   const env = loadEnv(mode, process.cwd(), '');
+-  const backendTarget = env.VITE_API_URL || 'http://localhost:3002';
+-  const socketTarget = env.VITE_SOCKET_URL || 'http://localhost:3002';
++  const backendTarget = env.VITE_API_URL || 'https://collaborate-arin.onrender.com';
++  const socketTarget = env.VITE_SOCKET_URL || 'https://collaborate-arin.onrender.com';
+ 
+   return {
+     plugins: [react()],
+-- 
+2.50.0.windows.1
+

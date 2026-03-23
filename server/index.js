@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const organisationRoutes = require('./routes/organisationRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 const { protect } = require('./middleware/authMiddleware');
@@ -248,6 +249,7 @@ app.use('/api/users', userRoutes);
 
 
 app.use('/api/teams', teamRoutes);
+app.use('/api/organisations', organisationRoutes);
 
 
 

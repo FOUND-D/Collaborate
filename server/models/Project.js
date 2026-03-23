@@ -19,6 +19,12 @@ const projectSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Team',
     },
+    organisation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organisation',
+      required: false,
+      default: null,
+    },
     tasks: [
       {
         type: mongoose.Schema.Types.ObjectId,

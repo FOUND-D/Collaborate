@@ -28,6 +28,12 @@ const teamSchema = mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
+    organisation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organisation',
+      required: false,
+      default: null,
+    },
     pendingJoinRequests: [
       {
         type: mongoose.Schema.Types.ObjectId,

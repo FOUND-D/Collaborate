@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload } from 'react-icons/fa';
 import api from '../utils/api';
 import { register } from '../actions/userActions';
-// import FormContainer from '../components/FormContainer'; // Removed
-import AuthLayout from '../components/AuthLayout'; // New import
 import Loader from '../components/Loader';
+import '../styles/auth.css';
 
-const RegisterScreen = () => { // Remove location and history props
+const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState(null);
   const [image, setImage] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const dispatch = useDispatch();
-  const location = useLocation(); // Use useLocation hook
-  const navigate = useNavigate(); // Use useNavigate hook
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -26,10 +30,19 @@ const RegisterScreen = () => { // Remove location and history props
   const userRegister = useSelector((state) => state.userRegister);
   const { loading, error } = userRegister;
 
-  const redirect = location.search ? location.search.split('=')[1] : '/';
+  const redirect = location.search ? location.search.split('=')[1] : '/dashboard';
 
-  const uploadFileHandler = async (e) => {
+  useEffect(() => {
+    if (userInfo) {
+      navigate(redirect, { replace: true });
+    }
+  }, [navigate, userInfo, redirect]);
+
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    setPreviewUrl(URL.createObjectURL(file));
     const formData = new FormData();
     formData.append('image', file);
     setUploading(true);
@@ -40,105 +53,206 @@ const RegisterScreen = () => { // Remove location and history props
           'Content-Type': 'multipart/form-data',
         },
       };
-
       const { data } = await api.post('/api/upload', formData, config);
-
       setImage(data);
-      setUploading(false);
-    } catch (error) {
-      console.error(error);
+    } finally {
       setUploading(false);
     }
   };
-
-  useEffect(() => {
-    if (userInfo) {
-      navigate(redirect); // Use navigate instead of history.push
-    }
-  }, [navigate, userInfo, redirect]); // Update dependencies
 
   const submitHandler = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
-    } else {
-      dispatch(register(name, email, password, image));
+      return;
     }
+
+    setMessage(null);
+    dispatch(register(name, email, password, image));
   };
 
   return (
-    <AuthLayout>
-      <div className="auth-form-content">
-        <h1 className="auth-title">Sign Up</h1>
-        {message && <h3 className="auth-error-message">{message}</h3>}
-        {error && <h3 className="auth-error-message">{error}</h3>}
-        {loading && <h3 className="auth-loading-message">Loading...</h3>}
-        <form onSubmit={submitHandler} className="auth-form">
-          <div className="form-group floating-label">
-            <input
-              type="text" // Changed from 'name' to 'text' as 'name' is not a standard HTML type for text input
-              id="name"
-              placeholder=" "
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="form-input"
-            />
-            <label htmlFor="name">Name</label>
-          </div>
-          <div className="form-group floating-label">
-            <input
-              type="email"
-              id="email"
-              placeholder=" "
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="form-input"
-            />
-            <label htmlFor="email">Email Address</label>
-          </div>
-          <div className="form-group floating-label">
-            <input
-              type="password"
-              id="password"
-              placeholder=" "
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="form-input"
-            />
-            <label htmlFor="password">Password</label>
-          </div>
-          <div className="form-group floating-label">
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder=" "
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="form-input"
-            />
-            <label htmlFor="confirmPassword">Confirm Password</label>
-          </div>
-          <div className="form-group">
-            <label htmlFor="image">Profile Image (Optional)</label>
-            <input
-              type="file"
-              id="image-file"
-              label="Choose File"
-              custom
-              onChange={uploadFileHandler}
-            />
-            {uploading && <Loader />}
-          </div>
-          <button type="submit" className="btn btn-primary btn-full-width">Register</button>
-        </form>
-        <div className="auth-link-container">
-          Have an Account?{' '}
-          <Link to={redirect ? `/login?redirect=${redirect}` : '/login'} className="auth-link">
-            Login
+    <div className="auth-page">
+      <aside className="auth-left">
+        <div className="auth-left-top">
+          <Link to="/" className="auth-logo">
+            <span className="auth-logo-icon" />
+            <span>Collaborate</span>
           </Link>
         </div>
-      </div>
-    </AuthLayout>
+
+        <div className="auth-left-body">
+          <p className="auth-left-eyebrow">Trusted by teams at</p>
+          <div className="auth-left-companies">
+            <span>Acme</span>
+            <span>Lightspeed</span>
+            <span>Vertex</span>
+            <span>NovaCo</span>
+          </div>
+          <blockquote className="auth-left-quote">
+            "Finally a tool where our whole team actually stays on the same page."
+          </blockquote>
+          <div className="auth-left-attribution">
+            <div className="auth-attribution-avatar" style={{ background: '#3b82f6' }}>S</div>
+            <div>
+              <p className="auth-attribution-name">Sarah K.</p>
+              <p className="auth-attribution-role">Head of Product, Vertex</p>
+            </div>
+          </div>
+          <ul className="auth-feature-list">
+            <li>AI-assisted project planning</li>
+            <li>Real-time team collaboration</li>
+            <li>Unified tasks, chat, and reporting</li>
+          </ul>
+        </div>
+
+        <div className="auth-left-bottom">
+          <div className="auth-avatar-stack">
+            <div className="auth-avatar" style={{ background: '#3b82f6' }}>A</div>
+            <div className="auth-avatar" style={{ background: '#8b5cf6' }}>M</div>
+            <div className="auth-avatar" style={{ background: '#10b981' }}>S</div>
+            <div className="auth-avatar" style={{ background: '#f59e0b' }}>R</div>
+            <div className="auth-avatar auth-avatar-count">+2k</div>
+          </div>
+          <p className="auth-proof-text">Join <strong>2,000+</strong> teams already using Collaborate</p>
+        </div>
+      </aside>
+
+      <section className="auth-right">
+        <div className="auth-form-wrap">
+          <div className="auth-form-header">
+            <h1>Create your account</h1>
+            <p>Already have an account? <Link to="/login">Log in</Link>.</p>
+          </div>
+
+          {message && <div className="field-error-msg">{message}</div>}
+          {error && <div className="field-error-msg">{error}</div>}
+
+          <form className="auth-form" onSubmit={submitHandler}>
+            <div className="field-group">
+              <label className="field-label" htmlFor="name">Full name</label>
+              <input
+                id="name"
+                type="text"
+                className="field-input"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="email">Work email</label>
+              <input
+                id="email"
+                type="email"
+                className="field-input"
+                placeholder="Enter your work email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="password">Password</label>
+              <div className="field-input-wrap">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="field-input"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="field-toggle-btn"
+                  onClick={() => setShowPassword((value) => !value)}
+                >
+                  {showPassword ? <FaEyeSlash size={15} /> : <FaEye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="confirmPassword">Confirm password</label>
+              <div className="field-input-wrap">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  className="field-input"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="field-toggle-btn"
+                  onClick={() => setShowConfirmPassword((value) => !value)}
+                >
+                  {showConfirmPassword ? <FaEyeSlash size={15} /> : <FaEye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="image-file">
+                Profile image <span className="field-optional">(optional)</span>
+              </label>
+              <div
+                className={`upload-zone ${previewUrl ? 'has-preview' : ''}`}
+                onClick={() => fileInputRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+              >
+                {previewUrl ? (
+                  <>
+                    <img src={previewUrl} className="upload-preview-img" alt="preview" />
+                    <span className="upload-preview-label">Click to change</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="upload-icon"><FaUpload size={13} /></div>
+                    <span className="upload-label">Upload a photo</span>
+                    <span className="upload-sublabel">PNG, JPG up to 2MB</span>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  id="image-file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+              </div>
+              {uploading && <Loader />}
+            </div>
+
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? 'Creating account...' : <>Create account <FaArrowRight className="btn-arrow" /></>}
+            </button>
+
+            <div className="auth-divider"><span>or continue with</span></div>
+
+            <button type="button" className="auth-google-btn">
+              <FaGoogle size={14} /> Google
+            </button>
+          </form>
+
+          <p className="auth-switch-text">
+            Already have an account? <Link to="/login">Log in</Link>
+          </p>
+
+          <p className="auth-terms">
+            By creating an account, you agree to our{' '}
+            <a href="/terms">Terms of Service</a> and{' '}
+            <a href="/privacy">Privacy Policy</a>.
+          </p>
+        </div>
+      </section>
+    </div>
   );
 };
 

@@ -2,6 +2,7 @@ const Team = require('../models/Team');
 const User = require('../models/User');
 const Task = require('../models/Task');
 const Project = require('../models/Project');
+const Organisation = require('../models/Organisation');
 const asyncHandler = require('../middleware/asyncHandler');
 
 // @desc    Get a team by its ID
@@ -28,12 +29,26 @@ const getTeamById = asyncHandler(async (req, res) => {
 // @route   POST /api/teams
 // @access  Private
 const createTeam = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, organisation } = req.body;
+
+  if (organisation) {
+    const org = await Organisation.findById(organisation);
+    if (!org) {
+      res.status(404);
+      throw new Error('Organisation not found');
+    }
+    const member = org.members.find((m) => m.user.toString() === req.user._id.toString());
+    if (!member || !['owner', 'admin'].includes(member.role)) {
+      res.status(403);
+      throw new Error('Not authorized to create team in this organisation');
+    }
+  }
 
   const team = new Team({
     name,
     owner: req.user._id,
     members: [req.user._id],
+    organisation: organisation || null,
   });
 
   const createdTeam = await team.save();
@@ -44,6 +59,10 @@ const createTeam = asyncHandler(async (req, res) => {
     { $addToSet: { teams: createdTeam._id } },
     { new: true } // Return the updated document
   );
+
+  if (organisation) {
+    await Organisation.findByIdAndUpdate(organisation, { $addToSet: { teams: createdTeam._id } });
+  }
 
   res.status(201).json(createdTeam);
 });

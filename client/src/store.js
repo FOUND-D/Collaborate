@@ -42,6 +42,15 @@ import {
   messageMarkReadReducer,
   messageSendReducer, // Import messageSendReducer
 } from './reducers/messageReducers'; // Import message reducers
+import {
+  orgCreateReducer,
+  orgListReducer,
+  orgDetailsReducer,
+  orgUpdateReducer,
+  orgDeleteReducer,
+  orgInviteReducer,
+  orgCurrentReducer,
+} from './reducers/organisationReducers';
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -49,7 +58,7 @@ const persistConfig = {
   storage,
   // IMPORTANT: We only whitelist 'userLogin' so the user stays logged in.
   // We usually don't persist lists (like 'taskList') because we want fresh data from the server.
-  whitelist: ['userLogin'], 
+  whitelist: ['userLogin', 'orgCurrent'], 
 };
 
 const rootReducer = combineReducers({
@@ -80,6 +89,13 @@ const rootReducer = combineReducers({
   messageList: messageListReducer, // Add messageListReducer
   messageMarkRead: messageMarkReadReducer,
   messageSend: messageSendReducer, // Add messageSendReducer
+  orgCreate: orgCreateReducer,
+  orgList: orgListReducer,
+  orgDetails: orgDetailsReducer,
+  orgUpdate: orgUpdateReducer,
+  orgDelete: orgDeleteReducer,
+  orgInvite: orgInviteReducer,
+  orgCurrent: orgCurrentReducer,
 });
 
 // 4. Wrap your root reducer with the persist function

@@ -7,6 +7,7 @@ import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, Fa
 import UserGuideModal from './UserGuideModal';
 import { useTheme } from '../context/ThemeContext';
 import { BACKEND_URL } from '../config/runtime';
+import OrgSwitcher from './OrgSwitcher';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -19,7 +20,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
 
   const logoutHandler = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   // The NavLink `className` prop can accept a function to conditionally apply classes.
@@ -47,13 +48,15 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
 
         </div>
 
+        <OrgSwitcher collapsed={!isSidebarOpen} />
+
         <nav className="sidebar-nav">
-          <NavLink to="/" end className={getNavLinkClass}>
+          <NavLink to="/dashboard" end className={getNavLinkClass}>
             <FaTachometerAlt />
             <span className="nav-text">Dashboard</span>
             {!isSidebarOpen && <span className="tooltip">Dashboard</span>}
           </NavLink>
-          <NavLink to="/projects/ongoing" className={getNavLinkClass}>
+          <NavLink to="/projects" className={getNavLinkClass}>
             <FaFolder />
             <span className="nav-text">Projects</span>
             {!isSidebarOpen && <span className="tooltip">Projects</span>}
@@ -79,10 +82,15 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <span className="nav-text">Settings</span>
             {!isSidebarOpen && <span className="tooltip">Settings</span>}
           </NavLink>
+          <NavLink to="/organisations" className={getNavLinkClass}>
+            <FaUsers />
+            <span className="nav-text">Organisations</span>
+            {!isSidebarOpen && <span className="tooltip">Organisations</span>}
+          </NavLink>
         </nav>
 
         {userInfo && (
-          <div className="sidebar-footer">
+          <div className="sidebar-footer sidebar-bottom-section">
             <NavLink to="/profile" className="user-profile-link" title="Profile">
               <div className="user-avatar">
                 {userInfo.profileImage ? (
@@ -105,12 +113,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
               {isSidebarOpen && <span className="logout-text">Logout</span>}
             </button>
             <button
-              className="theme-toggle-button"
+              className="theme-toggle-button theme-toggle"
               onClick={toggleTheme}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {isDark ? <FaSun className="theme-icon sun" /> : <FaMoon className="theme-icon moon" />}
-              {isSidebarOpen && <span className="theme-text">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
+              {isSidebarOpen && <span className="theme-text theme-toggle-label">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
               {!isSidebarOpen && <span className="tooltip">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
             </button>
           </div>
