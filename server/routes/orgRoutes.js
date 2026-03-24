@@ -24,7 +24,8 @@ const {
 
 const router = express.Router();
 
-router.use(protect, requireOrgMember);
+// Capture orgId for all routes in this router
+router.use('/:orgId', protect, requireOrgMember);
 
 router.route('/:orgId/members/provision').post(requireOrgPermission('canInviteMembers'), provisionMember);
 router.route('/:orgId/members').get(requireOrgPermission('canManageMembers'), listMembers);
