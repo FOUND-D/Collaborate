@@ -17,7 +17,6 @@
     "express": "^5.2.1",
     "groq-sdk": "^0.37.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.4",
     "@supabase/supabase-js": "^2.57.4",
     "socket.io": "^4.8.3"
   }
