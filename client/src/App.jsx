@@ -20,6 +20,7 @@ import SettingsScreen from './screens/SettingsScreen';
 import OrganisationsScreen from './screens/OrganisationsScreen';
 import CreateOrganisationScreen from './screens/CreateOrganisationScreen';
 import OrganisationDetailScreen from './screens/OrganisationDetailScreen';
+import { MembersPage, RolesPage, CompliancePage, CustomFieldsPage, AuditLogPage, CompleteProfilePage } from './screens/OrgManagementPages';
 import AcceptInviteScreen from './screens/AcceptInviteScreen';
 import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
@@ -142,6 +143,12 @@ const AppContent = () => {
               <Route path="/organisations" element={<ProtectedRoute><OrganisationsScreen /></ProtectedRoute>} />
               <Route path="/organisations/create" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
               <Route path="/organisations/:id" element={<ProtectedRoute><OrganisationDetailScreen /></ProtectedRoute>} />
+              <Route path="/organisations/:id/settings/members" element={<ProtectedRoute><MembersPage /></ProtectedRoute>} />
+              <Route path="/organisations/:id/settings/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
+              <Route path="/organisations/:id/settings/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
+              <Route path="/organisations/:id/settings/custom-fields" element={<ProtectedRoute><CustomFieldsPage /></ProtectedRoute>} />
+              <Route path="/organisations/:id/settings/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
+              <Route path="/organisations/:id/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
               <Route path="/invite/accept" element={<AcceptInviteScreen />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

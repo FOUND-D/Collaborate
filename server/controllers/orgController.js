@@ -17,7 +17,7 @@ const generatePassword = () => {
 };
 
 const getOrgRole = async (orgId, roleId) => {
-  const { data, error } = await supabase.from('org_roles').select('*').eq('organisation_id', orgId).eq('id', roleId).maybeSingle();
+  const { data, error } = await supabase.from('org_roles').select('*').eq('org_id', orgId).eq('id', roleId).maybeSingle();
   if (error) throw error;
   return data;
 };
@@ -112,14 +112,14 @@ const removeMember = asyncHandler(async (req, res) => {
 });
 
 const listRoles = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('org_roles').select('*').eq('organisation_id', req.params.orgId).order('created_at', { ascending: true });
+  const { data, error } = await supabase.from('org_roles').select('*').eq('org_id', req.params.orgId).order('created_at', { ascending: true });
   if (error) throw error;
   res.json((data || []).map(toPublicOrgRole));
 });
 
 const createRole = asyncHandler(async (req, res) => {
   const payload = {
-    organisation_id: req.params.orgId,
+    org_id: req.params.orgId,
     name: req.body.name,
     slug: req.body.slug,
     can_manage_members: !!req.body.canManageMembers,
@@ -136,7 +136,7 @@ const createRole = asyncHandler(async (req, res) => {
 });
 
 const updateRole = asyncHandler(async (req, res) => {
-  const { data: existing } = await supabase.from('org_roles').select('*').eq('organisation_id', req.params.orgId).eq('id', req.params.roleId).maybeSingle();
+  const { data: existing } = await supabase.from('org_roles').select('*').eq('org_id', req.params.orgId).eq('id', req.params.roleId).maybeSingle();
   if (!existing) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
   if (existing.is_system_role) return res.status(403).json({ error: 'SYSTEM_ROLE_LOCKED' });
   const updates = {};
@@ -151,7 +151,7 @@ const updateRole = asyncHandler(async (req, res) => {
 });
 
 const deleteRole = asyncHandler(async (req, res) => {
-  const { data: existing } = await supabase.from('org_roles').select('*').eq('organisation_id', req.params.orgId).eq('id', req.params.roleId).maybeSingle();
+  const { data: existing } = await supabase.from('org_roles').select('*').eq('org_id', req.params.orgId).eq('id', req.params.roleId).maybeSingle();
   if (!existing) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
   if (existing.is_system_role) return res.status(403).json({ error: 'SYSTEM_ROLE_LOCKED' });
   await supabase.from('org_roles').delete().eq('id', req.params.roleId);

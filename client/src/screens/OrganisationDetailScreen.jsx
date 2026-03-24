@@ -5,6 +5,11 @@ import { useSelector } from 'react-redux';
 import { FaSave, FaUserMinus } from 'react-icons/fa';
 import { FiAlertCircle, FiCalendar, FiCheck, FiChevronRight, FiEdit2, FiGrid, FiMail, FiSettings, FiUser, FiUserPlus, FiUsers } from 'react-icons/fi';
 import api from '../utils/api';
+import {
+  ProvisionMemberModal,
+  ComplianceBadge,
+  AuditLogTable,
+} from './OrgManagementPages';
 
 const getInitials = (name = '') => {
   if (!name) return '?';
@@ -66,17 +71,27 @@ const OrganisationDetailScreen = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [memberActionLoading, setMemberActionLoading] = useState('');
+  const [managementTab, setManagementTab] = useState('members');
+  const [memberModalOpen, setMemberModalOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [orgRoles, setOrgRoles] = useState([]);
+  const [membersData, setMembersData] = useState([]);
+  const [customFields, setCustomFields] = useState([]);
+  const [complianceRules, setComplianceRules] = useState(null);
+  const [auditEntries, setAuditEntries] = useState([]);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const [orgRes, teamsRes] = await Promise.all([
+        const [orgRes, teamsRes, membersRes] = await Promise.all([
           api.get(`/api/organisations/${id}`),
           api.get(`/api/organisations/${id}/teams`),
+          api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }),
         ]);
         setOrg(orgRes.data);
         setTeams(Array.isArray(teamsRes.data) ? teamsRes.data : []);
+        setMembersData(membersRes.data.members || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load organisation');
       } finally {
@@ -98,9 +113,24 @@ const OrganisationDetailScreen = () => {
     }
   }, [org]);
 
-  const currentUserRole = org?.members?.find((m) => (m.user?._id || m.user) === userInfo?._id)?.role;
+  const currentUserRole = (membersData.length ? membersData : org?.members || []).find((m) => (m.user?._id || m.user || m.userId) === userInfo?._id)?.role;
   const isOwnerOrAdmin = ['owner', 'admin'].includes(currentUserRole);
   const createdLabel = formatCreatedDate(org?.createdAt);
+
+  useEffect(() => {
+    if (!isOwnerOrAdmin) return;
+    Promise.all([
+      api.get(`/api/orgs/${id}/roles`),
+      api.get(`/api/orgs/${id}/custom-fields`),
+      api.get(`/api/orgs/${id}/compliance`),
+      api.get(`/api/orgs/${id}/audit-log`, { params: { limit: 20 } }),
+    ]).then(([rolesRes, fieldsRes, complianceRes, auditRes]) => {
+      setOrgRoles(rolesRes.data || []);
+      setCustomFields(fieldsRes.data || []);
+      setComplianceRules(complianceRes.data);
+      setAuditEntries(auditRes.data.entries || []);
+    }).catch(() => {});
+  }, [id, isOwnerOrAdmin]);
 
   const sortedMembers = useMemo(() => {
     if (!org?.members) return [];
@@ -246,6 +276,7 @@ const OrganisationDetailScreen = () => {
         </div>
         {isOwnerOrAdmin && (
           <div className="org-detail-header-actions">
+            <button className="org-detail-outline-btn" onClick={() => setManageOpen(true)} type="button"><FiSettings /> Manage</button>
             <button className="org-detail-outline-btn" onClick={() => { clearActionMessages(); setActiveTab('settings'); }} type="button"><FiEdit2 /> Edit</button>
             <button className="org-detail-outline-btn" onClick={() => setActiveTab('settings')} type="button"><FiSettings /> Settings</button>
           </div>
@@ -264,6 +295,83 @@ const OrganisationDetailScreen = () => {
           return <button key={tab.key} className={`org-detail-tab-btn ${activeTab === tab.key ? 'active' : ''}`} onClick={() => setActiveTab(tab.key)} type="button"><Icon /> {tab.label}</button>;
         })}
       </div>
+
+      {isOwnerOrAdmin && (
+        <div className="org-detail-management-shell">
+          <div className="org-detail-tabs org-detail-inline-tabs">
+            <button className={`org-detail-tab-btn ${managementTab === 'members' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('members')}>Members</button>
+            <button className={`org-detail-tab-btn ${managementTab === 'roles' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('roles')}>Roles</button>
+            <button className={`org-detail-tab-btn ${managementTab === 'compliance' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('compliance')}>Compliance</button>
+            <button className={`org-detail-tab-btn ${managementTab === 'customFields' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('customFields')}>Custom Fields</button>
+            <button className={`org-detail-tab-btn ${managementTab === 'audit' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('audit')}>Audit Log</button>
+          </div>
+          {managementTab === 'members' && (
+            <div className="org-detail-inline-panel">
+              <div className="org-detail-section-header">
+                <div className="org-detail-section-label">MEMBERS</div>
+                <button className="org-detail-primary-btn" type="button" onClick={() => setMemberModalOpen(true)}><FiUserPlus /> Add Member</button>
+              </div>
+              <div className="org-mgmt-filterbar">
+                <input className="org-mgmt-input" placeholder="Search members" />
+                <select className="org-mgmt-input"><option>All roles</option>{orgRoles.map((r) => <option key={r._id}>{r.name}</option>)}</select>
+              </div>
+              <div className="org-detail-list-card">
+                {membersData.length ? membersData.map((member) => {
+                  const memberId = member.userId || member.user?._id || member.user;
+                  return (
+                    <div key={memberId} className="org-detail-member-row">
+                      <div className="org-detail-row-left">
+                        <div className="org-detail-avatar" style={getGradientStyle(member.user?.name || member.user?.email || memberId)}>{member.user?.profileImage ? <img src={getImageSrc(member.user.profileImage)} alt={member.user?.name || 'Member'} /> : (member.user?.name || member.user?.email || '?').charAt(0).toUpperCase()}</div>
+                        <div className="org-detail-row-copy"><div className="org-detail-row-title">{member.user?.name || 'Unknown user'}</div><div className="org-detail-row-subtitle">{member.user?.email || ''}</div></div>
+                      </div>
+                      <div className="org-detail-row-right">
+                        <ComplianceBadge status={member.status} />
+                        {renderRoleBadge(member.role)}
+                      </div>
+                    </div>
+                  );
+                }) : <div className="org-detail-empty-state"><FiUsers className="org-detail-empty-icon" /><div className="org-detail-empty-title">No members yet</div><div className="org-detail-empty-subtitle">Invite people to join this organisation</div></div>}
+              </div>
+            </div>
+          )}
+          {managementTab === 'roles' && (
+            <div className="org-detail-inline-panel">
+              <div className="org-detail-section-label">ROLES</div>
+              <div className="org-detail-list-card">
+                {orgRoles.map((role) => <div key={role._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{role.name}</div><div className="org-detail-row-subtitle">{role.slug}</div></div></div><div className="org-detail-row-right">{role.isSystemRole ? <span className="org-detail-role-pill owner">Locked</span> : <span className="org-detail-role-pill member">Custom</span>}</div></div>)}
+              </div>
+            </div>
+          )}
+          {managementTab === 'compliance' && (
+            <div className="org-detail-inline-panel">
+              <div className="org-detail-section-label">COMPLIANCE</div>
+              <form className="org-detail-settings-card">
+                <div className="org-detail-toggle-list">
+                  <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Profile Photo</div><div className="org-detail-toggle-subtitle">Users must upload a profile photo</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireProfilePhoto)} readOnly /><span className="org-detail-slider" /></span></label>
+                  <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Mobile Number</div><div className="org-detail-toggle-subtitle">Users must add a mobile number</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireMobileNumber)} readOnly /><span className="org-detail-slider" /></span></label>
+                  <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Full Name</div><div className="org-detail-toggle-subtitle">Users must have a non-empty name</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireFullName)} readOnly /><span className="org-detail-slider" /></span></label>
+                  <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Bio / Designation</div><div className="org-detail-toggle-subtitle">Users must set bio and designation</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireBioDesignation)} readOnly /><span className="org-detail-slider" /></span></label>
+                </div>
+                <div className="org-detail-empty-inline">Required custom fields: {(complianceRules?.requiredCustomFieldSlugs || []).join(', ') || 'None'}</div>
+              </form>
+            </div>
+          )}
+          {managementTab === 'customFields' && (
+            <div className="org-detail-inline-panel">
+              <div className="org-detail-section-label">CUSTOM FIELDS</div>
+              <div className="org-detail-list-card">
+                {customFields.map((field) => <div key={field._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{field.label}</div><div className="org-detail-row-subtitle">{field.slug} · {field.fieldType}</div></div></div><div className="org-detail-row-right">{field.isRequired ? <span className="org-detail-role-pill owner">Required</span> : <span className="org-detail-role-pill member">Optional</span>}</div></div>)}
+              </div>
+            </div>
+          )}
+          {managementTab === 'audit' && (
+            <div className="org-detail-inline-panel">
+              <div className="org-detail-section-label">AUDIT LOG</div>
+              <AuditLogTable entries={auditEntries} />
+            </div>
+          )}
+        </div>
+      )}
 
       {activeTab === 'members' && (
         <div className="org-detail-section">
@@ -334,6 +442,34 @@ const OrganisationDetailScreen = () => {
 
       {activeTab === 'settings' && isOwnerOrAdmin && (
         <div className="org-detail-section">
+          <div className="org-detail-section-label">SETTINGS HUB</div>
+          <div className="org-detail-team-grid org-detail-settings-grid">
+            <button type="button" className="org-detail-team-card" onClick={() => navigate(`/organisations/${id}/settings/members`)}>
+              <div className="org-detail-team-avatar" style={getGradientStyle('members')}><FiUsers /></div>
+              <div className="org-detail-team-name">Members</div>
+              <div className="org-detail-team-meta"><span>Manage members and invitations</span></div>
+            </button>
+            <button type="button" className="org-detail-team-card" onClick={() => navigate(`/organisations/${id}/settings/roles`)}>
+              <div className="org-detail-team-avatar" style={getGradientStyle('roles')}><FiSettings /></div>
+              <div className="org-detail-team-name">Roles</div>
+              <div className="org-detail-team-meta"><span>Custom role hierarchy</span></div>
+            </button>
+            <button type="button" className="org-detail-team-card" onClick={() => navigate(`/organisations/${id}/settings/compliance`)}>
+              <div className="org-detail-team-avatar" style={getGradientStyle('compliance')}><FiCheck /></div>
+              <div className="org-detail-team-name">Compliance</div>
+              <div className="org-detail-team-meta"><span>Profile and field rules</span></div>
+            </button>
+            <button type="button" className="org-detail-team-card" onClick={() => navigate(`/organisations/${id}/settings/custom-fields`)}>
+              <div className="org-detail-team-avatar" style={getGradientStyle('fields')}><FiEdit2 /></div>
+              <div className="org-detail-team-name">Custom Fields</div>
+              <div className="org-detail-team-meta"><span>Org-defined profile fields</span></div>
+            </button>
+            <button type="button" className="org-detail-team-card" onClick={() => navigate(`/organisations/${id}/settings/audit-log`)}>
+              <div className="org-detail-team-avatar" style={getGradientStyle('audit')}><FiCalendar /></div>
+              <div className="org-detail-team-name">Audit Log</div>
+              <div className="org-detail-team-meta"><span>Read-only admin history</span></div>
+            </button>
+          </div>
           <div className="org-detail-section-label">ORGANISATION INFO</div>
           <form className="org-detail-settings-card" onSubmit={handleSaveSettings}>
             <div className="org-detail-field"><label className="org-detail-field-label" htmlFor="orgName">Name</label><input id="orgName" className="org-detail-input" type="text" maxLength={100} value={settingsForm.name} onChange={(e) => setSettingsForm((prev) => ({ ...prev, name: e.target.value }))} /></div>
@@ -361,6 +497,77 @@ const OrganisationDetailScreen = () => {
             </div>
           )}
           {actionError && <div className="org-detail-inline-message error">{actionError}</div>}
+        </div>
+      )}
+
+      {memberModalOpen && (
+        <ProvisionMemberModal
+          open={memberModalOpen}
+          orgId={id}
+          roles={orgRoles}
+          onClose={() => setMemberModalOpen(false)}
+          onCreated={async () => {
+            const { data } = await api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } });
+            setMembersData(data.members || []);
+          }}
+        />
+      )}
+
+      {manageOpen && isOwnerOrAdmin && (
+        <div className="org-detail-drawer-backdrop" onClick={() => setManageOpen(false)} role="presentation">
+          <div className="org-detail-drawer" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="org-detail-drawer-header">
+              <div>
+                <div className="org-detail-eyebrow">ORGANISATION SETTINGS</div>
+                <div className="org-detail-drawer-title">{org.name} - Settings</div>
+              </div>
+              <button className="org-detail-icon-btn" type="button" onClick={() => setManageOpen(false)}>×</button>
+            </div>
+            <div className="org-detail-tabs org-detail-drawer-tabs">
+              {isOwnerOrAdmin && <button className={`org-detail-tab-btn ${managementTab === 'roles' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('roles')}>Roles</button>}
+              {isOwnerOrAdmin && <button className={`org-detail-tab-btn ${managementTab === 'compliance' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('compliance')}>Compliance</button>}
+              {isOwnerOrAdmin && <button className={`org-detail-tab-btn ${managementTab === 'customFields' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('customFields')}>Custom Fields</button>}
+              {isOwnerOrAdmin && <button className={`org-detail-tab-btn ${managementTab === 'audit' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('audit')}>Audit Log</button>}
+            </div>
+            <div className="org-detail-drawer-body">
+              {managementTab === 'roles' && (
+                <div className="org-detail-inline-panel">
+                  <div className="org-detail-section-label">ROLES</div>
+                  <div className="org-detail-list-card">
+                    {orgRoles.map((role) => <div key={role._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{role.name}</div><div className="org-detail-row-subtitle">{role.slug}</div></div></div><div className="org-detail-row-right">{role.isSystemRole ? <span className="org-detail-role-pill owner">Locked</span> : <span className="org-detail-role-pill member">Custom</span>}</div></div>)}
+                  </div>
+                </div>
+              )}
+              {managementTab === 'compliance' && (
+                <div className="org-detail-inline-panel">
+                  <div className="org-detail-section-label">COMPLIANCE</div>
+                  <div className="org-detail-settings-card">
+                    <div className="org-detail-toggle-list">
+                      <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Profile Photo</div><div className="org-detail-toggle-subtitle">Users must upload a profile photo</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireProfilePhoto)} readOnly /><span className="org-detail-slider" /></span></label>
+                      <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Mobile Number</div><div className="org-detail-toggle-subtitle">Users must add a mobile number</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireMobileNumber)} readOnly /><span className="org-detail-slider" /></span></label>
+                      <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Full Name</div><div className="org-detail-toggle-subtitle">Users must have a non-empty name</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireFullName)} readOnly /><span className="org-detail-slider" /></span></label>
+                      <label className="org-detail-toggle-item"><div><div className="org-detail-toggle-title">Require Bio / Designation</div><div className="org-detail-toggle-subtitle">Users must set bio and designation</div></div><span className="org-detail-switch"><input type="checkbox" checked={Boolean(complianceRules?.requireBioDesignation)} readOnly /><span className="org-detail-slider" /></span></label>
+                    </div>
+                    <div className="org-detail-empty-inline">Required custom fields: {(complianceRules?.requiredCustomFieldSlugs || []).join(', ') || 'None'}</div>
+                  </div>
+                </div>
+              )}
+              {managementTab === 'customFields' && (
+                <div className="org-detail-inline-panel">
+                  <div className="org-detail-section-label">CUSTOM FIELDS</div>
+                  <div className="org-detail-list-card">
+                    {customFields.map((field) => <div key={field._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{field.label}</div><div className="org-detail-row-subtitle">{field.slug} · {field.fieldType}</div></div></div><div className="org-detail-row-right">{field.isRequired ? <span className="org-detail-role-pill owner">Required</span> : <span className="org-detail-role-pill member">Optional</span>}</div></div>)}
+                  </div>
+                </div>
+              )}
+              {managementTab === 'audit' && (
+                <div className="org-detail-inline-panel">
+                  <div className="org-detail-section-label">AUDIT LOG</div>
+                  <AuditLogTable entries={auditEntries} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

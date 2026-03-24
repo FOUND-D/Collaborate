@@ -6,18 +6,30 @@ const createOrganisation = asyncHandler(async (req, res) => {
   const slug = await uniqueSlug(name);
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();
   if (error) throw error;
-  await supabase.from('organisation_members').insert({ organisation_id: data.id, user_id: req.user._id, role: 'owner' });
   const systemRoles = [
     { organisation_id: data.id, name: 'Owner', slug: 'owner', description: '1 per org, the creator', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
     { organisation_id: data.id, name: 'Admin', slug: 'admin', description: 'Appointed by owner or another admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
     { organisation_id: data.id, name: 'Member', slug: 'member', description: 'Regular org member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false },
   ];
-  const { data: roles } = await supabase.from('org_roles').insert(systemRoles).select('*');
+  const { data: roles, error: rolesError } = await supabase.from('org_roles').insert(systemRoles).select('*');
+  if (rolesError) throw rolesError;
   const ownerRole = roles?.find((r) => r.slug === 'owner');
   if (ownerRole) {
-    await supabase.from('organisation_members').update({ org_role_id: ownerRole.id, status: 'active' }).eq('organisation_id', data.id).eq('user_id', req.user._id);
+    const { error: memberError } = await supabase.from('organisation_members').insert({
+      organisation_id: data.id,
+      user_id: req.user._id,
+      org_role_id: ownerRole.id,
+      role: 'owner',
+      status: 'active',
+      is_provisioned: false,
+      temp_password_plain: null,
+      temp_password_used: true,
+      invited_by: null,
+    });
+    if (memberError) throw memberError;
   }
-  await supabase.from('org_compliance_rules').insert({ organisation_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
+  const { error: complianceError } = await supabase.from('org_compliance_rules').insert({ organisation_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
+  if (complianceError) throw complianceError;
   res.status(201).json(toPublicOrganisation(data));
 });
 
@@ -25,7 +37,7 @@ const getMyOrganisations = asyncHandler(async (req, res) => {
   // Select organisations where the user is a member, including their role.
   const { data, error } = await supabase
     .from('organisations')
-    .select('*, organisation_members!inner(role, user_id)')
+    .select('*, organisation_members!inner(role, user_id, org_role_id, org_roles(slug,can_manage_members,can_manage_roles,can_manage_settings,can_manage_teams,can_invite_members,can_view_reports))')
     .eq('organisation_members.user_id', req.user._id);
     
   if (error) throw error;
@@ -33,9 +45,10 @@ const getMyOrganisations = asyncHandler(async (req, res) => {
   const orgs = (data || []).map(o => {
     const publicOrg = toPublicOrganisation(o);
     // Move the role from the joined organisation_members to the main object level
+    const memberRole = o.organisation_members?.[0]?.org_roles?.slug || o.organisation_members?.[0]?.role || 'member';
     return {
       ...publicOrg,
-      role: o.organisation_members?.[0]?.role || 'member'
+      role: memberRole
     };
   });
   
@@ -81,7 +94,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
 });
 
 const getOrgMembers = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('organisation_members').select('user_id,role,joined_at,users(id,name,email,profile_image)').eq('organisation_id', req.params.id);
+  const { data, error } = await supabase.from('organisation_members').select('user_id,role,org_role_id,joined_at,users(id,name,email,profile_image),org_roles(slug,name,can_manage_members,can_manage_roles,can_manage_settings,can_manage_teams,can_invite_members,can_view_reports)').eq('organisation_id', req.params.id);
   if (error) throw error;
   res.json(data || []);
 });

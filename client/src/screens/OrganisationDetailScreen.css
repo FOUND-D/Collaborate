@@ -67,7 +67,18 @@
 .org-detail-empty-subtitle{margin-top:4px}
 .org-detail-team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
 .org-detail-team-card{padding:20px;cursor:pointer;transition:all .2s ease;display:flex;flex-direction:column;min-height:220px}
+.org-detail-settings-grid .org-detail-team-card{appearance:none;text-align:left;width:100%;border:1px solid #2a2a2a;background:#141414}
 .org-detail-team-card:hover{border-color:#2563eb;transform:translateY(-1px);box-shadow:0 4px 20px rgba(37,99,235,.1)}
+.org-detail-management-shell{display:flex;flex-direction:column;gap:16px;margin-bottom:24px}
+.org-detail-inline-tabs{margin-bottom:0}
+.org-detail-inline-panel{display:flex;flex-direction:column;gap:16px}
+.org-detail-drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);display:flex;justify-content:flex-end;z-index:1200}
+.org-detail-drawer{width:min(520px,100%);height:100%;background:#111;border-left:1px solid #2a2a2a;display:flex;flex-direction:column;animation:drawerIn .22s ease-out}
+.org-detail-drawer-header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px;border-bottom:1px solid #2a2a2a}
+.org-detail-drawer-title{font-size:20px;font-weight:600;color:#fff;margin-top:2px}
+.org-detail-drawer-tabs{padding:16px 20px 0;margin-bottom:0;overflow-x:auto;width:100%;box-sizing:border-box}
+.org-detail-drawer-body{padding:20px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+@keyframes drawerIn{from{transform:translateX(16px);opacity:.8}to{transform:translateX(0);opacity:1}}
 .org-detail-team-avatar{width:40px;height:40px;border-radius:50%;color:#fff;font-size:16px;font-weight:700;box-shadow:0 4px 12px rgba(37,99,235,.2)}
 .org-detail-team-name{margin-top:12px;font-size:15px;font-weight:600}
 .org-detail-team-meta{margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -108,6 +119,7 @@
 .org-detail-error-icon{font-size:48px;color:#ef4444}
 .org-detail-error-title{margin-top:16px;font-size:18px;font-weight:600;color:#fff}
 .org-detail-error-text{margin-top:8px;font-size:14px;color:#9ca3af}
+.org-detail-empty-inline{padding:14px 16px;border:1px solid #2a2a2a;border-radius:10px;background:#1a1a1a;color:#9ca3af}
 .org-detail-skeleton{background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
 .org-detail-skeleton-header{height:120px;border-radius:14px}
 .org-detail-skeleton-row{display:flex;gap:10px;flex-wrap:wrap}

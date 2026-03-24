@@ -10,6 +10,40 @@ const PERMISSION_FLAGS = {
   can_view_reports: 'can_view_reports',
 };
 
+const legacyRolePermissions = (role) => ({
+  owner: {
+    can_manage_members: true,
+    can_manage_roles: true,
+    can_manage_settings: true,
+    can_manage_teams: true,
+    can_invite_members: true,
+    can_view_reports: true,
+  },
+  admin: {
+    can_manage_members: true,
+    can_manage_roles: false,
+    can_manage_settings: true,
+    can_manage_teams: true,
+    can_invite_members: true,
+    can_view_reports: true,
+  },
+  member: {
+    can_manage_members: false,
+    can_manage_roles: false,
+    can_manage_settings: false,
+    can_manage_teams: false,
+    can_invite_members: false,
+    can_view_reports: false,
+  },
+}[role] || {
+  can_manage_members: false,
+  can_manage_roles: false,
+  can_manage_settings: false,
+  can_manage_teams: false,
+  can_invite_members: false,
+  can_view_reports: false,
+});
+
 const getOrgContext = async (orgId, userId) => {
   const { data: memberRow, error: memberError } = await supabase
     .from('organisation_members')
@@ -19,7 +53,12 @@ const getOrgContext = async (orgId, userId) => {
     .maybeSingle();
   if (memberError) throw memberError;
   if (!memberRow) return null;
-  const orgRole = memberRow.org_roles || {};
+  const orgRole = memberRow.org_roles || {
+    slug: memberRow.role,
+    name: memberRow.role,
+    is_system_role: true,
+    ...legacyRolePermissions(memberRow.role),
+  };
   return {
     member: toPublicOrgMember(memberRow),
     orgRole: toPublicOrgRole(orgRole),
