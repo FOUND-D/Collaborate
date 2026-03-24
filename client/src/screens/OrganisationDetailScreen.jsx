@@ -76,6 +76,7 @@ const OrganisationDetailScreen = () => {
   const [manageOpen, setManageOpen] = useState(false);
   const [orgRoles, setOrgRoles] = useState([]);
   const [roleForm, setRoleForm] = useState(null);
+  const [roleFormError, setRoleFormError] = useState('');
   const [membersData, setMembersData] = useState([]);
   const [customFields, setCustomFields] = useState([]);
   const [complianceRules, setComplianceRules] = useState(null);
@@ -115,6 +116,14 @@ const OrganisationDetailScreen = () => {
   const currentUserRole = org?.currentUserRole || null;
   const isOwnerOrAdmin = Boolean(org?.permissions?.canManageMembers || org?.permissions?.canManageRoles || org?.permissions?.canManageSettings || org?.permissions?.canViewReports || currentUserRole === 'owner' || currentUserRole === 'admin');
   const createdLabel = formatCreatedDate(org?.createdAt);
+  const roleCounts = useMemo(() => {
+    const counts = {};
+    (membersData || []).forEach((member) => {
+      const key = member.orgRoleId || member.org_role_id || member.role;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+  }, [membersData]);
 
   useEffect(() => {
     if (!isOwnerOrAdmin || (!manageOpen && !memberModalOpen)) return;
@@ -175,6 +184,7 @@ const OrganisationDetailScreen = () => {
     setInviteStatus({ type: '', message: '' });
     setSaveStatus({ type: '', message: '' });
     setMemberRoleError('');
+    setRoleFormError('');
   };
 
   const handleRoleChange = async (userId, role) => {
@@ -284,14 +294,6 @@ const OrganisationDetailScreen = () => {
 
   const renderRoleBadge = (role) => <span className={`org-detail-role-pill ${role}`}>{role}</span>;
   const roleOptions = orgRoles || [];
-  const roleCounts = useMemo(() => {
-    const counts = {};
-    (membersData || []).forEach((member) => {
-      const key = member.orgRoleId || member.org_role_id || member.role;
-      counts[key] = (counts[key] || 0) + 1;
-    });
-    return counts;
-  }, [membersData]);
   const selectedRoleCount = (roleId) => roleCounts[roleId] || 0;
   const tabs = [
     { key: 'members', label: 'Members', icon: FiUsers },
@@ -381,7 +383,10 @@ const OrganisationDetailScreen = () => {
               <div className="org-detail-section-label">ROLES</div>
               <div className="org-detail-row-right" style={{ justifyContent: 'space-between' }}>
                 <div className="org-detail-empty-subtitle">Create and manage built-in or custom org roles.</div>
-                <button className="org-detail-primary-btn" type="button" onClick={() => setRoleForm({ mode: 'create', name: '', slug: '', canManageMembers: false, canManageRoles: false, canManageSettings: false, canManageTeams: false, canInviteMembers: false, canViewReports: false })}>+ New Role</button>
+                <button className="org-detail-primary-btn" type="button" onClick={() => {
+                  setRoleFormError('');
+                  setRoleForm({ mode: 'create', name: '', slug: '', canManageMembers: false, canManageRoles: false, canManageSettings: false, canManageTeams: false, canInviteMembers: false, canViewReports: false });
+                }}>+ New Role</button>
               </div>
               {roleForm && (
                 <div className="org-detail-settings-card">
@@ -405,23 +410,42 @@ const OrganisationDetailScreen = () => {
                     </div>
                   </div>
                   <div className="org-mgmt-row">
-                    <button className="org-mgmt-secondary-btn" type="button" onClick={() => setRoleForm(null)}>Cancel</button>
+                    <button className="org-mgmt-secondary-btn" type="button" onClick={() => { setRoleForm(null); setRoleFormError(''); }}>Cancel</button>
                     <button className="org-mgmt-primary-btn" type="button" onClick={async () => {
-                      await api.post(`/api/orgs/${id}/roles`, {
-                        name: roleForm.name,
-                        slug: roleForm.slug,
-                        canManageMembers: roleForm.canManageMembers,
-                        canManageRoles: roleForm.canManageRoles,
-                        canManageSettings: roleForm.canManageSettings,
-                        canManageTeams: roleForm.canManageTeams,
-                        canInviteMembers: roleForm.canInviteMembers,
-                        canViewReports: roleForm.canViewReports,
-                      });
-                      const { data } = await api.get(`/api/orgs/${id}/roles`);
-                      setOrgRoles(data || []);
-                      setRoleForm(null);
+                      try {
+                        const slug = (roleForm.slug || roleForm.name || '')
+                          .trim()
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, '-')
+                          .replace(/^-+|-+$/g, '');
+                        if (!roleForm.name.trim()) {
+                          setRoleFormError('Role name is required');
+                          return;
+                        }
+                        if (!slug) {
+                          setRoleFormError('Role slug is required');
+                          return;
+                        }
+                        setRoleFormError('');
+                        await api.post(`/api/orgs/${id}/roles`, {
+                          name: roleForm.name.trim(),
+                          slug,
+                          canManageMembers: Boolean(roleForm.canManageMembers),
+                          canManageRoles: Boolean(roleForm.canManageRoles),
+                          canManageSettings: Boolean(roleForm.canManageSettings),
+                          canManageTeams: Boolean(roleForm.canManageTeams),
+                          canInviteMembers: Boolean(roleForm.canInviteMembers),
+                          canViewReports: Boolean(roleForm.canViewReports),
+                        });
+                        const { data } = await api.get(`/api/orgs/${id}/roles`);
+                        setOrgRoles(data || []);
+                        setRoleForm(null);
+                      } catch (err) {
+                        setRoleFormError(err.response?.data?.error || err.response?.data?.message || 'Failed to create role');
+                      }
                     }}>Save Role</button>
                   </div>
+                  {roleFormError && <div className="org-detail-inline-message error">{roleFormError}</div>}
                 </div>
               )}
               <div className="org-detail-list-card">

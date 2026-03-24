@@ -126,10 +126,14 @@ const listRoles = asyncHandler(async (req, res) => {
 });
 
 const createRole = asyncHandler(async (req, res) => {
+  const name = String(req.body.name || '').trim();
+  const slug = String(req.body.slug || name).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!name) return res.status(400).json({ error: 'ROLE_NAME_REQUIRED' });
+  if (!slug) return res.status(400).json({ error: 'ROLE_SLUG_REQUIRED' });
   const payload = {
     org_id: req.params.orgId,
-    name: req.body.name,
-    slug: req.body.slug,
+    name,
+    slug,
     can_manage_members: !!req.body.canManageMembers,
     can_manage_roles: !!req.body.canManageRoles,
     can_manage_settings: !!req.body.canManageSettings,
@@ -139,7 +143,10 @@ const createRole = asyncHandler(async (req, res) => {
     is_system_role: false,
   };
   const { data, error } = await supabase.from('org_roles').insert(payload).select('*').single();
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') return res.status(409).json({ error: 'ROLE_SLUG_EXISTS' });
+    throw error;
+  }
   res.status(201).json(toPublicOrgRole(data));
 });
 
