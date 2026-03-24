@@ -115,6 +115,7 @@ const OrganisationDetailScreen = () => {
 
   const currentUserRole = org?.currentUserRole || null;
   const isOwnerOrAdmin = Boolean(org?.permissions?.canManageMembers || org?.permissions?.canManageRoles || org?.permissions?.canManageSettings || org?.permissions?.canViewReports || currentUserRole === 'owner' || currentUserRole === 'admin');
+  const orgId = org?._id || id;
   const createdLabel = formatCreatedDate(org?.createdAt);
   const roleCounts = useMemo(() => {
     const counts = {};
@@ -131,19 +132,19 @@ const OrganisationDetailScreen = () => {
       try {
         const requests = [];
         if (manageOpen) {
-          requests.push(api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }));
+          requests.push(api.get(`/api/orgs/${orgId}/members`, { params: { limit: 20 } }));
         }
         if (manageOpen || memberModalOpen || managementTab === 'roles') {
-          requests.push(api.get(`/api/orgs/${id}/roles`));
+          requests.push(api.get(`/api/orgs/${orgId}/roles`));
         }
         if (manageOpen || managementTab === 'customFields' || managementTab === 'compliance') {
-          requests.push(api.get(`/api/orgs/${id}/custom-fields`));
+          requests.push(api.get(`/api/orgs/${orgId}/custom-fields`));
         }
         if (manageOpen || managementTab === 'compliance') {
-          requests.push(api.get(`/api/orgs/${id}/compliance`));
+          requests.push(api.get(`/api/orgs/${orgId}/compliance`));
         }
         if (manageOpen || managementTab === 'audit') {
-          requests.push(api.get(`/api/orgs/${id}/audit-log`, { params: { limit: 20 } }));
+          requests.push(api.get(`/api/orgs/${orgId}/audit-log`, { params: { limit: 20 } }));
         }
         const results = await Promise.all(requests);
         let idx = 0;
@@ -191,7 +192,7 @@ const OrganisationDetailScreen = () => {
     try {
       setMemberActionLoading(userId);
       setMemberRoleError('');
-      await api.put(`/api/organisations/${id}/members/${userId}/role`, { role });
+      await api.put(`/api/organisations/${orgId}/members/${userId}/role`, { role });
       setOrg((prev) => ({ ...prev, members: prev.members.map((member) => ((member.user?._id || member.user) === userId ? { ...member, role } : member)) }));
     } catch (err) {
       setMemberRoleError(err.response?.data?.message || 'Failed to update member role');
@@ -205,7 +206,7 @@ const OrganisationDetailScreen = () => {
     try {
       setMemberActionLoading(memberId);
       setMemberRoleError('');
-      await api.delete(`/api/organisations/${id}/members/${memberId}`);
+      await api.delete(`/api/organisations/${orgId}/members/${memberId}`);
       setOrg((prev) => ({ ...prev, members: prev.members.filter((item) => (item.user?._id || item.user) !== memberId) }));
     } catch (err) {
       setMemberRoleError(err.response?.data?.message || 'Failed to remove member');
@@ -219,7 +220,7 @@ const OrganisationDetailScreen = () => {
     try {
       setInviteLoading(true);
       clearActionMessages();
-      await api.post(`/api/organisations/${id}/members/invite`, { email: inviteEmail, role: inviteRole });
+      await api.post(`/api/organisations/${orgId}/members/invite`, { email: inviteEmail, role: inviteRole });
       setInviteStatus({ type: 'success', message: 'Invite sent successfully' });
       setInviteEmail('');
       setInviteRole('member');
@@ -237,7 +238,7 @@ const OrganisationDetailScreen = () => {
       setSaveLoading(true);
       clearActionMessages();
       const payload = { name: settingsForm.name, description: settingsForm.description, logo: settingsForm.logo, settings: { allowMemberInvites: settingsForm.allowMemberInvites, requireApprovalToJoin: settingsForm.requireApprovalToJoin } };
-      const { data } = await api.put(`/api/organisations/${id}`, payload);
+      const { data } = await api.put(`/api/organisations/${orgId}`, payload);
       setOrg(data);
       setSaveStatus({ type: 'success', message: 'Settings saved successfully' });
     } catch (err) {
@@ -251,7 +252,7 @@ const OrganisationDetailScreen = () => {
     try {
       setDeleteLoading(true);
       clearActionMessages();
-      await api.delete(`/api/organisations/${id}`);
+      await api.delete(`/api/organisations/${orgId}`);
       navigate('/organisations');
     } catch (err) {
       setActionError(err.response?.data?.message || 'Failed to delete organisation');
@@ -427,7 +428,7 @@ const OrganisationDetailScreen = () => {
                           return;
                         }
                         setRoleFormError('');
-                        await api.post(`/api/orgs/${id}/roles`, {
+                        await api.post(`/api/orgs/${orgId}/roles`, {
                           name: roleForm.name.trim(),
                           slug,
                           canManageMembers: Boolean(roleForm.canManageMembers),
@@ -437,7 +438,7 @@ const OrganisationDetailScreen = () => {
                           canInviteMembers: Boolean(roleForm.canInviteMembers),
                           canViewReports: Boolean(roleForm.canViewReports),
                         });
-                        const { data } = await api.get(`/api/orgs/${id}/roles`);
+                        const { data } = await api.get(`/api/orgs/${orgId}/roles`);
                         setOrgRoles(data || []);
                         setRoleForm(null);
                       } catch (err) {
@@ -614,11 +615,11 @@ const OrganisationDetailScreen = () => {
       {memberModalOpen && (
         <ProvisionMemberModal
           open={memberModalOpen}
-          orgId={id}
+          orgId={orgId}
           roles={orgRoles}
           onClose={() => setMemberModalOpen(false)}
           onCreated={async () => {
-            const { data } = await api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } });
+            const { data } = await api.get(`/api/orgs/${orgId}/members`, { params: { limit: 20 } });
             setMembersData(data.members || []);
           }}
         />
