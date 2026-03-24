@@ -96,7 +96,7 @@ const enforceOrgCompliance = async (orgId, userId, { skipIfOwnerManaging = false
   const { data: rulesRow, error: rulesError } = await supabase
     .from('org_compliance_rules')
     .select('*')
-    .eq('organisation_id', orgId)
+    .eq('org_id', orgId)
     .maybeSingle();
   if (rulesError) throw rulesError;
   if (!rulesRow) return { compliant: true, missing: [] };

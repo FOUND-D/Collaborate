@@ -26,10 +26,10 @@ const assertRoleHierarchy = (actorRole, targetRole) => ROLE_FLAGS.every((flag) =
 
 const logAudit = async (organisationId, actorId, action, targetUserId, metadata = {}) => {
   await supabase.from('org_audit_log').insert({
-    organisation_id: organisationId,
+    org_id: organisationId,
     actor_id: actorId,
     action,
-    target_user_id: targetUserId || null,
+    target_user: targetUserId || null,
     metadata,
   });
 };
@@ -187,7 +187,7 @@ const deleteRole = asyncHandler(async (req, res) => {
 });
 
 const getCompliance = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('org_compliance_rules').select('*').eq('organisation_id', req.params.orgId).maybeSingle();
+  const { data, error } = await supabase.from('org_compliance_rules').select('*').eq('org_id', req.params.orgId).maybeSingle();
   if (error) throw error;
   res.json(toPublicComplianceRules(data));
 });
@@ -200,7 +200,7 @@ const updateCompliance = asyncHandler(async (req, res) => {
     require_bio_designation: !!req.body.requireBioDesignation,
     required_custom_field_slugs: req.body.requiredCustomFieldSlugs || [],
   };
-  const { data, error } = await supabase.from('org_compliance_rules').update(payload).eq('organisation_id', req.params.orgId).select('*').single();
+  const { data, error } = await supabase.from('org_compliance_rules').update(payload).eq('org_id', req.params.orgId).select('*').single();
   if (error) throw error;
   await logAudit(req.params.orgId, req.user._id, 'rules.updated', null, payload);
   res.json(toPublicComplianceRules(data));
@@ -212,14 +212,14 @@ const getComplianceMe = asyncHandler(async (req, res) => {
 });
 
 const listCustomFields = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('org_custom_fields').select('*').eq('organisation_id', req.params.orgId).order('sort_order', { ascending: true });
+  const { data, error } = await supabase.from('org_custom_fields').select('*').eq('org_id', req.params.orgId).order('sort_order', { ascending: true });
   if (error) throw error;
   res.json((data || []).map(toPublicCustomField));
 });
 
 const createCustomField = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('org_custom_fields').insert({
-    organisation_id: req.params.orgId,
+    org_id: req.params.orgId,
     label: req.body.label,
     slug: req.body.slug,
     field_type: req.body.type,
@@ -239,18 +239,18 @@ const updateCustomField = asyncHandler(async (req, res) => {
   if (req.body.options !== undefined) updates.options = req.body.options;
   if (req.body.isRequired !== undefined) updates.is_required = !!req.body.isRequired;
   if (req.body.sortOrder !== undefined) updates.sort_order = req.body.sortOrder;
-  const { data, error } = await supabase.from('org_custom_fields').update(updates).eq('organisation_id', req.params.orgId).eq('id', req.params.fieldId).select('*').single();
+  const { data, error } = await supabase.from('org_custom_fields').update(updates).eq('org_id', req.params.orgId).eq('id', req.params.fieldId).select('*').single();
   if (error) throw error;
   res.json(toPublicCustomField(data));
 });
 
 const deleteCustomField = asyncHandler(async (req, res) => {
-  await supabase.from('org_custom_fields').delete().eq('organisation_id', req.params.orgId).eq('id', req.params.fieldId);
+  await supabase.from('org_custom_fields').delete().eq('org_id', req.params.orgId).eq('id', req.params.fieldId);
   res.json({ ok: true });
 });
 
 const getAuditLog = asyncHandler(async (req, res) => {
-  let query = supabase.from('org_audit_log').select('*', { count: 'exact' }).eq('organisation_id', req.params.orgId).order('created_at', { ascending: false });
+  let query = supabase.from('org_audit_log').select('*', { count: 'exact' }).eq('org_id', req.params.orgId).order('created_at', { ascending: false });
   if (req.query.action) query = query.eq('action', req.query.action);
   if (req.query.actorId) query = query.eq('actor_id', req.query.actorId);
   if (req.query.from) query = query.gte('created_at', req.query.from);
