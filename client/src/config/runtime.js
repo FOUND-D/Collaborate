@@ -23,7 +23,7 @@ export const SOCKET_URL =
 export const MCP_GATEWAY_URL =
   normalizeUrl(import.meta.env.VITE_MCP_GATEWAY_URL) || PRODUCTION_URLS.mcpGateway;
 
-export const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 15000;
+export const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 30000;
 
 export const INTEGRATION_TARGETS = Object.freeze({
   coreApi: BACKEND_URL,

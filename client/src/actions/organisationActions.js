@@ -58,7 +58,7 @@ export const listMyOrganisations = () => async (dispatch, getState) => {
       dispatch(logout());
     }
     dispatch({ type: ORG_LIST_FAIL, payload: message });
-    throw err;
+    return [];
   }
 };
 export const getOrganisationDetails = (id) => async (dispatch, getState) => {
