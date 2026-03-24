@@ -48,16 +48,18 @@ const SectionCard = ({ children, className = '' }) => <div className={`org-mgmt-
 const Input = (props) => <input className="org-mgmt-input" {...props} />;
 const Select = (props) => <select className="org-mgmt-input" {...props} />;
 const Textarea = (props) => <textarea className="org-mgmt-input org-mgmt-textarea" {...props} />;
+const DESIGNATION_OPTIONS = ['Developer', 'Designer', 'Product Manager', 'QA', 'DevOps', 'Other'];
 
 export const ProvisionMemberModal = ({ open, orgId, roles, onClose, onCreated }) => {
   const [mode, setMode] = useState('provision');
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', orgRoleId: '', mobileNumber: '', designation: '' });
   const [tempCreds, setTempCreds] = useState(null);
+  const roleOptions = Array.isArray(roles) ? roles : [];
 
   useEffect(() => {
-    if (open) setForm((prev) => ({ ...prev, orgRoleId: roles[0]?._id || '' }));
-  }, [open, roles]);
+    if (open) setForm((prev) => ({ ...prev, orgRoleId: roleOptions[0]?._id || '' }));
+  }, [open, roleOptions]);
 
   if (!open) return null;
 
@@ -101,10 +103,13 @@ export const ProvisionMemberModal = ({ open, orgId, roles, onClose, onCreated })
               {mode === 'provision' && (
                 <>
                   <Select value={form.orgRoleId} onChange={(e) => setForm((p) => ({ ...p, orgRoleId: e.target.value }))}>
-                    {roles.map((r) => <option key={r._id} value={r._id}>{r.name}</option>)}
+                    {roleOptions.map((r) => <option key={r._id} value={r._id}>{r.name}</option>)}
                   </Select>
                   <Input placeholder="Mobile number" value={form.mobileNumber} onChange={(e) => setForm((p) => ({ ...p, mobileNumber: e.target.value }))} />
-                  <Input placeholder="Designation" value={form.designation} onChange={(e) => setForm((p) => ({ ...p, designation: e.target.value }))} />
+                  <Select value={form.designation} onChange={(e) => setForm((p) => ({ ...p, designation: e.target.value }))}>
+                    <option value="">Designation</option>
+                    {DESIGNATION_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+                  </Select>
                 </>
               )}
               <div className="org-mgmt-row">
@@ -189,7 +194,7 @@ export const MembersPage = () => {
       <SectionCard>
         <div className="org-mgmt-filterbar">
           <Input placeholder="Search name or email" value={query.search} onChange={(e) => setQuery((p) => ({ ...p, search: e.target.value }))} />
-          <Select value={query.role} onChange={(e) => setQuery((p) => ({ ...p, role: e.target.value }))}><option value="">All roles</option>{roles.map((r) => <option key={r._id} value={r.slug}>{r.name}</option>)}</Select>
+          <Select value={query.role} onChange={(e) => setQuery((p) => ({ ...p, role: e.target.value }))}><option value="">All roles</option>{roles.map((r) => <option key={r._id} value={r._id}>{r.name}</option>)}</Select>
           <Select value={query.status} onChange={(e) => setQuery((p) => ({ ...p, status: e.target.value }))}><option value="">All status</option><option value="active">active</option><option value="pending_onboarding">pending_onboarding</option><option value="suspended">suspended</option></Select>
         </div>
         <div className="org-mgmt-table org-mgmt-member-table">
@@ -285,4 +290,3 @@ export const CompleteProfilePage = () => {
     </div>
   );
 };
-

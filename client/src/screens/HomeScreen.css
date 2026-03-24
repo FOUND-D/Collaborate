@@ -12,11 +12,13 @@
 @media (max-width:1024px){.dashboard-page{padding:28px 24px}}
 .onboarding-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#0d1117;border:1px solid rgba(59,130,246,.16);border-radius:10px;padding:14px 18px;margin-bottom:24px}
 .onboarding-banner-left{display:flex;align-items:center;gap:12px}
+.onboarding-banner-list{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .onboarding-banner-icon{width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);display:flex;align-items:center;justify-content:center;color:#60a5fa;font-size:15px;flex-shrink:0}
 .onboarding-banner-title{font-size:13px;font-weight:600;color:#f1f5f9;margin:0 0 2px;letter-spacing:-.1px}
 .onboarding-banner-sub{font-size:12px;color:rgba(241,245,249,.40);margin:0}
 .onboarding-banner-btn{height:32px;padding:0 14px;border-radius:7px;border:none;background:#3b82f6;color:#fff;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px;transition:background .15s;text-decoration:none}
 .onboarding-banner-btn:hover{background:#2563eb}
+@media (max-width:860px){.onboarding-banner{flex-direction:column;align-items:flex-start}.onboarding-banner-list{justify-content:flex-start}}
 .dashboard-greeting{margin-bottom:22px}
 .dashboard-greeting-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
 .dashboard-title{font-size:22px;font-weight:750;letter-spacing:-.5px;color:#f1f5f9;margin:0 0 4px;line-height:1.2}

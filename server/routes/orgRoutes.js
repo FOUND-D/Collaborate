@@ -8,6 +8,7 @@ const {
   updateMemberStatus,
   removeMember,
   listRoles,
+  getRoleMemberCounts,
   createRole,
   updateRole,
   deleteRole,
@@ -32,6 +33,7 @@ router.route('/:orgId/members/:userId/status').patch(requireOrgPermission('can_m
 router.route('/:orgId/members/:userId').delete(requireOrgPermission('can_manage_members'), removeMember);
 
 router.route('/:orgId/roles').get(listRoles).post(requireOrgPermission('can_manage_roles'), createRole);
+router.route('/:orgId/roles/counts').get(getRoleMemberCounts);
 router.route('/:orgId/roles/:roleId').patch(requireOrgPermission('can_manage_roles'), updateRole).delete(requireOrgPermission('can_manage_roles'), deleteRole);
 
 router.route('/:orgId/compliance').get(getCompliance).patch(requireOrgPermission('can_manage_settings'), updateCompliance);

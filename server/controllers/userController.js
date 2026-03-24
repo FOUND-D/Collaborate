@@ -33,13 +33,40 @@ const getUserProfile = asyncHandler(async (req, res) => {
     
     if (teamsError) {
       console.error('Error fetching user teams:', teamsError);
-      return res.json({ ...user, teams: [] });
+      return res.json({ ...user, teams: [], pendingInvites: [] });
+    }
+
+    const { data: pendingInvites, error: invitesError } = await supabase
+      .from('organisation_pending_invites')
+      .select('id,email,role,token,expires_at,created_at,organisations(id,name,slug,logo)')
+      .eq('email', user.email)
+      .order('created_at', { ascending: false });
+
+    if (invitesError) {
+      console.error('Error fetching pending invites:', invitesError);
     }
     
-    res.json({ ...user, teams: (teams || []).map((r) => r.teams).filter(Boolean).map(t => ({...t, _id: t.id})) });
+    res.json({
+      ...user,
+      teams: (teams || []).map((r) => r.teams).filter(Boolean).map(t => ({ ...t, _id: t.id })),
+      pendingInvites: (pendingInvites || []).map((invite) => ({
+        _id: invite.id,
+        email: invite.email,
+        role: invite.role,
+        token: invite.token,
+        expiresAt: invite.expires_at,
+        createdAt: invite.created_at,
+        organisation: invite.organisations ? {
+          _id: invite.organisations.id,
+          name: invite.organisations.name,
+          slug: invite.organisations.slug,
+          logo: invite.organisations.logo,
+        } : null,
+      })),
+    });
   } catch (err) {
     console.error('Unexpected error in getUserProfile teams fetch:', err);
-    res.json({ ...user, teams: [] });
+    res.json({ ...user, teams: [], pendingInvites: [] });
   }
 });
 

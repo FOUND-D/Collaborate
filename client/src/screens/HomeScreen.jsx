@@ -7,6 +7,7 @@ import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
 import { FaBuilding, FaPlus } from 'react-icons/fa';
+import api from '../utils/api';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const HomeScreen = () => {
   const orgCurrent = useSelector((state) => state.orgCurrent);
   const orgList = useSelector((state) => state.orgList);
   const currentOrg = orgCurrent.organisation || orgList.organisations?.[0];
+  const [profile, setProfile] = useState(null);
 
   // Animation state for numbers
   const [stats, setStats] = useState({ projectCount: 0, taskCount: 0, completionRate: 0 });
@@ -30,6 +32,7 @@ const HomeScreen = () => {
       dispatch(listProjects());
       dispatch(listTasks());
       dispatch(listMyOrganisations());
+      api.get('/api/users/profile').then(({ data }) => setProfile(data)).catch(() => setProfile(null));
     }
   }, [dispatch, userInfo]);
 
@@ -62,6 +65,28 @@ const HomeScreen = () => {
             </div>
           </div>
           <Link to="/organisations/create" className="onboarding-banner-btn"><FaPlus /> Create Organisation</Link>
+        </div>
+      )}
+      {profile?.pendingInvites?.length > 0 && (
+        <div className="onboarding-banner">
+          <div className="onboarding-banner-left">
+            <div className="onboarding-banner-icon"><FaBuilding /></div>
+            <div className="onboarding-banner-text">
+              <h3 className="onboarding-banner-title">You have organisation invites</h3>
+              <p className="onboarding-banner-sub">Open an invite to join the organisation and start collaborating.</p>
+            </div>
+          </div>
+          <div className="onboarding-banner-list">
+            {profile.pendingInvites.slice(0, 3).map((invite) => (
+              <Link
+                key={invite._id}
+                to={`/invite/accept?token=${invite.token}&org=${invite.organisation?._id || ''}`}
+                className="onboarding-banner-btn"
+              >
+                <FaPlus /> {invite.organisation?.name || invite.email}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
       <div className="dashboard-greeting">

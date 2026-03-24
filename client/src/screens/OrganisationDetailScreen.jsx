@@ -75,6 +75,7 @@ const OrganisationDetailScreen = () => {
   const [memberModalOpen, setMemberModalOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [orgRoles, setOrgRoles] = useState([]);
+  const [roleForm, setRoleForm] = useState(null);
   const [membersData, setMembersData] = useState([]);
   const [customFields, setCustomFields] = useState([]);
   const [complianceRules, setComplianceRules] = useState(null);
@@ -116,12 +117,14 @@ const OrganisationDetailScreen = () => {
   const createdLabel = formatCreatedDate(org?.createdAt);
 
   useEffect(() => {
-    if (!isOwnerOrAdmin || !manageOpen) return;
+    if (!isOwnerOrAdmin || (!manageOpen && !memberModalOpen)) return;
     const loadAdminData = async () => {
       try {
         const requests = [];
-        requests.push(api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }));
-        if (manageOpen || managementTab === 'roles') {
+        if (manageOpen) {
+          requests.push(api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }));
+        }
+        if (manageOpen || memberModalOpen || managementTab === 'roles') {
           requests.push(api.get(`/api/orgs/${id}/roles`));
         }
         if (manageOpen || managementTab === 'customFields' || managementTab === 'compliance') {
@@ -135,9 +138,11 @@ const OrganisationDetailScreen = () => {
         }
         const results = await Promise.all(requests);
         let idx = 0;
-        setMembersData(results[idx]?.data?.members || []);
-        idx += 1;
-        if (manageOpen || managementTab === 'roles') {
+        if (manageOpen) {
+          setMembersData(results[idx]?.data?.members || []);
+          idx += 1;
+        }
+        if (manageOpen || memberModalOpen || managementTab === 'roles') {
           setOrgRoles(results[idx]?.data || []);
           idx += 1;
         }
@@ -157,7 +162,7 @@ const OrganisationDetailScreen = () => {
       }
     };
     loadAdminData();
-  }, [id, isOwnerOrAdmin, manageOpen, managementTab]);
+  }, [id, isOwnerOrAdmin, manageOpen, memberModalOpen, managementTab]);
 
   const sortedMembers = useMemo(() => {
     if (!org?.members) return [];
@@ -278,6 +283,16 @@ const OrganisationDetailScreen = () => {
   const teamCount = teams.length;
 
   const renderRoleBadge = (role) => <span className={`org-detail-role-pill ${role}`}>{role}</span>;
+  const roleOptions = orgRoles || [];
+  const roleCounts = useMemo(() => {
+    const counts = {};
+    (membersData || []).forEach((member) => {
+      const key = member.orgRoleId || member.org_role_id || member.role;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+  }, [membersData]);
+  const selectedRoleCount = (roleId) => roleCounts[roleId] || 0;
   const tabs = [
     { key: 'members', label: 'Members', icon: FiUsers },
     { key: 'teams', label: 'Teams', icon: FiGrid },
@@ -353,7 +368,7 @@ const OrganisationDetailScreen = () => {
                       </div>
                       <div className="org-detail-row-right">
                         <ComplianceBadge status={member.status} />
-                        {renderRoleBadge(member.role)}
+                        {renderRoleBadge(member.orgRole?.slug || member.role)}
                       </div>
                     </div>
                   );
@@ -364,8 +379,53 @@ const OrganisationDetailScreen = () => {
           {managementTab === 'roles' && (
             <div className="org-detail-inline-panel">
               <div className="org-detail-section-label">ROLES</div>
+              <div className="org-detail-row-right" style={{ justifyContent: 'space-between' }}>
+                <div className="org-detail-empty-subtitle">Create and manage built-in or custom org roles.</div>
+                <button className="org-detail-primary-btn" type="button" onClick={() => setRoleForm({ mode: 'create', name: '', slug: '', canManageMembers: false, canManageRoles: false, canManageSettings: false, canManageTeams: false, canInviteMembers: false, canViewReports: false })}>+ New Role</button>
+              </div>
+              {roleForm && (
+                <div className="org-detail-settings-card">
+                  <div className="org-detail-field"><label className="org-detail-field-label">Name</label><input className="org-detail-input" value={roleForm.name} onChange={(e) => setRoleForm((p) => ({ ...p, name: e.target.value, slug: p.slug || e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-') }))} /></div>
+                  <div className="org-detail-field"><label className="org-detail-field-label">Slug</label><input className="org-detail-input" value={roleForm.slug} onChange={(e) => setRoleForm((p) => ({ ...p, slug: e.target.value }))} /></div>
+                  <div className="org-detail-field"><label className="org-detail-field-label">Permissions</label>
+                    <div className="org-mgmt-permissions-grid">
+                      {[
+                        { key: 'canManageMembers', label: 'Manage Members' },
+                        { key: 'canManageRoles', label: 'Manage Roles' },
+                        { key: 'canManageSettings', label: 'Manage Settings' },
+                        { key: 'canManageTeams', label: 'Manage Teams' },
+                        { key: 'canInviteMembers', label: 'Invite Members' },
+                        { key: 'canViewReports', label: 'View Reports' },
+                      ].map((perm) => (
+                        <label key={perm.key} className="org-mgmt-permission">
+                          <input type="checkbox" checked={!!roleForm[perm.key]} onChange={(e) => setRoleForm((p) => ({ ...p, [perm.key]: e.target.checked }))} />
+                          <span>{perm.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="org-mgmt-row">
+                    <button className="org-mgmt-secondary-btn" type="button" onClick={() => setRoleForm(null)}>Cancel</button>
+                    <button className="org-mgmt-primary-btn" type="button" onClick={async () => {
+                      await api.post(`/api/orgs/${id}/roles`, {
+                        name: roleForm.name,
+                        slug: roleForm.slug,
+                        canManageMembers: roleForm.canManageMembers,
+                        canManageRoles: roleForm.canManageRoles,
+                        canManageSettings: roleForm.canManageSettings,
+                        canManageTeams: roleForm.canManageTeams,
+                        canInviteMembers: roleForm.canInviteMembers,
+                        canViewReports: roleForm.canViewReports,
+                      });
+                      const { data } = await api.get(`/api/orgs/${id}/roles`);
+                      setOrgRoles(data || []);
+                      setRoleForm(null);
+                    }}>Save Role</button>
+                  </div>
+                </div>
+              )}
               <div className="org-detail-list-card">
-                {orgRoles.map((role) => <div key={role._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{role.name}</div><div className="org-detail-row-subtitle">{role.slug}</div></div></div><div className="org-detail-row-right">{role.isSystemRole ? <span className="org-detail-role-pill owner">Locked</span> : <span className="org-detail-role-pill member">Custom</span>}</div></div>)}
+                {orgRoles.map((role) => <div key={role._id} className="org-detail-member-row"><div className="org-detail-row-left"><div className="org-detail-row-copy"><div className="org-detail-row-title">{role.name}</div><div className="org-detail-row-subtitle">{role.slug} · {selectedRoleCount(role._id)} members</div></div></div><div className="org-detail-row-right">{role.isSystemRole ? <span className="org-detail-role-pill owner">Locked</span> : <span className="org-detail-role-pill member">Custom</span>}</div></div>)}
               </div>
             </div>
           )}

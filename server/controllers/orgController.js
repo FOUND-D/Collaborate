@@ -49,14 +49,22 @@ const listMembers = asyncHandler(async (req, res) => {
   const { search = '', role = '', status = '', page = 1, limit = 20 } = req.query;
   let query = supabase.from('organisation_members').select('*, users(*), org_roles(*)', { count: 'exact' }).eq('organisation_id', req.params.orgId);
   if (status) query = query.eq('status', status);
-  if (role) query = query.eq('role', role);
-  if (search) query = query.or(`users.name.ilike.%${search}%,users.email.ilike.%${search}%`);
+  if (role) query = query.eq('org_role_id', role);
   const start = (Number(page) - 1) * Number(limit);
   const end = start + Number(limit) - 1;
   query = query.range(start, end).order('joined_at', { ascending: false });
   const { data, count, error } = await query;
   if (error) throw error;
-  res.json({ members: (data || []).map(toPublicOrgMember), page: Number(page), limit: Number(limit), total: count || 0 });
+  let members = (data || []).map(toPublicOrgMember);
+  if (search) {
+    const term = String(search).toLowerCase();
+    members = members.filter((m) => {
+      const name = String(m.user?.name || '').toLowerCase();
+      const email = String(m.user?.email || '').toLowerCase();
+      return name.includes(term) || email.includes(term);
+    });
+  }
+  res.json({ members, page: Number(page), limit: Number(limit), total: count || 0 });
 });
 
 const provisionMember = asyncHandler(async (req, res) => {
@@ -133,6 +141,19 @@ const createRole = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('org_roles').insert(payload).select('*').single();
   if (error) throw error;
   res.status(201).json(toPublicOrgRole(data));
+});
+
+const getRoleMemberCounts = asyncHandler(async (req, res) => {
+  const { data, error } = await supabase
+    .from('organisation_members')
+    .select('org_role_id')
+    .eq('organisation_id', req.params.orgId);
+  if (error) throw error;
+  res.json((data || []).reduce((acc, row) => {
+    const key = row.org_role_id || 'unassigned';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {}));
 });
 
 const updateRole = asyncHandler(async (req, res) => {
@@ -241,6 +262,7 @@ module.exports = {
   updateMemberStatus,
   removeMember,
   listRoles,
+  getRoleMemberCounts,
   createRole,
   updateRole,
   deleteRole,
