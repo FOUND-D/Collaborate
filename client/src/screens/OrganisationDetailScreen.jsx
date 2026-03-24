@@ -446,7 +446,9 @@ const OrganisationDetailScreen = () => {
                         setOrgRoles(data || []);
                         setRoleForm(null);
                       } catch (err) {
-                        setRoleFormError(err.response?.data?.error || err.response?.data?.message || 'Failed to create role');
+                        const serverError = err.response?.data?.error || err.response?.data?.message;
+                        const detailError = err.response?.data?.details?.message || err.response?.data?.details?.hint;
+                        setRoleFormError(detailError || serverError || 'Failed to create role');
                       }
                     }}>Save Role</button>
                   </div>
