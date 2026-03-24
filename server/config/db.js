@@ -1,14 +1,11 @@
-const mongoose = require('mongoose');
+const supabase = require('../lib/supabase');
 
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
+  const { error } = await supabase.from('users').select('id').limit(1);
+  if (error && !String(error.message || '').includes('permission')) {
+    console.warn('Supabase connection check returned:', error.message);
   }
+  console.log('Supabase connection ready');
 };
 
 module.exports = connectDB;

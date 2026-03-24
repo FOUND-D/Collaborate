@@ -1,204 +1,49 @@
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
 const asyncHandler = require('../middleware/asyncHandler');
-const bcrypt = require('bcryptjs');
+const generateToken = require('../utils/generateToken');
+const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = require('../lib/repo');
 
-// @desc    Register a new user
-// @route   POST /api/users/register
-// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, techStack, profileImage } = req.body;
-
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
-
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role,
-    profileImage,
-    techStack,
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profileImage: user.profileImage,
-      techStack: user.techStack,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
-  }
+  const existing = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+  if (existing.data) return res.status(400).json({ message: 'User already exists' });
+  const user = await createUser({ name, email, password, role, techStack, profileImage });
+  res.status(201).json({ ...user, token: generateToken(user._id) });
 });
 
-// @desc    Auth user & get token
-// @route   POST /api/users/login
-// @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profileImage: user.profileImage,
-      techStack: user.techStack,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
-  }
+  const user = await verifyUserPassword(req.body.email, req.body.password);
+  if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+  res.json({ ...user, token: generateToken(user._id) });
 });
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate('teams');
-
-  if (user) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profileImage: user.profileImage,
-      techStack: user.techStack,
-      teams: user.teams.filter(t => t),
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
+  const user = await getUserById(req.user._id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  const { data: teams } = await supabase.from('team_members').select('team_id, teams(*)').eq('user_id', req.user._id);
+  res.json({ ...user, teams: (teams || []).map((r) => r.teams).filter(Boolean) });
 });
 
-// @desc    Update user profile
-// @route   PATCH /api/users/profile
-// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const { name, email, role, techStack, password, profileImage } = req.body;
-
-  const updateFields = {};
-
-  if (name) updateFields.name = name;
-  if (role) updateFields.role = role;
-  if (techStack) updateFields.techStack = techStack;
-
-  if (email) {
-    const userExists = await User.findOne({ email });
-    if (userExists && userExists._id.toString() !== req.user._id.toString()) {
-      res.status(400);
-      throw new Error('User with this email already exists');
-    }
-    updateFields.email = email;
-  }
-
-  if (password) {
-    const salt = await bcrypt.genSalt(10);
-    updateFields.password = await bcrypt.hash(password, salt);
-  }
-
-  if (profileImage !== undefined) {
-    updateFields.profileImage = profileImage;
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    { $set: updateFields },
-    { new: true, runValidators: true }
-  ).select('-password');
-
-  if (updatedUser) {
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      profileImage: updatedUser.profileImage,
-      techStack: updatedUser.techStack,
-      token: generateToken(updatedUser._id),
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
+  const updated = await updateUser(req.user._id, req.body);
+  res.json({ ...updated, token: generateToken(updated._id) });
 });
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.status(200).json(users);
+  const { data, error } = await supabase.from('users').select('id,name,email,role,profile_image,tech_stack,reputation_score,created_at,updated_at');
+  if (error) throw error;
+  res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack, reputationScore: u.reputation_score })));
 });
 
-// @desc    Update user profile image
-// @route   PATCH /api/users/profile/image
-// @access  Private
 const updateUserProfileImage = asyncHandler(async (req, res) => {
-  const { image } = req.body;
-
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    { $set: { profileImage: image || '' } },
-    { new: true, runValidators: true }
-  ).select('-password');
-
-  if (updatedUser) {
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      profileImage: updatedUser.profileImage,
-      techStack: updatedUser.techStack,
-      token: generateToken(updatedUser._id),
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
+  const updated = await updateUser(req.user._id, { profileImage: req.body.image || '' });
+  res.json({ ...updated, token: generateToken(updated._id) });
 });
 
-// @desc    Search for users
-// @route   GET /api/users/search
-// @access  Private
 const searchUsers = asyncHandler(async (req, res) => {
-  const keyword = req.query.search
-    ? {
-      $or: [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { email: { $regex: req.query.search, $options: 'i' } },
-      ],
-    }
-    : {};
-
-  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
-  res.send(users);
+  const q = req.query.search || '';
+  const { data, error } = await supabase.from('users').select('id,name,email,role,profile_image,tech_stack').neq('id', req.user._id).or(`name.ilike.%${q}%,email.ilike.%${q}%`);
+  if (error) throw error;
+  res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack })));
 });
 
-
-module.exports = {
-  registerUser,
-  loginUser,
-  searchUsers,
-  getUsers,
-  getUserProfile,
-  updateUserProfile,
-  updateUserProfileImage,
-};
+module.exports = { registerUser, loginUser, searchUsers, getUsers, getUserProfile, updateUserProfile, updateUserProfileImage };

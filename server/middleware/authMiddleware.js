@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User.js');
+const { getUserById } = require('../lib/repo');
 
 const protect = async (req, res, next) => {
   try {
@@ -20,7 +20,7 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('protect middleware: token decoded for user id =', decoded.id);
 
-    const user = await User.findById(decoded.id).select('-password');
+    const user = await getUserById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists' });

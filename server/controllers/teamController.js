@@ -1,269 +1,74 @@
-const Team = require('../models/Team');
-const User = require('../models/User');
-const Task = require('../models/Task');
-const Project = require('../models/Project');
-const Organisation = require('../models/Organisation');
 const asyncHandler = require('../middleware/asyncHandler');
+const { supabase } = require('../lib/repo');
 
-// @desc    Get a team by its ID
-// @route   GET /api/teams/:id
-// @access  Private
+const hydrateTeam = async (team) => {
+  const [{ data: owner }, { data: members }, { data: requests }, { data: projects }] = await Promise.all([
+    supabase.from('users').select('id,name,email').eq('id', team.owner_id).maybeSingle(),
+    supabase.from('team_members').select('users(id,name,email)').eq('team_id', team.id),
+    supabase.from('team_join_requests').select('users(id,name,email)').eq('team_id', team.id),
+    supabase.from('projects').select('*').eq('team_id', team.id),
+  ]);
+  return {
+    _id: team.id,
+    name: team.name,
+    owner: owner ? { _id: owner.id, name: owner.name, email: owner.email } : null,
+    members: (members || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
+    pendingJoinRequests: (requests || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
+    projects: projects || [],
+    organisation: team.organisation_id,
+  };
+};
+
 const getTeamById = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.id)
-    .populate('owner', 'name email')
-    .populate('members', 'name email')
-    .populate({
-      path: 'projects',
-      model: 'Project',
-    });
-
-  if (team) {
-    res.json(team);
-  } else {
-    res.status(404);
-    throw new Error('Team not found');
-  }
+  const { data, error } = await supabase.from('teams').select('*').eq('id', req.params.id).maybeSingle();
+  if (error || !data) return res.status(404).json({ message: 'Team not found' });
+  res.json(await hydrateTeam(data));
 });
 
-// @desc    Create a new team
-// @route   POST /api/teams
-// @access  Private
 const createTeam = asyncHandler(async (req, res) => {
   const { name, organisation } = req.body;
-
-  if (organisation) {
-    const org = await Organisation.findById(organisation);
-    if (!org) {
-      res.status(404);
-      throw new Error('Organisation not found');
-    }
-    const member = org.members.find((m) => m.user.toString() === req.user._id.toString());
-    if (!member || !['owner', 'admin'].includes(member.role)) {
-      res.status(403);
-      throw new Error('Not authorized to create team in this organisation');
-    }
-  }
-
-  const team = new Team({
-    name,
-    owner: req.user._id,
-    members: [req.user._id],
-    organisation: organisation || null,
-  });
-
-  const createdTeam = await team.save();
-
-  // Update the user's teams array to include the newly created team using findByIdAndUpdate with $addToSet
-  await User.findByIdAndUpdate(
-    req.user._id,
-    { $addToSet: { teams: createdTeam._id } },
-    { new: true } // Return the updated document
-  );
-
-  if (organisation) {
-    await Organisation.findByIdAndUpdate(organisation, { $addToSet: { teams: createdTeam._id } });
-  }
-
-  res.status(201).json(createdTeam);
+  const { data, error } = await supabase.from('teams').insert({ name, owner_id: req.user._id, organisation_id: organisation || null }).select('*').single();
+  if (error) throw error;
+  await supabase.from('team_members').insert({ team_id: data.id, user_id: req.user._id });
+  res.status(201).json(await hydrateTeam(data));
 });
 
-// @desc    Get all teams for a user
-// @route   GET /api/teams
-// @access  Private
 const getTeams = asyncHandler(async (req, res) => {
-  const teams = await Team.find({
-    $or: [{ owner: req.user._id }, { members: req.user._id }],
-  })
-    .populate('owner', 'name email')
-    .populate('members', 'name email')
-    .populate('pendingJoinRequests', 'name email');
-
-  res.status(200).json(teams);
+  const { data, error } = await supabase.from('teams').select('*').or(`owner_id.eq.${req.user._id},team_members.user_id.eq.${req.user._id}`);
+  if (error) throw error;
+  const teams = [];
+  for (const team of data || []) teams.push(await hydrateTeam(team));
+  res.json(teams);
 });
 
-// @desc    Add a member to a team
-// @route   PUT /api/teams/:id/members
-// @access  Private
 const addMember = asyncHandler(async (req, res) => {
-    const { userId } = req.body;
-
-    const team = await Team.findById(req.params.id);
-
-    if (team) {
-        if (team.owner.toString() !== req.user._id.toString()) {
-            res.status(401);
-            throw new Error('Only the team owner can add members');
-        }
-
-        const user = await User.findById(userId);
-
-        if (user) {
-            if (team.members.includes(userId)) {
-                res.status(400);
-                throw new Error('User is already in the team');
-            }
-
-            team.members.push(userId);
-            await team.save();
-
-            // Also add the team to the user's list of teams
-            await User.findByIdAndUpdate(
-                userId,
-                { $addToSet: { teams: team._id } },
-                { new: true }
-            );
-
-            res.json(team);
-        } else {
-            res.status(404);
-            throw new Error('User not found');
-        }
-    } else {
-        res.status(404);
-        throw new Error('Team not found');
-    }
+  const { userId } = req.body;
+  const { data: team } = await supabase.from('teams').select('*').eq('id', req.params.id).single();
+  if (team.owner_id !== req.user._id) return res.status(401).json({ message: 'Only the team owner can add members' });
+  await supabase.from('team_members').insert({ team_id: team.id, user_id: userId });
+  res.json(await hydrateTeam(team));
 });
 
-
-// @desc    Request to join a team
-// @route   POST /api/teams/:id/join
-// @access  Private
 const joinTeam = asyncHandler(async (req, res) => {
-  const teamId = req.params.id;
-  const userId = req.user._id;
-
-  const team = await Team.findById(teamId);
-
-  if (!team) {
-    res.status(404);
-    throw new Error('Team not found');
-  }
-
-  if (team.members.includes(userId)) {
-    res.status(400);
-    throw new Error('User is already a member of this team');
-  }
-
-  if (team.pendingJoinRequests.includes(userId)) {
-    res.status(400);
-    throw new Error('Join request already pending for this team');
-  }
-
-  team.pendingJoinRequests.push(userId);
-  await team.save();
-
-  // For now, log the request. In a real app, this would trigger a notification.
-  console.log(`User ${req.user.name} (ID: ${userId}) requested to join team ${team.name} (ID: ${teamId}). Team owner: ${team.owner}`);
-
-  return res.status(200).json({ message: 'Join request sent successfully' });
+  await supabase.from('team_join_requests').upsert({ team_id: req.params.id, user_id: req.user._id });
+  res.json({ message: 'Join request sent successfully' });
 });
 
-// @desc    Delete a team
-// @route   DELETE /api/teams/:id
-// @access  Private
 const deleteTeam = asyncHandler(async (req, res) => {
-  console.log('Attempting to delete team:', req.params.id);
-  const team = await Team.findById(req.params.id);
-
-  if (team) {
-    console.log('Team found:', team._id);
-    if (team.owner.toString() !== req.user._id.toString()) {
-      res.status(401);
-      throw new Error('Not authorized as team owner');
-    }
-
-    console.log('User is authorized. Removing team from members...');
-    // Remove team from all members' team list
-    await User.updateMany(
-      { _id: { $in: team.members } },
-      { $pull: { teams: team._id } }
-    );
-    console.log('Team removed from members. Deleting associated tasks...');
-
-    // Delete all tasks associated with this team
-    await Task.deleteMany({ team: team._id });
-    console.log('Associated tasks deleted. Removing team...');
-
-    await team.deleteOne(); // Use deleteOne instead of deprecated remove()
-    console.log('Team removed successfully.');
-    res.json({ message: 'Team removed' });
-  } else {
-    res.status(404);
-    throw new Error('Team not found');
-  }
+  await supabase.from('task_dependencies').delete().in('task_id', []);
+  await supabase.from('tasks').delete().eq('team_id', req.params.id);
+  await supabase.from('team_members').delete().eq('team_id', req.params.id);
+  await supabase.from('team_join_requests').delete().eq('team_id', req.params.id);
+  await supabase.from('projects').update({ team_id: null }).eq('team_id', req.params.id);
+  await supabase.from('teams').delete().eq('id', req.params.id);
+  res.json({ message: 'Team removed' });
 });
 
-// @desc    Update a team join request (approve/reject)
-// @route   PUT /api/teams/:id/join
-// @access  Private (Team Owner)
 const updateTeamJoinRequest = asyncHandler(async (req, res) => {
-  const teamId = req.params.id;
-  const { userId, action } = req.body; // 'approve' or 'reject'
-
-  const team = await Team.findById(teamId);
-
-  if (!team) {
-    res.status(404);
-    throw new Error('Team not found');
-  }
-
-  // Check if the logged-in user is the team owner
-  if (team.owner.toString() !== req.user._id.toString()) {
-    res.status(401);
-    throw new Error('Not authorized to manage join requests for this team');
-  }
-
-  // Check if the user is in pending requests
-  const userRequestIndex = team.pendingJoinRequests.indexOf(userId);
-  if (userRequestIndex === -1) {
-    res.status(404);
-    throw new Error('User not found in pending join requests');
-  }
-
-  if (action === 'approve') {
-    // Remove from pending requests
-    team.pendingJoinRequests.splice(userRequestIndex, 1);
-    // Add to members
-    team.members.push(userId);
-    await team.save();
-
-    // Add team to user's teams list
-    const user = await User.findById(userId);
-    if (user) {
-      if (!user.teams.includes(teamId)) {
-        // Add team to user's teams list
-        // Use findByIdAndUpdate with $addToSet to ensure the teamId is added uniquely and saved
-        // Use findByIdAndUpdate with $addToSet to ensure the teamId is added uniquely and saved
-        await User.findByIdAndUpdate(
-          userId,
-          { $addToSet: { teams: teamId } },
-          { new: true } // Return the updated document
-        );
-      }
-    } else {
-      console.warn(`Approved user (ID: ${userId}) not found for team ${teamId}.`);
-    }
-
-    res.json({ message: 'User approved and added to the team' });
-
-  } else if (action === 'reject') {
-    // Remove from pending requests
-    team.pendingJoinRequests.splice(userRequestIndex, 1);
-    await team.save();
-    res.json({ message: 'User join request rejected' });
-
-  } else {
-    res.status(400);
-    throw new Error('Invalid action specified. Must be "approve" or "reject"');
-  }
+  const { userId, action } = req.body;
+  await supabase.from('team_join_requests').delete().eq('team_id', req.params.id).eq('user_id', userId);
+  if (action === 'approve') await supabase.from('team_members').insert({ team_id: req.params.id, user_id: userId });
+  res.json({ message: `User join request ${action}d` });
 });
 
-module.exports = {
-  createTeam,
-  addMember,
-  getTeams,
-  joinTeam,
-  deleteTeam,
-  updateTeamJoinRequest,
-  getTeamById,
-};
+module.exports = { createTeam, addMember, getTeams, joinTeam, deleteTeam, updateTeamJoinRequest, getTeamById };
