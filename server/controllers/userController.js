@@ -19,8 +19,23 @@ const loginUser = asyncHandler(async (req, res) => {
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await getUserById(req.user._id);
   if (!user) return res.status(404).json({ message: 'User not found' });
-  const { data: teams } = await supabase.from('team_members').select('team_id, teams(*)').eq('user_id', req.user._id);
-  res.json({ ...user, teams: (teams || []).map((r) => r.teams).filter(Boolean) });
+  
+  try {
+    const { data: teams, error: teamsError } = await supabase
+      .from('team_members')
+      .select('team_id, teams(*)')
+      .eq('user_id', req.user._id);
+    
+    if (teamsError) {
+      console.error('Error fetching user teams:', teamsError);
+      return res.json({ ...user, teams: [] });
+    }
+    
+    res.json({ ...user, teams: (teams || []).map((r) => r.teams).filter(Boolean).map(t => ({...t, _id: t.id})) });
+  } catch (err) {
+    console.error('Unexpected error in getUserProfile teams fetch:', err);
+    res.json({ ...user, teams: [] });
+  }
 });
 
 const updateUserProfile = asyncHandler(async (req, res) => {

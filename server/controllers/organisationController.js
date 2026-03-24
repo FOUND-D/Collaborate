@@ -1,5 +1,5 @@
 const asyncHandler = require('../middleware/asyncHandler');
-const { supabase, crypto, uniqueSlug } = require('../lib/repo');
+const { supabase, crypto, uniqueSlug, toPublicOrganisation } = require('../lib/repo');
 
 const createOrganisation = asyncHandler(async (req, res) => {
   const { name, description = '', logo = '' } = req.body;
@@ -7,25 +7,40 @@ const createOrganisation = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();
   if (error) throw error;
   await supabase.from('organisation_members').insert({ organisation_id: data.id, user_id: req.user._id, role: 'owner' });
-  res.status(201).json(data);
+  res.status(201).json(toPublicOrganisation(data));
 });
 
 const getMyOrganisations = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('organisations').select('*').eq('organisation_members.user_id', req.user._id);
+  // Select organisations where the user is a member, including their role.
+  const { data, error } = await supabase
+    .from('organisations')
+    .select('*, organisation_members!inner(role, user_id)')
+    .eq('organisation_members.user_id', req.user._id);
+    
   if (error) throw error;
-  res.json(data || []);
+  
+  const orgs = (data || []).map(o => {
+    const publicOrg = toPublicOrganisation(o);
+    // Move the role from the joined organisation_members to the main object level
+    return {
+      ...publicOrg,
+      role: o.organisation_members?.[0]?.role || 'member'
+    };
+  });
+  
+  res.json(orgs);
 });
 
 const getOrganisationById = asyncHandler(async (req, res) => {
   const { data } = await supabase.from('organisations').select('*').eq('id', req.params.id).maybeSingle();
   if (!data) return res.status(404).json({ message: 'Organisation not found' });
-  res.json(data);
+  res.json(toPublicOrganisation(data));
 });
 
 const updateOrganisation = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('organisations').update(req.body).eq('id', req.params.id).select('*').single();
   if (error) throw error;
-  res.json(data);
+  res.json(toPublicOrganisation(data));
 });
 
 const deleteOrganisation = asyncHandler(async (req, res) => {

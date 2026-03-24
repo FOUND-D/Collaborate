@@ -14,6 +14,18 @@ const toPublicUser = (u) => u && ({
   updatedAt: u.updated_at,
 });
 
+const toPublicOrganisation = (o) => o && ({
+  _id: o.id,
+  name: o.name,
+  slug: o.slug,
+  description: o.description,
+  logo: o.logo,
+  ownerId: o.owner_id,
+  settings: o.settings,
+  createdAt: o.created_at,
+  updatedAt: o.updated_at,
+});
+
 const getUserById = async (id) => {
   const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
@@ -72,4 +84,4 @@ const uniqueSlug = async (name, excludeId) => {
   }
 };
 
-module.exports = { supabase, crypto, toPublicUser, getUserById, getUserByEmail, createUser, verifyUserPassword, updateUser, uniqueSlug };
+module.exports = { supabase, crypto, toPublicUser, toPublicOrganisation, getUserById, getUserByEmail, createUser, verifyUserPassword, updateUser, uniqueSlug };

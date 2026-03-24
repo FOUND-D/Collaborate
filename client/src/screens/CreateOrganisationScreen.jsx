@@ -20,9 +20,14 @@ const CreateOrganisationScreen = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const action = await dispatch(createOrganisation(name, description, logo));
-    const org = action?.payload || action?.organisation;
-    if (org?._id) navigate(`/organisations/${org._id}`);
+    try {
+      const org = await dispatch(createOrganisation(name, description, logo));
+      if (org?._id) {
+        navigate(`/organisations/${org._id}`);
+      }
+    } catch (err) {
+      console.error('Failed to create organisation:', err);
+    }
   };
 
   return (
