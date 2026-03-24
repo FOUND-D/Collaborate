@@ -153,7 +153,7 @@ const ProfileScreen = () => {
                 style={{ display: 'none' }}
               />
               <span style={{ marginLeft: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                {uploading ? 'Uploading...' : ''}
+                {uploading ? 'Uploading...' : 'PNG, JPG up to 25MB'}
               </span>
             </div>
             {uploading && <Loader />}

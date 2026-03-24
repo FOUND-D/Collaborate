@@ -210,7 +210,7 @@ const RegisterScreen = () => {
                   <>
                     <div className="upload-icon"><FaUpload size={13} /></div>
                     <span className="upload-label">Upload a photo</span>
-                    <span className="upload-sublabel">PNG, JPG up to 2MB</span>
+                    <span className="upload-sublabel">PNG, JPG up to 25MB</span>
                   </>
                 )}
                 <input
