@@ -42,7 +42,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.request && !error.response && error.code !== 'ERR_CANCELED') {
+    if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+      console.error('API timeout at', BACKEND_URL);
+    } else if (error.request && !error.response && error.code !== 'ERR_CANCELED') {
       const { serverStatus } = store.getState();
 
       if (serverStatus?.status !== SERVER_STATUS_OFFLINE) {

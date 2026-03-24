@@ -37,15 +37,14 @@ const getMyOrganisations = asyncHandler(async (req, res) => {
   // Select organisations where the user is a member, including their role.
   const { data, error } = await supabase
     .from('organisations')
-    .select('*, organisation_members!inner(role, user_id, org_role_id, org_roles(slug,can_manage_members,can_manage_roles,can_manage_settings,can_manage_teams,can_invite_members,can_view_reports))')
+    .select('id,name,slug,description,logo,owner_id,created_at,organisation_members!inner(role,user_id,org_role_id)')
     .eq('organisation_members.user_id', req.user._id);
     
   if (error) throw error;
   
   const orgs = (data || []).map(o => {
     const publicOrg = toPublicOrganisation(o);
-    // Move the role from the joined organisation_members to the main object level
-    const memberRole = o.organisation_members?.[0]?.org_roles?.slug || o.organisation_members?.[0]?.role || 'member';
+    const memberRole = o.organisation_members?.[0]?.role || 'member';
     return {
       ...publicOrg,
       role: memberRole
