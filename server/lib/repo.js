@@ -2,64 +2,80 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const supabase = require('./supabase');
 
-const toPublicUser = (u) => u && ({
-  _id: u.id,
-  name: u.name,
-  email: u.email,
-  role: u.role,
-  profileImage: u.profile_image || '',
-  mobileNumber: u.mobile_number || '',
-  bio: u.bio || '',
-  designation: u.designation || '',
-  customFields: u.custom_fields || {},
-  techStack: u.tech_stack || [],
-  reputationScore: u.reputation_score || 0,
-  createdAt: u.created_at,
-  updatedAt: u.updated_at,
-});
+const toPublicUser = (u) => {
+  if (!u) return null;
+  console.log(`[toPublicUser] Mapping user: ${u.id}`);
+  return {
+    _id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    profileImage: u.profile_image || '',
+    mobileNumber: u.mobile_number || '',
+    bio: u.bio || '',
+    designation: u.designation || '',
+    customFields: u.custom_fields || {},
+    techStack: u.tech_stack || [],
+    reputationScore: u.reputation_score || 0,
+    createdAt: u.created_at,
+    updatedAt: u.updated_at,
+  };
+};
 
-const toPublicOrganisation = (o) => o && ({
-  _id: o.id,
-  name: o.name,
-  slug: o.slug,
-  description: o.description,
-  logo: o.logo,
-  ownerId: o.owner_id,
-  settings: o.settings,
-  createdAt: o.created_at,
-  updatedAt: o.updated_at,
-});
+const toPublicOrganisation = (o) => {
+  if (!o) return null;
+  console.log(`[toPublicOrganisation] Mapping org: ${o.id}`);
+  return {
+    _id: o.id,
+    name: o.name,
+    slug: o.slug,
+    description: o.description,
+    logo: o.logo,
+    ownerId: o.owner_id,
+    settings: o.settings,
+    createdAt: o.created_at,
+    updatedAt: o.updated_at,
+  };
+};
 
-const toPublicOrgRole = (role) => role && ({
-  _id: role.id,
-  organisationId: role.organisation_id,
-  name: role.name,
-  slug: role.slug,
-  description: role.description,
-  isSystemRole: role.is_system_role,
-  canManageMembers: role.can_manage_members,
-  canManageRoles: role.can_manage_roles,
-  canManageSettings: role.can_manage_settings,
-  canManageTeams: role.can_manage_teams,
-  canInviteMembers: role.can_invite_members,
-  canViewReports: role.can_view_reports,
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
-});
+const toPublicOrgRole = (role) => {
+  if (!role) return null;
+  console.log(`[toPublicOrgRole] Mapping role: ${role.id} (org: ${role.org_id})`);
+  return {
+    _id: role.id,
+    organisationId: role.org_id,
+    name: role.name,
+    slug: role.slug,
+    description: role.description,
+    isSystemRole: role.is_system_role,
+    canManageMembers: role.can_manage_members,
+    canManageRoles: role.can_manage_roles,
+    canManageSettings: role.can_manage_settings,
+    canManageTeams: role.can_manage_teams,
+    canInviteMembers: role.can_invite_members,
+    canViewReports: role.can_view_reports,
+    createdAt: role.created_at,
+    updatedAt: role.updated_at,
+  };
+};
 
-const toPublicOrgMember = (member) => member && ({
-  organisationId: member.organisation_id,
-  userId: member.user_id,
-  orgRoleId: member.org_role_id,
-  role: member.role,
-  status: member.status,
-  isProvisioned: member.is_provisioned,
-  tempPasswordUsed: member.temp_password_used,
-  invitedBy: member.invited_by,
-  joinedAt: member.joined_at,
-  user: member.users ? toPublicUser(member.users) : undefined,
-  orgRole: member.org_roles ? toPublicOrgRole(member.org_roles) : undefined,
-});
+const toPublicOrgMember = (member) => {
+  if (!member) return null;
+  console.log(`[toPublicOrgMember] Mapping member: user=${member.user_id} org=${member.organisation_id}`);
+  return {
+    organisationId: member.organisation_id,
+    userId: member.user_id,
+    orgRoleId: member.org_role_id,
+    role: member.role,
+    status: member.status,
+    isProvisioned: member.is_provisioned,
+    tempPasswordUsed: member.temp_password_used,
+    invitedBy: member.invited_by,
+    joinedAt: member.joined_at,
+    user: member.users ? toPublicUser(member.users) : undefined,
+    orgRole: member.org_roles ? toPublicOrgRole(member.org_roles) : undefined,
+  };
+};
 
 const toPublicComplianceRules = (rules) => rules && ({
   _id: rules.id,

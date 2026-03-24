@@ -1,18 +1,35 @@
 const asyncHandler = require('../middleware/asyncHandler');
-const { supabase, crypto, uniqueSlug, toPublicOrganisation } = require('../lib/repo');
+const { supabase, crypto, uniqueSlug, toPublicOrganisation, toPublicOrgMember } = require('../lib/repo');
 
 const createOrganisation = asyncHandler(async (req, res) => {
   const { name, description = '', logo = '' } = req.body;
+  console.log(`[createOrganisation] Payload: name=${name}, owner_id=${req.user._id}`);
+  
   const slug = await uniqueSlug(name);
+  console.log(`[createOrganisation] Generated unique slug: ${slug}`);
+
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();
-  if (error) throw error;
+  if (error) {
+    console.error(`[createOrganisation] Org insertion failed:`, error);
+    throw error;
+  }
+  
+  console.log(`[createOrganisation] Created Org ID: ${data.id}`);
+
   const systemRoles = [
-    { org_id: data.id, name: 'Owner', slug: 'owner', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
-    { org_id: data.id, name: 'Admin', slug: 'admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
-    { org_id: data.id, name: 'Member', slug: 'member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false },
+    { org_id: data.id, name: 'Owner', slug: 'owner', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true, created_by: req.user._id },
+    { org_id: data.id, name: 'Admin', slug: 'admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true, created_by: req.user._id },
+    { org_id: data.id, name: 'Member', slug: 'member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false, created_by: req.user._id },
   ];
+
+  console.log(`[createOrganisation] Inserting system roles...`);
   const { data: roles, error: rolesError } = await supabase.from('org_roles').insert(systemRoles).select('*');
-  if (rolesError) throw rolesError;
+  if (rolesError) {
+    console.error(`[createOrganisation] Roles seeding failed:`, rolesError);
+    throw rolesError;
+  }
+  
+  console.log(`[createOrganisation] Roles seeded. Seeding owner member entry...`);
   const ownerRole = roles?.find((r) => r.slug === 'owner');
   if (ownerRole) {
     const { error: memberError } = await supabase.from('organisation_members').insert({
@@ -26,10 +43,20 @@ const createOrganisation = asyncHandler(async (req, res) => {
       temp_password_used: true,
       invited_by: null,
     });
-    if (memberError) throw memberError;
+    if (memberError) {
+      console.error(`[createOrganisation] Member seeding failed:`, memberError);
+      throw memberError;
+    }
   }
+  
+  console.log(`[createOrganisation] Seeding compliance rules...`);
   const { error: complianceError } = await supabase.from('org_compliance_rules').insert({ org_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
-  if (complianceError) throw complianceError;
+  if (complianceError) {
+    console.error(`[createOrganisation] Compliance seeding failed:`, complianceError);
+    throw complianceError;
+  }
+  
+  console.log(`[createOrganisation] Success.`);
   res.status(201).json(toPublicOrganisation(data));
 });
 
@@ -108,9 +135,9 @@ const updateMemberRole = asyncHandler(async (req, res) => {
 });
 
 const getOrgMembers = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('organisation_members').select('user_id,role,org_role_id,joined_at,users(id,name,email,profile_image),org_roles(slug,name,can_manage_members,can_manage_roles,can_manage_settings,can_manage_teams,can_invite_members,can_view_reports)').eq('organisation_id', req.params.id);
+  const { data, error } = await supabase.from('organisation_members').select('*, users(*), org_roles(*)').eq('organisation_id', req.params.id);
   if (error) throw error;
-  res.json(data || []);
+  res.json({ members: (data || []).map(toPublicOrgMember) });
 });
 
 const getOrgTeams = asyncHandler(async (req, res) => {

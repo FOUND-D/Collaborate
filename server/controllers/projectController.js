@@ -6,7 +6,26 @@ dotenv.config();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const getProjects = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('projects').select('*').eq('owner_id', req.user._id);
+  // Get teams user is member of
+  const { data: teamMembers, error: teamError } = await supabase
+    .from('team_members')
+    .select('team_id')
+    .eq('user_id', req.user._id);
+  
+  if (teamError) throw teamError;
+  const teamIds = (teamMembers || []).map(tm => tm.team_id);
+
+  let query = supabase.from('projects').select('*');
+  
+  if (teamIds.length > 0) {
+    // If user is in teams, fetch projects where they are owner OR the project belongs to one of their teams
+    query = query.or(`owner_id.eq.${req.user._id},team_id.in.(${teamIds.join(',')})`);
+  } else {
+    // Otherwise just projects they own
+    query = query.eq('owner_id', req.user._id);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   res.json(data || []);
 });

@@ -126,28 +126,52 @@ const listRoles = asyncHandler(async (req, res) => {
 });
 
 const createRole = asyncHandler(async (req, res) => {
-  const name = String(req.body.name || '').trim();
-  const slug = String(req.body.slug || name).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  if (!name) return res.status(400).json({ error: 'ROLE_NAME_REQUIRED' });
-  if (!slug) return res.status(400).json({ error: 'ROLE_SLUG_REQUIRED' });
+  console.log(`[createRole] Request received for org:${req.params.orgId}`);
+  const { name: rawName, slug: rawSlug } = req.body;
+  
+  const name = String(rawName || '').trim();
+  const slug = String(rawSlug || name).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  
+  console.log(`[createRole] Validation - Name: "${name}", Slug: "${slug}"`);
+
+  if (!name) return res.status(400).json({ error: 'ROLE_NAME_REQUIRED', msg: 'Name is empty' });
+  if (!slug) return res.status(400).json({ error: 'ROLE_SLUG_REQUIRED', msg: 'Slug is empty' });
+
+  // Map permissions from body (accept both camelCase and snake_case)
   const payload = {
     org_id: req.params.orgId,
     name,
     slug,
-    can_manage_members: !!req.body.canManageMembers,
-    can_manage_roles: !!req.body.canManageRoles,
-    can_manage_settings: !!req.body.canManageSettings,
-    can_manage_teams: !!req.body.canManageTeams,
-    can_invite_members: !!req.body.canInviteMembers,
-    can_view_reports: !!req.body.canViewReports,
+    can_manage_members: !!(req.body.canManageMembers || req.body.can_manage_members),
+    can_manage_roles: !!(req.body.canManageRoles || req.body.can_manage_roles),
+    can_manage_settings: !!(req.body.canManageSettings || req.body.can_manage_settings),
+    can_manage_teams: !!(req.body.canManageTeams || req.body.can_manage_teams),
+    can_invite_members: !!(req.body.canInviteMembers || req.body.can_invite_members),
+    can_view_reports: !!(req.body.canViewReports || req.body.can_view_reports),
+    created_by: req.user._id,
     is_system_role: false,
   };
-  const { data, error } = await supabase.from('org_roles').insert(payload).select('*').single();
+
+  console.log(`[createRole] Payload prepared for Supabase:`, JSON.stringify(payload, null, 2));
+
+  const { data, error } = await supabase.from('org_roles').insert(payload).select('*');
+  
   if (error) {
-    if (error.code === '23505') return res.status(409).json({ error: 'ROLE_SLUG_EXISTS' });
-    return res.status(400).json({ error: error.message || 'ROLE_CREATE_FAILED', details: error });
+    console.error(`[createRole] Supabase insertion failed:`, error);
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'ROLE_SLUG_EXISTS', details: error });
+    }
+    return res.status(400).json({ error: 'ROLE_CREATE_FAILED', details: error, msg: error.message });
   }
-  return res.status(201).json(toPublicOrgRole(data));
+
+  const createdRole = data?.[0];
+  if (!createdRole) {
+    console.error(`[createRole] No data returned from insert`);
+    return res.status(400).json({ error: 'ROLE_CREATE_NO_DATA', msg: 'Insert succeeded but no data returned' });
+  }
+
+  console.log(`[createRole] SUCCESS - Role created with ID: ${createdRole.id}`);
+  return res.status(201).json(toPublicOrgRole(createdRole));
 });
 
 const getRoleMemberCounts = asyncHandler(async (req, res) => {

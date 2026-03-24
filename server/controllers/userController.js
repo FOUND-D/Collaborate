@@ -22,23 +22,25 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await getUserById(req.user._id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ message: 'Not authorized, user data missing' });
+  }
+
+  const user = req.user;
   
   try {
     const { data: teams, error: teamsError } = await supabase
       .from('team_members')
-      .select('team_id, teams(*)')
-      .eq('user_id', req.user._id);
+      .select('team_id, teams:teams(*)')
+      .eq('user_id', user._id);
     
     if (teamsError) {
       console.error('Error fetching user teams:', teamsError);
-      return res.json({ ...user, teams: [], pendingInvites: [] });
     }
 
     const { data: pendingInvites, error: invitesError } = await supabase
       .from('organisation_pending_invites')
-      .select('id,email,role,token,expires_at,created_at,organisations(id,name,slug,logo)')
+      .select('id,email,role,token,expires_at,created_at,organisation:organisations(id,name,slug,logo)')
       .eq('email', user.email)
       .order('created_at', { ascending: false });
 
@@ -56,17 +58,17 @@ const getUserProfile = asyncHandler(async (req, res) => {
         token: invite.token,
         expiresAt: invite.expires_at,
         createdAt: invite.created_at,
-        organisation: invite.organisations ? {
-          _id: invite.organisations.id,
-          name: invite.organisations.name,
-          slug: invite.organisations.slug,
-          logo: invite.organisations.logo,
+        organisation: invite.organisation ? {
+          _id: invite.organisation.id,
+          name: invite.organisation.name,
+          slug: invite.organisation.slug,
+          logo: invite.organisation.logo,
         } : null,
       })),
     });
   } catch (err) {
-    console.error('Unexpected error in getUserProfile teams fetch:', err);
-    res.json({ ...user, teams: [], pendingInvites: [] });
+    console.error('Unexpected error in getUserProfile:', err);
+    res.status(500).json({ message: 'Internal Server Error', details: err.message });
   }
 });
 
