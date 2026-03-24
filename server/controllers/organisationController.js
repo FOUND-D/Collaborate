@@ -58,7 +58,22 @@ const getMyOrganisations = asyncHandler(async (req, res) => {
 const getOrganisationById = asyncHandler(async (req, res) => {
   const { data } = await supabase.from('organisations').select('*').eq('id', req.params.id).maybeSingle();
   if (!data) return res.status(404).json({ message: 'Organisation not found' });
-  res.json(toPublicOrganisation(data));
+  const { data: memberRow } = await supabase
+    .from('organisation_members')
+    .select('role, org_role_id, org_roles(slug,can_manage_members,can_manage_roles,can_manage_settings,can_manage_teams,can_invite_members,can_view_reports)')
+    .eq('organisation_id', req.params.id)
+    .eq('user_id', req.user._id)
+    .maybeSingle();
+  const memberRole = memberRow?.org_roles?.slug || memberRow?.role || null;
+  const permissions = memberRow?.org_roles ? {
+    canManageMembers: Boolean(memberRow.org_roles.can_manage_members),
+    canManageRoles: Boolean(memberRow.org_roles.can_manage_roles),
+    canManageSettings: Boolean(memberRow.org_roles.can_manage_settings),
+    canManageTeams: Boolean(memberRow.org_roles.can_manage_teams),
+    canInviteMembers: Boolean(memberRow.org_roles.can_invite_members),
+    canViewReports: Boolean(memberRow.org_roles.can_view_reports),
+  } : null;
+  res.json({ ...toPublicOrganisation(data), currentUserRole: memberRole, permissions });
 });
 
 const updateOrganisation = asyncHandler(async (req, res) => {

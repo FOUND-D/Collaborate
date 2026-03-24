@@ -84,14 +84,12 @@ const OrganisationDetailScreen = () => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const [orgRes, teamsRes, membersRes] = await Promise.all([
+        const [orgRes, teamsRes] = await Promise.all([
           api.get(`/api/organisations/${id}`),
           api.get(`/api/organisations/${id}/teams`),
-          api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }),
         ]);
         setOrg(orgRes.data);
         setTeams(Array.isArray(teamsRes.data) ? teamsRes.data : []);
-        setMembersData(membersRes.data.members || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load organisation');
       } finally {
@@ -113,24 +111,53 @@ const OrganisationDetailScreen = () => {
     }
   }, [org]);
 
-  const currentUserRole = (membersData.length ? membersData : org?.members || []).find((m) => (m.user?._id || m.user || m.userId) === userInfo?._id)?.role;
-  const isOwnerOrAdmin = ['owner', 'admin'].includes(currentUserRole);
+  const currentUserRole = org?.currentUserRole || null;
+  const isOwnerOrAdmin = Boolean(org?.permissions?.canManageMembers || org?.permissions?.canManageRoles || org?.permissions?.canManageSettings || org?.permissions?.canViewReports || currentUserRole === 'owner' || currentUserRole === 'admin');
   const createdLabel = formatCreatedDate(org?.createdAt);
 
   useEffect(() => {
-    if (!isOwnerOrAdmin) return;
-    Promise.all([
-      api.get(`/api/orgs/${id}/roles`),
-      api.get(`/api/orgs/${id}/custom-fields`),
-      api.get(`/api/orgs/${id}/compliance`),
-      api.get(`/api/orgs/${id}/audit-log`, { params: { limit: 20 } }),
-    ]).then(([rolesRes, fieldsRes, complianceRes, auditRes]) => {
-      setOrgRoles(rolesRes.data || []);
-      setCustomFields(fieldsRes.data || []);
-      setComplianceRules(complianceRes.data);
-      setAuditEntries(auditRes.data.entries || []);
-    }).catch(() => {});
-  }, [id, isOwnerOrAdmin]);
+    if (!isOwnerOrAdmin || !manageOpen) return;
+    const loadAdminData = async () => {
+      try {
+        const requests = [];
+        requests.push(api.get(`/api/orgs/${id}/members`, { params: { limit: 20 } }));
+        if (manageOpen || managementTab === 'roles') {
+          requests.push(api.get(`/api/orgs/${id}/roles`));
+        }
+        if (manageOpen || managementTab === 'customFields' || managementTab === 'compliance') {
+          requests.push(api.get(`/api/orgs/${id}/custom-fields`));
+        }
+        if (manageOpen || managementTab === 'compliance') {
+          requests.push(api.get(`/api/orgs/${id}/compliance`));
+        }
+        if (manageOpen || managementTab === 'audit') {
+          requests.push(api.get(`/api/orgs/${id}/audit-log`, { params: { limit: 20 } }));
+        }
+        const results = await Promise.all(requests);
+        let idx = 0;
+        setMembersData(results[idx]?.data?.members || []);
+        idx += 1;
+        if (manageOpen || managementTab === 'roles') {
+          setOrgRoles(results[idx]?.data || []);
+          idx += 1;
+        }
+        if (manageOpen || managementTab === 'customFields' || managementTab === 'compliance') {
+          setCustomFields(results[idx]?.data || []);
+          idx += 1;
+        }
+        if (manageOpen || managementTab === 'compliance') {
+          setComplianceRules(results[idx]?.data || null);
+          idx += 1;
+        }
+        if (manageOpen || managementTab === 'audit') {
+          setAuditEntries(results[idx]?.data?.entries || []);
+        }
+      } catch (err) {
+        // keep page usable if the admin panel is slow
+      }
+    };
+    loadAdminData();
+  }, [id, isOwnerOrAdmin, manageOpen, managementTab]);
 
   const sortedMembers = useMemo(() => {
     if (!org?.members) return [];
