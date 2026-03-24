@@ -145,9 +145,9 @@ const createRole = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('org_roles').insert(payload).select('*').single();
   if (error) {
     if (error.code === '23505') return res.status(409).json({ error: 'ROLE_SLUG_EXISTS' });
-    throw error;
+    return res.status(400).json({ error: error.message || 'ROLE_CREATE_FAILED', details: error });
   }
-  res.status(201).json(toPublicOrgRole(data));
+  return res.status(201).json(toPublicOrgRole(data));
 });
 
 const getRoleMemberCounts = asyncHandler(async (req, res) => {

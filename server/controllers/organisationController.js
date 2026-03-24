@@ -7,9 +7,9 @@ const createOrganisation = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();
   if (error) throw error;
   const systemRoles = [
-    { organisation_id: data.id, name: 'Owner', slug: 'owner', description: '1 per org, the creator', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
-    { organisation_id: data.id, name: 'Admin', slug: 'admin', description: 'Appointed by owner or another admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
-    { organisation_id: data.id, name: 'Member', slug: 'member', description: 'Regular org member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false },
+    { org_id: data.id, name: 'Owner', slug: 'owner', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
+    { org_id: data.id, name: 'Admin', slug: 'admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
+    { org_id: data.id, name: 'Member', slug: 'member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false },
   ];
   const { data: roles, error: rolesError } = await supabase.from('org_roles').insert(systemRoles).select('*');
   if (rolesError) throw rolesError;
@@ -28,7 +28,7 @@ const createOrganisation = asyncHandler(async (req, res) => {
     });
     if (memberError) throw memberError;
   }
-  const { error: complianceError } = await supabase.from('org_compliance_rules').insert({ organisation_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
+  const { error: complianceError } = await supabase.from('org_compliance_rules').insert({ org_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
   if (complianceError) throw complianceError;
   res.status(201).json(toPublicOrganisation(data));
 });
