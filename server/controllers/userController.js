@@ -13,6 +13,11 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const user = await verifyUserPassword(req.body.email, req.body.password);
   if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+  const { data: orgMembers } = await supabase.from('organisation_members').select('organisation_id,is_provisioned,temp_password_used,status').eq('user_id', user._id);
+  if (orgMembers?.length) {
+    const updates = orgMembers.filter((m) => m.is_provisioned && !m.temp_password_used).map((m) => supabase.from('organisation_members').update({ temp_password_used: true, temp_password_plain: null, status: 'active' }).eq('organisation_id', m.organisation_id).eq('user_id', user._id));
+    if (updates.length) await Promise.all(updates);
+  }
   res.json({ ...user, token: generateToken(user._id) });
 });
 

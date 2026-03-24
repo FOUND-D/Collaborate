@@ -7,6 +7,17 @@ const createOrganisation = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();
   if (error) throw error;
   await supabase.from('organisation_members').insert({ organisation_id: data.id, user_id: req.user._id, role: 'owner' });
+  const systemRoles = [
+    { organisation_id: data.id, name: 'Owner', slug: 'owner', description: '1 per org, the creator', is_system_role: true, can_manage_members: true, can_manage_roles: true, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
+    { organisation_id: data.id, name: 'Admin', slug: 'admin', description: 'Appointed by owner or another admin', is_system_role: true, can_manage_members: true, can_manage_roles: false, can_manage_settings: true, can_manage_teams: true, can_invite_members: true, can_view_reports: true },
+    { organisation_id: data.id, name: 'Member', slug: 'member', description: 'Regular org member', is_system_role: true, can_manage_members: false, can_manage_roles: false, can_manage_settings: false, can_manage_teams: false, can_invite_members: false, can_view_reports: false },
+  ];
+  const { data: roles } = await supabase.from('org_roles').insert(systemRoles).select('*');
+  const ownerRole = roles?.find((r) => r.slug === 'owner');
+  if (ownerRole) {
+    await supabase.from('organisation_members').update({ org_role_id: ownerRole.id, status: 'active' }).eq('organisation_id', data.id).eq('user_id', req.user._id);
+  }
+  await supabase.from('org_compliance_rules').insert({ organisation_id: data.id, require_profile_photo: false, require_mobile_number: false, require_full_name: false, require_bio_designation: false, required_custom_field_slugs: [] });
   res.status(201).json(toPublicOrganisation(data));
 });
 

@@ -13,6 +13,7 @@ const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const organisationRoutes = require('./routes/organisationRoutes');
+const orgRoutes = require('./routes/orgRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
@@ -205,6 +206,7 @@ app.use((req, res, next) => {
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/organisations', organisationRoutes);
+app.use('/api/orgs', orgRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
