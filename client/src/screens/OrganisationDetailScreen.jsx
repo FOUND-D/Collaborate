@@ -115,7 +115,7 @@ const OrganisationDetailScreen = () => {
 
   const currentUserRole = org?.currentUserRole || null;
   const isOwnerOrAdmin = Boolean(org?.permissions?.canManageMembers || org?.permissions?.canManageRoles || org?.permissions?.canManageSettings || org?.permissions?.canViewReports || currentUserRole === 'owner' || currentUserRole === 'admin');
-  const orgId = org?._id || id;
+  const orgId = org?._id || org?.id || id;
   const createdLabel = formatCreatedDate(org?.createdAt);
   const roleCounts = useMemo(() => {
     const counts = {};
@@ -412,8 +412,12 @@ const OrganisationDetailScreen = () => {
                   </div>
                   <div className="org-mgmt-row">
                     <button className="org-mgmt-secondary-btn" type="button" onClick={() => { setRoleForm(null); setRoleFormError(''); }}>Cancel</button>
-                    <button className="org-mgmt-primary-btn" type="button" onClick={async () => {
+                    <button className="org-mgmt-primary-btn" type="button" disabled={!orgId} onClick={async () => {
                       try {
+                        if (!orgId) {
+                          setRoleFormError('Organisation id is not loaded yet');
+                          return;
+                        }
                         const slug = (roleForm.slug || roleForm.name || '')
                           .trim()
                           .toLowerCase()
