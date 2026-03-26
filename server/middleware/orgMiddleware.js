@@ -48,7 +48,7 @@ const getOrgContext = async (orgId, userId) => {
   console.log(`[getOrgContext] Fetching context for org:${orgId} user:${userId}`);
   const { data: memberRow, error: memberError } = await supabase
     .from('organisation_members')
-    .select('organisation_id,user_id,org_role_id,role,status,is_provisioned,temp_password_used,invited_by,joined_at,users(*),org_roles(*)')
+    .select('organisation_id,user_id,org_role_id,role,status,is_provisioned,temp_password_used,invited_by,joined_at,users!organisation_members_user_id_fkey(*),org_roles(*)')
     .eq('organisation_id', orgId)
     .eq('user_id', userId)
     .maybeSingle();
@@ -151,7 +151,7 @@ const enforceOrgCompliance = async (orgId, userId, { skipIfOwnerManaging = false
   if (!rulesRow) return { compliant: true, missing: [] };
   const { data: memberRow, error: memberError } = await supabase
     .from('organisation_members')
-    .select('status,is_provisioned,temp_password_used,role,users(*)')
+    .select('status,is_provisioned,temp_password_used,role,users!organisation_members_user_id_fkey(*)')
     .eq('organisation_id', orgId)
     .eq('user_id', userId)
     .maybeSingle();

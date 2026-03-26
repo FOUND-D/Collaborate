@@ -37,7 +37,7 @@ const logAudit = async (organisationId, actorId, action, targetUserId, metadata 
 const getOrgContext = async (orgId, userId) => {
   const { data: memberRow, error } = await supabase
     .from('organisation_members')
-    .select('*, users(*), org_roles(*)')
+    .select('*, users!organisation_members_user_id_fkey(*), org_roles(*)')
     .eq('organisation_id', orgId)
     .eq('user_id', userId)
     .maybeSingle();
@@ -47,7 +47,7 @@ const getOrgContext = async (orgId, userId) => {
 
 const listMembers = asyncHandler(async (req, res) => {
   const { search = '', role = '', status = '', page = 1, limit = 20 } = req.query;
-  let query = supabase.from('organisation_members').select('*, users(*), org_roles(*)', { count: 'exact' }).eq('organisation_id', req.params.orgId);
+  let query = supabase.from('organisation_members').select('*, users!organisation_members_user_id_fkey(*), org_roles(*)', { count: 'exact' }).eq('organisation_id', req.params.orgId);
   if (status) query = query.eq('status', status);
   if (role) query = query.eq('org_role_id', role);
   const start = (Number(page) - 1) * Number(limit);

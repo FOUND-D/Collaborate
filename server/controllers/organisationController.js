@@ -135,7 +135,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
 });
 
 const getOrgMembers = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('organisation_members').select('*, users(*), org_roles(*)').eq('organisation_id', req.params.id);
+  const { data, error } = await supabase.from('organisation_members').select('*, users!organisation_members_user_id_fkey(*), org_roles(*)').eq('organisation_id', req.params.id);
   if (error) throw error;
   res.json({ members: (data || []).map(toPublicOrgMember) });
 });
