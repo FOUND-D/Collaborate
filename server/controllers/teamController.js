@@ -34,10 +34,29 @@ const createTeam = asyncHandler(async (req, res) => {
 });
 
 const getTeams = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('teams').select('*').or(`owner_id.eq.${req.user._id},team_members.user_id.eq.${req.user._id}`);
-  if (error) throw error;
+  const [{ data: ownedTeams, error: ownedTeamsError }, { data: memberships, error: membershipsError }] = await Promise.all([
+    supabase.from('teams').select('*').eq('owner_id', req.user._id),
+    supabase.from('team_members').select('team_id').eq('user_id', req.user._id),
+  ]);
+
+  if (ownedTeamsError) throw ownedTeamsError;
+  if (membershipsError) throw membershipsError;
+
+  const memberTeamIds = [...new Set((memberships || []).map((membership) => membership.team_id).filter(Boolean))];
+  let memberTeams = [];
+
+  if (memberTeamIds.length) {
+    const { data, error } = await supabase.from('teams').select('*').in('id', memberTeamIds);
+    if (error) throw error;
+    memberTeams = data || [];
+  }
+
+  const uniqueTeams = [...(ownedTeams || []), ...memberTeams].filter(
+    (team, index, collection) => collection.findIndex((candidate) => candidate.id === team.id) === index
+  );
+
   const teams = [];
-  for (const team of data || []) teams.push(await hydrateTeam(team));
+  for (const team of uniqueTeams) teams.push(await hydrateTeam(team));
   res.json(teams);
 });
 
