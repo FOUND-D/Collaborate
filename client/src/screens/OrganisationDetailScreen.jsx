@@ -76,6 +76,7 @@ const OrganisationDetailScreen = () => {
   const [roleForm, setRoleForm] = useState(null);
   const [roleFormError, setRoleFormError] = useState('');
   const [membersData, setMembersData] = useState([]);
+  const [publicMembers, setPublicMembers] = useState([]);
   const [customFields, setCustomFields] = useState([]);
   const [complianceRules, setComplianceRules] = useState(null);
   const [auditEntries, setAuditEntries] = useState([]);
@@ -84,12 +85,14 @@ const OrganisationDetailScreen = () => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const [orgRes, teamsRes] = await Promise.all([
+        const [orgRes, teamsRes, membersRes] = await Promise.all([
           api.get(`/api/organisations/${id}`),
           api.get(`/api/organisations/${id}/teams`),
+          api.get(`/api/organisations/${id}/members`),
         ]);
         setOrg(orgRes.data);
         setTeams(Array.isArray(teamsRes.data) ? teamsRes.data : []);
+        setPublicMembers(membersRes.data?.members || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load organisation');
       } finally {
@@ -173,10 +176,10 @@ const OrganisationDetailScreen = () => {
   }, [id, isOwnerOrAdmin, manageOpen, memberModalOpen, managementTab]);
 
   const sortedMembers = useMemo(() => {
-    if (!org?.members) return [];
+    if (!publicMembers?.length) return [];
     const rank = { owner: 0, admin: 1, member: 2 };
-    return [...org.members].sort((a, b) => (rank[a.role] ?? 3) - (rank[b.role] ?? 3));
-  }, [org]);
+    return [...publicMembers].sort((a, b) => (rank[a.role] ?? 3) - (rank[b.role] ?? 3));
+  }, [publicMembers]);
 
   const clearActionMessages = () => {
     setActionError('');
@@ -191,7 +194,7 @@ const OrganisationDetailScreen = () => {
       setMemberActionLoading(userId);
       setMemberRoleError('');
       await api.put(`/api/organisations/${orgId}/members/${userId}/role`, { role });
-      setOrg((prev) => ({ ...prev, members: prev.members.map((member) => ((member.user?._id || member.user) === userId ? { ...member, role } : member)) }));
+      setPublicMembers((prev) => prev.map((member) => ((member.user?._id || member.user) === userId ? { ...member, role } : member)));
     } catch (err) {
       setMemberRoleError(err.response?.data?.message || 'Failed to update member role');
     } finally {
@@ -205,7 +208,8 @@ const OrganisationDetailScreen = () => {
       setMemberActionLoading(memberId);
       setMemberRoleError('');
       await api.delete(`/api/organisations/${orgId}/members/${memberId}`);
-      setOrg((prev) => ({ ...prev, members: prev.members.filter((item) => (item.user?._id || item.user) !== memberId) }));
+      setPublicMembers((prev) => prev.filter((item) => (item.user?._id || item.user) !== memberId));
+      setMembersData((prev) => prev.filter((item) => (item.userId || item.user?._id || item.user) !== memberId));
     } catch (err) {
       setMemberRoleError(err.response?.data?.message || 'Failed to remove member');
     } finally {
@@ -288,7 +292,7 @@ const OrganisationDetailScreen = () => {
     );
   }
 
-  const memberCount = org.members?.length || 0;
+  const memberCount = publicMembers.length;
   const teamCount = teams.length;
 
   const renderRoleBadge = (role) => <span className={`org-detail-role-pill ${role}`}>{role}</span>;
@@ -640,8 +644,12 @@ const OrganisationDetailScreen = () => {
           roles={orgRoles}
           onClose={() => setMemberModalOpen(false)}
           onCreated={async () => {
-            const { data } = await api.get(`/api/orgs/${orgId}/members`, { params: { limit: 20 } });
-            setMembersData(data.members || []);
+            const [{ data: adminData }, { data: publicData }] = await Promise.all([
+              api.get(`/api/orgs/${orgId}/members`, { params: { limit: 20 } }),
+              api.get(`/api/organisations/${orgId}/members`),
+            ]);
+            setMembersData(adminData.members || []);
+            setPublicMembers(publicData.members || []);
           }}
         />
       )}
