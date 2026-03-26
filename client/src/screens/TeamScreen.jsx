@@ -8,6 +8,7 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listTeams, createTeam, joinTeam, deleteTeam, updateTeamJoinRequest } from '../actions/teamActions';
 import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_SUCCESS } from '../constants/teamConstants';
+import { selectHasOrg } from '../selectors/membershipSelectors';
 
 
 const getInitials = (name) => {
@@ -36,14 +37,12 @@ const TeamScreen = () => {
   const {
     loading: loadingCreate,
     error: errorCreate,
-    success: successCreate,
   } = teamCreate;
 
   const teamJoin = useSelector((state) => state.teamJoin);
   const {
     loading: loadingJoin,
     error: errorJoin,
-    success: successJoin,
     message: joinTeamMessage,
   } = teamJoin;
 
@@ -64,6 +63,7 @@ const TeamScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const hasOrg = useSelector(selectHasOrg);
   const orgCurrent = useSelector((state) => state.orgCurrent);
   const currentOrg = orgCurrent.organisation;
 
@@ -77,18 +77,6 @@ const TeamScreen = () => {
       dispatch(listTeams());
     }
 
-    if (successCreate) {
-      setShowCreate(false);
-      setCreateTeamName('');
-      dispatch(listTeams());
-    }
-
-    if (successJoin) {
-        setShowJoin(false);
-        setJoinTeamId('');
-        dispatch(listTeams());
-    }
-
     if (successDelete) {
       dispatch({ type: TEAM_DELETE_SUCCESS });
       dispatch(listTeams());
@@ -97,23 +85,40 @@ const TeamScreen = () => {
     if (successUpdateJoinRequest) {
       dispatch(listTeams());
     }
-
-  }, [dispatch, navigate, userInfo, successCreate, successJoin, successDelete, successUpdateJoinRequest]);
+  }, [dispatch, navigate, userInfo, successDelete, successUpdateJoinRequest]);
 
   const handleCloseCreate = () => setShowCreate(false);
-  const handleShowCreate = () => setShowCreate(true);
+  const handleShowCreate = () => {
+    if (hasOrg) {
+      setShowCreate(true);
+    }
+  };
 
   const handleCloseJoin = () => setShowJoin(false);
   const handleShowJoin = () => setShowJoin(true);
 
-  const submitCreateTeamHandler = (e) => {
+  const submitCreateTeamHandler = async (e) => {
     e.preventDefault();
-    dispatch(createTeam(createTeamName, currentOrg?._id));
+    try {
+      await dispatch(createTeam(createTeamName, currentOrg?._id));
+      setShowCreate(false);
+      setCreateTeamName('');
+      dispatch(listTeams());
+    } catch {
+      // reducer state already carries the error message for the modal
+    }
   };
 
-  const submitJoinTeamHandler = (e) => {
+  const submitJoinTeamHandler = async (e) => {
     e.preventDefault();
-    dispatch(joinTeam(joinTeamId));
+    try {
+      await dispatch(joinTeam(joinTeamId));
+      setShowJoin(false);
+      setJoinTeamId('');
+      dispatch(listTeams());
+    } catch {
+      // reducer state already carries the error message for the modal
+    }
   };
 
   const handleJoinRequest = (teamId, userId, action) => {
@@ -146,16 +151,29 @@ const TeamScreen = () => {
       </div>
 
       <div className="action-cards-grid">
-        <div className="action-card" onClick={handleShowCreate}>
-          <div className="action-card-icon-wrap">
-            <FaPlus className="action-card-icon" />
+        {hasOrg ? (
+          <div className="action-card" onClick={handleShowCreate}>
+            <div className="action-card-icon-wrap">
+              <FaPlus className="action-card-icon" />
+            </div>
+            <h3 className="action-card-title">Create New Team</h3>
+            <p className="action-card-description">Start a new collaboration hub.</p>
+            <span className="action-card-link">
+              Create Team <FaArrowRight />
+            </span>
           </div>
-          <h3 className="action-card-title">Create New Team</h3>
-          <p className="action-card-description">Start a new collaboration hub.</p>
-          <span className="action-card-link">
-            Create Team <FaArrowRight />
-          </span>
-        </div>
+        ) : (
+          <div className="action-card">
+            <div className="action-card-icon-wrap">
+              <FaPlus className="action-card-icon" />
+            </div>
+            <h3 className="action-card-title">Create New Team</h3>
+            <p className="action-card-description">Start a new collaboration hub.</p>
+            <Link to="/organisations/new" className="action-card-link action-card-gate-link">
+              Create an organisation first to unlock teams
+            </Link>
+          </div>
+        )}
         <div className="action-card" onClick={handleShowJoin}>
           <div className="action-card-icon-wrap">
             <FaUsers className="action-card-icon" />
@@ -254,7 +272,7 @@ const TeamScreen = () => {
       )}
 
       {/* Create Team Modal */}
-      {showCreate && (
+      {showCreate && hasOrg && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
@@ -297,7 +315,7 @@ const TeamScreen = () => {
             <div className="modal-body">
               {loadingJoin && <Loader />}
               {errorJoin && <Message variant='danger'>{errorJoin}</Message>}
-              {successJoin && <Message variant='success'>{joinTeamMessage}</Message>}
+              {joinTeamMessage && !errorJoin && <Message variant='success'>{joinTeamMessage}</Message>}
               <form onSubmit={submitJoinTeamHandler}>
                 <div className="form-group floating-label">
                   <input

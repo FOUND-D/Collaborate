@@ -11,6 +11,7 @@ import { PROJECT_DELETE_SUCCESS } from '../constants/projectConstants';
 import ProjectCreateModal from '../components/ProjectCreateModal';
 
 import ProjectListItem from '../components/ProjectListItem';
+import { selectHasTeam } from '../selectors/membershipSelectors';
 
 const OngoingProjectsScreen = () => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ const OngoingProjectsScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const hasTeam = useSelector(selectHasTeam);
 
   const projectList = useSelector(state => state.projectList);
   const { loading, error, projects } = projectList;
@@ -62,9 +64,15 @@ const OngoingProjectsScreen = () => {
       <div className="project-hero-header">
         <div className="project-hero-title-and-action">
           <h1 className="project-detail-title">Ongoing Projects</h1>
-          <button className="btn-gradient" onClick={openModal}>
-            <FaPlus /> Create Project
-          </button>
+          {hasTeam ? (
+            <button className="btn-gradient" onClick={openModal}>
+              <FaPlus /> Create Project
+            </button>
+          ) : (
+            <Link to="/teams" className="project-create-gate-link">
+              Join or create a team first to unlock projects
+            </Link>
+          )}
         </div>
         <p className="project-detail-goal">
           A centralized view of all your active projects. Track progress, manage teams, and stay on top of deadlines.
@@ -107,9 +115,15 @@ const OngoingProjectsScreen = () => {
               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center', maxWidth: '400px' }}>
                 You don't have any active projects yet. Create one to start tracking your progress and collaborating with your team.
               </p>
-              <button className="btn-gradient" onClick={openModal}>
-                <FaPlus /> Create Your First Project
-              </button>
+              {hasTeam ? (
+                <button className="btn-gradient" onClick={openModal}>
+                  <FaPlus /> Create Your First Project
+                </button>
+              ) : (
+                <Link to="/teams" className="project-create-gate-link">
+                  Join or create a team first to unlock projects
+                </Link>
+              )}
             </div>
           ) : (
             projects.map((project) => (
@@ -123,7 +137,7 @@ const OngoingProjectsScreen = () => {
           )}
         </div>
       )}
-      <ProjectCreateModal isOpen={isModalOpen} onClose={closeModal} />
+      {hasTeam && <ProjectCreateModal isOpen={isModalOpen} onClose={closeModal} />}
     </div>
   );
 };

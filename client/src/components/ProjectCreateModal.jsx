@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { createProject, createProjectWithAI } from '../actions/projectActions';
 import { listTeams } from '../actions/teamActions';
 import { FaTimes, FaMagic, FaPlus } from 'react-icons/fa';
 import './ProjectCreateModal.css';
+import { selectHasTeam } from '../selectors/membershipSelectors';
 
 const ProjectCreateModal = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
@@ -15,6 +17,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
 
   const teamList = useSelector((state) => state.teamList);
   const { teams = [] } = teamList;
+  const hasTeam = useSelector(selectHasTeam);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,6 +48,14 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
           <h2 style={{ fontWeight: '700', fontSize: '1.75rem', color: 'var(--text-high-emphasis)' }}>{isAiMode ? 'Create Project with AI' : 'Create New Project'}</h2>
         </div>
 
+        {!hasTeam ? (
+          <div className="text-center mb-4">
+            <Link to="/teams" className="project-create-gate-link" onClick={onClose}>
+              Join or create a team first to unlock projects
+            </Link>
+          </div>
+        ) : (
+        <>
         <div className="modal-toggle" style={{ marginBottom: '2rem' }}>
           <button
             className={`toggle-btn ${!isAiMode ? 'active' : ''}`}
@@ -128,6 +139,8 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
             </button>
           </div>
         </form>
+        </>
+        )}
       </div>
     </div>
   );

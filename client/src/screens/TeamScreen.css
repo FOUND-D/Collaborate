@@ -117,6 +117,16 @@
   gap: 8px;
 }
 
+.action-card-gate-link {
+  justify-content: center;
+  text-decoration: none;
+  color: rgba(241, 245, 249, 0.62);
+}
+
+.action-card-gate-link:hover {
+  color: #93c5fd;
+}
+
 
 /* =====================================================
    TEAM GRID (Staggered)

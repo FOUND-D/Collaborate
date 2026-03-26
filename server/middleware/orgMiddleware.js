@@ -131,9 +131,7 @@ const requireOrgPermission = (flag) => asyncHandler(async (req, res, next) => {
 
   if (!hasPermission) {
     console.warn(`[requireOrgPermission] FAIL - Forbidden. Role ${context.orgRole?.slug} lacks ${flag}/${snakeFlag}`);
-    // return res.status(403).json({ error: 'FORBIDDEN', flag, role: context.orgRole?.slug });
-    // TEMPORARILY REDUCING SECURITY: Log it but proceed to see if it fixes the user's issue
-    console.warn(`[requireOrgPermission] SECURITY REDUCED: Proceeding anyway despite missing permission.`);
+    return res.status(403).json({ error: 'FORBIDDEN', flag, role: context.orgRole?.slug });
   }
 
   req.orgId = orgId;

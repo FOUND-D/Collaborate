@@ -3,6 +3,7 @@ import {
   USER_LOGIN_SUCCESS,
   USER_LOGIN_FAIL,
   USER_LOGOUT,
+  USER_MEMBERSHIP_SET,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
   USER_REGISTER_FAIL,
@@ -22,16 +23,27 @@ import {
   USER_UPDATE_PROFILE_IMAGE_FAIL,
 } from '../constants/userConstants';
 
-export const userLoginReducer = (state = {}, action) => {
+const membershipDefaults = {
+  hasOrg: false,
+  hasTeam: false,
+};
+
+export const userLoginReducer = (state = membershipDefaults, action) => {
   switch (action.type) {
     case USER_LOGIN_REQUEST:
-      return { loading: true };
+      return { ...state, loading: true };
     case USER_LOGIN_SUCCESS:
-      return { loading: false, userInfo: action.payload };
+      return { ...state, loading: false, userInfo: action.payload };
     case USER_LOGIN_FAIL:
-      return { loading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload };
+    case USER_MEMBERSHIP_SET:
+      return {
+        ...state,
+        hasOrg: Boolean(action.payload?.hasOrg),
+        hasTeam: Boolean(action.payload?.hasTeam),
+      };
     case USER_LOGOUT:
-      return {};
+      return membershipDefaults;
     default:
       return state;
   }

@@ -5,6 +5,7 @@ import {
   USER_LOGIN_SUCCESS,
   USER_LOGIN_FAIL,
   USER_LOGOUT,
+  USER_MEMBERSHIP_SET,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
   USER_REGISTER_FAIL,
@@ -21,6 +22,46 @@ import {
   USER_UPDATE_PROFILE_IMAGE_SUCCESS,
   USER_UPDATE_PROFILE_IMAGE_FAIL,
 } from '../constants/userConstants';
+
+export const setMembership = (payload) => ({
+  type: USER_MEMBERSHIP_SET,
+  payload,
+});
+
+export const fetchMembershipStatus = () => async (dispatch, getState) => {
+  try {
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo?.token) {
+      dispatch(setMembership({ hasOrg: false, hasTeam: false }));
+      return;
+    }
+
+    const [orgRes, teamRes] = await Promise.all([
+      api.get('/api/organisations'),
+      api.get('/api/teams'),
+    ]);
+
+    dispatch(setMembership({
+      hasOrg: Array.isArray(orgRes.data) && orgRes.data.length > 0,
+      hasTeam: Array.isArray(teamRes.data) && teamRes.data.length > 0,
+    }));
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+
+    if (message === 'No authorization token found' || message === 'Not authorized, token failed') {
+      dispatch(logout());
+      return;
+    }
+
+    dispatch(setMembership({ hasOrg: false, hasTeam: false }));
+  }
+};
 
 export const login = (email, password) => async (dispatch) => {
   try {
@@ -60,6 +101,7 @@ export const login = (email, password) => async (dispatch) => {
 
 export const logout = () => (dispatch) => {
   localStorage.removeItem('userInfo');
+  dispatch(setMembership({ hasOrg: false, hasTeam: false }));
   dispatch({ type: USER_LOGOUT });
 };
 

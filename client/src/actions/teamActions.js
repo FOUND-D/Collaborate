@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { logout } from './userActions';
+import { logout, setMembership } from './userActions';
 import {
   TEAM_LIST_REQUEST,
   TEAM_LIST_SUCCESS,
@@ -45,6 +45,10 @@ export const listTeams = () => async (dispatch, getState) => {
       type: TEAM_LIST_SUCCESS,
       payload: data,
     });
+    dispatch(setMembership({
+      hasOrg: Boolean(getState().userLogin?.hasOrg),
+      hasTeam: Array.isArray(data) && data.length > 0,
+    }));
   } catch (error) {
     const message =
       error.response && error.response.data.message
@@ -129,6 +133,8 @@ export const createTeam = (name, organisation = null) => async (dispatch, getSta
       type: TEAM_CREATE_SUCCESS,
       payload: data,
     });
+    dispatch(setMembership({ hasOrg: true, hasTeam: true }));
+    return data;
   } catch (error) {
     const message =
       error.response && error.response.data.message
@@ -141,6 +147,7 @@ export const createTeam = (name, organisation = null) => async (dispatch, getSta
       type: TEAM_CREATE_FAIL,
       payload: message,
     });
+    throw error;
   }
 };
 
@@ -172,6 +179,11 @@ export const joinTeam = (teamId) => async (dispatch, getState) => {
       type: TEAM_JOIN_SUCCESS,
       payload: data.message, // The server now returns a message: 'Join request sent successfully'
     });
+    dispatch(setMembership({
+      hasOrg: Boolean(getState().userLogin?.hasOrg),
+      hasTeam: true,
+    }));
+    return data;
   } catch (error) {
     const message =
       error.response && error.response.data.message
@@ -184,6 +196,7 @@ export const joinTeam = (teamId) => async (dispatch, getState) => {
       type: TEAM_JOIN_FAIL,
       payload: message,
     });
+    throw error;
   }
 };
 

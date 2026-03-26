@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { createProject, createProjectWithAI } from '../actions/projectActions';
 import { listTeams } from '../actions/teamActions';
 import { FaTimes, FaMagic, FaPlus, FaRocket } from 'react-icons/fa';
 import './ProjectCreateModal.css';
+import { selectHasTeam } from '../selectors/membershipSelectors';
 
 const ProjectCreateModal = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
@@ -15,6 +17,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
 
   const teamList = useSelector((state) => state.teamList);
   const { teams = [] } = teamList;
+  const hasTeam = useSelector(selectHasTeam);
 
   useEffect(() => {
     if (isOpen) {
@@ -50,6 +53,14 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
+        {!hasTeam ? (
+          <div className="text-center mb-4">
+            <Link to="/teams" className="project-create-gate-link" onClick={onClose}>
+              Join or create a team first to unlock projects
+            </Link>
+          </div>
+        ) : (
+        <>
         <div className="segmented-control">
           <button
             className={!isAiMode ? 'active' : ''}
@@ -133,6 +144,8 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
             </button>
           </div>
         </form>
+        </>
+        )}
       </div>
     </div>
   );

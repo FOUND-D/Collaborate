@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './OrganisationDetailScreen.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { FaSave, FaUserMinus } from 'react-icons/fa';
 import { FiAlertCircle, FiCalendar, FiCheck, FiChevronRight, FiEdit2, FiGrid, FiMail, FiSettings, FiUser, FiUserPlus, FiUsers } from 'react-icons/fi';
 import api from '../utils/api';
@@ -51,7 +50,6 @@ const getImageSrc = (value) => {
 const OrganisationDetailScreen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userInfo } = useSelector((state) => state.userLogin);
   const [org, setOrg] = useState(null);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,7 +165,7 @@ const OrganisationDetailScreen = () => {
         if (manageOpen || managementTab === 'audit') {
           setAuditEntries(results[idx]?.data?.entries || []);
         }
-      } catch (err) {
+      } catch {
         // keep page usable if the admin panel is slow
       }
     };
@@ -294,7 +292,6 @@ const OrganisationDetailScreen = () => {
   const teamCount = teams.length;
 
   const renderRoleBadge = (role) => <span className={`org-detail-role-pill ${role}`}>{role}</span>;
-  const roleOptions = orgRoles || [];
   const selectedRoleCount = (roleId) => roleCounts[roleId] || 0;
   const tabs = [
     { key: 'members', label: 'Members', icon: FiUsers },
@@ -418,37 +415,55 @@ const OrganisationDetailScreen = () => {
                           setRoleFormError('Organisation id is not loaded yet');
                           return;
                         }
-                        const slug = (roleForm.slug || roleForm.name || '')
-                          .trim()
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, '-')
-                          .replace(/^-+|-+$/g, '');
-                        if (!roleForm.name.trim()) {
+                        const payload = {
+                          org_id: orgId,
+                          name: String(roleForm.name || '').trim(),
+                          slug: (roleForm.slug || roleForm.name || '')
+                            .trim()
+                            .toLowerCase()
+                            .replace(/\s+/g, '-')
+                            .replace(/[^a-z0-9-]/g, '')
+                            .replace(/-+/g, '-')
+                            .replace(/^-+|-+$/g, ''),
+                          can_manage_members: Boolean(roleForm.canManageMembers),
+                          can_manage_roles: Boolean(roleForm.canManageRoles),
+                          can_manage_settings: Boolean(roleForm.canManageSettings),
+                          can_manage_teams: Boolean(roleForm.canManageTeams),
+                          can_invite_members: Boolean(roleForm.canInviteMembers),
+                          can_view_reports: Boolean(roleForm.canViewReports),
+                        };
+                        if (!payload.slug) {
+                          payload.slug = payload.name
+                            .toLowerCase()
+                            .trim()
+                            .replace(/\s+/g, '-')
+                            .replace(/[^a-z0-9-]/g, '')
+                            .replace(/-+/g, '-')
+                            .replace(/^-+|-+$/g, '');
+                        }
+                        const slug = payload.slug;
+                        if (!payload.name) {
                           setRoleFormError('Role name is required');
+                          return;
+                        }
+                        if (!payload.org_id) {
+                          setRoleFormError('Organisation id is required');
                           return;
                         }
                         if (!slug) {
                           setRoleFormError('Role slug is required');
                           return;
                         }
+                        console.log('CREATE ROLE PAYLOAD:', payload);
                         setRoleFormError('');
-                        await api.post(`/api/orgs/${orgId}/roles`, {
-                          name: roleForm.name.trim(),
-                          slug,
-                          canManageMembers: Boolean(roleForm.canManageMembers),
-                          canManageRoles: Boolean(roleForm.canManageRoles),
-                          canManageSettings: Boolean(roleForm.canManageSettings),
-                          canManageTeams: Boolean(roleForm.canManageTeams),
-                          canInviteMembers: Boolean(roleForm.canInviteMembers),
-                          canViewReports: Boolean(roleForm.canViewReports),
-                        });
-                        const { data } = await api.get(`/api/orgs/${orgId}/roles`);
-                        setOrgRoles(data || []);
+                        const res = await api.post(`/api/orgs/${orgId}/roles`, payload);
+                        setOrgRoles((prev) => [...prev, res.data]);
                         setRoleForm(null);
                       } catch (err) {
                         const serverError = err.response?.data?.error || err.response?.data?.message;
-                        const detailError = err.response?.data?.details?.message || err.response?.data?.details?.hint;
-                        setRoleFormError(detailError || serverError || 'Failed to create role');
+                        const detailError = err.response?.data?.details || err.response?.data?.missing;
+                        const detailMessage = typeof detailError === 'string' ? detailError : undefined;
+                        setRoleFormError(detailMessage || serverError || 'Failed to create role');
                       }
                     }}>Save Role</button>
                   </div>

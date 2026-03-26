@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { logout } from './userActions';
+import { logout, setMembership } from './userActions';
 import {
   ORG_CREATE_REQUEST, ORG_CREATE_SUCCESS, ORG_CREATE_FAIL,
   ORG_LIST_REQUEST, ORG_LIST_SUCCESS, ORG_LIST_FAIL,
@@ -34,6 +34,7 @@ export const createOrganisation = (name, description, logo) => async (dispatch, 
     const { data } = await api.post('/api/organisations', { name, description, logo }, config);
     dispatch({ type: ORG_CREATE_SUCCESS, payload: data });
     dispatch({ type: ORG_CURRENT_SET, payload: data });
+    dispatch(setMembership({ hasOrg: true, hasTeam: Boolean(getState().userLogin?.hasTeam) }));
     return data;
   } catch (err) {
     const message = err.response?.data?.message || err.message;
@@ -50,6 +51,10 @@ export const listMyOrganisations = () => async (dispatch, getState) => {
     const config = getAuthConfig(getState);
     const { data } = await api.get('/api/organisations', config);
     dispatch({ type: ORG_LIST_SUCCESS, payload: data });
+    dispatch(setMembership({
+      hasOrg: Array.isArray(data) && data.length > 0,
+      hasTeam: Boolean(getState().userLogin?.hasTeam),
+    }));
     if (data.length > 0) dispatch({ type: ORG_CURRENT_SET, payload: data[0] });
     return data;
   } catch (err) {

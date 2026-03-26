@@ -26,7 +26,7 @@ import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { logout } from './actions/userActions'; // Import logout
+import { fetchMembershipStatus, logout } from './actions/userActions'; // Import logout
 import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
 
 const ProtectedRoute = ({ children }) => {
@@ -44,9 +44,10 @@ const ProtectedRoute = ({ children }) => {
 // Inner App component that uses theme context
 const AppContent = () => {
   const dispatch = useDispatch(); // Initialize dispatch
-  const { theme } = useTheme();
+  useTheme();
   const serverStatus = useSelector((state) => state.serverStatus);
   const { status } = serverStatus;
+  const userInfo = useSelector((state) => state.userLogin.userInfo);
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -87,6 +88,12 @@ const AppContent = () => {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (userInfo?.token) {
+      dispatch(fetchMembershipStatus());
+    }
+  }, [dispatch, userInfo?.token]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -142,6 +149,7 @@ const AppContent = () => {
               <Route path="/chat/:id" element={<ChatScreen />} />
               <Route path="/organisations" element={<ProtectedRoute><OrganisationsScreen /></ProtectedRoute>} />
               <Route path="/organisations/create" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
+              <Route path="/organisations/new" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
               <Route path="/organisations/:id" element={<ProtectedRoute><OrganisationDetailScreen /></ProtectedRoute>} />
               <Route path="/organisations/:id/settings/members" element={<ProtectedRoute><MembersPage /></ProtectedRoute>} />
               <Route path="/organisations/:id/settings/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />

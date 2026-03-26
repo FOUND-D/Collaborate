@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './HomeScreen.css';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,11 +8,13 @@ import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
 import { FaBuilding, FaPlus } from 'react-icons/fa';
 import api from '../utils/api';
+import { selectHasTeam } from '../selectors/membershipSelectors';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const hasTeam = useSelector(selectHasTeam);
 
   const projectList = useSelector((state) => state.projectList);
   const { projects } = projectList;
@@ -24,9 +26,6 @@ const HomeScreen = () => {
   const currentOrg = orgCurrent.organisation || orgList.organisations?.[0];
   const [profile, setProfile] = useState(null);
 
-  // Animation state for numbers
-  const [stats, setStats] = useState({ projectCount: 0, taskCount: 0, completionRate: 0 });
-
   useEffect(() => {
     if (userInfo) {
       dispatch(listProjects());
@@ -36,20 +35,17 @@ const HomeScreen = () => {
     }
   }, [dispatch, userInfo]);
 
-  useEffect(() => {
-    if (projects && tasks) {
-      const totalProjects = projects.length;
-      const totalTasks = tasks.length;
-      const completedTasks = tasks.filter(t => t.status === 'Completed').length;
-      const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const stats = useMemo(() => {
+    const projectCount = Array.isArray(projects) ? projects.length : 0;
+    const taskItems = Array.isArray(tasks) ? tasks : [];
+    const completedTasks = taskItems.filter((task) => task.status === 'Completed').length;
+    const completionRate = taskItems.length > 0 ? Math.round((completedTasks / taskItems.length) * 100) : 0;
 
-      // Simple animation effect could be added here, but for now we set directly
-      setStats({
-        projectCount: totalProjects,
-        taskCount: tasks.filter(t => t.status !== 'Completed').length, // Pending tasks
-        completionRate
-      });
-    }
+    return {
+      projectCount,
+      taskCount: taskItems.filter((task) => task.status !== 'Completed').length,
+      completionRate,
+    };
   }, [projects, tasks]);
 
 
@@ -155,14 +151,21 @@ const HomeScreen = () => {
           <p className="quick-card-desc">Collaborate with your team members and manage roles.</p>
           <span className="quick-card-link purple">Go to Teams <FaArrowRight /></span>
         </Link>
-        {userInfo && (
+        {userInfo && (hasTeam ? (
           <Link to="/project/create" className="quick-card">
             <div className="quick-card-icon-wrap blue"><FaMagic /></div>
             <h3 className="quick-card-title">Create Project with AI</h3>
             <p className="quick-card-desc">Let our AI assistant build a project plan for you.</p>
             <span className="quick-card-link blue">Start Now <FaArrowRight /></span>
           </Link>
-        )}
+        ) : (
+          <Link to="/teams" className="quick-card">
+            <div className="quick-card-icon-wrap blue"><FaMagic /></div>
+            <h3 className="quick-card-title">Create Project with AI</h3>
+            <p className="quick-card-desc">Let our AI assistant build a project plan for you.</p>
+            <span className="quick-card-link muted">Join or create a team first to unlock projects</span>
+          </Link>
+        ))}
       </div>
     </div>
   );

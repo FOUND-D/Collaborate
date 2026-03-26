@@ -8,6 +8,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import FormContainer from '../components/FormContainer'; // Using the standard form container
 import { FaRobot, FaChevronLeft } from 'react-icons/fa';
+import { selectHasTeam } from '../selectors/membershipSelectors';
 
 const ProjectCreateScreen = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const ProjectCreateScreen = () => {
   const { loading, error, success, project } = projectCreateWithAI;
 
   const userInfo = useSelector((state) => state.userLogin.userInfo);
+  const hasTeam = useSelector(selectHasTeam);
 
   useEffect(() => {
     if (!userInfo) {
@@ -60,6 +62,14 @@ const ProjectCreateScreen = () => {
           <p style={{ color: 'var(--text-medium-emphasis)'}}>Describe your goal, and let our AI build the plan.</p>
         </div>
 
+        {!hasTeam ? (
+          <Message variant='info'>
+            <Link to="/teams" className="project-create-gate-link">
+              Join or create a team first to unlock projects
+            </Link>
+          </Message>
+        ) : (
+        <>
         {error && <Message variant='danger'>{error}</Message>}
 
         <form onSubmit={submitHandler}>
@@ -131,6 +141,8 @@ const ProjectCreateScreen = () => {
             {loading ? 'Generating...' : 'Generate Project with AI'}
           </button>
         </form>
+        </>
+        )}
 
         {loading && (
           <div style={{ marginTop: '2rem' }}>
