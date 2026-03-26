@@ -6,7 +6,6 @@ import { FiAlertCircle, FiCalendar, FiCheck, FiChevronRight, FiEdit2, FiGrid, Fi
 import api from '../utils/api';
 import {
   ProvisionMemberModal,
-  ComplianceBadge,
   AuditLogTable,
 } from './OrgManagementPages';
 
@@ -69,7 +68,7 @@ const OrganisationDetailScreen = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [memberActionLoading, setMemberActionLoading] = useState('');
-  const [managementTab, setManagementTab] = useState('members');
+  const [managementTab, setManagementTab] = useState('roles');
   const [memberModalOpen, setMemberModalOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [orgRoles, setOrgRoles] = useState([]);
@@ -345,41 +344,11 @@ const OrganisationDetailScreen = () => {
       {isOwnerOrAdmin && (
         <div className="org-detail-management-shell">
           <div className="org-detail-tabs org-detail-inline-tabs">
-            <button className={`org-detail-tab-btn ${managementTab === 'members' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('members')}>Members</button>
             <button className={`org-detail-tab-btn ${managementTab === 'roles' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('roles')}>Roles</button>
             <button className={`org-detail-tab-btn ${managementTab === 'compliance' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('compliance')}>Compliance</button>
             <button className={`org-detail-tab-btn ${managementTab === 'customFields' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('customFields')}>Custom Fields</button>
             <button className={`org-detail-tab-btn ${managementTab === 'audit' ? 'active' : ''}`} type="button" onClick={() => setManagementTab('audit')}>Audit Log</button>
           </div>
-          {managementTab === 'members' && (
-            <div className="org-detail-inline-panel">
-              <div className="org-detail-section-header">
-                <div className="org-detail-section-label">MEMBERS</div>
-                <button className="org-detail-primary-btn" type="button" onClick={() => setMemberModalOpen(true)}><FiUserPlus /> Add Member</button>
-              </div>
-              <div className="org-mgmt-filterbar">
-                <input className="org-mgmt-input" placeholder="Search members" />
-                <select className="org-mgmt-input"><option>All roles</option>{orgRoles.map((r) => <option key={r._id}>{r.name}</option>)}</select>
-              </div>
-              <div className="org-detail-list-card">
-                {membersData.length ? membersData.map((member) => {
-                  const memberId = member.userId || member.user?._id || member.user;
-                  return (
-                    <div key={memberId} className="org-detail-member-row">
-                      <div className="org-detail-row-left">
-                        <div className="org-detail-avatar" style={getGradientStyle(member.user?.name || member.user?.email || memberId)}>{member.user?.profileImage ? <img src={getImageSrc(member.user.profileImage)} alt={member.user?.name || 'Member'} /> : (member.user?.name || member.user?.email || '?').charAt(0).toUpperCase()}</div>
-                        <div className="org-detail-row-copy"><div className="org-detail-row-title">{member.user?.name || 'Unknown user'}</div><div className="org-detail-row-subtitle">{member.user?.email || ''}</div></div>
-                      </div>
-                      <div className="org-detail-row-right">
-                        <ComplianceBadge status={member.status} />
-                        {renderRoleBadge(member.orgRole?.slug || member.role)}
-                      </div>
-                    </div>
-                  );
-                }) : <div className="org-detail-empty-state"><FiUsers className="org-detail-empty-icon" /><div className="org-detail-empty-title">No members yet</div><div className="org-detail-empty-subtitle">Invite people to join this organisation</div></div>}
-              </div>
-            </div>
-          )}
           {managementTab === 'roles' && (
             <div className="org-detail-inline-panel">
               <div className="org-detail-section-label">ROLES</div>
