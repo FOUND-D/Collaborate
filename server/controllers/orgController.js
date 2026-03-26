@@ -22,6 +22,38 @@ const getOrgRole = async (orgId, roleId) => {
   return data;
 };
 
+const getOrganisation = async (orgId) => {
+  const { data, error } = await supabase.from('organisations').select('id,name,slug').eq('id', orgId).maybeSingle();
+  if (error) throw error;
+  return data;
+};
+
+const toMembershipRole = (orgRole) => {
+  if (!orgRole) return 'member';
+  return orgRole.is_system_role && ['owner', 'admin', 'member'].includes(orgRole.slug)
+    ? orgRole.slug
+    : 'member';
+};
+
+const generateProvisionEmail = ({ name, email, organisation }) => {
+  if (String(email || '').includes('@')) {
+    return String(email).trim().toLowerCase();
+  }
+
+  const localPartSource = String(email || name || 'member')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '') || 'member';
+  const orgPart = String(organisation?.slug || organisation?.name || 'organisation')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'organisation';
+
+  return `${localPartSource}@${orgPart}.collaborate.local`;
+};
+
 const assertRoleHierarchy = (actorRole, targetRole) => ROLE_FLAGS.every((flag) => !targetRole[flag] || actorRole[flag]);
 
 const logAudit = async (organisationId, actorId, action, targetUserId, metadata = {}) => {
@@ -69,28 +101,44 @@ const listMembers = asyncHandler(async (req, res) => {
 
 const provisionMember = asyncHandler(async (req, res) => {
   const { name, email, orgRoleId, mobileNumber = '', designation = '' } = req.body;
-  const existing = await getUserByEmail(email);
-  if (existing) return res.status(409).json({ error: 'EMAIL_EXISTS' });
+  const organisation = await getOrganisation(req.params.orgId);
+  if (!organisation) return res.status(404).json({ error: 'ORG_NOT_FOUND' });
   const orgRole = await getOrgRole(req.params.orgId, orgRoleId);
   if (!orgRole) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
   if (!assertRoleHierarchy(req.orgRole, orgRole)) return res.status(403).json({ error: 'FORBIDDEN' });
+  const resolvedEmail = generateProvisionEmail({ name, email, organisation });
+  const existing = await getUserByEmail(resolvedEmail);
+  if (existing) return res.status(409).json({ error: 'EMAIL_EXISTS' });
   const tempPassword = generatePassword();
-  const user = await createUser({ name, email, password: tempPassword, role: 'Developer' });
-  const { error } = await supabase.from('users').update({ mobile_number: mobileNumber, designation, bio: '' }).eq('id', user._id);
-  if (error) throw error;
-  await supabase.from('organisation_members').insert({
-    organisation_id: req.params.orgId,
-    user_id: user._id,
-    org_role_id: orgRoleId,
-    role: orgRole.slug,
-    is_provisioned: true,
-    temp_password_plain: tempPassword,
-    temp_password_used: false,
-    invited_by: req.user._id,
-    status: 'pending_onboarding',
-  });
-  await logAudit(req.params.orgId, req.user._id, 'member.created', user._id, { orgRoleId, email });
-  res.status(201).json({ userId: user._id, email, tempPassword });
+  const user = await createUser({ name, email: resolvedEmail, password: tempPassword, role: 'Developer' });
+
+  try {
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ mobile_number: mobileNumber, designation, bio: '' })
+      .eq('id', user._id);
+    if (updateError) throw updateError;
+
+    const { error: memberError } = await supabase.from('organisation_members').insert({
+      organisation_id: req.params.orgId,
+      user_id: user._id,
+      org_role_id: orgRoleId,
+      role: toMembershipRole(orgRole),
+      is_provisioned: true,
+      temp_password_plain: tempPassword,
+      temp_password_used: false,
+      invited_by: req.user._id,
+      status: 'pending_onboarding',
+    });
+    if (memberError) throw memberError;
+
+    await logAudit(req.params.orgId, req.user._id, 'member.created', user._id, { orgRoleId, email: resolvedEmail });
+    res.status(201).json({ userId: user._id, email: resolvedEmail, tempPassword, organisationName: organisation.name });
+  } catch (error) {
+    await supabase.from('users').delete().eq('id', user._id);
+    console.error('Provision member failed:', error);
+    return res.status(500).json({ error: error.message || 'Failed to provision member' });
+  }
 });
 
 const updateMemberRole = asyncHandler(async (req, res) => {
@@ -101,7 +149,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
   const nextRole = await getOrgRole(req.params.orgId, orgRoleId);
   if (!nextRole) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
   if (!assertRoleHierarchy(req.orgRole, nextRole)) return res.status(403).json({ error: 'FORBIDDEN' });
-  const { error } = await supabase.from('organisation_members').update({ org_role_id: orgRoleId, role: nextRole.slug }).eq('organisation_id', req.params.orgId).eq('user_id', req.params.userId);
+  const { error } = await supabase.from('organisation_members').update({ org_role_id: orgRoleId, role: toMembershipRole(nextRole) }).eq('organisation_id', req.params.orgId).eq('user_id', req.params.userId);
   if (error) throw error;
   await logAudit(req.params.orgId, req.user._id, 'role.assigned', req.params.userId, { from_role: target.data.role, to_role: nextRole.slug });
   res.json({ ok: true });

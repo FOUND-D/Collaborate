@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiCheck, FiCopy, FiUserPlus } from 'react-icons/fi';
 import api from '../utils/api';
@@ -50,16 +50,49 @@ const Select = (props) => <select className="org-mgmt-input" {...props} />;
 const Textarea = (props) => <textarea className="org-mgmt-input org-mgmt-textarea" {...props} />;
 const DESIGNATION_OPTIONS = ['Developer', 'Designer', 'Product Manager', 'QA', 'DevOps', 'Other'];
 
-export const ProvisionMemberModal = ({ open, orgId, roles, onClose, onCreated }) => {
+const buildProvisionEmail = ({ name, email, organisation }) => {
+  if (String(email || '').includes('@')) {
+    return email;
+  }
+
+  const localPart = String(email || name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '');
+  const orgPart = String(organisation?.slug || organisation?.name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  if (!localPart || !orgPart) return email;
+  return `${localPart}@${orgPart}.collaborate.local`;
+};
+
+export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreated }) => {
   const [mode, setMode] = useState('provision');
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', orgRoleId: '', mobileNumber: '', designation: '' });
   const [tempCreds, setTempCreds] = useState(null);
-  const roleOptions = Array.isArray(roles) ? roles : [];
+  const [emailTouched, setEmailTouched] = useState(false);
+  const roleOptions = useMemo(() => (Array.isArray(roles) ? roles : []), [roles]);
 
   useEffect(() => {
-    if (open) setForm((prev) => ({ ...prev, orgRoleId: roleOptions[0]?._id || '' }));
+    if (open) {
+      setForm({ name: '', email: '', orgRoleId: roleOptions[0]?._id || '', mobileNumber: '', designation: '' });
+      setTempCreds(null);
+      setEmailTouched(false);
+    }
   }, [open, roleOptions]);
+
+  useEffect(() => {
+    if (mode !== 'provision' || emailTouched) return;
+    setForm((prev) => ({
+      ...prev,
+      email: buildProvisionEmail({ name: prev.name, email: prev.email, organisation: org }),
+    }));
+  }, [mode, org, emailTouched, form.name]);
 
   if (!open) return null;
 
@@ -99,7 +132,7 @@ export const ProvisionMemberModal = ({ open, orgId, roles, onClose, onCreated })
             </div>
             <form onSubmit={submit} className="org-mgmt-stack">
               {mode === 'provision' && <Input placeholder="Full name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />}
-              <Input type="email" placeholder="Email address" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} required />
+              <Input type="email" placeholder={mode === 'provision' ? `Email address (defaults to ${org?.slug || 'organisation'} domain)` : 'Email address'} value={form.email} onChange={(e) => { setEmailTouched(true); setForm((p) => ({ ...p, email: e.target.value })); }} required />
               {mode === 'provision' && (
                 <>
                   <Select value={form.orgRoleId} onChange={(e) => setForm((p) => ({ ...p, orgRoleId: e.target.value }))}>
@@ -201,7 +234,7 @@ export const MembersPage = () => {
           {data.map((m) => <div key={m.userId} className="org-mgmt-row-item"><span>{m.user?.name || 'Unknown'}</span><span>{m.user?.email}</span><span>{m.role}</span><ComplianceBadge status={m.status} /></div>)}
         </div>
       </SectionCard>
-      <ProvisionMemberModal open={open} orgId={id} roles={roles} onClose={() => setOpen(false)} />
+      <ProvisionMemberModal open={open} orgId={id} org={org} roles={roles} onClose={() => setOpen(false)} />
     </PageShell>
   );
 };
