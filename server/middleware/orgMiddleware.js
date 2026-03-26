@@ -44,11 +44,23 @@ const legacyRolePermissions = (role) => ({
   can_view_reports: false,
 });
 
+const ownerRolePermissions = () => ({
+  slug: 'owner',
+  name: 'Owner',
+  is_system_role: true,
+  can_manage_members: true,
+  can_manage_roles: true,
+  can_manage_settings: true,
+  can_manage_teams: true,
+  can_invite_members: true,
+  can_view_reports: true,
+});
+
 const getOrgContext = async (orgId, userId) => {
   console.log(`[getOrgContext] Fetching context for org:${orgId} user:${userId}`);
   const { data: memberRow, error: memberError } = await supabase
     .from('organisation_members')
-    .select('organisation_id,user_id,org_role_id,role,status,is_provisioned,temp_password_used,invited_by,joined_at,users!organisation_members_user_id_fkey(*),org_roles(*)')
+    .select('organisation_id,user_id,org_role_id,role,status,is_provisioned,temp_password_used,invited_by,joined_at,users!organisation_members_user_id_fkey(*),org_roles(*),organisations!inner(owner_id)')
     .eq('organisation_id', orgId)
     .eq('user_id', userId)
     .maybeSingle();
@@ -63,7 +75,13 @@ const getOrgContext = async (orgId, userId) => {
     return null;
   }
 
-  const orgRole = memberRow.org_roles || {
+  const isOrganisationOwner = memberRow.organisations?.owner_id === userId;
+
+  const orgRole = isOrganisationOwner ? {
+    id: memberRow.org_roles?.id || null,
+    org_id: orgId,
+    ...ownerRolePermissions(),
+  } : memberRow.org_roles || {
     slug: memberRow.role,
     name: memberRow.role,
     is_system_role: true,
