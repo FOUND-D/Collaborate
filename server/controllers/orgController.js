@@ -72,6 +72,12 @@ const buildProvisionResponse = ({ userId, email, tempPassword, organisationName,
   onboardingPath: buildProvisionOnboardingPath({ orgId, email }),
 });
 
+const getRoleFlagValue = (role, flag) => {
+  if (!role) return false;
+  const camelFlag = flag.replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+  return Boolean(role[flag] ?? role[camelFlag]);
+};
+
 const resetProvisionedMemberAccess = async ({ organisationId, userId, actorId }) => {
   const { data: membership, error: memberLookupError } = await supabase
     .from('organisation_members')
@@ -125,7 +131,22 @@ const resetProvisionedMemberAccess = async ({ organisationId, userId, actorId })
   };
 };
 
-const assertRoleHierarchy = (actorRole, targetRole) => ROLE_FLAGS.every((flag) => !targetRole[flag] || actorRole[flag]);
+const isOwnerRole = (role) => String(role?.slug || role?.role || '').toLowerCase() === 'owner';
+
+const assertRoleHierarchy = (actorRole, targetRole) => {
+  if (isOwnerRole(actorRole)) {
+    return true;
+  }
+  return ROLE_FLAGS.every((flag) => !getRoleFlagValue(targetRole, flag) || getRoleFlagValue(actorRole, flag));
+};
+
+const buildRoleHierarchyError = (actorRole, targetRole) => ({
+  error: 'FORBIDDEN',
+  message: 'Your current organisation role cannot assign the selected role.',
+  actorRole: actorRole?.slug || actorRole?.role || null,
+  targetRole: targetRole?.slug || targetRole?.role || null,
+  missingPermissions: ROLE_FLAGS.filter((flag) => getRoleFlagValue(targetRole, flag) && !getRoleFlagValue(actorRole, flag)),
+});
 
 const logAudit = async (organisationId, actorId, action, targetUserId, metadata = {}) => {
   await supabase.from('org_audit_log').insert({
@@ -176,7 +197,9 @@ const provisionMember = asyncHandler(async (req, res) => {
   if (!organisation) return res.status(404).json({ error: 'ORG_NOT_FOUND' });
   const orgRole = await getOrgRole(req.params.orgId, orgRoleId);
   if (!orgRole) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
-  if (!assertRoleHierarchy(req.orgRole, orgRole)) return res.status(403).json({ error: 'FORBIDDEN' });
+  if (!assertRoleHierarchy(req.orgRole, orgRole)) {
+    return res.status(403).json(buildRoleHierarchyError(req.orgRole, orgRole));
+  }
   const resolvedEmail = generateProvisionEmail({ name, email, organisation });
   const existing = await getUserByEmail(resolvedEmail);
   if (existing) return res.status(409).json({ error: 'EMAIL_EXISTS' });
@@ -234,7 +257,9 @@ const updateMemberRole = asyncHandler(async (req, res) => {
   if (target.data.role === 'owner' && req.orgRole.slug !== 'owner') return res.status(403).json({ error: 'FORBIDDEN' });
   const nextRole = await getOrgRole(req.params.orgId, orgRoleId);
   if (!nextRole) return res.status(404).json({ error: 'ROLE_NOT_FOUND' });
-  if (!assertRoleHierarchy(req.orgRole, nextRole)) return res.status(403).json({ error: 'FORBIDDEN' });
+  if (!assertRoleHierarchy(req.orgRole, nextRole)) {
+    return res.status(403).json(buildRoleHierarchyError(req.orgRole, nextRole));
+  }
   const { error } = await supabase.from('organisation_members').update({ org_role_id: orgRoleId, role: toMembershipRole(nextRole) }).eq('organisation_id', req.params.orgId).eq('user_id', req.params.userId);
   if (error) throw error;
   await logAudit(req.params.orgId, req.user._id, 'role.assigned', req.params.userId, { from_role: target.data.role, to_role: nextRole.slug });
@@ -308,6 +333,20 @@ const createRole = asyncHandler(async (req, res) => {
   };
 
   try {
+    const { data: existingRole, error: existingRoleError } = await supabase
+      .from('org_roles')
+      .select('id')
+      .eq('org_id', org_id)
+      .eq('slug', slug)
+      .maybeSingle();
+    if (existingRoleError) {
+      console.error('Role lookup error:', existingRoleError);
+      return res.status(500).json({ error: existingRoleError.message, details: existingRoleError.details || existingRoleError.hint });
+    }
+    if (existingRole) {
+      return res.status(409).json({ error: 'A role with this slug already exists' });
+    }
+
     const { data, error } = await supabase
       .from('org_roles')
       .insert(payload)
@@ -319,7 +358,10 @@ const createRole = asyncHandler(async (req, res) => {
       if (error.code === '23505') {
         return res.status(409).json({ error: error.message, details: error.details || error.hint });
       }
-      return res.status(500).json({ error: error.message, details: error.details || error.hint });
+      if (error.code === '23503' || error.code === '23514' || error.code === '22P02') {
+        return res.status(400).json({ error: error.message, details: error.details || error.hint });
+      }
+      return res.status(500).json({ error: error.message, details: error.details || error.hint || error.code });
     }
 
     return res.status(201).json(toPublicOrgRole(data));

@@ -9,7 +9,7 @@ const OrganisationsScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const orgList = useSelector((state) => state.orgList);
-  const { organisations = [], loading } = orgList;
+  const { organisations = [], loading, error } = orgList;
 
   useEffect(() => {
     dispatch(listMyOrganisations());
@@ -25,7 +25,14 @@ const OrganisationsScreen = () => {
         </div>
         <button className="orgs-create-btn" onClick={() => navigate('/organisations/create')} type="button"><FaPlus /> Create Organisation</button>
       </div>
-      {loading ? null : organisations.length === 0 ? (
+      {loading ? null : error ? (
+        <div className="empty-state">
+          <div className="empty-state-icon"><FaBuilding /></div>
+          <div className="empty-state-title">Failed to load organisations</div>
+          <div className="empty-state-sub">{error}</div>
+          <button className="orgs-create-btn" onClick={() => dispatch(listMyOrganisations())} type="button">Retry</button>
+        </div>
+      ) : organisations.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon"><FaBuilding /></div>
           <div className="empty-state-title">No organisations yet</div>

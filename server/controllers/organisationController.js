@@ -61,23 +61,29 @@ const createOrganisation = asyncHandler(async (req, res) => {
 });
 
 const getMyOrganisations = asyncHandler(async (req, res) => {
-  // Select organisations where the user is a member, including their role.
   const { data, error } = await supabase
-    .from('organisations')
-    .select('id,name,slug,description,logo,owner_id,created_at,organisation_members!inner(role,user_id,org_role_id)')
-    .eq('organisation_members.user_id', req.user._id);
-    
+    .from('organisation_members')
+    .select('role, org_role_id, organisations!inner(*), org_roles(slug)')
+    .eq('user_id', req.user._id)
+    .order('joined_at', { ascending: true });
+
   if (error) throw error;
-  
-  const orgs = (data || []).map(o => {
-    const publicOrg = toPublicOrganisation(o);
-    const memberRole = o.organisation_members?.[0]?.role || 'member';
-    return {
-      ...publicOrg,
-      role: memberRole
-    };
-  });
-  
+
+  const orgs = (data || [])
+    .map((membership) => {
+      const organisation = membership.organisations;
+      if (!organisation) return null;
+
+      const publicOrg = toPublicOrganisation(organisation);
+      const memberRole = membership.org_roles?.slug || membership.role || 'member';
+
+      return {
+        ...publicOrg,
+        role: memberRole,
+      };
+    })
+    .filter(Boolean);
+
   res.json(orgs);
 });
 

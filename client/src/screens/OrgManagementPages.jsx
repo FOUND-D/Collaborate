@@ -77,6 +77,15 @@ const buildShareableProvisionCopy = (credentials) => [
   `Onboarding link: ${credentials.onboardingUrl || credentials.onboardingPath || ''}`,
 ].join('\n');
 
+const getProvisionErrorMessage = (error) => {
+  const code = error.response?.data?.error;
+  if (code === 'EMAIL_EXISTS') return 'A user with that provisioned email already exists.';
+  if (code === 'FORBIDDEN') return 'Your current organisation role cannot assign the selected role.';
+  if (code === 'ROLE_NOT_FOUND') return 'The selected organisation role no longer exists.';
+  if (code === 'ORG_NOT_FOUND') return 'The organisation could not be found.';
+  return code || error.response?.data?.message || 'Request failed';
+};
+
 export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreated }) => {
   const [mode, setMode] = useState('provision');
   const [loading, setLoading] = useState(false);
@@ -128,7 +137,7 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
         onClose();
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Request failed');
+      setErrorMessage(getProvisionErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -157,7 +166,7 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
       setActionMessage('Temporary password reset');
       onCreated?.();
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Failed to reset temporary password');
+      setErrorMessage(getProvisionErrorMessage(error));
     } finally {
       setLoading(false);
     }
