@@ -9,17 +9,6 @@
 @import url('./screens/TeamScreen.css');
 @import url('./screens/TaskScreen.css');
 @import url('./components/ProjectCreateModal.css');
-
-.project-create-gate-link {
-  color: rgba(241, 245, 249, 0.62);
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.project-create-gate-link:hover {
-  color: #93c5fd;
-}
 @import url('./miscellaneous.css');
 @import url('./screens/MeetingScreen.css');
 @import url('./screens/ChatScreen.css');
@@ -61,6 +50,17 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100%;
   width: 100%;
+}
+
+.project-create-gate-link {
+  color: rgba(241, 245, 249, 0.62);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.project-create-gate-link:hover {
+  color: #93c5fd;
 }
 
 .app-layout {
