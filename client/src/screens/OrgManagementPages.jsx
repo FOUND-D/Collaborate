@@ -70,12 +70,21 @@ const buildProvisionEmail = ({ name, email, organisation }) => {
   return `${localPart}@${orgPart}.collaborate.local`;
 };
 
+const buildShareableProvisionCopy = (credentials) => [
+  `Organisation: ${credentials.organisationName || 'Collaborate'}`,
+  `Email: ${credentials.email}`,
+  `Temporary password: ${credentials.tempPassword}`,
+  `Onboarding link: ${credentials.onboardingUrl || credentials.onboardingPath || ''}`,
+].join('\n');
+
 export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreated }) => {
   const [mode, setMode] = useState('provision');
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', orgRoleId: '', mobileNumber: '', designation: '' });
   const [tempCreds, setTempCreds] = useState(null);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [actionMessage, setActionMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const roleOptions = useMemo(() => (Array.isArray(roles) ? roles : []), [roles]);
 
   useEffect(() => {
@@ -83,6 +92,8 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
       setForm({ name: '', email: '', orgRoleId: roleOptions[0]?._id || '', mobileNumber: '', designation: '' });
       setTempCreds(null);
       setEmailTouched(false);
+      setActionMessage('');
+      setErrorMessage('');
     }
   }, [open, roleOptions]);
 
@@ -96,9 +107,16 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
 
   if (!open) return null;
 
+  const credentials = tempCreds ? {
+    ...tempCreds,
+    onboardingUrl: `${window.location.origin}${tempCreds.onboardingPath || ''}`,
+  } : null;
+
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setActionMessage('');
+    setErrorMessage('');
     try {
       if (mode === 'provision') {
         const { data } = await api.post(`/api/orgs/${orgId}/members/provision`, form);
@@ -109,6 +127,37 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
         onCreated?.();
         onClose();
       }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Request failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyCredentials = async () => {
+    if (!credentials) return;
+    await navigator.clipboard.writeText(buildShareableProvisionCopy(credentials));
+    setActionMessage('Copied onboarding details');
+  };
+
+  const handleCopyLink = async () => {
+    if (!credentials?.onboardingUrl) return;
+    await navigator.clipboard.writeText(credentials.onboardingUrl);
+    setActionMessage('Copied onboarding link');
+  };
+
+  const handleResetTempPassword = async () => {
+    if (!credentials?.userId) return;
+    setLoading(true);
+    setActionMessage('');
+    setErrorMessage('');
+    try {
+      const { data } = await api.post(`/api/orgs/${orgId}/members/${credentials.userId}/reset-temp-password`);
+      setTempCreds(data);
+      setActionMessage('Temporary password reset');
+      onCreated?.();
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Failed to reset temporary password');
     } finally {
       setLoading(false);
     }
@@ -149,18 +198,28 @@ export const ProvisionMemberModal = ({ open, orgId, org, roles, onClose, onCreat
                 <button className="org-mgmt-primary-btn" disabled={loading} type="submit">{loading ? 'Working...' : mode === 'provision' ? 'Create Account' : 'Send Invite'}</button>
                 <button className="org-mgmt-secondary-btn" type="button" onClick={onClose}>Cancel</button>
               </div>
+              {errorMessage && <div className="org-mgmt-error">{errorMessage}</div>}
             </form>
           </>
         ) : (
           <div className="org-mgmt-credentials">
             <div className="org-mgmt-success"><FiCheck /> Account created successfully.</div>
-            <div className="org-mgmt-credential-line"><span>Email</span><strong>{tempCreds.email}</strong></div>
-            <div className="org-mgmt-credential-line"><span>Password</span><strong>{tempCreds.tempPassword}</strong></div>
-            <p>Copy this password now. It will not be shown again.</p>
+            <div className="org-mgmt-credential-line"><span>Organisation</span><strong>{credentials.organisationName}</strong></div>
+            <div className="org-mgmt-credential-line"><span>Email</span><strong>{credentials.email}</strong></div>
+            <div className="org-mgmt-credential-line"><span>Password</span><strong>{credentials.tempPassword}</strong></div>
+            <div className="org-mgmt-credential-link">
+              <span>Onboarding link</span>
+              <a href={credentials.onboardingUrl} target="_blank" rel="noreferrer">{credentials.onboardingUrl}</a>
+            </div>
+            <p>Share the onboarding link with the user and separately share the temporary password. If the password is lost, reset it here.</p>
             <div className="org-mgmt-row">
-              <button className="org-mgmt-secondary-btn" type="button" onClick={() => navigator.clipboard.writeText(tempCreds.tempPassword)}><FiCopy /> Copy to Clipboard</button>
+              <button className="org-mgmt-secondary-btn" type="button" onClick={handleCopyCredentials}><FiCopy /> Copy Login Details</button>
+              <button className="org-mgmt-secondary-btn" type="button" onClick={handleCopyLink}><FiCopy /> Copy Onboarding Link</button>
+              <button className="org-mgmt-secondary-btn" type="button" onClick={handleResetTempPassword} disabled={loading}>Reset Temporary Password</button>
               <button className="org-mgmt-primary-btn" type="button" onClick={onClose}>Done</button>
             </div>
+            {actionMessage && <div className="org-mgmt-info">{actionMessage}</div>}
+            {errorMessage && <div className="org-mgmt-error">{errorMessage}</div>}
           </div>
         )}
       </div>

@@ -33,6 +33,11 @@
 .org-mgmt-success{display:flex;align-items:center;gap:8px;color:#10b981;padding:10px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px}
 .org-mgmt-credentials,.org-mgmt-blocker-card{display:flex;flex-direction:column;gap:14px}
 .org-mgmt-credential-line{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #2a2a2a;border-radius:10px;background:#1a1a1a}
+.org-mgmt-credential-link{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid #2a2a2a;border-radius:10px;background:#1a1a1a}
+.org-mgmt-credential-link a{color:#93c5fd;word-break:break-all;text-decoration:none}
+.org-mgmt-credential-link a:hover{text-decoration:underline}
+.org-mgmt-info{padding:10px 12px;border-radius:8px;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:#93c5fd}
+.org-mgmt-error{padding:10px 12px;border-radius:8px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
 .org-mgmt-permissions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .org-mgmt-permission{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid #2a2a2a;border-radius:10px;background:#1a1a1a}
 .org-mgmt-permission input{accent-color:#2563eb}

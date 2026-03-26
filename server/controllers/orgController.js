@@ -1,4 +1,5 @@
 const asyncHandler = require('../middleware/asyncHandler');
+const bcrypt = require('bcryptjs');
 const { supabase, crypto, toPublicOrgRole, toPublicOrgMember, toPublicComplianceRules, toPublicCustomField, toPublicAuditLog, createUser, getUserByEmail } = require('../lib/repo');
 const { enforceOrgCompliance } = require('../middleware/orgMiddleware');
 
@@ -52,6 +53,76 @@ const generateProvisionEmail = ({ name, email, organisation }) => {
     .replace(/^-+|-+$/g, '') || 'organisation';
 
   return `${localPartSource}@${orgPart}.collaborate.local`;
+};
+
+const buildProvisionOnboardingPath = ({ orgId, email }) => {
+  const params = new URLSearchParams({
+    email,
+    redirect: `/organisations/${orgId}/complete-profile`,
+    provisioned: '1',
+  });
+  return `/login?${params.toString()}`;
+};
+
+const buildProvisionResponse = ({ userId, email, tempPassword, organisationName, orgId }) => ({
+  userId,
+  email,
+  tempPassword,
+  organisationName,
+  onboardingPath: buildProvisionOnboardingPath({ orgId, email }),
+});
+
+const resetProvisionedMemberAccess = async ({ organisationId, userId, actorId }) => {
+  const { data: membership, error: memberLookupError } = await supabase
+    .from('organisation_members')
+    .select('organisation_id,user_id,is_provisioned,users!organisation_members_user_id_fkey(id,email,name)')
+    .eq('organisation_id', organisationId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (memberLookupError) throw memberLookupError;
+  if (!membership) return { status: 404, body: { error: 'MEMBER_NOT_FOUND' } };
+  if (!membership.is_provisioned) return { status: 400, body: { error: 'MEMBER_NOT_PROVISIONED' } };
+
+  const { data: organisation, error: orgError } = await supabase
+    .from('organisations')
+    .select('id,name')
+    .eq('id', organisationId)
+    .maybeSingle();
+  if (orgError) throw orgError;
+
+  const tempPassword = generatePassword();
+  const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+  const { error: userUpdateError } = await supabase
+    .from('users')
+    .update({ password_hash: passwordHash })
+    .eq('id', userId);
+  if (userUpdateError) throw userUpdateError;
+
+  const { error: membershipUpdateError } = await supabase
+    .from('organisation_members')
+    .update({
+      temp_password_plain: tempPassword,
+      temp_password_used: false,
+      status: 'pending_onboarding',
+      invited_by: actorId,
+    })
+    .eq('organisation_id', organisationId)
+    .eq('user_id', userId);
+  if (membershipUpdateError) throw membershipUpdateError;
+
+  await logAudit(organisationId, actorId, 'member.temp_password_reset', userId, {});
+
+  return {
+    status: 200,
+    body: buildProvisionResponse({
+      userId,
+      email: membership.users?.email || '',
+      tempPassword,
+      organisationName: organisation?.name || '',
+      orgId: organisationId,
+    }),
+  };
 };
 
 const assertRoleHierarchy = (actorRole, targetRole) => ROLE_FLAGS.every((flag) => !targetRole[flag] || actorRole[flag]);
@@ -133,12 +204,27 @@ const provisionMember = asyncHandler(async (req, res) => {
     if (memberError) throw memberError;
 
     await logAudit(req.params.orgId, req.user._id, 'member.created', user._id, { orgRoleId, email: resolvedEmail });
-    res.status(201).json({ userId: user._id, email: resolvedEmail, tempPassword, organisationName: organisation.name });
+    res.status(201).json(buildProvisionResponse({
+      userId: user._id,
+      email: resolvedEmail,
+      tempPassword,
+      organisationName: organisation.name,
+      orgId: req.params.orgId,
+    }));
   } catch (error) {
     await supabase.from('users').delete().eq('id', user._id);
     console.error('Provision member failed:', error);
     return res.status(500).json({ error: error.message || 'Failed to provision member' });
   }
+});
+
+const resetProvisionedMemberPassword = asyncHandler(async (req, res) => {
+  const result = await resetProvisionedMemberAccess({
+    organisationId: req.params.orgId,
+    userId: req.params.userId,
+    actorId: req.user._id,
+  });
+  return res.status(result.status).json(result.body);
 });
 
 const updateMemberRole = asyncHandler(async (req, res) => {
@@ -358,6 +444,7 @@ const getAuditLog = asyncHandler(async (req, res) => {
 module.exports = {
   listMembers,
   provisionMember,
+  resetProvisionedMemberPassword,
   updateMemberRole,
   updateMemberStatus,
   removeMember,

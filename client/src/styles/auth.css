@@ -305,6 +305,16 @@
   color: #f87171;
   margin-top: 2px;
 }
+.field-info-msg {
+  font-size: 12px;
+  color: #bfdbfe;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.24);
+  line-height: 1.5;
+}
 .field-input-wrap {
   position: relative;
   display: flex;

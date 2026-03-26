@@ -6,18 +6,19 @@ import { login } from '../actions/userActions';
 import '../styles/auth.css';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const [email, setEmail] = useState(() => params.get('email') || '');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const userLogin = useSelector((state) => state.userLogin);
   const { loading, error, userInfo } = userLogin;
 
-  const redirect = location.search ? location.search.split('=')[1] : '/dashboard';
+  const redirect = params.get('redirect') || '/dashboard';
+  const provisioned = params.get('provisioned') === '1';
 
   useEffect(() => {
     if (userInfo) {
@@ -83,6 +84,12 @@ const LoginScreen = () => {
             <h1>Welcome back</h1>
             <p>Sign in to continue to Collaborate. <Link to="/register">Sign up free</Link>.</p>
           </div>
+
+          {provisioned && (
+            <div className="field-info-msg">
+              Use the provisioned email and temporary password shared by your organisation admin. After sign-in, you will be sent to your onboarding flow.
+            </div>
+          )}
 
           {error && <div className="field-error-msg">{error}</div>}
 
