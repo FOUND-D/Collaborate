@@ -8,7 +8,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import FormContainer from '../components/FormContainer'; // Using the standard form container
 import { FaRobot, FaChevronLeft } from 'react-icons/fa';
-import { selectHasTeam } from '../selectors/membershipSelectors';
+import { selectHasOrg } from '../selectors/membershipSelectors';
 
 const ProjectCreateScreen = () => {
   const navigate = useNavigate();
@@ -26,7 +26,9 @@ const ProjectCreateScreen = () => {
   const { loading, error, success, project } = projectCreateWithAI;
 
   const userInfo = useSelector((state) => state.userLogin.userInfo);
-  const hasTeam = useSelector(selectHasTeam);
+  const hasOrg = useSelector(selectHasOrg);
+  const currentOrg = useSelector((state) => state.orgCurrent.organisation);
+  const visibleTeams = currentOrg ? teams.filter((team) => team.organisation === currentOrg._id) : teams;
 
   useEffect(() => {
     if (!userInfo) {
@@ -46,7 +48,7 @@ const ProjectCreateScreen = () => {
       // Basic validation
       return;
     }
-    dispatch(createProjectWithAI({ name: projectName, goal: aiPrompt, dueDate, teamId: selectedTeam }));
+    dispatch(createProjectWithAI({ name: projectName, goal: aiPrompt, dueDate, teamId: selectedTeam, organisationId: currentOrg?._id }));
   };
 
   return (
@@ -62,14 +64,24 @@ const ProjectCreateScreen = () => {
           <p style={{ color: 'var(--text-medium-emphasis)'}}>Describe your goal, and let our AI build the plan.</p>
         </div>
 
-        {!hasTeam ? (
+        {!hasOrg ? (
           <Message variant='info'>
-            <Link to="/teams" className="project-create-gate-link">
-              Join or create a team first to unlock projects
+            You are not part of an organisation yet.{' '}
+            <Link to="/organisations/create" className="project-create-gate-link">
+              Create or join an organisation before creating projects
             </Link>
+          </Message>
+        ) : !currentOrg ? (
+          <Message variant='info'>
+            Select an active organisation first. Projects are always created inside an organisation.
           </Message>
         ) : (
         <>
+        {currentOrg && (
+          <Message variant='info'>
+            This project will be created inside {currentOrg.name}. Team assignment is optional.
+          </Message>
+        )}
         {error && <Message variant='danger'>{error}</Message>}
 
         <form onSubmit={submitHandler}>
@@ -122,7 +134,7 @@ const ProjectCreateScreen = () => {
                 className="form-input"
               >
                 <option value="">No Assigned Team</option>
-                {teams.map((team) => (
+                {visibleTeams.map((team) => (
                   <option key={team._id} value={team._id}>
                     {team.name}
                   </option>

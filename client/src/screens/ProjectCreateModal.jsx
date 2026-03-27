@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createProject, createProjectWithAI } from '../actions/projectActions';
 import { listTeams } from '../actions/teamActions';
-import { FaTimes, FaMagic, FaPlus, FaRocket } from 'react-icons/fa';
+import { FaTimes, FaPlus, FaRocket } from 'react-icons/fa';
 import './ProjectCreateModal.css';
-import { selectHasTeam } from '../selectors/membershipSelectors';
+import { selectHasOrg } from '../selectors/membershipSelectors';
 
 const ProjectCreateModal = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
@@ -17,7 +17,9 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
 
   const teamList = useSelector((state) => state.teamList);
   const { teams = [] } = teamList;
-  const hasTeam = useSelector(selectHasTeam);
+  const hasOrg = useSelector(selectHasOrg);
+  const currentOrg = useSelector((state) => state.orgCurrent.organisation);
+  const visibleTeams = currentOrg ? teams.filter((team) => team.organisation === currentOrg._id) : teams;
 
   useEffect(() => {
     if (isOpen) {
@@ -27,10 +29,17 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const payload = {
+      name,
+      goal,
+      dueDate,
+      teamId: selectedTeam,
+      organisationId: currentOrg?._id,
+    };
     if (isAiMode) {
-      dispatch(createProjectWithAI({ name, goal, dueDate, teamId: selectedTeam }));
+      dispatch(createProjectWithAI(payload));
     } else {
-      dispatch(createProject({ name, goal, dueDate, teamId: selectedTeam }));
+      dispatch(createProject(payload));
     }
     onClose();
   };
@@ -51,13 +60,20 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
               ? 'Let our AI assistant generate a full project plan for you.' 
               : 'Create a project manually by defining the basic details.'}
           </p>
+          <p className="modal-description">
+            {currentOrg ? `This project will belong to ${currentOrg.name}. Team assignment is optional.` : 'Choose an active organisation before creating the project.'}
+          </p>
         </div>
 
-        {!hasTeam ? (
+        {!hasOrg ? (
           <div className="text-center mb-4">
-            <Link to="/teams" className="project-create-gate-link" onClick={onClose}>
-              Join or create a team first to unlock projects
+            <Link to="/organisations/create" className="project-create-gate-link" onClick={onClose}>
+              Join or create an organisation before creating projects
             </Link>
+          </div>
+        ) : !currentOrg ? (
+          <div className="text-center mb-4">
+            <p className="modal-description">Select an active organisation first. Projects are always created inside an organisation.</p>
           </div>
         ) : (
         <>
@@ -125,7 +141,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 className="form-input"
               >
                 <option value="">No Assigned Team</option>
-                {teams.map((team) => (
+                {visibleTeams.map((team) => (
                   <option key={team._id} value={team._id}>
                     {team.name}
                   </option>

@@ -89,7 +89,7 @@ const TeamScreen = () => {
 
   const handleCloseCreate = () => setShowCreate(false);
   const handleShowCreate = () => {
-    if (hasOrg) {
+    if (hasOrg && currentOrg?._id) {
       setShowCreate(true);
     }
   };
@@ -146,9 +146,20 @@ const TeamScreen = () => {
       <div className="project-hero-header">
         <h1 className="project-detail-title">Your Teams</h1>
         <p className="project-detail-goal">
-            Manage your teams, create new ones, or join existing collaborations.
+            Manage your teams, create new ones, or join existing collaborations inside your organisation.
         </p>
       </div>
+
+      {!hasOrg && (
+        <Message variant='info'>
+          You are not part of an organisation yet. Create or join an organisation before creating a team.
+        </Message>
+      )}
+      {hasOrg && !currentOrg && (
+        <Message variant='info'>
+          Select an organisation first. Teams are created inside your active organisation.
+        </Message>
+      )}
 
       <div className="action-cards-grid">
         {hasOrg ? (
@@ -170,7 +181,7 @@ const TeamScreen = () => {
             <h3 className="action-card-title">Create New Team</h3>
             <p className="action-card-description">Start a new collaboration hub.</p>
             <Link to="/organisations/new" className="action-card-link action-card-gate-link">
-              Create an organisation first to unlock teams
+              Create or join an organisation first
             </Link>
           </div>
         )}

@@ -259,6 +259,64 @@
   margin-top: 0.8rem;
 }
 
+.team-member-management {
+
+  margin-bottom: 1.25rem;
+
+  padding: 1rem;
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.04);
+}
+
+
+.team-member-management-copy {
+
+  color: rgba(255,255,255,0.76) !important;
+
+  font-size: 0.9rem;
+
+  margin-bottom: 0.9rem;
+}
+
+
+.team-member-management-form {
+
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+.team-member-select {
+
+  flex: 1 1 320px;
+
+  min-height: 44px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  background: rgba(7,10,18,0.9);
+
+  padding: 0.75rem 0.9rem;
+
+  color: #ffffff;
+}
+
+
+.team-member-management-empty {
+
+  color: rgba(255,255,255,0.7) !important;
+
+  font-size: 0.88rem;
+}
+
 
 .member-chip {
 
@@ -442,6 +500,13 @@
     align-items: flex-start;
 
     gap: 0.6rem;
+  }
+
+
+  .team-member-management-form {
+
+    flex-direction: column;
+    align-items: stretch;
   }
 
 

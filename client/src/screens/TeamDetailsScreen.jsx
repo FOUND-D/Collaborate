@@ -6,7 +6,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
 import './TeamDetailsScreen.css';
-import axios from 'axios';
+import api from '../utils/api';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
 
@@ -37,6 +37,12 @@ const TeamDetailsScreen = () => {
   const [copied, setCopied] = useState(false);
   const [meeting, setMeeting] = useState(null);
   const [meetingError, setMeetingError] = useState(null);
+  const [orgMembers, setOrgMembers] = useState([]);
+  const [selectedMemberId, setSelectedMemberId] = useState('');
+  const [memberActionLoading, setMemberActionLoading] = useState(false);
+  const [memberActionError, setMemberActionError] = useState(null);
+  const [memberActionSuccess, setMemberActionSuccess] = useState(null);
+  const [canManageMembers, setCanManageMembers] = useState(false);
 
   const teamDetails = useSelector((state) => state.teamDetails);
   const { loading, error, team } = teamDetails;
@@ -51,13 +57,9 @@ const TeamDetailsScreen = () => {
 
     const fetchMeeting = async () => {
       try {
-        const { data } = await axios.get(`/api/teams/${id}/meetings`, {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        });
+        const { data } = await api.get(`/api/teams/${id}/meetings`);
         setMeeting(data);
-      } catch (error) {
+      } catch {
         // No active meeting found
       }
     };
@@ -82,6 +84,37 @@ const TeamDetailsScreen = () => {
     }
   }, [socket, id]);
 
+  useEffect(() => {
+    const fetchOrgContext = async () => {
+      if (!team?.organisation) {
+        setOrgMembers([]);
+        setCanManageMembers(Boolean(team?.permissions?.canManageMembers));
+        return;
+      }
+
+      try {
+        const [{ data: org }, { data: membersRes }] = await Promise.all([
+          api.get(`/api/organisations/${team.organisation}`),
+          api.get(`/api/organisations/${team.organisation}/members`),
+        ]);
+
+        const teamMemberIds = new Set((team.members || []).map((member) => member._id));
+        const availableMembers = (membersRes.members || []).filter((member) => {
+          const memberId = member.user?._id || member.userId || member.user;
+          return memberId && !teamMemberIds.has(memberId);
+        });
+
+        setOrgMembers(availableMembers);
+        setSelectedMemberId((currentValue) => currentValue || (availableMembers[0]?.user?._id || availableMembers[0]?.userId || ''));
+        setCanManageMembers(Boolean(team?.permissions?.canManageMembers || org.permissions?.canManageTeams));
+      } catch {
+        setCanManageMembers(Boolean(team?.permissions?.canManageMembers));
+      }
+    };
+
+    fetchOrgContext();
+  }, [team]);
+
   const handleCopy = (id) => {
     navigator.clipboard.writeText(id);
     setCopied(true);
@@ -90,11 +123,7 @@ const TeamDetailsScreen = () => {
 
   const startMeetingHandler = async () => {
     try {
-      const { data } = await axios.post(`/api/teams/${id}/meetings`, {}, {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      });
+      const { data } = await api.post(`/api/teams/${id}/meetings`, {});
       socket.emit('startMeeting', data);
       setMeeting(data);
       navigate(`/team/${id}/meeting`);
@@ -109,11 +138,7 @@ const TeamDetailsScreen = () => {
 
   const endMeetingHandler = async () => {
     try {
-      await axios.put(`/api/teams/${id}/meetings/${meeting._id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      });
+      await api.put(`/api/teams/${id}/meetings/${meeting._id}`, {});
       socket.emit('endMeeting', meeting);
       setMeeting(null);
     } catch (error) {
@@ -122,6 +147,26 @@ const TeamDetailsScreen = () => {
           ? error.response.data.message
           : error.message;
       setMeetingError(message);
+    }
+  };
+
+  const addMemberHandler = async (e) => {
+    e.preventDefault();
+    if (!selectedMemberId) return;
+
+    setMemberActionLoading(true);
+    setMemberActionError(null);
+    setMemberActionSuccess(null);
+
+    try {
+      await api.put(`/api/teams/${id}/members`, { userId: selectedMemberId });
+      setMemberActionSuccess('Organisation member added to the team');
+      setSelectedMemberId('');
+      dispatch(getTeamDetails(id));
+    } catch (error) {
+      setMemberActionError(error.response?.data?.message || 'Failed to add member to the team');
+    } finally {
+      setMemberActionLoading(false);
     }
   };
 
@@ -169,6 +214,39 @@ const TeamDetailsScreen = () => {
 
           <div className="detail-section-group">
             <h2 className="detail-section-title">Members ({team.members ? team.members.length : 0})</h2>
+            {team.organisation && canManageMembers && (
+              <div className="team-member-management">
+                <div className="team-member-management-copy">
+                  Add members from the organisation directly into this team. Projects linked to this team will inherit those members.
+                </div>
+                {memberActionError && <Message variant="danger">{memberActionError}</Message>}
+                {memberActionSuccess && <Message variant="success">{memberActionSuccess}</Message>}
+                {orgMembers.length === 0 ? (
+                  <div className="team-member-management-empty">All organisation members are already in this team.</div>
+                ) : (
+                  <form className="team-member-management-form" onSubmit={addMemberHandler}>
+                    <select
+                      className="team-member-select"
+                      value={selectedMemberId}
+                      onChange={(e) => setSelectedMemberId(e.target.value)}
+                    >
+                      <option value="">Select organisation member</option>
+                      {orgMembers.map((member) => {
+                        const memberId = member.user?._id || member.userId || member.user;
+                        return (
+                          <option key={memberId} value={memberId}>
+                            {member.user?.name || 'Unknown'} ({member.user?.email || 'No email'})
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <button className="btn btn-primary" type="submit" disabled={memberActionLoading || !selectedMemberId}>
+                      {memberActionLoading ? 'Adding...' : 'Add Member'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
             <div className="member-chip-group">
               {team.members && team.members.map((member) => (
                 <div key={member._id} className="member-chip" title={member.name}>
