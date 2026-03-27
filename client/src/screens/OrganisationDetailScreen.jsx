@@ -115,6 +115,7 @@ const OrganisationDetailScreen = () => {
 
   const currentUserRole = org?.currentUserRole || null;
   const isOwnerOrAdmin = Boolean(org?.permissions?.canManageMembers || org?.permissions?.canManageRoles || org?.permissions?.canManageSettings || org?.permissions?.canViewReports || currentUserRole === 'owner' || currentUserRole === 'admin');
+  const canProvisionMembers = Boolean(org?.permissions?.canInviteMembers || currentUserRole === 'owner' || currentUserRole === 'admin');
   const orgId = org?._id || org?.id || id;
   const createdLabel = formatCreatedDate(org?.createdAt);
   const roleCounts = useMemo(() => {
@@ -483,7 +484,14 @@ const OrganisationDetailScreen = () => {
         <div className="org-detail-section">
           <div className="org-detail-section-header">
             <div className="org-detail-section-label">MEMBERS</div>
-            {isOwnerOrAdmin && !showInviteForm && <button className="org-detail-primary-btn" type="button" onClick={() => setShowInviteForm(true)}><FiUserPlus /> Invite Member</button>}
+            <div className="org-detail-inline-form-row">
+              {canProvisionMembers && (
+                <button className="org-detail-secondary-btn" type="button" onClick={() => setMemberModalOpen(true)}>
+                  <FiUserPlus /> Provision Account
+                </button>
+              )}
+              {isOwnerOrAdmin && !showInviteForm && <button className="org-detail-primary-btn" type="button" onClick={() => setShowInviteForm(true)}><FiUserPlus /> Invite Member</button>}
+            </div>
           </div>
           {showInviteForm && (
             <form className="org-detail-inline-form" onSubmit={handleInviteSubmit}>
