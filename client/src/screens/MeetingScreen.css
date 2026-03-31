@@ -1,72 +1,16 @@
-/* =========================================
-   FACETIME AESTHETIC + SMART GRID
-   ========================================= */
-
-:root {
-  /* iOS System Colors */
-  --bg-main: #000000;
-  --bg-surface: rgba(28, 28, 30, 0.65); /* Transparent for glass effect */
-  
-  /* Apple-style borders are barely visible */
-  --glass: rgba(255, 255, 255, 0.1);
-  --border: rgba(255, 255, 255, 0.08);
-
-  --text-main: #ffffff;
-  --text-sub: #8e8e93; /* iOS System Gray */
-
-  /* iOS Active Colors */
-  --blue: #0a84ff;
-  --green: #30d158; /* iOS Green */
-  --red: #ff453a;   /* iOS Red */
-
-  --radius-lg: 24px; /* Squircle look */
-  
-  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.8);
-}
-
-/* =========================================
-   RESET
-   ========================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background: var(--bg-main);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-  color: var(--text-main);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* =========================================
-   MAIN CONTAINER
-   ========================================= */
-
 .meeting-screen-container {
   height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  /* iOS Dark Mode Gradient */
   background: linear-gradient(180deg, #1c1c1e 0%, #000000 40%);
   overflow: hidden;
+  color: #f1f5f9;
 }
-
-/* =========================================
-   HEADER
-   ========================================= */
 
 .meeting-header {
   padding: 1.2rem 1.5rem;
   text-align: center;
-  /* Heavy blur for glass header */
-  background: rgba(20, 20, 20, 0.5); 
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 10;
 }
 
@@ -78,70 +22,44 @@ body {
 
 .meeting-header p {
   font-size: 0.8rem;
-  color: var(--text-sub);
+  color: rgba(241, 245, 249, 0.35);
   margin-top: 4px;
 }
-
-/* =========================================
-   VIDEO GRID (NORMAL MODE - SMART SCALING)
-   ========================================= */
 
 .video-grid-container {
   flex: 1;
   width: 100%;
   height: 100%;
   padding: 2rem; 
-
   display: grid;
-  
-  /* SCALING MAGIC: Fits as many columns as possible */
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  
-  /* Centers the specific grid items vertically */
   align-content: center; 
   justify-content: center;
-  
   gap: 20px;
   overflow-y: auto;
 }
 
-/* =========================================
-   PARTICIPANT TILE
-   ========================================= */
-
 .video-participant-container {
   position: relative;
   width: 100%;
-  
-  /* Forces the tile to stay 16:9 Widescreen */
   aspect-ratio: 16 / 9; 
-  
-  /* Prevents single user from stretching too wide */
   max-width: 1400px;
   margin: 0 auto; 
-
   background: #1c1c1e; /* Dark Grey Placeholder when video is black/hidden */
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-large);
   overflow: hidden;
-  
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* =========================================
-   VIDEO ELEMENT
-   ========================================= */
-
 .video-participant-container video {
   width: 100%;
   height: 100%;
   object-fit: cover; 
   background: #000;
-  /* Ensure video is visible */
   display: block; 
 }
 
@@ -152,10 +70,6 @@ body {
 .remote-video-flipped {
   transform: scaleX(-1);
 }
-
-/* =========================================
-   NAME LABEL
-   ========================================= */
 
 .participant-name {
   position: absolute;
@@ -175,15 +89,11 @@ body {
   z-index: 2;
 }
 
-/* =========================================
-   ACTIVE SPEAKER EFFECT
-   ========================================= */
-
 .video-participant-container.speaking {
-  border: 2px solid var(--green);
+  border: 2px solid #30d158;
   box-shadow: 
-    0 0 0 2px rgba(48, 209, 88, 0.1), 
-    0 10px 40px rgba(48, 209, 88, 0.3); 
+    0 0 0 2px rgba(48, 209, 88, 0.1),
+    0 10px 40px rgba(48, 209, 88, 0.3);
   transform: scale(1.02);
   z-index: 5;
   animation: speakerPulse 2s infinite ease-in-out;
@@ -193,7 +103,7 @@ body {
   content: "";
   position: absolute;
   inset: -4px;
-  border-radius: calc(var(--radius-lg) + 4px);
+  border-radius: calc(var(--radius-large) + 4px);
   border: 2px solid rgba(48, 209, 88, 0.5);
   animation: speakerWave 2s infinite cubic-bezier(0, 0, 0.2, 1);
   pointer-events: none;
@@ -211,75 +121,24 @@ body {
   100% { opacity: 0; transform: scale(1.1); border-width: 0px; }
 }
 
-/* =========================================
-   CONTROLS FOOTER
-   ========================================= */
-
 .meeting-controls {
   padding: 1.2rem 1rem; 
   display: flex;
   justify-content: center;
   gap: 1rem;
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
 }
 
-.btn {
-  min-width: 120px;
-  height: 48px; 
-  padding: 0 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-radius: 999px;
-  border: none; 
-  background: rgba(255, 255, 255, 0.15); 
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
-}
-
-.btn:active {
-  transform: scale(0.96) translateY(0);
-}
-
-.btn-danger {
-  background: var(--red);
-  color: white;
-  box-shadow: 0 4px 12px rgba(255, 69, 58, 0.3);
-}
-
-.btn-danger:hover {
-  background: #ff3b30;
-  box-shadow: 0 6px 16px rgba(255, 69, 58, 0.4);
-}
-
-/* =========================================
-   UTILITIES / ICONS
-   ========================================= */
-
-/* IMPORTANT: If video is hidden (camera off), hide element so background shows */
 .hidden-video {
     display: none !important; 
 }
 
-/* Icon centered in the container when video is hidden */
 .video-overlay-icon {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: var(--text-sub);
+    color: rgba(241, 245, 249, 0.35);
     z-index: 1;
     font-size: 2.5rem; 
     opacity: 0.7;
@@ -295,20 +154,13 @@ body {
     border-radius: 6px;
 }
 
-/* =========================================
-   SCREEN SHARING / LARGE VIEW LAYOUT
-   ========================================= */
-
 .video-grid-container.has-main-screen {
   display: grid; 
-  /* 1fr = Main Screen (Takes remaining space)
-     300px = Sidebar (Fixed width for participants)
-  */
   grid-template-columns: 1fr 300px; 
   grid-template-rows: 1fr; 
   gap: 15px; 
   padding: 1.5rem;
-  overflow: hidden; /* Prevent double scrollbars */
+  overflow: hidden;
 }
 
 /* The Main Screen / Shared Screen */
@@ -318,7 +170,7 @@ body {
   height: 100%;
   width: 100%;
   aspect-ratio: auto; /* Let it stretch */
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-large);
   overflow: hidden;
   box-shadow: 0 15px 50px rgba(0,0,0,0.8);
   z-index: 10;
@@ -329,12 +181,9 @@ body {
 }
 
 .video-grid-container.has-main-screen .main-screen-share video {
-  /* contain = show full screen content without cropping */
   object-fit: contain; 
   background: black;
 }
-
-/* The Sidebar (List of participants on the right) */
 .video-grid-container.has-main-screen .video-sidebar {
   grid-column: 2; 
   grid-row: 1; 

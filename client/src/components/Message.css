@@ -1,7 +1,4 @@
-/* =====================================================
-   ALERT / MESSAGE STYLING
-   Aligned with the app's dark blue surface language.
-===================================================== */
+/* Alert / message styles aligned with shared theme tokens */
 
 .custom-alert {
   padding: 1rem 1.25rem;

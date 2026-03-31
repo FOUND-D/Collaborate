@@ -8,7 +8,8 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import TaskSideDrawer from '../components/TaskSideDrawer';
 import GoalModal from '../components/GoalModal'; // Import GoalModal
-import { FaEdit, FaCheckSquare, FaSquare, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus, FaChevronLeft, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaEdit, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus, FaChevronLeft, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import '../styles/workspace.css';
 
 const calculateProgress = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
@@ -59,11 +60,11 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
         </div>
         <div className="task-actions-group">
           {task.subTasks && task.subTasks.length > 0 && (
-            <button className="task-action-btn" onClick={() => setSubtasksVisible(!subtasksVisible)} type="button">
+            <button className="task-action-btn workspace-icon-btn" onClick={() => setSubtasksVisible(!subtasksVisible)} type="button">
               {subtasksVisible ? <FaMinus /> : <FaPlus />}
             </button>
           )}
-          <button className="task-action-btn" onClick={() => onEdit(task._id)} type="button">
+          <button className="task-action-btn workspace-icon-btn" onClick={() => onEdit(task._id)} type="button">
             <FaEdit />
           </button>
         </div>
@@ -100,25 +101,13 @@ const ProjectScreen = () => {
   const taskUpdate = useSelector((state) => state.taskUpdate);
   const { success: successUpdate } = taskUpdate;
 
-  const projectUpdate = useSelector((state) => state.projectUpdate);
-  const { success: successProjectUpdate } = projectUpdate;
-
   useEffect(() => {
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
     } else {
       dispatch(getProjectDetails(projectId));
-      if (successProjectUpdate) {
-        setIsEditing(false);
-      }
     }
-  }, [dispatch, projectId, userInfo, navigate, successUpdate, successProjectUpdate]);
-
-  useEffect(() => {
-    if (project) {
-      setProjectName(project.name);
-    }
-  }, [project]);
+  }, [dispatch, projectId, userInfo, navigate, successUpdate]);
 
   const handleTaskCheck = (task) => {
     const newStatus = task.status === 'Completed' ? 'To Do' : 'Completed';
@@ -137,6 +126,11 @@ const ProjectScreen = () => {
     setIsDrawerOpen(true);
   };
 
+  const handleStartEditing = () => {
+    setProjectName(project?.name || '');
+    setIsEditing(true);
+  };
+
   const closeDrawer = () => {
     setIsDrawerOpen(false);
     setSelectedTaskId(null);
@@ -149,7 +143,12 @@ const ProjectScreen = () => {
   };
 
   const handleSaveProjectName = () => {
-    dispatch(updateProject({ _id: projectId, name: projectName }));
+    dispatch(updateProject({ _id: projectId, name: projectName })).then((updatedProject) => {
+      if (updatedProject) {
+        setIsEditing(false);
+        dispatch(getProjectDetails(projectId));
+      }
+    });
   };
 
   const progress = project ? calculateProgress(project.tasks) : 0;
@@ -165,31 +164,31 @@ const ProjectScreen = () => {
           <>
             <div className="project-hero-section">
               <div className="project-hero-actions">
-                <Link to="/projects/ongoing" className="back-link">
+                <Link to="/projects/ongoing" className="back-link workspace-back-link">
                   <FaChevronLeft />
                   <span>All Projects</span>
                 </Link>
                 <div className="project-header-action-group">
                   {isEditing ? (
                     <>
-                      <button className="btn-tertiary" onClick={() => setIsEditing(false)}>Cancel</button>
-                      <button className="btn-primary" onClick={handleSaveProjectName}>Save</button>
+                      <button className="btn-tertiary workspace-btn workspace-btn-secondary" onClick={() => setIsEditing(false)}>Cancel</button>
+                      <button className="btn-primary workspace-btn workspace-btn-primary" onClick={handleSaveProjectName}>Save</button>
                     </>
                   ) : (
-                    <button className="task-action-btn" onClick={() => setIsEditing(true)}>
+                    <button className="task-action-btn workspace-icon-btn" onClick={handleStartEditing}>
                       <FaEdit />
                     </button>
                   )}
-                  <button className="btn-outline-secondary" onClick={() => setIsGoalModalOpen(true)} type="button">
+                  <button className="btn-outline-secondary workspace-btn workspace-btn-secondary" onClick={() => setIsGoalModalOpen(true)} type="button">
                     <FaExternalLinkAlt /> View Project Goal
                   </button>
-                  <button className="btn-gradient" onClick={handleAddTask} type="button">
+                  <button className="btn-gradient workspace-btn workspace-btn-primary" onClick={handleAddTask} type="button">
                     <FaPlus /> Add Task
                   </button>
                 </div>
               </div>
 
-              <h1 className="project-detail-title">
+              <h1 className="project-detail-title workspace-page-title">
                 {isEditing ? (
                   <input
                     type="text"
@@ -204,13 +203,13 @@ const ProjectScreen = () => {
 
               {project.goal && (
                 <div className="project-description-container">
-                  <div className="project-description-column">
+                  <div className="project-description-column workspace-surface">
                     <h3>The Challenge</h3>
                     <p className="project-description-text">
                       {project.goal.substring(0, project.goal.length / 2)}
                     </p>
                   </div>
-                  <div className="project-description-column">
+                  <div className="project-description-column workspace-surface">
                     <h3>The Solution</h3>
                     <p className="project-description-text">
                       {project.goal.substring(project.goal.length / 2)}
@@ -250,7 +249,7 @@ const ProjectScreen = () => {
             {project.tasks && project.tasks.length === 0 ? (
               <Message variant="info">
                 No tasks generated for this project.
-                <button className="btn btn-primary btn-small ml-2" onClick={handleAddTask} type="button">
+                <button className="btn btn-primary btn-small ml-2 workspace-btn workspace-btn-primary" onClick={handleAddTask} type="button">
                   Add First Task
                 </button>
               </Message>

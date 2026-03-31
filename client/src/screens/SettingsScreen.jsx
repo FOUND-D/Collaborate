@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import './SettingsScreen.css';
 
 const SettingsScreen = () => {
-    const { theme, toggleTheme, isDark } = useTheme();
+    const { toggleTheme, isDark } = useTheme();
     const [activeTab, setActiveTab] = useState('appearance');
 
     // Mock State for interactivity

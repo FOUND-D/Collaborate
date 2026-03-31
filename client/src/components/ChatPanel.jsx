@@ -38,10 +38,6 @@ const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
     };
   }, [selectedChat, dispatch]);
 
-  const handleBack = () => {
-    setSelectedChat(null);
-  };
-
   return (
     <div className="chat-panel-content">
       {/* HEADER */}

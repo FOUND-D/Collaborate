@@ -12,15 +12,19 @@ As of 2026-03-31:
   * `TaskScreen.jsx` now uses the modern task list layout instead of the older table-based pattern.
   * The old `react-router-bootstrap` usage is no longer present in the frontend source.
   * The frontend now consistently uses `react-icons` instead of legacy FontAwesome class markup.
+  * Chat styling has been aligned to the site theme across the main chat, popup chat, sidebar, and message alerts.
+  * The sidebar now opens the User Guide, and the guide itself is a step-by-step app walkthrough rather than a feature list.
+  * Meeting payloads and socket events are normalized between the client and server.
+  * Shared workspace styles now cover the common panel, button, and title primitives used by the meeting and project screens.
 * Partially addressed:
   * The `/api/users/profile` fetch is now wrapped by `getUserDetails()` error handling and server-status tracking, so the page should not hard-crash from that request alone.
-  * `MeetingScreen.jsx` now reads socket/backend URLs from runtime config, but it still contains the hardcoded local fallback defaults in `runtime.js`.
+  * `MeetingScreen.jsx` now uses the shared runtime config and the meeting flow is more stable, but the WebRTC logic still lives in one large screen file.
+  * Frontend runtime defaults still point to the production backend unless env vars are supplied, so local stack setup is still not fully self-contained.
 * Still persisting:
-  * General lint issues unrelated to the original audit notes.
-  * CSS fragmentation and duplicated style logic.
+  * Two non-blocking hook dependency warnings remain in `App.jsx` and `OrganisationDetailScreen.jsx`.
+  * CSS fragmentation has been reduced, but more shared tokens/components can still be centralized.
   * DRY violations such as repeated `calculateProgress()` logic.
-  * The monolithic WebRTC/meeting screen structure.
-  * Several `setState`-inside-`useEffect` patterns that lint flags as unsafe.
+  * A few remaining app lint issues, mostly unrelated hook dependency warnings.
 
 ## 1. 🚨 Critical Clean-up & Bug Fixes
 
@@ -46,7 +50,7 @@ As of 2026-03-31:
 **Location:** General
 **Status:** Still persisting in other files.
 *   The duplicate action-file import issue is gone with the removed constants copies.
-*   The frontend still has unrelated lint failures for unused variables/imports in several screen and component files.
+*   The frontend still has unrelated lint failures for unused variables/imports in several screen and component files, including the chat flow.
 
 ## 2. 🎨 UI/UX Styling & Consistency
 
@@ -68,9 +72,9 @@ As of 2026-03-31:
 ### Fragmentation of CSS
 **Severity:** Low
 **Location:** `client/src/index.css`
-**Status:** Still persisting.
-**Issue:** Over 10 separate CSS files are imported. Basic styles (buttons, inputs) are redefined in multiple places.
-**Fix:** Consolidate shared styles into `global.css` or a design system file. Ensure color variables (e.g., `--primary-color`) are used consistently instead of hex codes.
+**Status:** Partially addressed.
+**Issue:** Over 10 separate CSS files are still imported, but the repeated chat/guide palette values and the shared workspace panel/button/title styles have been moved into [`client/src/theme.css`](/Users/bhavya_agarwal/Desktop/Collaborate/client/src/theme.css) and [`client/src/styles/workspace.css`](/Users/bhavya_agarwal/Desktop/Collaborate/client/src/styles/workspace.css).
+**Fix:** Continue centralizing shared component tokens and utility patterns into the shared theme files or a small design-system layer.
 
 ## 3. 🏗️ Code Quality & Refactoring
 
@@ -91,8 +95,8 @@ As of 2026-03-31:
 ### Monolithic WebRTC Logic
 **Severity:** Medium
 **Location:** `client/src/screens/MeetingScreen.jsx`
-**Status:** Still persisting.
-**Issue:** detailed WebRTC negotiation, socket listeners, and UI rendering are still crammed into one file.
+**Status:** Still persisting, but reduced.
+**Issue:** detailed WebRTC negotiation, socket listeners, and UI rendering still live in one file, even though the implementation is now smaller and more stable than before.
 **Fix:** 
 1.  Create a custom hook `useWebRTC` to handle the peer connections and socket events.
 2.  Extract `VideoPlayer` to its own component file.
@@ -101,12 +105,14 @@ As of 2026-03-31:
 **Severity:** Medium
 **Location:** `MeetingScreen.jsx` and `client/src/config/runtime.js`
 **Status:** Partially addressed.
-**Issue:** `MeetingScreen.jsx` now reads URLs from runtime config, but `runtime.js` still contains hardcoded localhost fallback defaults.
-**Fix:** Move the fallback URLs and any STUN/TURN values fully into `.env` variables or a dedicated environment profile file.
+**Issue:** `MeetingScreen.jsx` now reads URLs from runtime config, but the frontend still falls back to production URLs when env vars are missing, which makes local stack setup less predictable.
+**Fix:** Add a checked-in `.env.example` and make the local backend/socket targets explicit for development.
 
 ## 5. Summary of Recommended Actions
 
 1.  **Removed**: delete action files from `client/src/constants/` is already done.
 2.  **Removed**: `ProjectListItem` extraction and the TaskScreen list refactor are already done.
-3.  **Still open**: reduce the remaining lint errors and setState-in-effect warnings.
-4.  **Still open**: refactor `MeetingScreen` and centralize shared utilities/styles.
+3.  **Done**: chat styling and the user guide walkthrough are updated.
+4.  **Done**: shared theme tokens now reduce chat and guide CSS duplication.
+5.  **Still open**: reduce the remaining non-blocking hook dependency warnings.
+6.  **Still open**: extract meeting WebRTC logic and centralize shared utilities/styles.

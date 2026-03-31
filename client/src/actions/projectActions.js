@@ -262,6 +262,8 @@ export const updateProject = (project) => async (dispatch, getState) => {
       type: PROJECT_UPDATE_SUCCESS,
       payload: data,
     });
+
+    return data;
   } catch (error) {
     const message =
       error.response && error.response.data.message
@@ -274,5 +276,7 @@ export const updateProject = (project) => async (dispatch, getState) => {
       type: PROJECT_UPDATE_FAIL,
       payload: message,
     });
+
+    return null;
   }
 };

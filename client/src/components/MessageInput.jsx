@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendMessage } from '../actions/messageActions';
 
-const MessageInput = ({ selectedChat, socket }) => {
+const MessageInput = ({ selectedChat, socketRef }) => {
   const [content, setContent] = useState('');
   const dispatch = useDispatch();
 
@@ -18,8 +18,8 @@ const MessageInput = ({ selectedChat, socket }) => {
       
       const newMessage = await dispatch(sendMessage(messageData));
       
-      if (newMessage && socket) {
-        socket.emit('newMessage', newMessage);
+      if (newMessage && socketRef?.current) {
+        socketRef.current.emit('newMessage', newMessage);
       }
       
       setContent('');

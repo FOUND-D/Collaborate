@@ -1,4 +1,5 @@
 @import url('./global.css');
+@import url('./theme.css');
 @import url('./animations.css');
 @import url('./components/Sidebar.css');
 @import url('./components/AuthLayout.css');

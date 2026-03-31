@@ -19,8 +19,6 @@ const useMediaQuery = (query) => {
       setMatches(event.matches);
     };
 
-    setMatches(mediaQueryList.matches);
-
     if (typeof mediaQueryList.addEventListener === 'function') {
       mediaQueryList.addEventListener('change', handleChange);
       return () => mediaQueryList.removeEventListener('change', handleChange);

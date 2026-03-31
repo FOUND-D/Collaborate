@@ -1,0 +1,51 @@
+/* Shared theme tokens used by chat, guide, and other surface-heavy UI */
+
+:root {
+  --surface-main: var(--bg-base);
+  --surface-elevated: var(--bg-surface);
+  --surface-input: var(--bg-elevated);
+  --surface-border: var(--border-subtle);
+  --surface-border-strong: var(--border-default);
+  --surface-text: var(--text-primary);
+  --surface-text-muted: var(--text-secondary);
+  --surface-accent: var(--accent);
+  --surface-accent-hover: var(--accent-hover);
+  --surface-accent-border: var(--accent-border);
+  --surface-accent-soft: rgba(59, 130, 246, 0.12);
+  --surface-bubble-received: rgba(16, 19, 24, 0.98);
+  --surface-bubble-sent: linear-gradient(135deg, var(--accent), #60a5fa);
+  --surface-panel-gradient:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.05), transparent 30%),
+    var(--surface-main);
+  --surface-panel-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+  --surface-panel-backdrop: rgba(15, 23, 42, 0.18);
+  --surface-panel-header: rgba(15, 23, 42, 0.72);
+  --surface-panel-footer: rgba(15, 23, 42, 0.92);
+  --surface-panel-muted: rgba(255, 255, 255, 0.04);
+}
+
+.light-theme {
+  --surface-main: #f7f2e7;
+  --surface-elevated: #fffaf1;
+  --surface-input: #f1eadf;
+  --surface-border: rgba(47, 111, 78, 0.14);
+  --surface-border-strong: rgba(47, 111, 78, 0.22);
+  --surface-text: #1f2a24;
+  --surface-text-muted: #66736a;
+  --surface-accent: #2f6f4e;
+  --surface-accent-hover: #24583d;
+  --surface-accent-border: rgba(47, 111, 78, 0.22);
+  --surface-accent-soft: rgba(47, 111, 78, 0.08);
+  --surface-bubble-received: #f2ece0;
+  --surface-bubble-sent: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+  --surface-panel-gradient:
+    radial-gradient(circle at top left, rgba(47, 111, 78, 0.05), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(91, 143, 108, 0.04), transparent 30%),
+    var(--surface-main);
+  --surface-panel-shadow: 0 20px 40px rgba(31, 42, 36, 0.08);
+  --surface-panel-backdrop: rgba(255, 250, 241, 0.82);
+  --surface-panel-header: rgba(255, 250, 241, 0.82);
+  --surface-panel-footer: rgba(255, 250, 241, 0.92);
+  --surface-panel-muted: rgba(47, 111, 78, 0.05);
+}

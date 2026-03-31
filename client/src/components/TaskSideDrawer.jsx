@@ -7,15 +7,123 @@ import Loader from './Loader';
 import Message from './Message';
 import { FaTimes } from 'react-icons/fa';
 
+const TaskDrawerForm = ({ task, isCreatingTask, projectId, onSubmit }) => {
+  const [name, setName] = useState(() => (isCreatingTask ? '' : task?.name || ''));
+  const [description, setDescription] = useState(() => (isCreatingTask ? '' : task?.description || ''));
+  const [status, setStatus] = useState(() => (isCreatingTask ? 'To Do' : task?.status || 'To Do'));
+  const [dueDate, setDueDate] = useState(() => (
+    isCreatingTask
+      ? ''
+      : (task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
+  ));
+  const [assignee, setAssignee] = useState(() => (isCreatingTask ? '' : task?.assignee?._id || ''));
+  const [priority, setPriority] = useState(() => (isCreatingTask ? 'Medium' : task?.priority || 'Medium'));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    onSubmit({
+      name,
+      description,
+      status,
+      dueDate,
+      assignee,
+      priority,
+      project: projectId,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="drawer-form">
+      <div className="form-group floating-label">
+        <input
+          type="text"
+          id="taskName"
+          placeholder=" "
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="form-input"
+          required
+        />
+        <label htmlFor="taskName">Task Name</label>
+      </div>
+
+      <div className="form-group floating-label">
+        <textarea
+          id="description"
+          placeholder=" "
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="form-input"
+          rows={3}
+        ></textarea>
+        <label htmlFor="description">Description</label>
+      </div>
+
+      <div className="form-group floating-label">
+        <select
+          id="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="form-input"
+        >
+          <option value="To Do">To Do</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Blocked">Blocked</option>
+        </select>
+        <label htmlFor="status">Status</label>
+      </div>
+
+      <div className="form-group floating-label">
+        <select
+          id="priority"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="form-input"
+        >
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+        <label htmlFor="priority">Priority</label>
+      </div>
+
+      <div className="form-group floating-label">
+        <input
+          type="date"
+          id="dueDate"
+          placeholder=" "
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="form-input"
+        />
+        <label htmlFor="dueDate">Due Date</label>
+      </div>
+
+      {/* Assignee selection needs to fetch users, for now keeping it simple */}
+      <div className="form-group floating-label">
+        <input
+          type="text"
+          id="assignee"
+          placeholder="Assignee ID (future: dropdown)"
+          value={assignee}
+          onChange={(e) => setAssignee(e.target.value)}
+          className="form-input"
+        />
+        <label htmlFor="assignee">Assignee</label>
+      </div>
+
+      <button type="submit" className="btn btn-primary btn-full-width">
+        {isCreatingTask ? 'Create Task' : 'Update Task'}
+      </button>
+    </form>
+  );
+};
+
 const TaskSideDrawer = ({ taskId, projectId, isCreatingTask, onClose }) => {
   const dispatch = useDispatch();
-
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('To Do');
-  const [dueDate, setDueDate] = useState('');
-  const [assignee, setAssignee] = useState('');
-  const [priority, setPriority] = useState('Medium'); // Default priority
 
   const taskDetails = useSelector((state) => state.taskDetails);
   const { loading, error, task } = taskDetails;
@@ -36,29 +144,12 @@ const TaskSideDrawer = ({ taskId, projectId, isCreatingTask, onClose }) => {
 
   useEffect(() => {
     if (isCreatingTask) {
-      // Reset form fields for new task creation
-      setName('');
-      setDescription('');
-      setStatus('To Do');
-      setDueDate('');
-      setAssignee('');
-      setPriority('Medium');
       dispatch({ type: TASK_CREATE_RESET }); // Clear any previous create status
-    } else {
-      if (successUpdate) {
-        dispatch({ type: TASK_UPDATE_RESET });
-        onClose(); // Close drawer on successful update
-      } else if (taskId && (!task || task._id !== taskId)) {
-        dispatch(getTaskDetails(taskId));
-      } else if (task) {
-        // Populate fields for editing
-        setName(task.name || '');
-        setDescription(task.description || '');
-        setStatus(task.status || 'To Do');
-        setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
-        setAssignee(task.assignee ? task.assignee._id : '');
-        setPriority(task.priority || 'Medium');
-      }
+    } else if (successUpdate) {
+      dispatch({ type: TASK_UPDATE_RESET });
+      onClose(); // Close drawer on successful update
+    } else if (taskId && (!task || task._id !== taskId)) {
+      dispatch(getTaskDetails(taskId));
     }
   }, [dispatch, taskId, task, successUpdate, isCreatingTask, onClose]);
 
@@ -70,18 +161,7 @@ const TaskSideDrawer = ({ taskId, projectId, isCreatingTask, onClose }) => {
   }, [successCreate, dispatch, onClose]);
 
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    const taskData = {
-      name,
-      description,
-      status,
-      dueDate,
-      assignee,
-      priority,
-      project: projectId, // Associate task with the current project
-    };
-
+  const submitHandler = (taskData) => {
     if (isCreatingTask) {
       dispatch(createTask(taskData));
     } else {
@@ -105,92 +185,16 @@ const TaskSideDrawer = ({ taskId, projectId, isCreatingTask, onClose }) => {
             <Loader />
           ) : error && !isCreatingTask ? (
             <Message variant='danger'>{error}</Message>
+          ) : isCreatingTask || task ? (
+            <TaskDrawerForm
+              key={isCreatingTask ? 'create' : task?._id || taskId}
+              task={task}
+              isCreatingTask={isCreatingTask}
+              projectId={projectId}
+              onSubmit={submitHandler}
+            />
           ) : (
-            <form onSubmit={submitHandler} className="drawer-form">
-              <div className="form-group floating-label">
-                <input
-                  type="text"
-                  id="taskName"
-                  placeholder=" "
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="form-input"
-                  required
-                />
-                <label htmlFor="taskName">Task Name</label>
-              </div>
-
-              <div className="form-group floating-label">
-                <textarea
-                  id="description"
-                  placeholder=" "
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="form-input"
-                  rows={3}
-                ></textarea>
-                <label htmlFor="description">Description</label>
-              </div>
-
-              <div className="form-group floating-label">
-                <select
-                  id="status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="form-input"
-                >
-                  <option value="To Do">To Do</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Blocked">Blocked</option>
-                </select>
-                <label htmlFor="status">Status</label>
-              </div>
-
-              <div className="form-group floating-label">
-                <select
-                  id="priority"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="form-input"
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                  <option value="Urgent">Urgent</option>
-                </select>
-                <label htmlFor="priority">Priority</label>
-              </div>
-
-              <div className="form-group floating-label">
-                <input
-                  type="date"
-                  id="dueDate"
-                  placeholder=" "
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="form-input"
-                />
-                <label htmlFor="dueDate">Due Date</label>
-              </div>
-
-              {/* Assignee selection needs to fetch users, for now keeping it simple */}
-              <div className="form-group floating-label">
-                <input
-                  type="text"
-                  id="assignee"
-                  placeholder="Assignee ID (future: dropdown)"
-                  value={assignee}
-                  onChange={(e) => setAssignee(e.target.value)}
-                  className="form-input"
-                />
-                <label htmlFor="assignee">Assignee</label>
-              </div>
-
-              <button type="submit" className="btn btn-primary btn-full-width">
-                {isCreatingTask ? 'Create Task' : 'Update Task'}
-              </button>
-            </form>
+            <Loader />
           )}
         </div>
       </div>

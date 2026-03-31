@@ -1,16 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { listMessages, markMessagesAsRead } from '../actions/messageActions';
+import { markMessagesAsRead } from '../actions/messageActions';
 import ChatMessage from './ChatMessage';
 import Loader from './Loader';
 
-const MessageList = ({ selectedChat }) => {
+const MessageList = () => {
   const dispatch = useDispatch();
   const messagesEndRef = useRef(null);
 
   const messageList = useSelector((state) => state.messageList);
-  const { loading, error, messages = [] } = messageList || {}; // Default to empty object and empty array
-  console.log('Messages received in MessageList (after backend fix):', messages); // Temporary log for debugging
+  const { loading, error, messages = [] } = messageList || {};
 
   const userLogin = useSelector((state) => state.userLogin);
   const userInfo = userLogin?.userInfo;

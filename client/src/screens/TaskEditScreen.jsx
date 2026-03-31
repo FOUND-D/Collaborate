@@ -6,7 +6,149 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { createTask, getTaskDetails, updateTask } from '../actions/taskActions';
 import { TASK_CREATE_RESET, TASK_UPDATE_RESET } from '../constants/taskConstants';
-import { listProjects } from '../actions/projectActions'; // To select project
+import { listProjects } from '../actions/projectActions';
+
+const TaskForm = ({ task, isEditMode, projects, onSubmit }) => {
+  const [name, setName] = useState(() => (isEditMode ? task?.name || '' : ''));
+  const [description, setDescription] = useState(() => (isEditMode ? task?.description || '' : ''));
+  const [status, setStatus] = useState(() => (isEditMode ? task?.status || 'To Do' : 'To Do'));
+  const [priority, setPriority] = useState(() => (isEditMode ? task?.priority || 'Medium' : 'Medium'));
+  const [dueDate, setDueDate] = useState(() => (
+    isEditMode
+      ? (task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
+      : ''
+  ));
+  const [duration, setDuration] = useState(() => (isEditMode ? (task?.duration || 0) : 0));
+  const [assignee, setAssignee] = useState(() => (isEditMode ? task?.assignee?._id || '' : ''));
+  const [projectId, setProjectId] = useState(() => (isEditMode ? task?.project || '' : ''));
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    onSubmit({
+      _id: task?._id,
+      name,
+      description,
+      status,
+      priority,
+      dueDate,
+      duration: Number(duration),
+      ...(assignee && { assignee }),
+      ...(projectId && { project: projectId }),
+    });
+  };
+
+  return (
+    <form onSubmit={submitHandler}>
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Task Name</label>
+        <input
+          type="text"
+          className="form-input"
+          style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+          placeholder="Enter task name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Description</label>
+        <textarea
+          className="form-input"
+          style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+          placeholder="Enter description"
+          rows={4}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Duration (Hrs)</label>
+        <input
+          type="number"
+          className="form-input"
+          style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+          placeholder="Estimated hours"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          min="0"
+        />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="form-group">
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
+          <select
+            style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Blocked">Blocked</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Priority</label>
+          <select
+            style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Project (Optional)</label>
+        <select
+          style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+          value={projectId}
+          onChange={(e) => setProjectId(e.target.value)}
+        >
+          <option value="">No Project</option>
+          {projects && projects.map((p) => (
+            <option key={p._id} value={p._id}>{p.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="form-group">
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Due Date</label>
+          <input
+            type="date"
+            style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Assignee</label>
+          <input
+            type="text"
+            style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+            placeholder="Assignee ID"
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <button type="submit" className="btn-gradient" style={{ width: '100%', justifyContent: 'center' }}>
+        <FaSave style={{ marginRight: '8px' }} /> {isEditMode ? 'Update Task' : 'Create Task'}
+      </button>
+    </form>
+  );
+};
 
 const TaskEditScreen = () => {
   const { id } = useParams();
@@ -15,16 +157,6 @@ const TaskEditScreen = () => {
 
   const isEditMode = !!id;
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('To Do');
-  const [priority, setPriority] = useState('Medium');
-  const [dueDate, setDueDate] = useState('');
-  const [duration, setDuration] = useState(0); // Add duration state
-  const [assignee, setAssignee] = useState('');
-  const [projectId, setProjectId] = useState('');
-
-  // Redux state
   const taskDetails = useSelector((state) => state.taskDetails);
   const { loading, error, task } = taskDetails;
 
@@ -46,8 +178,6 @@ const TaskEditScreen = () => {
   const { projects } = projectList;
 
   useEffect(() => {
-    // If we are in edit mode, generic project list might not be needed if we stick to the current project
-    // But if we are creating, we might want to assign a project.
     dispatch(listProjects());
   }, [dispatch]);
 
@@ -63,39 +193,16 @@ const TaskEditScreen = () => {
   }, [dispatch, navigate, successCreate, successUpdate]);
 
   useEffect(() => {
-    if (isEditMode) {
-      if (!task || task._id !== id) {
-        dispatch(getTaskDetails(id));
-      } else {
-        setName(task.name);
-        setDescription(task.description);
-        setStatus(task.status);
-        setPriority(task.priority || 'Medium');
-        setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
-        setDuration(task.duration || 0); // Load duration
-        setAssignee(task.assignee ? task.assignee._id : '');
-        setProjectId(task.project || '');
-      }
+    if (isEditMode && (!task || task._id !== id)) {
+      dispatch(getTaskDetails(id));
     }
   }, [dispatch, id, task, isEditMode]);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    const taskData = {
-      _id: id, // undefined if create
-      name,
-      description,
-      status,
-      priority,
-      dueDate,
-      duration: Number(duration),
-      // Only include if not empty string to avoid CastErrors
-      ...(assignee && { assignee }),
-      ...(projectId && { project: projectId }),
-    };
+  const submitHandler = (taskData) => {
+    const payload = { ...taskData, _id: id };
 
     if (isEditMode) {
-      dispatch(updateTask(taskData));
+      dispatch(updateTask(payload));
     } else {
       dispatch(createTask(taskData));
     }
@@ -122,113 +229,15 @@ const TaskEditScreen = () => {
         {isLoading && <Loader />}
         {isError && <Message variant="danger">{isError}</Message>}
 
-        <form onSubmit={submitHandler}>
-          {/* Name */}
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Task Name</label>
-            <input
-              type="text"
-              className="form-input" // Utilizing global CSS input class if available or fallback
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-              placeholder="Enter task name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Description</label>
-            <textarea
-              className="form-input"
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-              placeholder="Enter description"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          {/* Duration Input */}
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Duration (Hrs)</label>
-            <input
-              type="number"
-              className="form-input"
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-              placeholder="Estimated hours"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              min="0"
-            />
-          </div>
-
-          {/* Row for Selects */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div className="form-group">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Status</label>
-              <select
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="To Do">To Do</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Blocked">Blocked</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Priority</label>
-              <select
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Urgent">Urgent</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Project Selection */}
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Project (Optional)</label>
-            <select
-              style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-            >
-              <option value="">No Project</option>
-              {projects && projects.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Due Date & Assignee */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-            <div className="form-group">
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Due Date</label>
-              <input
-                type="date"
-                style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-            </div>
-            {/* Assignee would realistically be a dropdown of users, but sticking to text/ID for safety like SideDrawer */}
-          </div>
-
-
-          <button type="submit" className="btn-gradient" style={{ width: '100%', justifyContent: 'center' }}>
-            <FaSave style={{ marginRight: '8px' }} /> {isEditMode ? 'Update Task' : 'Create Task'}
-          </button>
-        </form>
+        {!isLoading && !isError && (!isEditMode || task) && (
+          <TaskForm
+            key={isEditMode ? task?._id || id : 'create'}
+            task={task}
+            isEditMode={isEditMode}
+            projects={projects}
+            onSubmit={submitHandler}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,36 +1,15 @@
 /* =====================================================
    CHAT SIDEBAR THEME
-   Layout preserved; only surface, border and color language
-   is aligned with the rest of the app.
+   Layout preserved; visuals use shared theme tokens.
 ===================================================== */
-
-:root {
-  --cs-accent: var(--accent);
-  --cs-surface: rgba(15, 23, 42, 0.5);
-  --cs-surface-strong: rgba(15, 23, 42, 0.72);
-  --cs-surface-soft: rgba(255, 255, 255, 0.04);
-  --cs-border: var(--border-subtle);
-  --cs-text-main: var(--text-primary);
-  --cs-text-muted: var(--text-secondary);
-  --cs-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-}
-
-.light-theme {
-  --cs-surface: rgba(244, 246, 250, 0.95);
-  --cs-surface-strong: rgba(255, 255, 255, 0.92);
-  --cs-surface-soft: rgba(15, 23, 42, 0.04);
-  --cs-border: rgba(15, 23, 42, 0.08);
-  --cs-text-main: #0f172a;
-  --cs-text-muted: #64748b;
-}
 
 .chat-sidebar {
   display: flex;
   flex-direction: column;
-  background: var(--cs-surface);
+  background: var(--surface-elevated);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--cs-border);
+  border-right: 1px solid var(--surface-border);
   overflow: hidden;
   isolation: isolate;
   box-sizing: border-box;
@@ -41,8 +20,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 14px 10px;
-  border-bottom: 1px solid var(--cs-border);
-  background: rgba(15, 23, 42, 0.12);
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--surface-panel-backdrop);
 }
 
 .cs-brand {
@@ -61,27 +40,27 @@
   place-items: center;
   font-weight: 700;
   font-size: 0.9rem;
-  color: var(--cs-text-main);
+  color: var(--surface-text);
 }
 
 .cs-brand h3 {
   font-size: 0.95rem;
   font-weight: 700;
   margin: 0;
-  color: var(--cs-text-main);
+  color: var(--surface-text);
 }
 
 .cs-brand span {
   font-size: 0.7rem;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
 }
 
 .cs-search {
   margin: 10px 12px 12px;
   padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-panel-muted);
   border-radius: 999px;
-  border: 1px solid var(--cs-border);
+  border: 1px solid var(--surface-border);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -92,18 +71,18 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--cs-text-main);
+  color: var(--surface-text);
   font-size: 0.85rem;
 }
 
 .cs-search input::placeholder {
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
 }
 
 .cs-search button {
   background: none;
   border: none;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
   cursor: pointer;
   font-size: 0.85rem;
 }
@@ -121,17 +100,17 @@
   font-size: 0.72rem;
   border-radius: 999px;
   cursor: pointer;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .tab:hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--surface-accent-soft);
 }
 
 .tab.active {
   background: rgba(59, 130, 246, 0.14);
-  color: var(--cs-text-main);
+  color: var(--surface-text);
   font-weight: 600;
 }
 
@@ -149,7 +128,7 @@
   font-size: 0.65rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
   margin: 0 6px 6px;
 }
 
@@ -172,7 +151,7 @@ section {
 }
 
 .cs-item:hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--surface-accent-soft);
   border-color: rgba(59, 130, 246, 0.16);
   transform: translateX(2px);
 }
@@ -188,12 +167,12 @@ section {
   height: 40px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--cs-border);
+  border: 1px solid var(--surface-border);
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: 0.8rem;
-  color: var(--cs-text-main);
+  color: var(--surface-text);
   flex-shrink: 0;
 }
 
@@ -210,13 +189,13 @@ section {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--cs-text-main);
+  color: var(--surface-text);
 }
 
 .cs-info p {
   margin: 2px 0 0;
   font-size: 0.7rem;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,7 +205,7 @@ section {
   padding: 12px 8px;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--cs-text-muted);
+  color: var(--surface-text-muted);
   font-style: italic;
 }
 

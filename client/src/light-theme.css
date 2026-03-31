@@ -1,37 +1,557 @@
-.light-theme {
-  /* Light Theme Variables */
-  --background-main: #FFFFFF;
-  --background-secondary-cards: #F2F2F7;
-  --background-tertiary-inputs: #E5E5EA;
-  --text-primary: #1C1C1E;
-  --text-secondary: #48484a;
-  --accent-color: #007AFF;
-  --accent-gradient: linear-gradient(135deg, #007AFF, #5AC8FA);
-  /* Slightly adjusted for light theme vibrancy */
-  --border-color: #D1D1D6;
-
-  /* Glassmorphism Variables for Light Theme - adjusted for visibility */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  /* Lighter background */
-  --glass-bg-heavy: rgba(255, 255, 255, 0.9);
-  /* Lighter heavy background */
-  --glass-border: rgba(0, 0, 0, 0.1);
-  /* Darker border for contrast */
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-  /* Lighter shadow */
-  --glass-backdrop: blur(16px) saturate(180%);
-  /* Adjusted saturation */
-
-  /* Status Pill Colors for Light Theme - Adjusted for contrast */
-  --status-completed-bg: #D4EDDA;
-  --status-completed-text: #155724;
-  --status-pending-bg: #E0E0E0;
-  --status-pending-text: #424242;
-  --status-inprogress-bg: #CCE5FF;
-  --status-inprogress-text: #004085;
-  --status-blocked-bg: #F8D7DA;
-  --status-blocked-text: #721C24;
-
-  /* Override color-scheme */
+body.light-theme {
+  background: #f7f2e7;
+  color: #1f2a24;
   color-scheme: light;
+}
+
+.light-theme {
+  --background-main: #f7f2e7;
+  --background-secondary-cards: #fffaf1;
+  --background-tertiary-inputs: #f1eadf;
+  --text-primary: #1f2a24;
+  --text-secondary: #66736a;
+  --accent-color: #2f6f4e;
+  --accent-color-rgb: 47, 111, 78;
+  --accent-gradient: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+  --accent-gradient-vivid: linear-gradient(135deg, #2f6f4e 0%, #5b8f6c 55%, #7ca67e 100%);
+  --border-color: #d9d2c3;
+  --danger-color: #b4533c;
+
+  --purple-accent: #6f8b68;
+  --teal-accent: #7ca67e;
+  --green-accent: #2f6f4e;
+
+  --glass-bg: rgba(255, 250, 241, 0.86);
+  --glass-bg-heavy: rgba(255, 250, 241, 0.96);
+  --glass-border: rgba(47, 111, 78, 0.12);
+  --glass-shadow: 0 8px 30px rgba(31, 42, 36, 0.08);
+  --glass-backdrop: blur(16px) saturate(150%);
+
+  --status-completed-bg: rgba(47, 111, 78, 0.12);
+  --status-completed-text: #2f6f4e;
+  --status-pending-bg: rgba(217, 210, 195, 0.45);
+  --status-pending-text: #66736a;
+  --status-inprogress-bg: rgba(91, 143, 108, 0.14);
+  --status-inprogress-text: #3f7a55;
+  --status-blocked-bg: rgba(180, 83, 60, 0.12);
+  --status-blocked-text: #b4533c;
+}
+
+.light-theme button {
+  background-color: #f1eadf;
+  border-color: rgba(47, 111, 78, 0.14);
+  color: #1f2a24;
+}
+
+.light-theme button:hover {
+  border-color: #2f6f4e;
+  box-shadow: 0 4px 12px rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .app-layout,
+.light-theme .app-main,
+.light-theme .main-content,
+.light-theme .main-content-shifted,
+.light-theme .app-body {
+  background: #f7f2e7;
+}
+
+.light-theme .sidebar {
+  background: #fffaf1;
+  border-right-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .sidebar-header,
+.light-theme .sidebar-bottom {
+  border-color: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .sidebar-logo-text,
+.light-theme .sidebar-user-name,
+.light-theme .nav-item,
+.light-theme .sidebar-toggle-btn,
+.light-theme .org-switcher-name {
+  color: #56635b;
+}
+
+.light-theme .nav-item:hover,
+.light-theme .sidebar-user-row:hover,
+.light-theme .sidebar-toggle-btn:hover,
+.light-theme .org-switcher:hover,
+.light-theme .sidebar-create-org-btn:hover {
+  background: rgba(47, 111, 78, 0.06);
+}
+
+.light-theme .nav-item.active {
+  background: rgba(47, 111, 78, 0.10);
+  color: #1f2a24;
+}
+
+.light-theme .nav-item.active::before {
+  background: #2f6f4e;
+}
+
+.light-theme .sidebar-logo-icon,
+.light-theme .org-switcher-avatar,
+.light-theme .sidebar-create-org-btn-icon,
+.light-theme .sidebar-user-avatar,
+.light-theme .org-dropdown-item-avatar {
+  background: linear-gradient(135deg, #2f6f4e, #6d9773);
+}
+
+.light-theme .org-switcher,
+.light-theme .org-dropdown,
+.light-theme .settings-sidebar,
+.light-theme .settings-content,
+.light-theme .auth-form-side,
+.light-theme .form-wrapper-custom,
+.light-theme .chat-screen-container,
+.light-theme .chat-docked-drawer,
+.light-theme .meeting-header,
+.light-theme .meeting-controls,
+.light-theme .projects-page,
+.light-theme .ongoing-projects-page,
+.light-theme .project-details-page,
+.light-theme .project-description-column,
+.light-theme .project-card,
+.light-theme .project-list-item,
+.light-theme .project-create-modal,
+.light-theme .task-list-item,
+.light-theme .task-action-btn,
+.light-theme .empty-state-icon {
+  background-color: #fffaf1;
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .settings-page,
+.light-theme .projects-page,
+.light-theme .ongoing-projects-page,
+.light-theme .project-details-page,
+.light-theme .meeting-screen-container {
+  color: #1f2a24;
+}
+
+.light-theme .settings-title,
+.light-theme .section-title,
+.light-theme .page-header-left h1,
+.light-theme .project-detail-title,
+.light-theme .project-hero-header h1,
+.light-theme .project-card-name,
+.light-theme .project-name-link,
+.light-theme .drawer-title,
+.light-theme .auth-form-side .auth-title {
+  color: #1f2a24;
+}
+
+.light-theme .settings-subtitle,
+.light-theme .section-desc,
+.light-theme .page-header-left p,
+.light-theme .project-detail-goal,
+.light-theme .project-card-meta-item,
+.light-theme .project-meta-item,
+.light-theme .metadata-capsule,
+.light-theme .project-progress-label,
+.light-theme .project-progress-pct,
+.light-theme .empty-state-sub,
+.light-theme .chat-header-info span,
+.light-theme .docked-header h3,
+.light-theme .chat-initial-loader,
+.light-theme .sidebar-section-label,
+.light-theme .sidebar-toggle-btn {
+  color: #66736a;
+}
+
+.light-theme .settings-nav-item.active {
+  background: linear-gradient(90deg, rgba(47, 111, 78, 0.14), rgba(47, 111, 78, 0.06));
+  color: #2f6f4e;
+  border-left-color: #2f6f4e;
+}
+
+.light-theme .settings-nav-item:hover,
+.light-theme .setting-row,
+.light-theme .section-header,
+.light-theme .project-hero-actions,
+.light-theme .project-header-action-group,
+.light-theme .project-footer,
+.light-theme .meeting-header,
+.light-theme .meeting-controls,
+.light-theme .chat-panel-header,
+.light-theme .docked-header,
+.light-theme .message-input-form {
+  border-color: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .setting-info h4,
+.light-theme .setting-info p,
+.light-theme .project-description-column h3,
+.light-theme .empty-state-title,
+.light-theme .empty-content h2,
+.light-theme .message-input-field,
+.light-theme .message-input-send-btn,
+.light-theme .chat-panel-close-btn,
+.light-theme .chat-panel-action-btn,
+.light-theme .chat-back-btn {
+  color: #1f2a24;
+}
+
+.light-theme .toggle-switch {
+  background: rgba(47, 111, 78, 0.16);
+}
+
+.light-theme .toggle-switch.active {
+  background: #2f6f4e;
+}
+
+.light-theme .toggle-thumb {
+  background: #fffaf1;
+}
+
+.light-theme .badge-pro {
+  background: linear-gradient(135deg, #d6e7d6, #b7cfb8);
+  color: #1f2a24;
+}
+
+.light-theme .auth-layout-container {
+  background-color: #f7f2e7;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(47, 111, 78, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(109, 151, 115, 0.10) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(124, 166, 126, 0.08) 0px, transparent 50%);
+}
+
+.light-theme .auth-form-side {
+  background: rgba(255, 250, 241, 0.94);
+  border-color: rgba(47, 111, 78, 0.12);
+  box-shadow:
+    0 18px 50px rgba(31, 42, 36, 0.08),
+    0 0 60px rgba(47, 111, 78, 0.06);
+}
+
+.light-theme .auth-form-side .form-group input,
+.light-theme .form-group .form-input,
+.light-theme .modal .form-control {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(47, 111, 78, 0.12);
+  color: #1f2a24;
+}
+
+.light-theme .auth-form-side .form-group input:focus,
+.light-theme .form-group .form-input:focus,
+.light-theme .modal .form-control:focus {
+  box-shadow: 0 0 0 3px rgba(47, 111, 78, 0.14);
+  border-color: #2f6f4e;
+}
+
+.light-theme .auth-link,
+.light-theme .project-create-gate-link,
+.light-theme a {
+  color: #2f6f4e;
+}
+
+.light-theme .workspace-surface,
+.light-theme .glass-panel,
+.light-theme .glass-panel-heavy {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.12);
+  box-shadow: 0 18px 50px rgba(31, 42, 36, 0.08);
+}
+
+.light-theme .workspace-page-title,
+.light-theme .workspace-back-link,
+.light-theme .workspace-btn-secondary,
+.light-theme .workspace-btn {
+  color: #1f2a24;
+}
+
+.light-theme .workspace-btn-primary,
+.light-theme .btn-primary {
+  background: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+  box-shadow: 0 8px 24px rgba(47, 111, 78, 0.18);
+}
+
+.light-theme .workspace-btn-secondary,
+.light-theme .btn-tertiary {
+  background: rgba(47, 111, 78, 0.06);
+  border-color: rgba(47, 111, 78, 0.14);
+}
+
+.light-theme .workspace-btn-secondary:hover,
+.light-theme .btn-tertiary:hover {
+  background: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .dashboard-page,
+.light-theme .task-page,
+.light-theme .teams-dashboard-page {
+  background: #f7f2e7;
+  color: #1f2a24;
+}
+
+.light-theme .onboarding-banner,
+.light-theme .stat-card,
+.light-theme .quick-card,
+.light-theme .task-list-item,
+.light-theme .action-card,
+.light-theme .team-card,
+.light-theme .team-card-expanded,
+.light-theme .team-card-hover {
+  background: #fffaf1;
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .dashboard-title,
+.light-theme .dashboard-title .name-accent,
+.light-theme .stat-value,
+.light-theme .stat-label,
+.light-theme .section-header-title,
+.light-theme .quick-card-title,
+.light-theme .team-card-name,
+.light-theme .task-name,
+.light-theme .action-card-title {
+  color: #1f2a24;
+}
+
+.light-theme .dashboard-subtitle,
+.light-theme .onboarding-banner-sub,
+.light-theme .quick-card-desc,
+.light-theme .team-card-meta-item,
+.light-theme .task-description,
+.light-theme .task-assignee-meta,
+.light-theme .action-card-description,
+.light-theme .project-detail-goal {
+  color: #66736a;
+}
+
+.light-theme .onboarding-banner-btn,
+.light-theme .task-filter-btn.active,
+.light-theme .action-card-icon-wrap.blue,
+.light-theme .quick-card-icon-wrap.blue,
+.light-theme .stat-icon-box.blue,
+.light-theme .section-header-bar {
+  background: linear-gradient(135deg, #2f6f4e, #6d9773);
+}
+
+.light-theme .action-card-icon-wrap.purple,
+.light-theme .quick-card-icon-wrap.purple,
+.light-theme .stat-icon-box.purple,
+.light-theme .action-card-icon-wrap.pink,
+.light-theme .quick-card-icon-wrap.pink {
+  background: rgba(47, 111, 78, 0.10);
+  color: #3f7a55;
+}
+
+.light-theme .task-filter-btn {
+  background: rgba(47, 111, 78, 0.05);
+  border-color: rgba(47, 111, 78, 0.12);
+  color: #66736a;
+}
+
+.light-theme .task-filter-btn:hover {
+  background: rgba(47, 111, 78, 0.10);
+  color: #1f2a24;
+}
+
+.light-theme .task-list-item {
+  border-left-color: rgba(47, 111, 78, 0.55);
+}
+
+.light-theme .task-checkbox.checked {
+  background: rgba(47, 111, 78, 0.14);
+  border-color: rgba(47, 111, 78, 0.30);
+  color: #2f6f4e;
+}
+
+.light-theme .task-status-pill.inprogress,
+.light-theme .task-status-pill.active {
+  background: rgba(47, 111, 78, 0.10);
+  color: #2f6f4e;
+  border-color: rgba(47, 111, 78, 0.18);
+}
+
+.light-theme .landing-page.premium-landing {
+  --lp-bg: #f7f2e7;
+  --lp-accent: #2f6f4e;
+  --lp-text: #1f2a24;
+  --lp-success: #3f7a55;
+  --lp-surface: rgba(255, 250, 241, 0.78);
+  --lp-surface-strong: rgba(255, 250, 241, 0.90);
+  --lp-border: rgba(47, 111, 78, 0.12);
+  --lp-border-strong: rgba(47, 111, 78, 0.20);
+  --lp-muted: rgba(31, 42, 36, 0.76);
+  --lp-soft: rgba(31, 42, 36, 0.58);
+  --lp-hairline: rgba(47, 111, 78, 0.06);
+  background: var(--lp-bg);
+}
+
+.light-theme .lp-navbar,
+.light-theme .lp-card,
+.light-theme .lp-feature-card,
+.light-theme .lp-hero-card,
+.light-theme .lp-stat,
+.light-theme .lp-testimonial,
+.light-theme .lp-faq-item,
+.light-theme .lp-task-panel {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .lp-navbar {
+  background: rgba(255, 250, 241, 0.92);
+  border-bottom-color: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .lp-brand-mark,
+.light-theme .lp-live-dot {
+  background: #2f6f4e;
+  box-shadow: 0 0 0 6px rgba(47, 111, 78, 0.08);
+}
+
+.light-theme .lp-brand-text,
+.light-theme .lp-nav-link,
+.light-theme .lp-login-btn,
+.light-theme .lp-signup-btn,
+.light-theme .lp-hero-title,
+.light-theme .lp-hero-subtitle,
+.light-theme .lp-section-title,
+.light-theme .lp-section-copy,
+.light-theme .lp-feature-card h3,
+.light-theme .lp-feature-card p,
+.light-theme .lp-workflow-card h3,
+.light-theme .lp-workflow-card p,
+.light-theme .lp-capability-copy h3,
+.light-theme .lp-capability-copy p,
+.light-theme .lp-stat-label,
+.light-theme .lp-stat-value,
+.light-theme .lp-window-title,
+.light-theme .lp-strip-label,
+.light-theme .lp-logo-row,
+.light-theme .lp-panel-header,
+.light-theme .lp-task-copy strong,
+.light-theme .lp-task-copy span,
+.light-theme .lp-task-pill {
+  color: #1f2a24;
+}
+
+.light-theme .lp-login-btn,
+.light-theme .lp-menu-toggle,
+.light-theme .lp-cta-demo,
+.light-theme .lp-stat-card,
+.light-theme .lp-feature-card,
+.light-theme .lp-capability-row,
+.light-theme .lp-workflow-card,
+.light-theme .lp-cta-panel,
+.light-theme .lp-panel,
+.light-theme .lp-task-item,
+.light-theme .lp-capability-pill {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .lp-login-btn:hover,
+.light-theme .lp-cta-demo:hover,
+.light-theme .lp-feature-card:hover,
+.light-theme .lp-workflow-card:hover,
+.light-theme .lp-stat-card:hover {
+  border-color: rgba(47, 111, 78, 0.22);
+  box-shadow: 0 20px 40px rgba(31, 42, 36, 0.08);
+}
+
+.light-theme .lp-signup-btn {
+  background: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+  color: #fffaf1;
+  box-shadow: 0 12px 28px rgba(47, 111, 78, 0.16);
+}
+
+.light-theme .lp-signup-btn:hover {
+  box-shadow: 0 18px 34px rgba(47, 111, 78, 0.22);
+}
+
+.light-theme .lp-eyebrow {
+  border-color: rgba(47, 111, 78, 0.18);
+  border-left-color: #2f6f4e;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 78, 0.06), 0 0 24px rgba(47, 111, 78, 0.06);
+}
+
+.light-theme .lp-title-shimmer {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(47, 111, 78, 0.78) 0%,
+      rgba(109, 151, 115, 0.98) 22%,
+      rgba(47, 111, 78, 1) 40%,
+      rgba(109, 151, 115, 0.98) 58%,
+      rgba(47, 111, 78, 0.78) 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.light-theme .lp-hero-backdrop {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(47, 111, 78, 0.10), transparent 48%),
+    radial-gradient(circle at 50% 0%, rgba(91, 143, 108, 0.08), transparent 32%);
+}
+
+.light-theme .lp-dashboard-window {
+  border-color: rgba(47, 111, 78, 0.12);
+  background: linear-gradient(180deg, rgba(255, 250, 241, 0.92), rgba(255, 250, 241, 0.80));
+  box-shadow: 0 0 0 1px rgba(47, 111, 78, 0.10), 0 32px 80px rgba(31, 42, 36, 0.12);
+}
+
+.light-theme .lp-window-topbar,
+.light-theme .lp-section,
+.light-theme .lp-stat-card,
+.light-theme .lp-feature-card,
+.light-theme .lp-capability-row,
+.light-theme .lp-workflow-card,
+.light-theme .lp-cta-panel,
+.light-theme .lp-panel,
+.light-theme .lp-task-item {
+  border-color: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .lp-stat-card::before,
+.light-theme .lp-feature-glow,
+.light-theme .lp-pill-dot,
+.light-theme .lp-progress-track span,
+.light-theme .lp-task-check {
+  background: linear-gradient(90deg, #2f6f4e, #6d9773);
+}
+
+.light-theme .lp-stat-card::before {
+  box-shadow: 0 0 14px rgba(47, 111, 78, 0.22);
+}
+
+.light-theme .lp-feature-card:hover .lp-feature-glow {
+  opacity: 0.8;
+}
+
+.light-theme .lp-panel-chip {
+  background: rgba(47, 111, 78, 0.10);
+  color: #2f6f4e;
+}
+
+.light-theme .project-progress-fill,
+.light-theme .progress-bar-fill {
+  background: linear-gradient(90deg, #2f6f4e, #6d9773);
+}
+
+.light-theme .status-badge.inprogress {
+  background: rgba(47, 111, 78, 0.10);
+  color: #2f6f4e;
+  border-color: rgba(47, 111, 78, 0.18);
+}
+
+.light-theme .status-badge.active {
+  background: rgba(47, 111, 78, 0.12);
+  color: #2f6f4e;
+  border-color: rgba(47, 111, 78, 0.22);
+}
+
+.light-theme .project-owner-avatar,
+.light-theme .member-avatar,
+.light-theme .member-avatar-more {
+  background: linear-gradient(135deg, #2f6f4e, #6d9773);
+  border-color: #fffaf1;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -8,35 +8,36 @@ import './ChatPopup.css';
 import io from 'socket.io-client';
 import { SOCKET_URL } from '../config/runtime';
 
-let socket;
-
 const ChatPopup = ({ team, onClose }) => {
   const [isOpen, setIsOpen] = useState(true);
   const dispatch = useDispatch();
   const messageListRef = useRef(null);
+  const socketRef = useRef(null);
 
-  const selectedChat = { type: 'team', id: team._id };
+  const selectedChatType = 'team';
+  const selectedChatId = team._id;
 
   useEffect(() => {
     // Initial message load
-    dispatch(listMessages(selectedChat.type, selectedChat.id));
+    dispatch(listMessages(selectedChatType, selectedChatId));
 
     // Setup socket connection
-    socket = io(SOCKET_URL);
-    socket.emit('joinConversation', selectedChat.id);
+    socketRef.current = io(SOCKET_URL);
+    socketRef.current.emit('joinConversation', selectedChatId);
 
     // Listen for new messages
-    socket.on('newMessage', (message) => {
+    socketRef.current.on('newMessage', (message) => {
       // Logic to update messages in the store will be handled in messageActions
       dispatch({ type: 'MESSAGE_RECEIVE', payload: message });
     });
 
     // Clean up on unmount
     return () => {
-      socket.emit('leaveConversation', selectedChat.id);
-      socket.disconnect();
+      socketRef.current?.emit('leaveConversation', selectedChatId);
+      socketRef.current?.disconnect();
+      socketRef.current = null;
     };
-  }, [dispatch, selectedChat.id]);
+  }, [dispatch, selectedChatId, selectedChatType]);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -63,11 +64,11 @@ const ChatPopup = ({ team, onClose }) => {
       </div>
 
       <div className="chat-popup-body" ref={messageListRef}>
-        <MessageList selectedChat={selectedChat} />
+        <MessageList />
       </div>
 
       <div className="chat-popup-footer">
-        <MessageInput selectedChat={selectedChat} socket={socket} />
+        <MessageInput selectedChat={{ type: selectedChatType, id: selectedChatId }} socketRef={socketRef} />
       </div>
     </div>
   );

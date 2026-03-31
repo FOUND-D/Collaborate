@@ -5,6 +5,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
 import { SOCKET_URL } from '../config/runtime';
+import '../styles/workspace.css';
 
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
@@ -477,9 +478,9 @@ const MeetingScreen = () => {
 
   return (
     <div className="meeting-screen-container">
-      <div className="meeting-header">
-        <h1>{meeting ? `Meeting: ${meeting.roomId}` : 'Connecting...'}</h1>
-        <p>{participants.length} Active Participants</p>
+      <div className="meeting-header workspace-surface">
+        <h1 className="workspace-page-title">{meeting ? `Meeting: ${meeting.roomId}` : 'Connecting...'}</h1>
+        <p className="workspace-page-subtitle">{participants.length} Active Participants</p>
       </div>
 
       <div className={`video-grid-container ${mainScreenUserId ? 'has-main-screen' : ''}`}>
@@ -535,17 +536,17 @@ const MeetingScreen = () => {
         )}
       </div>
 
-      <div className="meeting-controls">
-        <button className={`btn ${isCameraOn ? '' : 'btn-danger'}`} onClick={toggleCamera} type="button">
+      <div className="meeting-controls workspace-surface">
+        <button className={`btn workspace-btn ${isCameraOn ? 'workspace-btn-secondary' : 'btn-danger workspace-btn-danger'}`} onClick={toggleCamera} type="button">
           {isCameraOn ? <><FaVideo /> Stop Video</> : <><FaVideoSlash /> Start Video</>}
         </button>
-        <button className={`btn ${isMicOn ? '' : 'btn-danger'}`} onClick={toggleMic} type="button">
+        <button className={`btn workspace-btn ${isMicOn ? 'workspace-btn-secondary' : 'btn-danger workspace-btn-danger'}`} onClick={toggleMic} type="button">
           {isMicOn ? <><FaMicrophone /> Mute</> : <><FaMicrophoneSlash /> Unmute</>}
         </button>
-        <button className="btn" onClick={isSharingScreen ? stopScreenShare : startScreenShare} type="button">
+        <button className="btn workspace-btn workspace-btn-secondary" onClick={isSharingScreen ? stopScreenShare : startScreenShare} type="button">
           {isSharingScreen ? 'Stop Sharing' : 'Share Screen'}
         </button>
-        <button className="btn btn-danger" onClick={leaveMeeting} type="button">
+        <button className="btn btn-danger workspace-btn workspace-btn-danger" onClick={leaveMeeting} type="button">
           Leave
         </button>
       </div>

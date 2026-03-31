@@ -14,15 +14,19 @@ export const ThemeProvider = ({ children }) => {
   // Effect to apply theme class to body and persist preference
   useEffect(() => {
     const root = document.body;
+    const html = document.documentElement;
     
     // Remove existing theme classes
     root.classList.remove('light-theme', 'dark-theme');
+    html.classList.remove('light-theme', 'dark-theme');
     
     // Apply the current theme class
     if (theme === 'light') {
       root.classList.add('light-theme');
+      html.classList.add('light-theme');
     } else {
       root.classList.add('dark-theme');
+      html.classList.add('dark-theme');
     }
     
     // Persist to localStorage
@@ -57,6 +61,7 @@ export const ThemeProvider = ({ children }) => {
 };
 
 // Custom hook to use the Theme Context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
