@@ -406,6 +406,14 @@ body.light-theme {
   box-shadow: 0 0 0 6px rgba(47, 111, 78, 0.08);
 }
 
+.light-theme .lp-nav-link::after,
+.light-theme .lp-cta-free::after,
+.light-theme .lp-menu-toggle span,
+.light-theme .lp-menu-toggle span::before,
+.light-theme .lp-menu-toggle span::after {
+  background: #2f6f4e;
+}
+
 .light-theme .lp-brand-text,
 .light-theme .lp-nav-link,
 .light-theme .lp-login-btn,
@@ -521,6 +529,43 @@ body.light-theme {
 
 .light-theme .lp-stat-card::before {
   box-shadow: 0 0 14px rgba(47, 111, 78, 0.22);
+}
+
+.light-theme .lp-window-controls span {
+  background: rgba(47, 111, 78, 0.18);
+}
+
+.light-theme .lp-cta-panel,
+.light-theme .lp-panel,
+.light-theme .lp-stat-card,
+.light-theme .lp-feature-card,
+.light-theme .lp-capability-row,
+.light-theme .lp-workflow-card,
+.light-theme .lp-task-item {
+  background: rgba(255, 250, 241, 0.92);
+}
+
+.light-theme .lp-section-alt {
+  background: linear-gradient(180deg, rgba(47, 111, 78, 0.03), rgba(255, 250, 241, 0.02));
+}
+
+.light-theme .lp-section,
+.light-theme .lp-logo-strip {
+  border-top-color: rgba(47, 111, 78, 0.08);
+}
+
+.light-theme .lp-window-title,
+.light-theme .lp-strip-label,
+.light-theme .lp-logo-row,
+.light-theme .lp-panel-header,
+.light-theme .lp-timeline-row,
+.light-theme .lp-task-copy span {
+  color: #66736a;
+}
+
+.light-theme .lp-task-pill {
+  background: rgba(47, 111, 78, 0.06);
+  border-color: rgba(47, 111, 78, 0.14);
 }
 
 .light-theme .lp-feature-card:hover .lp-feature-glow {

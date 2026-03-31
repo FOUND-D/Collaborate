@@ -123,6 +123,18 @@
   color: #fff;
   flex-shrink: 0;
 }
+.auth-avatar-accent {
+  background: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+}
+.auth-avatar-accent-soft {
+  background: linear-gradient(135deg, #5b8f6c, #7ca67e);
+}
+.auth-avatar-accent-strong {
+  background: linear-gradient(135deg, #3f7a55, #6d9773);
+}
+.auth-avatar-accent-warm {
+  background: linear-gradient(135deg, #7b8f6d, #a0a88a);
+}
 .auth-attribution-name {
   font-size: 13px;
   font-weight: 600;

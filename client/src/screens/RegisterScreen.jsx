@@ -88,7 +88,7 @@ const RegisterScreen = () => {
             "Finally a tool where our whole team actually stays on the same page."
           </blockquote>
           <div className="auth-left-attribution">
-            <div className="auth-attribution-avatar" style={{ background: '#3b82f6' }}>S</div>
+            <div className="auth-attribution-avatar auth-avatar-accent">S</div>
             <div>
               <p className="auth-attribution-name">Sarah K.</p>
               <p className="auth-attribution-role">Head of Product, Vertex</p>
@@ -103,10 +103,10 @@ const RegisterScreen = () => {
 
         <div className="auth-left-bottom">
           <div className="auth-avatar-stack">
-            <div className="auth-avatar" style={{ background: '#3b82f6' }}>A</div>
-            <div className="auth-avatar" style={{ background: '#8b5cf6' }}>M</div>
-            <div className="auth-avatar" style={{ background: '#10b981' }}>S</div>
-            <div className="auth-avatar" style={{ background: '#f59e0b' }}>R</div>
+            <div className="auth-avatar auth-avatar-accent">A</div>
+            <div className="auth-avatar auth-avatar-accent-soft">M</div>
+            <div className="auth-avatar auth-avatar-accent-strong">S</div>
+            <div className="auth-avatar auth-avatar-accent-warm">R</div>
             <div className="auth-avatar auth-avatar-count">+2k</div>
           </div>
           <p className="auth-proof-text">Join <strong>2,000+</strong> teams already using Collaborate</p>

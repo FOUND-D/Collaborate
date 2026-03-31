@@ -197,3 +197,130 @@
 .light-theme .auth-form-side .form-group input:focus {
   background: rgba(0, 0, 0, 0.02);
 }
+
+.light-theme .auth-layout-container::before {
+  background: radial-gradient(circle, rgba(47, 111, 78, 0.10) 0%, transparent 70%);
+}
+
+.light-theme .auth-layout-container::after {
+  background: radial-gradient(circle, rgba(124, 166, 126, 0.08) 0%, transparent 70%);
+}
+
+.light-theme .auth-form-side .auth-title,
+.light-theme .auth-link,
+.light-theme .auth-loading-message {
+  color: #2f6f4e;
+}
+
+.light-theme .auth-form-side .form-group input:focus {
+  box-shadow:
+    0 0 0 3px rgba(47, 111, 78, 0.14),
+    0 0 20px rgba(47, 111, 78, 0.08);
+}
+
+.light-theme .auth-link::after {
+  background: linear-gradient(90deg, #2f6f4e, #6d9773);
+}
+
+.light-theme .auth-error-message {
+  color: #b4533c;
+}
+
+.light-theme .auth-page {
+  background: #f7f2e7;
+}
+
+.light-theme .auth-left {
+  background: #fffaf1;
+  border-right-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .auth-left::before {
+  background: radial-gradient(ellipse, rgba(47, 111, 78, 0.08) 0%, transparent 65%);
+}
+
+.light-theme .auth-left::after {
+  background: radial-gradient(ellipse, rgba(124, 166, 126, 0.06) 0%, transparent 65%);
+}
+
+.light-theme .auth-logo-icon {
+  background: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+}
+
+.light-theme .auth-logo span,
+.light-theme .auth-left-quote,
+.light-theme .auth-form-header h1,
+.light-theme .auth-form-header p,
+.light-theme .auth-form-header p a,
+.light-theme .auth-switch-text,
+.light-theme .auth-switch-text a,
+.light-theme .field-label,
+.light-theme .field-row-between,
+.light-theme .field-row-between .field-label,
+.light-theme .field-input,
+.light-theme .field-input-wrap,
+.light-theme .field-toggle-btn,
+.light-theme .auth-submit-btn,
+.light-theme .auth-google-btn {
+  color: #1f2a24;
+}
+
+.light-theme .auth-left-eyebrow,
+.light-theme .auth-left-companies span,
+.light-theme .auth-attribution-role,
+.light-theme .auth-feature-list li,
+.light-theme .auth-proof-text,
+.light-theme .field-forgot {
+  color: #66736a;
+}
+
+.light-theme .auth-feature-list {
+  border-top-color: rgba(47, 111, 78, 0.10);
+}
+
+.light-theme .auth-feature-list li::before {
+  background-color: rgba(47, 111, 78, 0.12);
+  border-color: rgba(47, 111, 78, 0.26);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%232f6f4e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.light-theme .auth-avatar,
+.light-theme .auth-attribution-avatar {
+  border-color: #fffaf1;
+}
+
+.light-theme .auth-avatar-count {
+  background: #e7dfd0;
+  color: #66736a;
+}
+
+.light-theme .auth-right {
+  background: #f7f2e7;
+}
+
+.light-theme .field-input,
+.light-theme .field-input-wrap {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .field-input:focus,
+.light-theme .field-input-wrap:focus-within {
+  border-color: #2f6f4e;
+  box-shadow: 0 0 0 3px rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .auth-submit-btn {
+  background: linear-gradient(135deg, #2f6f4e, #5b8f6c);
+  color: #fffaf1;
+  box-shadow: 0 10px 24px rgba(47, 111, 78, 0.16);
+}
+
+.light-theme .auth-google-btn {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.12);
+}
+
+.light-theme .auth-google-btn:hover {
+  border-color: rgba(47, 111, 78, 0.22);
+}
