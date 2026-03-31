@@ -1,9 +1,9 @@
 import { PRODUCTION_URLS } from './productionUrls';
 
 const LOCAL_URLS = Object.freeze({
-  api: 'http://localhost:3002',
-  socket: 'http://localhost:3002',
-  mcpGateway: 'http://localhost:3002',
+  api: 'http://127.0.0.1:3002',
+  socket: 'http://127.0.0.1:3002',
+  mcpGateway: 'http://127.0.0.1:3002',
 });
 
 const normalizeUrl = (value) => {
