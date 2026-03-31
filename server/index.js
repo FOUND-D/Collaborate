@@ -28,7 +28,7 @@ const io = new Server(server, {
   }
 });
 
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3002;
 
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
@@ -43,6 +43,9 @@ const socketToTeamMap = {};
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+
+  const resolveMeetingTeamId = (meeting) => meeting?.team || meeting?.teamId || meeting?.team_id;
+  const resolveMeetingUserId = (payload) => payload?.user?._id || payload?.userId || payload?.user?._id;
 
   socket.on('joinTeamRoom', (teamId) => {
     socket.join(teamId);
@@ -91,13 +94,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('startMeeting', (meeting) => {
-    participants[meeting.team] = {};
-    io.to(meeting.team).emit('meetingStarted', meeting);
+    const teamId = resolveMeetingTeamId(meeting);
+    if (!teamId) return;
+    participants[teamId] = {};
+    io.to(teamId).emit('meetingStarted', meeting);
   });
 
   socket.on('endMeeting', (meeting) => {
-    delete participants[meeting.team];
-    io.to(meeting.team).emit('meetingEnded', meeting);
+    const teamId = resolveMeetingTeamId(meeting);
+    if (!teamId) return;
+    delete participants[teamId];
+    io.to(teamId).emit('meetingEnded', meeting);
   });
 
   socket.on('userJoined', ({ teamId, user }) => {
@@ -107,15 +114,17 @@ io.on('connection', (socket) => {
     participants[teamId][user._id] = {
       ...user,
       socketId: socket.id,
-      cameraOn: true,
-      micOn: true,
+      cameraOn: user.cameraOn ?? false,
+      micOn: user.micOn ?? false,
     };
     io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
   });
 
-  socket.on('userLeft', ({ teamId, user }) => {
-    if (participants[teamId] && participants[teamId][user._id]) {
-      delete participants[teamId][user._id];
+  socket.on('userLeft', (payload) => {
+    const teamId = payload?.teamId;
+    const userId = resolveMeetingUserId(payload);
+    if (participants[teamId] && userId && participants[teamId][userId]) {
+      delete participants[teamId][userId];
       io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
     }
   });
@@ -154,6 +163,7 @@ io.on('connection', (socket) => {
     if (teamId && participants[teamId] && participants[teamId][userId]) {
       participants[teamId][userId].cameraOn = cameraOn;
       socket.to(teamId).emit('camera-toggled', { userId, cameraOn });
+      io.to(teamId).emit('toggle-camera', { userId, cameraOn });
       io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
     }
   });
@@ -163,6 +173,7 @@ io.on('connection', (socket) => {
     if (teamId && participants[teamId] && participants[teamId][userId]) {
       participants[teamId][userId].micOn = micOn;
       socket.to(teamId).emit('mic-toggled', { userId, micOn });
+      io.to(teamId).emit('toggle-mic', { userId, micOn });
       io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
     }
   });

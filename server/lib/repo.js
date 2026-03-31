@@ -112,6 +112,19 @@ const toPublicAuditLog = (entry) => entry && ({
   createdAt: entry.created_at,
 });
 
+const toPublicMeeting = (meeting) => {
+  if (!meeting) return null;
+  return {
+    _id: meeting.id,
+    team: meeting.team_id,
+    roomId: meeting.room_id,
+    status: meeting.status,
+    startedBy: meeting.started_by,
+    createdAt: meeting.created_at,
+    updatedAt: meeting.updated_at,
+  };
+};
+
 const getUserById = async (id) => {
   const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
@@ -184,6 +197,7 @@ module.exports = {
   toPublicComplianceRules,
   toPublicCustomField,
   toPublicAuditLog,
+  toPublicMeeting,
   getUserById,
   getUserByEmail,
   createUser,

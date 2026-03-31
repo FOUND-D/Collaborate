@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaChevronLeft, FaRegCopy, FaCheck } from 'react-icons/fa';
@@ -9,8 +9,6 @@ import './TeamDetailsScreen.css';
 import api from '../utils/api';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
-
-let socket; // Declare socket once globally
 
 // Helper to calculate progress for project cards
 const calculateProgress = (tasks) => {
@@ -43,17 +41,25 @@ const TeamDetailsScreen = () => {
   const [memberActionError, setMemberActionError] = useState(null);
   const [memberActionSuccess, setMemberActionSuccess] = useState(null);
   const [canManageMembers, setCanManageMembers] = useState(false);
+  const socketRef = useRef(null);
 
   const teamDetails = useSelector((state) => state.teamDetails);
   const { loading, error, team } = teamDetails;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const token = userInfo?.token;
 
   useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return undefined;
+    }
+
     dispatch(getTeamDetails(id));
 
-    socket = io(SOCKET_URL);
+    const socket = io(SOCKET_URL);
+    socketRef.current = socket;
 
     const fetchMeeting = async () => {
       try {
@@ -66,11 +72,13 @@ const TeamDetailsScreen = () => {
     fetchMeeting();
 
     return () => {
+      socketRef.current = null;
       socket.disconnect();
     };
-  }, [dispatch, id, userInfo.token]);
+  }, [dispatch, id, navigate, token]);
 
   useEffect(() => {
+    const socket = socketRef.current;
     if (socket && id) {
       socket.emit('joinTeamRoom', id);
 
@@ -81,8 +89,13 @@ const TeamDetailsScreen = () => {
       socket.on('meetingEnded', () => {
         setMeeting(null);
       });
+
+      return () => {
+        socket.off('meetingStarted');
+        socket.off('meetingEnded');
+      };
     }
-  }, [socket, id]);
+  }, [id]);
 
   useEffect(() => {
     const fetchOrgContext = async () => {
@@ -124,7 +137,7 @@ const TeamDetailsScreen = () => {
   const startMeetingHandler = async () => {
     try {
       const { data } = await api.post(`/api/teams/${id}/meetings`, {});
-      socket.emit('startMeeting', data);
+      socketRef.current?.emit('startMeeting', data);
       setMeeting(data);
       navigate(`/team/${id}/meeting`);
     } catch (error) {
@@ -139,7 +152,7 @@ const TeamDetailsScreen = () => {
   const endMeetingHandler = async () => {
     try {
       await api.put(`/api/teams/${id}/meetings/${meeting._id}`, {});
-      socket.emit('endMeeting', meeting);
+      socketRef.current?.emit('endMeeting', meeting);
       setMeeting(null);
     } catch (error) {
       const message =

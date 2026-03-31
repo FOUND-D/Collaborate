@@ -1,36 +1,31 @@
-import React, { useEffect, useState, useRef, memo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import axios from "axios";
-import io from "socket.io-client";
-import { FaVideo, FaVideoSlash, FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import io from 'socket.io-client';
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
 import { SOCKET_URL } from '../config/runtime';
 
-/* =========================================================================
-   1. ISOLATED VIDEO COMPONENT
-   ========================================================================= */
+const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
+
 const VideoPlayer = memo(({ stream, isLocal, isCameraOn, isScreenShare, name, isMicOn }) => {
   const videoRef = useRef(null);
 
-  // Only attach the stream when the stream reference actually changes
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream || null;
     }
   }, [stream]);
 
-  // CSS Class Logic
   const shouldHideVideo = !isCameraOn && !isScreenShare;
-  // For local camera, we flip. Screen share is never flipped. Remote is flipped if it's a camera (convention varies, usually remote is NOT mirrored, but let's stick to existing logic or standard: Remote is usually normal, Local is mirrored).
-  // Let's mirror Local Camera only.
-  const flipClass = isLocal && !isScreenShare ? "local-video-flipped" : "";
+  const flipClass = isLocal && !isScreenShare ? 'local-video-flipped' : '';
 
   return (
     <>
       <video
         ref={(el) => {
           videoRef.current = el;
-          if (el) el.muted = isLocal; // Mute only local to prevent feedback
+          if (el) el.muted = isLocal;
         }}
         autoPlay
         playsInline
@@ -43,7 +38,7 @@ const VideoPlayer = memo(({ stream, isLocal, isCameraOn, isScreenShare, name, is
       )}
       <div className="participant-name">
         {name}
-        {isScreenShare && " (Screen)"}
+        {isScreenShare && ' (Screen)'}
         <span className="media-status-icons">
           {!isCameraOn && !isScreenShare && <FaVideoSlash size={10} />}
           {!isMicOn && <FaMicrophoneSlash size={10} />}
@@ -53,435 +48,428 @@ const VideoPlayer = memo(({ stream, isLocal, isCameraOn, isScreenShare, name, is
   );
 });
 
-/* =========================================================================
-   2. MAIN SCREEN COMPONENT
-   ========================================================================= */
 const MeetingScreen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const { userInfo } = useSelector((state) => state.userLogin);
-  // Refs for state accessed inside event listeners
-  const userInfoRef = useRef(userInfo);
-  const localStreamRef = useRef(null);
-  const screenStreamRef = useRef(null);
-  // Track active peer connections in a Ref (stable across renders)
-  const peerConnections = useRef({});
 
   const [meeting, setMeeting] = useState(null);
   const [participants, setParticipants] = useState([]);
-
-  // --- Media States ---
   const [localStream, setLocalStream] = useState(null);
-  const [remoteStreams, setRemoteStreams] = useState([]); // Array of { userId, stream }
+  const [screenStream, setScreenStream] = useState(null);
+  const [remoteStreams, setRemoteStreams] = useState([]);
   const [remoteMediaStatus, setRemoteMediaStatus] = useState({});
-
-  // Controls
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [mainScreenUserId, setMainScreenUserId] = useState(null);
 
-  // Audio Analysis
-  const [speakingUsers, setSpeakingUsers] = useState({});
-  const audioContextRef = useRef(null);
-
-  // Socket Ref
   const socketRef = useRef(null);
+  const userInfoRef = useRef(userInfo);
+  const localStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
+  const peerConnectionsRef = useRef({});
+  const joinedRoomRef = useRef(false);
 
-  /* =====================================
-      INITIALIZATION & CLEANUP
-  ===================================== */
   useEffect(() => {
-    // 1. Update Refs
     userInfoRef.current = userInfo;
+  }, [userInfo]);
 
-    // 2. Fetch Meeting Info
+  const closePeerConnection = useCallback((userId) => {
+    const peerConnection = peerConnectionsRef.current[userId];
+    if (peerConnection) {
+      peerConnection.close();
+      delete peerConnectionsRef.current[userId];
+    }
+  }, []);
+
+  const joinRoom = useCallback(() => {
+    const socket = socketRef.current;
+    const currentUser = userInfoRef.current;
+
+    if (!socket || !currentUser || !localStreamRef.current || !socket.connected || joinedRoomRef.current) {
+      return;
+    }
+
+    joinedRoomRef.current = true;
+    socket.emit('joinTeamRoom', id);
+    socket.emit('userJoined', {
+      teamId: id,
+      user: {
+        ...currentUser,
+        socketId: socket.id,
+        cameraOn: false,
+        micOn: false,
+      },
+    });
+  }, [id]);
+
+  const createPeerConnection = useCallback((targetUserId, targetSocketId, isInitiator) => {
+    if (peerConnectionsRef.current[targetUserId]) {
+      return peerConnectionsRef.current[targetUserId];
+    }
+
+    const peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    const streamToSend = screenStreamRef.current || localStreamRef.current;
+
+    if (streamToSend) {
+      streamToSend.getTracks().forEach((track) => peerConnection.addTrack(track, streamToSend));
+    }
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate && socketRef.current) {
+        socketRef.current.emit('ice-candidate', {
+          target: targetSocketId,
+          candidate: event.candidate,
+          senderUserId: userInfoRef.current?._id,
+          targetUserId,
+          senderSocketId: socketRef.current.id,
+        });
+      }
+    };
+
+    peerConnection.ontrack = (event) => {
+      const remoteStream = event.streams[0];
+      if (!remoteStream) return;
+
+      setRemoteStreams((prev) => (
+        prev.some((streamEntry) => streamEntry.userId === targetUserId)
+          ? prev
+          : [...prev, { userId: targetUserId, stream: remoteStream }]
+      ));
+    };
+
+    peerConnectionsRef.current[targetUserId] = peerConnection;
+
+    if (isInitiator) {
+      peerConnection.createOffer()
+        .then((offer) => peerConnection.setLocalDescription(offer))
+        .then(() => {
+          if (!socketRef.current || !peerConnection.localDescription) return;
+
+          socketRef.current.emit('offer', {
+            target: targetSocketId,
+            sdp: peerConnection.localDescription,
+            senderUserId: userInfoRef.current?._id,
+            targetUserId,
+            senderSocketId: socketRef.current.id,
+          });
+        })
+        .catch((error) => {
+          console.error('WebRTC offer error:', error);
+        });
+    }
+
+    return peerConnection;
+  }, []);
+
+  useEffect(() => {
+    if (!userInfo?.token) {
+      navigate('/login');
+      return undefined;
+    }
+
+    let isCancelled = false;
+    const socket = io(SOCKET_URL);
+    socketRef.current = socket;
+
+    const handleParticipantsUpdated = (updatedParticipants) => {
+      setParticipants(updatedParticipants);
+
+      const nextStatus = {};
+      updatedParticipants.forEach((participant) => {
+        if (participant._id !== userInfoRef.current?._id) {
+          nextStatus[participant._id] = {
+            cameraOn: participant.cameraOn || false,
+            micOn: participant.micOn || false,
+            isSharingScreen: participant.isSharingScreen || false,
+          };
+        }
+      });
+      setRemoteMediaStatus(nextStatus);
+    };
+
+    const handleUserDisconnected = ({ userId }) => {
+      closePeerConnection(userId);
+      setRemoteStreams((prev) => prev.filter((streamEntry) => streamEntry.userId !== userId));
+      setRemoteMediaStatus((prev) => {
+        if (!prev[userId]) return prev;
+        const next = { ...prev };
+        delete next[userId];
+        return next;
+      });
+    };
+
+    const handleOtherUsers = (users) => {
+      users.forEach((user) => createPeerConnection(user.userId, user.socketId, true));
+    };
+
+    const handleOffer = async ({ senderSocketId, sdp, senderUserId }) => {
+      if (!sdp) return;
+      const peerConnection = createPeerConnection(senderUserId, senderSocketId, false);
+      if (!peerConnection) return;
+
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+
+      socket.emit('answer', {
+        target: senderSocketId,
+        sdp: peerConnection.localDescription,
+        senderUserId: userInfoRef.current?._id,
+        targetUserId: senderUserId,
+        senderSocketId: socket.id,
+      });
+    };
+
+    const handleAnswer = async ({ sdp, senderUserId }) => {
+      const peerConnection = peerConnectionsRef.current[senderUserId];
+      if (peerConnection && sdp) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+      }
+    };
+
+    const handleIceCandidate = async ({ candidate, senderUserId }) => {
+      const peerConnection = peerConnectionsRef.current[senderUserId];
+      if (peerConnection && candidate) {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+    };
+
+    const handleCameraToggle = ({ userId, cameraOn }) => {
+      setRemoteMediaStatus((prev) => ({
+        ...prev,
+        [userId]: { ...(prev[userId] || {}), cameraOn },
+      }));
+    };
+
+    const handleMicToggle = ({ userId, micOn }) => {
+      setRemoteMediaStatus((prev) => ({
+        ...prev,
+        [userId]: { ...(prev[userId] || {}), micOn },
+      }));
+    };
+
+    const handleSharingScreen = ({ userId }) => {
+      setRemoteMediaStatus((prev) => ({
+        ...prev,
+        [userId]: { ...(prev[userId] || {}), isSharingScreen: true },
+      }));
+      setMainScreenUserId(userId);
+    };
+
+    const handleStopSharingScreen = ({ userId }) => {
+      setRemoteMediaStatus((prev) => ({
+        ...prev,
+        [userId]: { ...(prev[userId] || {}), isSharingScreen: false },
+      }));
+      setMainScreenUserId((current) => (current === userId ? null : current));
+    };
+
+    socket.on('connect', joinRoom);
+    socket.on('participantsUpdated', handleParticipantsUpdated);
+    socket.on('user-disconnected', handleUserDisconnected);
+    socket.on('other-users', handleOtherUsers);
+    socket.on('offer', handleOffer);
+    socket.on('answer', handleAnswer);
+    socket.on('ice-candidate', handleIceCandidate);
+    socket.on('camera-toggled', handleCameraToggle);
+    socket.on('toggle-camera', handleCameraToggle);
+    socket.on('mic-toggled', handleMicToggle);
+    socket.on('toggle-mic', handleMicToggle);
+    socket.on('sharing-screen', handleSharingScreen);
+    socket.on('stop-sharing-screen', handleStopSharingScreen);
+
     const fetchMeeting = async () => {
       try {
         const { data } = await axios.get(`/api/teams/${id}/meetings`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        setMeeting(data);
-      } catch (err) {
-        console.error("Failed to fetch meeting", err);
+        if (!isCancelled) {
+          setMeeting(data);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.error('Failed to fetch meeting', error);
+        }
       }
     };
-    fetchMeeting();
 
-    // 3. Initialize Media (Start with Tracks Disabled)
     const initMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        stream.getAudioTracks().forEach(t => t.enabled = false);
-        stream.getVideoTracks().forEach(t => t.enabled = false);
+        stream.getAudioTracks().forEach((track) => {
+          track.enabled = false;
+        });
+        stream.getVideoTracks().forEach((track) => {
+          track.enabled = false;
+        });
 
-        setLocalStream(stream);
-        localStreamRef.current = stream;
-        initAudioAnalyser(stream, "local");
-      } catch (err) {
-        console.error("Media Init Error:", err);
-        alert("Could not access camera/microphone. Please allow permissions.");
+        if (!isCancelled) {
+          setLocalStream(stream);
+          localStreamRef.current = stream;
+          setIsMicOn(false);
+          setIsCameraOn(false);
+          joinRoom();
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.error('Media init error:', error);
+          alert('Could not access camera or microphone. Please allow permissions.');
+        }
       }
     };
+
+    fetchMeeting();
     initMedia();
 
-    // 4. Initialize Socket & Events
-    const socket = io(SOCKET_URL);
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      console.log("Socket connected:", socket.id);
-      // Only join if we have the local stream ready (or can send a placeholder)
-      // But since getUserMedia is async, we'll wait for that effect below
-    });
-
-    // --- Cleanup ---
     return () => {
-      // Stop all tracks
-      if (localStreamRef.current) localStreamRef.current.getTracks().forEach(t => t.stop());
-      if (screenStreamRef.current) screenStreamRef.current.getTracks().forEach(t => t.stop());
+      isCancelled = true;
+      joinedRoomRef.current = false;
 
-      // Close Peers
-      Object.values(peerConnections.current).forEach(pc => pc.close());
-      peerConnections.current = {};
+      socket.off('connect', joinRoom);
+      socket.off('participantsUpdated', handleParticipantsUpdated);
+      socket.off('user-disconnected', handleUserDisconnected);
+      socket.off('other-users', handleOtherUsers);
+      socket.off('offer', handleOffer);
+      socket.off('answer', handleAnswer);
+      socket.off('ice-candidate', handleIceCandidate);
+      socket.off('camera-toggled', handleCameraToggle);
+      socket.off('toggle-camera', handleCameraToggle);
+      socket.off('mic-toggled', handleMicToggle);
+      socket.off('toggle-mic', handleMicToggle);
+      socket.off('sharing-screen', handleSharingScreen);
+      socket.off('stop-sharing-screen', handleStopSharingScreen);
 
-      // Close Socket
-      if (socketRef.current) {
-        // Notify leave
-        socketRef.current.emit("userLeft", { teamId: id, userId: userInfo._id });
-        socketRef.current.disconnect();
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
       }
 
-      if (audioContextRef.current) audioContextRef.current.close();
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => track.stop());
+        screenStreamRef.current = null;
+      }
+
+      Object.values(peerConnectionsRef.current).forEach((peerConnection) => peerConnection.close());
+      peerConnectionsRef.current = {};
+
+      socket.disconnect();
+      socketRef.current = null;
     };
-  }, [id, userInfo.token, userInfo._id]); // Only re-run if ID or User changes significantly
+  }, [closePeerConnection, createPeerConnection, id, joinRoom, navigate, userInfo?.token]);
 
-  /* =====================================
-      JOIN ROOM TRIGGER
-  ===================================== */
-  useEffect(() => {
-    // Join when both socket and stream are ready
-    if (socketRef.current && localStream && socketRef.current.connected) {
-      joinRoom();
-    } else if (socketRef.current && localStream) {
-      // If socket exists but not connected yet, wait for it
-      const onConnect = () => joinRoom();
-      socketRef.current.on('connect', onConnect);
-      return () => socketRef.current.off('connect', onConnect);
-    }
-  }, [localStream, id]);
+  const toggleCamera = useCallback(() => {
+    const track = localStreamRef.current?.getVideoTracks()[0];
+    if (!track || !socketRef.current) return;
 
-  const joinRoom = () => {
-    console.log("Joining room for Team:", id);
-    socketRef.current.emit("joinTeamRoom", id);
-    socketRef.current.emit("userJoined", {
-      teamId: id,
-      user: {
-        ...userInfoRef.current,
-        socketId: socketRef.current.id,
-        cameraOn: false,
-        micOn: false
-      },
+    track.enabled = !track.enabled;
+    setIsCameraOn(track.enabled);
+    socketRef.current.emit('toggle-camera', {
+      userId: userInfoRef.current?._id,
+      cameraOn: track.enabled,
     });
-  };
+  }, []);
 
-  /* =====================================
-      SOCKET EVENT LISTENERS
-  ===================================== */
-  useEffect(() => {
-    if (!socketRef.current) return;
-    const socket = socketRef.current;
+  const toggleMic = useCallback(() => {
+    const track = localStreamRef.current?.getAudioTracks()[0];
+    if (!track || !socketRef.current) return;
 
-    const handleParticipants = (updatedParticipants) => {
-      setParticipants(updatedParticipants);
-      // Sync media status
-      const statusMap = {};
-      updatedParticipants.forEach(p => {
-        if (p._id !== userInfoRef.current._id) {
-          statusMap[p._id] = {
-            cameraOn: p.cameraOn || false,
-            micOn: p.micOn || false
-          };
+    track.enabled = !track.enabled;
+    setIsMicOn(track.enabled);
+    socketRef.current.emit('toggle-mic', {
+      userId: userInfoRef.current?._id,
+      micOn: track.enabled,
+    });
+  }, []);
+
+  const stopScreenShare = useCallback(() => {
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((track) => track.stop());
+      screenStreamRef.current = null;
+    }
+    setScreenStream(null);
+
+    const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
+    if (cameraTrack) {
+      Object.values(peerConnectionsRef.current).forEach((peerConnection) => {
+        const sender = peerConnection.getSenders().find((item) => item.track?.kind === 'video');
+        if (sender) {
+          sender.replaceTrack(cameraTrack);
         }
       });
-      setRemoteMediaStatus(prev => ({ ...prev, ...statusMap }));
-    };
+    }
 
-    const handleUserDisconnected = ({ userId }) => {
-      if (peerConnections.current[userId]) {
-        peerConnections.current[userId].close();
-        delete peerConnections.current[userId];
-      }
-      setRemoteStreams(prev => prev.filter(s => s.userId !== userId));
-    };
+    setIsSharingScreen(false);
+    setMainScreenUserId(null);
 
-    // WebRTC Signal Handlers
-    const handleOtherUsers = (users) => {
-      // This user just joined, existing users are sent here
-      // Initiate offers to all existing users
-      users.forEach(user => createPeerConnection(user.userId, user.socketId, true));
-    };
-
-    const handleOffer = async ({ senderSocketId, sdp, senderUserId }) => {
-      if (!sdp) {
-        console.error("Received offer with null SDP from", senderUserId);
-        return;
-      }
-      const pc = createPeerConnection(senderUserId, senderSocketId, false);
-      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit("answer", {
-        target: senderSocketId,
-        sdp: pc.localDescription,
-        senderUserId: userInfoRef.current._id,
-        targetUserId: senderUserId,
-        senderSocketId: socket.id
-      });
-    };
-
-    const handleAnswer = async ({ sdp, senderUserId }) => {
-      const pc = peerConnections.current[senderUserId];
-      if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-    };
-
-    const handleIceCandidate = async ({ candidate, senderUserId }) => {
-      const pc = peerConnections.current[senderUserId];
-      if (pc && candidate) await pc.addIceCandidate(new RTCIceCandidate(candidate));
-    };
-
-    // Media Toggles
-    const handleToggleCamera = ({ userId, cameraOn }) => {
-      setRemoteMediaStatus(prev => ({ ...prev, [userId]: { ...prev[userId], cameraOn } }));
-    };
-    const handleToggleMic = ({ userId, micOn }) => {
-      setRemoteMediaStatus(prev => ({ ...prev, [userId]: { ...prev[userId], micOn } }));
-    };
-    const handleSharing = ({ userId }) => {
-      setRemoteMediaStatus(prev => ({ ...prev, [userId]: { ...prev[userId], isSharingScreen: true } }));
-      if (!mainScreenUserId && !isSharingScreen) setMainScreenUserId(userId);
-    };
-    const handleStopSharing = ({ userId }) => {
-      setRemoteMediaStatus(prev => ({ ...prev, [userId]: { ...prev[userId], isSharingScreen: false } }));
-      if (mainScreenUserId === userId) setMainScreenUserId(null);
-    };
-
-    socket.on("participantsUpdated", handleParticipants);
-    socket.on("user-disconnected", handleUserDisconnected);
-    socket.on("other-users", handleOtherUsers);
-    socket.on("offer", handleOffer);
-    socket.on("answer", handleAnswer);
-    socket.on("ice-candidate", handleIceCandidate);
-    socket.on("toggle-camera", handleToggleCamera);
-    socket.on("toggle-mic", handleToggleMic);
-    socket.on("sharing-screen", handleSharing);
-    socket.on("stop-sharing-screen", handleStopSharing);
-
-    return () => {
-      socket.off("participantsUpdated");
-      socket.off("user-disconnected");
-      socket.off("other-users");
-      socket.off("offer");
-      socket.off("answer");
-      socket.off("ice-candidate");
-      socket.off("toggle-camera");
-      socket.off("toggle-mic");
-      socket.off("sharing-screen");
-      socket.off("stop-sharing-screen");
-    };
-  }, [mainScreenUserId, isSharingScreen]); // Dependencies that might affect logic inside handlers? Ideally keep minimal.
-
-  /* =====================================
-      WEBRTC HELPERS
-  ===================================== */
-  const createPeerConnection = (targetUserId, targetSocketId, isInitiator) => {
-    if (peerConnections.current[targetUserId]) return peerConnections.current[targetUserId];
-
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-      ]
+    socketRef.current?.emit('stop-sharing-screen', {
+      userId: userInfoRef.current?._id,
     });
+  }, []);
 
-    // Add Local Tracks
-    const streamToSend = screenStreamRef.current || localStreamRef.current;
-    if (streamToSend) {
-      streamToSend.getTracks().forEach(track => pc.addTrack(track, streamToSend));
-    }
-
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        socketRef.current.emit("ice-candidate", {
-          target: targetSocketId,
-          candidate: event.candidate,
-          senderUserId: userInfoRef.current._id,
-          targetUserId: targetUserId,
-          senderSocketId: socketRef.current.id
-        });
-      }
-    };
-
-    pc.ontrack = (event) => {
-      const remoteStream = event.streams[0];
-      setRemoteStreams(prev => {
-        if (prev.find(s => s.userId === targetUserId)) return prev;
-        return [...prev, { userId: targetUserId, stream: remoteStream }];
-      });
-      if (event.track.kind === 'audio') {
-        initAudioAnalyser(remoteStream, targetUserId);
-      }
-    };
-
-    peerConnections.current[targetUserId] = pc;
-
-    if (isInitiator) {
-      pc.createOffer()
-        .then(offer => pc.setLocalDescription(offer))
-        .then(() => {
-          if (pc.localDescription) {
-            socketRef.current.emit("offer", {
-              target: targetSocketId,
-              sdp: pc.localDescription,
-              senderUserId: userInfoRef.current._id,
-              targetUserId: targetUserId,
-              senderSocketId: socketRef.current.id
-            });
-          } else {
-            console.error("WebRTC Error: pc.localDescription is null after setLocalDescription.");
-          }
-        })
-        .catch(error => console.error("WebRTC Error during offer creation or setLocalDescription:", error));
-    }
-
-    return pc;
-  };
-
-  /* =====================================
-      AUDIO ANALYZER
-  ===================================== */
-  const initAudioAnalyser = (stream, id) => {
-    if (stream.getAudioTracks().length === 0) return;
-    if (!audioContextRef.current) audioContextRef.current = new AudioContext();
-
-    const ctx = audioContextRef.current;
-
-    // We need to create a source, but usually can only do one per stream object?
-    // Wrap in try-catch to avoid "Source already connected" errors
-    try {
-      const source = ctx.createMediaStreamSource(stream);
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 64;
-      source.connect(analyser);
-
-      const data = new Uint8Array(analyser.frequencyBinCount);
-      const update = () => {
-        if (!analyser) return;
-        analyser.getByteFrequencyData(data);
-        const volume = data.reduce((a, b) => a + b) / data.length;
-
-        // Update state only if changed significantly to reduce renders
-        const isTalk = volume > 15;
-        setSpeakingUsers(prev => prev[id] === isTalk ? prev : { ...prev, [id]: isTalk });
-        requestAnimationFrame(update);
-      };
-      update();
-    } catch (e) {
-      // console.warn("Audio Context Error (harmless if re-init):", e);
-    }
-  };
-
-  /* =====================================
-      USER ACTIONS
-  ===================================== */
-  const toggleCamera = () => {
-    const track = localStreamRef.current?.getVideoTracks()[0];
-    if (track) {
-      track.enabled = !track.enabled;
-      setIsCameraOn(track.enabled);
-      socketRef.current.emit("toggle-camera", { userId: userInfoRef.current._id, cameraOn: track.enabled });
-    }
-  };
-
-  const toggleMic = () => {
-    const track = localStreamRef.current?.getAudioTracks()[0];
-    if (track) {
-      track.enabled = !track.enabled;
-      setIsMicOn(track.enabled);
-      socketRef.current.emit("toggle-mic", { userId: userInfoRef.current._id, micOn: track.enabled });
-    }
-  };
-
-  const startScreenShare = async () => {
+  const startScreenShare = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       screenStreamRef.current = stream;
-      setIsSharingScreen(true);
-      setMainScreenUserId(userInfoRef.current._id);
+      setScreenStream(stream);
 
       const screenTrack = stream.getVideoTracks()[0];
-
-      // Replace tracks in all peer connections
-      Object.values(peerConnections.current).forEach(pc => {
-        const sender = pc.getSenders().find(s => s.track.kind === 'video');
-        if (sender) sender.replaceTrack(screenTrack);
+      Object.values(peerConnectionsRef.current).forEach((peerConnection) => {
+        const sender = peerConnection.getSenders().find((item) => item.track?.kind === 'video');
+        if (sender) {
+          sender.replaceTrack(screenTrack);
+        }
       });
 
       screenTrack.onended = stopScreenShare;
 
-      socketRef.current.emit("sharing-screen", { userId: userInfoRef.current._id });
-    } catch (e) {
-      console.error("Screen Share Error:", e);
-    }
-  };
+      setIsSharingScreen(true);
+      setMainScreenUserId(userInfoRef.current?._id || null);
 
-  const stopScreenShare = () => {
-    if (screenStreamRef.current) {
-      screenStreamRef.current.getTracks().forEach(t => t.stop());
-      screenStreamRef.current = null;
-    }
-    setIsSharingScreen(false);
-    setMainScreenUserId(null);
-
-    // Revert to Camera Track
-    const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
-    if (cameraTrack) {
-      Object.values(peerConnections.current).forEach(pc => {
-        const sender = pc.getSenders().find(s => s.track.kind === 'video');
-        if (sender) sender.replaceTrack(cameraTrack);
+      socketRef.current?.emit('sharing-screen', {
+        userId: userInfoRef.current?._id,
       });
+    } catch (error) {
+      console.error('Screen share error:', error);
     }
-    socketRef.current.emit("stop-sharing-screen", { userId: userInfoRef.current._id });
-  };
+  }, [stopScreenShare]);
 
-  const leaveMeeting = () => {
+  const leaveMeeting = useCallback(() => {
+    socketRef.current?.emit('userLeft', {
+      teamId: id,
+      user: userInfoRef.current,
+    });
     navigate(`/team/${id}`);
-  };
+  }, [id, navigate]);
 
-  /* =====================================
-      UI RENDER HELPERS
-  ===================================== */
   const renderTile = (stream, userId, isLocal) => {
     const isCam = isLocal ? isCameraOn : remoteMediaStatus[userId]?.cameraOn;
     const isMic = isLocal ? isMicOn : remoteMediaStatus[userId]?.micOn;
     const isShare = isLocal ? false : remoteMediaStatus[userId]?.isSharingScreen;
 
-    let name = "Guest";
-    if (isLocal) name = "You";
-    else {
-      const p = participants.find(x => x._id === userId);
-      if (p) name = p.name;
+    let name = 'Guest';
+    if (isLocal) {
+      name = 'You';
+    } else {
+      const participant = participants.find((entry) => entry._id === userId);
+      if (participant) {
+        name = participant.name;
+      }
     }
 
     return (
-      <div key={userId} className={`video-participant-container ${speakingUsers[userId] ? 'speaking' : ''} ${mainScreenUserId === userId ? 'main-screen-share' : ''}`}>
+      <div
+        key={userId}
+        className={`video-participant-container ${mainScreenUserId === userId ? 'main-screen-share' : ''}`}
+      >
         <VideoPlayer
           stream={stream}
           isLocal={isLocal}
-          isCameraOn={isCam}
-          isScreenShare={isShare}
+          isCameraOn={Boolean(isCam)}
+          isScreenShare={Boolean(isShare)}
           name={name}
-          isMicOn={isMic}
+          isMicOn={Boolean(isMic)}
         />
       </div>
     );
@@ -495,65 +483,69 @@ const MeetingScreen = () => {
       </div>
 
       <div className={`video-grid-container ${mainScreenUserId ? 'has-main-screen' : ''}`}>
-
-        {/* SCREEN SHARE AREA */}
         {mainScreenUserId && (
           <>
-            {/* 1. Show the Main Screen (Local or Remote) */}
-            {mainScreenUserId === userInfo._id && isSharingScreen && (
+            {mainScreenUserId === userInfo?._id && isSharingScreen && (
               <div className="video-participant-container main-screen-share">
-                <VideoPlayer stream={screenStreamRef.current} isLocal={true} isCameraOn={true} isScreenShare={true} name="You (Screen)" isMicOn={false} />
+                <VideoPlayer
+                  stream={screenStream}
+                  isLocal={true}
+                  isCameraOn={true}
+                  isScreenShare={true}
+                  name="You (Screen)"
+                  isMicOn={false}
+                />
               </div>
             )}
-            {remoteStreams.map(r => {
-              if (r.userId === mainScreenUserId) {
-                // This remote user is main
-                return renderTile(r.stream, r.userId, false);
-              }
-              return null;
-            })}
 
-            {/* 2. Sidebar for Others */}
+            {remoteStreams.map((remoteStream) => (
+              remoteStream.userId === mainScreenUserId
+                ? renderTile(remoteStream.stream, remoteStream.userId, false)
+                : null
+            ))}
+
             <div className="video-sidebar">
-              {/* Local Cam */}
-              {mainScreenUserId !== userInfo._id && renderTile(localStream, "local", true)}
-
-              {/* Remote Cams */}
-              {remoteStreams.map(r => {
-                if (r.userId !== mainScreenUserId) {
-                  return renderTile(r.stream, r.userId, false);
-                }
-                return null;
-              })}
+              {mainScreenUserId !== userInfo?._id && renderTile(localStream, 'local', true)}
+              {remoteStreams.map((remoteStream) => (
+                remoteStream.userId !== mainScreenUserId
+                  ? renderTile(remoteStream.stream, remoteStream.userId, false)
+                  : null
+              ))}
             </div>
           </>
         )}
 
-        {/* GRID AREA (No One Sharing) */}
         {!mainScreenUserId && (
           <>
-            {renderTile(localStream, "local", true)}
+            {renderTile(localStream, 'local', true)}
             {isSharingScreen && (
               <div className="video-participant-container">
-                <VideoPlayer stream={screenStreamRef.current} isLocal={true} isCameraOn={true} isScreenShare={true} name="You (Screen)" isMicOn={false} />
+                <VideoPlayer
+                  stream={screenStream}
+                  isLocal={true}
+                  isCameraOn={true}
+                  isScreenShare={true}
+                  name="You (Screen)"
+                  isMicOn={false}
+                />
               </div>
             )}
-            {remoteStreams.map(r => renderTile(r.stream, r.userId, false))}
+            {remoteStreams.map((remoteStream) => renderTile(remoteStream.stream, remoteStream.userId, false))}
           </>
         )}
       </div>
 
       <div className="meeting-controls">
-        <button className={`btn ${isCameraOn ? '' : 'btn-danger'}`} onClick={toggleCamera}>
+        <button className={`btn ${isCameraOn ? '' : 'btn-danger'}`} onClick={toggleCamera} type="button">
           {isCameraOn ? <><FaVideo /> Stop Video</> : <><FaVideoSlash /> Start Video</>}
         </button>
-        <button className={`btn ${isMicOn ? '' : 'btn-danger'}`} onClick={toggleMic}>
+        <button className={`btn ${isMicOn ? '' : 'btn-danger'}`} onClick={toggleMic} type="button">
           {isMicOn ? <><FaMicrophone /> Mute</> : <><FaMicrophoneSlash /> Unmute</>}
         </button>
-        <button className="btn" onClick={isSharingScreen ? stopScreenShare : startScreenShare}>
-          {isSharingScreen ? "Stop Sharing" : "Share Screen"}
+        <button className="btn" onClick={isSharingScreen ? stopScreenShare : startScreenShare} type="button">
+          {isSharingScreen ? 'Stop Sharing' : 'Share Screen'}
         </button>
-        <button className="btn btn-danger" onClick={leaveMeeting}>
+        <button className="btn btn-danger" onClick={leaveMeeting} type="button">
           Leave
         </button>
       </div>
