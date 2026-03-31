@@ -61,6 +61,14 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <FaComments className="nav-item-icon" />
             <span className="nav-item-label">Chat</span>
           </button>
+          <button
+            type="button"
+            className="nav-item sidebar-guide-btn"
+            onClick={() => setIsGuideOpen(true)}
+          >
+            <FaBook className="nav-item-icon" />
+            <span className="nav-item-label">User Guide</span>
+          </button>
         </nav>
 
         <div style={{ flex: 1 }} />

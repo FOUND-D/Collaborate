@@ -155,6 +155,21 @@
   font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden;
   transition: background 0.13s, color 0.13s; position: relative;
 }
+
+.sidebar-guide-btn {
+  width: calc(100% - 16px);
+  border: none;
+  background: transparent;
+  font: inherit;
+}
+
+.sidebar-closed .sidebar-guide-btn {
+  justify-content: center;
+  padding: 8px 0;
+  gap: 0;
+  width: 100%;
+}
+
 .nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(241,245,249,0.78); }
 .nav-item.active { background: rgba(59,130,246,0.11); color: #f1f5f9; }
 .nav-item.active::before {
