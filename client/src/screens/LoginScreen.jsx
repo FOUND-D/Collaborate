@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
+import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaMoon, FaSun } from 'react-icons/fa';
 import { login } from '../actions/userActions';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/auth.css';
 
 const LoginScreen = () => {
@@ -16,6 +17,8 @@ const LoginScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { loading, error, userInfo } = userLogin;
+  const { setTheme } = useTheme();
+  const [authTheme, setAuthTheme] = useState('dark');
 
   const redirect = params.get('redirect') || '/dashboard';
   const provisioned = params.get('provisioned') === '1';
@@ -78,7 +81,20 @@ const LoginScreen = () => {
         </div>
       </aside>
 
-      <section className="auth-right">
+      <section className={`auth-right auth-theme-${authTheme}`}>
+        <button
+          type="button"
+          className="auth-theme-toggle"
+          onClick={() => {
+            const nextTheme = authTheme === 'dark' ? 'light' : 'dark';
+            setAuthTheme(nextTheme);
+            setTheme(nextTheme);
+          }}
+          aria-label={authTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        >
+          {authTheme === 'dark' ? <FaSun size={14} /> : <FaMoon size={14} />}
+          <span>{authTheme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+        </button>
         <div className="auth-form-wrap">
           <div className="auth-form-header">
             <h1>Welcome back</h1>

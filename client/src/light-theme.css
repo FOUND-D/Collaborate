@@ -219,6 +219,195 @@ body.light-theme {
     radial-gradient(at 50% 100%, rgba(124, 166, 126, 0.08) 0px, transparent 50%);
 }
 
+.light-theme .auth-page.auth-theme-dark {
+  background: #080a0c;
+  color: #f1f5f9;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-left {
+  background: #0f1114;
+  border-right-color: rgba(255, 255, 255, 0.06);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-left::before {
+  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.09) 0%, transparent 65%);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-left::after {
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.05) 0%, transparent 65%);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-logo-icon {
+  background: #3b82f6;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-logo span,
+.light-theme .auth-page.auth-theme-dark .auth-left-quote,
+.light-theme .auth-page.auth-theme-dark .auth-form-header h1,
+.light-theme .auth-page.auth-theme-dark .auth-form-header p,
+.light-theme .auth-page.auth-theme-dark .auth-form-header p a,
+.light-theme .auth-page.auth-theme-dark .auth-switch-text,
+.light-theme .auth-page.auth-theme-dark .auth-switch-text a,
+.light-theme .auth-page.auth-theme-dark .field-label,
+.light-theme .auth-page.auth-theme-dark .field-row-between,
+.light-theme .auth-page.auth-theme-dark .field-row-between .field-label,
+.light-theme .auth-page.auth-theme-dark .field-input,
+.light-theme .auth-page.auth-theme-dark .field-input-wrap,
+.light-theme .auth-page.auth-theme-dark .field-toggle-btn,
+.light-theme .auth-page.auth-theme-dark .auth-submit-btn,
+.light-theme .auth-page.auth-theme-dark .auth-google-btn,
+.light-theme .auth-page.auth-theme-dark .auth-left-eyebrow,
+.light-theme .auth-page.auth-theme-dark .auth-left-companies span,
+.light-theme .auth-page.auth-theme-dark .auth-attribution-role,
+.light-theme .auth-page.auth-theme-dark .auth-feature-list li,
+.light-theme .auth-page.auth-theme-dark .auth-proof-text,
+.light-theme .auth-page.auth-theme-dark .field-forgot,
+.light-theme .auth-page.auth-theme-dark .auth-terms {
+  color: inherit;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-left-eyebrow,
+.light-theme .auth-page.auth-theme-dark .auth-left-companies span,
+.light-theme .auth-page.auth-theme-dark .auth-attribution-role,
+.light-theme .auth-page.auth-theme-dark .auth-feature-list li,
+.light-theme .auth-page.auth-theme-dark .auth-proof-text,
+.light-theme .auth-page.auth-theme-dark .field-forgot {
+  color: rgba(241, 245, 249, 0.35);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-form-header p,
+.light-theme .auth-page.auth-theme-dark .auth-switch-text,
+.light-theme .auth-page.auth-theme-dark .auth-terms {
+  color: rgba(241, 245, 249, 0.22);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-form-header p a,
+.light-theme .auth-page.auth-theme-dark .auth-switch-text a,
+.light-theme .auth-page.auth-theme-dark .field-forgot {
+  color: #3b82f6;
+}
+
+.light-theme .auth-page.auth-theme-dark .field-input {
+  background: #0f1114;
+  border-color: rgba(255, 255, 255, 0.09);
+  color: #f1f5f9;
+}
+
+.light-theme .auth-page.auth-theme-dark .field-input::placeholder {
+  color: rgba(241, 245, 249, 0.22);
+}
+
+.light-theme .auth-page.auth-theme-dark .field-input:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: #111418;
+}
+
+.light-theme .auth-page.auth-theme-dark .field-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.13);
+  background: #111418;
+}
+
+.light-theme .auth-page.auth-theme-dark .field-input.is-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+}
+
+.light-theme .auth-page.auth-theme-dark .field-error-msg {
+  color: #f87171;
+}
+
+.light-theme .auth-page.auth-theme-dark .field-info-msg {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.24);
+}
+
+.light-theme .auth-page.auth-theme-dark .field-toggle-btn {
+  color: rgba(241, 245, 249, 0.28);
+}
+
+.light-theme .auth-page.auth-theme-dark .field-toggle-btn:hover {
+  color: rgba(241, 245, 249, 0.55);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-zone {
+  background: #0f1114;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-zone:hover {
+  border-color: rgba(59, 130, 246, 0.40);
+  background: #111418;
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-icon {
+  background: rgba(59, 130, 246, 0.10);
+  border-color: rgba(59, 130, 246, 0.20);
+  color: #60a5fa;
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-label {
+  color: rgba(241, 245, 249, 0.55);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-sublabel {
+  color: rgba(241, 245, 249, 0.25);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-zone.has-preview {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-preview-img {
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.light-theme .auth-page.auth-theme-dark .upload-preview-label {
+  color: rgba(241, 245, 249, 0.40);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-submit-btn {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.28);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-submit-btn:hover {
+  background: #2563eb;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-divider::before,
+.light-theme .auth-page.auth-theme-dark .auth-divider::after {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-divider span {
+  color: rgba(241, 245, 249, 0.30);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-google-btn {
+  background: #0f1114;
+  border-color: rgba(255, 255, 255, 0.09);
+  color: rgba(241, 245, 249, 0.75);
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-google-btn:hover {
+  background: #16191e;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-avatar {
+  border-color: #0f1114;
+}
+
+.light-theme .auth-page.auth-theme-dark .auth-avatar-count {
+  background: #1a1d23;
+  color: rgba(241, 245, 249, 0.5);
+  border-color: #0f1114;
+}
+
 .light-theme .auth-form-side {
   background: rgba(255, 250, 241, 0.94);
   border-color: rgba(47, 111, 78, 0.12);

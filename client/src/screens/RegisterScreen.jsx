@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload } from 'react-icons/fa';
+import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaMoon, FaSun, FaUpload } from 'react-icons/fa';
 import { register } from '../actions/userActions';
 import Loader from '../components/Loader';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/auth.css';
 
 const RegisterScreen = () => {
@@ -25,6 +26,8 @@ const RegisterScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const { setTheme } = useTheme();
+  const [authTheme, setAuthTheme] = useState('dark');
 
   const userRegister = useSelector((state) => state.userRegister);
   const { loading, error } = userRegister;
@@ -113,7 +116,20 @@ const RegisterScreen = () => {
         </div>
       </aside>
 
-      <section className="auth-right">
+      <section className={`auth-right auth-theme-${authTheme}`}>
+        <button
+          type="button"
+          className="auth-theme-toggle"
+          onClick={() => {
+            const nextTheme = authTheme === 'dark' ? 'light' : 'dark';
+            setAuthTheme(nextTheme);
+            setTheme(nextTheme);
+          }}
+          aria-label={authTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        >
+          {authTheme === 'dark' ? <FaSun size={14} /> : <FaMoon size={14} />}
+          <span>{authTheme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+        </button>
         <div className="auth-form-wrap">
           <div className="auth-form-header">
             <h1>Create your account</h1>
