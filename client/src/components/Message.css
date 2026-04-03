@@ -39,9 +39,9 @@
 }
 
 .custom-alert-danger {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.22);
-  color: #fecaca;
+  background: #ef44441f;
+  border-color: #ef444438;
+  color: #ba0a0a;
 }
 
 .custom-alert-warning {
