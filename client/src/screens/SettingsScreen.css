@@ -15,10 +15,10 @@
 .settings-title {
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    margin-bottom: .5rem;
+    background: linear-gradient(284deg, #fff, #a5b4fc 58.4%);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color: rgba(210, 138, 138, 0);
 }
 
 .settings-subtitle {

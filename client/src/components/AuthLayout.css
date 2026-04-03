@@ -226,6 +226,12 @@
   color: #b4533c;
 }
 
+.light-theme .auth-link,
+.light-theme .project-create-gate-link,
+.light-theme a {
+  color: #ffffff;
+}
+
 .light-theme .auth-page {
   background: #f7f2e7;
 }
