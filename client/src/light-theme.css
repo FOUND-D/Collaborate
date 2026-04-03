@@ -39,8 +39,8 @@ body.light-theme {
 
 .light-theme button {
   background-color: #f1eadf;
-  border-color: rgba(47, 111, 78, 0.14);
-  color: #dfe9e4;
+  border-color: #2f6f4e24;
+  color: #dee8e2;
 }
 
 .light-theme button:hover {
