@@ -40,7 +40,7 @@ body.light-theme {
 .light-theme button {
   background-color: #f1eadf;
   border-color: #2f6f4e24;
-  color: #dee8e2;
+  color: #000000;
 }
 
 .light-theme button:hover {
@@ -844,9 +844,17 @@ body.light-theme {
 }
 
 .light-theme .lp-eyebrow {
-  border-color: rgba(47, 111, 78, 0.18);
-  border-left-color: #2f6f4e;
-  box-shadow: inset 0 0 0 1px rgba(47, 111, 78, 0.06), 0 0 24px rgba(47, 111, 78, 0.06);
+  border-color: #2f6f4e2e;
+  border-left-color: #6dab8b;
+  box-shadow: inset 0 0 0 1px #2f6f4e0f, 0 0 24px #2f6f4e0f;
+}
+
+.light-theme .lp-capability-pill {
+  color: rgba(0, 0, 0, 0.86);
+}
+
+.light-theme .lp-workflow-number {
+  color: rgba(0, 0, 0, 0.82);
 }
 
 .light-theme .lp-title-shimmer {
