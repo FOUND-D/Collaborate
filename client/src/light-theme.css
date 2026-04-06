@@ -843,6 +843,19 @@ body.light-theme {
   box-shadow: 0 18px 34px rgba(47, 111, 78, 0.22);
 }
 
+.light-theme .lp-theme-toggle {
+  background: rgba(255, 250, 241, 0.92);
+  border-color: rgba(47, 111, 78, 0.14);
+  color: #1f2a24;
+  box-shadow: 0 10px 22px rgba(31, 42, 36, 0.08);
+}
+
+.light-theme .lp-theme-toggle:hover {
+  background: rgba(255, 250, 241, 0.98);
+  border-color: rgba(47, 111, 78, 0.22);
+  box-shadow: 0 12px 26px rgba(31, 42, 36, 0.10);
+}
+
 .light-theme .lp-eyebrow {
   border-color: #2f6f4e2e;
   border-left-color: #6dab8b;

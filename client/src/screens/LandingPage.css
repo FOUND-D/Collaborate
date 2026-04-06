@@ -170,6 +170,37 @@
   gap: 12px;
 }
 
+.lp-theme-toggle {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--lp-text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.lp-theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.lp-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.24);
+}
+
 .lp-nav-link {
   position: relative;
   color: var(--lp-muted);
@@ -931,9 +962,11 @@
     gap: 10px;
   }
 
+  .lp-mobile-actions .lp-theme-toggle,
   .lp-mobile-actions .lp-login-btn,
   .lp-mobile-actions .lp-signup-btn {
     justify-content: center;
+    width: 100%;
   }
 
   .lp-hero {
