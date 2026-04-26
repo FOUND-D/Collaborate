@@ -7,8 +7,26 @@ import Loader from '../components/Loader';
 import '../styles/auth.css';
 
 const RegisterScreen = () => {
+  const departmentOptions = [
+    'Computer Science',
+    'Information Technology',
+    'Electronics',
+    'Mechanical',
+    'Civil',
+    'Business',
+    'Design',
+    'Other',
+  ];
+  const roleOptions = [
+    { value: 'student', label: 'Student' },
+    { value: 'faculty', label: 'Faculty' },
+    { value: 'admin', label: 'Admin' },
+  ];
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [department, setDepartment] = useState('');
+  const [role, setRole] = useState('student');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -61,9 +79,13 @@ const RegisterScreen = () => {
       setMessage('Passwords do not match');
       return;
     }
+    if (!department) {
+      setMessage('Please select your department');
+      return;
+    }
 
     setMessage(null);
-    dispatch(register(name, email, password, image));
+    dispatch(register(name, email, password, image, department, role));
   };
 
   return (
@@ -146,6 +168,35 @@ const RegisterScreen = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="department">Department</label>
+              <select
+                id="department"
+                className="field-input"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+              >
+                <option value="">Select department</option>
+                {departmentOptions.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="role">Role</label>
+              <select
+                id="role"
+                className="field-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </div>
 
             <div className="field-group">

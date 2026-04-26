@@ -22,6 +22,7 @@ import CreateOrganisationScreen from './screens/CreateOrganisationScreen';
 import OrganisationDetailScreen from './screens/OrganisationDetailScreen';
 import { MembersPage, RolesPage, CompliancePage, CustomFieldsPage, AuditLogPage, CompleteProfilePage } from './screens/OrgManagementPages';
 import AcceptInviteScreen from './screens/AcceptInviteScreen';
+import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
 import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
@@ -137,7 +138,11 @@ const AppContent = () => {
               <Route path="/teams" element={<TeamScreen />} />
               <Route path="/team/:id" element={<TeamDetailsScreen />} />
               <Route path="/team/:id/meeting" element={<MeetingScreen />} />
+              <Route path="/team/:id/session" element={<MeetingScreen />} />
               <Route path="/tasks" element={<TaskScreen />} />
+              <Route path="/exchange-board" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Exchange Board" description="This Phase 1 area is reserved for the skill exchange board experience." /></ProtectedRoute>} />
+              <Route path="/sessions" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Sessions" description="This Phase 1 area will hold the renamed sessions workflow and agenda experience." /></ProtectedRoute>} />
+              <Route path="/resources" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Resources" description="This Phase 1 area will hold reusable academic resources and supporting material." /></ProtectedRoute>} />
               <Route path="/task/create" element={<TaskEditScreen />} />
               <Route path="/task/:id/edit" element={<TaskEditScreen />} />
               <Route path="/project/create" element={<ProjectCreateScreen />} />
