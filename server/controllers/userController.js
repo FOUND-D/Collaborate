@@ -3,10 +3,10 @@ const generateToken = require('../utils/generateToken');
 const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = require('../lib/repo');
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, techStack, profileImage } = req.body;
+  const { name, email, password, role, department, techStack, profileImage } = req.body;
   const existing = await supabase.from('users').select('id').eq('email', email).maybeSingle();
   if (existing.data) return res.status(400).json({ message: 'User already exists' });
-  const user = await createUser({ name, email, password, role, techStack, profileImage });
+  const user = await createUser({ name, email, password, role, department, techStack, profileImage });
   res.status(201).json({ ...user, token: generateToken(user._id) });
 });
 

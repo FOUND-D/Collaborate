@@ -10,6 +10,10 @@ const toPublicUser = (u) => {
     name: u.name,
     email: u.email,
     role: u.role,
+    department: u.department || '',
+    yearOfStudy: u.year_of_study ?? null,
+    credits: u.credits ?? 50,
+    portfolioSlug: u.portfolio_slug || '',
     profileImage: u.profile_image || '',
     mobileNumber: u.mobile_number || '',
     bio: u.bio || '',
@@ -120,6 +124,7 @@ const toPublicMeeting = (meeting) => {
     roomId: meeting.room_id,
     status: meeting.status,
     startedBy: meeting.started_by,
+    agenda: meeting.agenda || '',
     createdAt: meeting.created_at,
     updatedAt: meeting.updated_at,
   };
@@ -137,10 +142,10 @@ const getUserByEmail = async (email) => {
   return data ? toPublicUser(data) : null;
 };
 
-const createUser = async ({ name, email, password, role, techStack, profileImage }) => {
+const createUser = async ({ name, email, password, role, department, techStack, profileImage }) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const { data, error } = await supabase.from('users').insert({
-    name, email, password_hash: passwordHash, role: role || 'Developer',
+    name, email, password_hash: passwordHash, role: role || 'student', department: department || null,
     tech_stack: techStack || [], profile_image: profileImage || '', mobile_number: '', bio: '', designation: '', custom_fields: {},
   }).select('*').single();
   if (error) throw error;
@@ -159,6 +164,10 @@ const updateUser = async (id, patch) => {
   if (patch.name !== undefined) updates.name = patch.name;
   if (patch.email !== undefined) updates.email = patch.email;
   if (patch.role !== undefined) updates.role = patch.role;
+  if (patch.department !== undefined) updates.department = patch.department;
+  if (patch.yearOfStudy !== undefined) updates.year_of_study = patch.yearOfStudy;
+  if (patch.credits !== undefined) updates.credits = patch.credits;
+  if (patch.portfolioSlug !== undefined) updates.portfolio_slug = patch.portfolioSlug;
   if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
   if (patch.mobileNumber !== undefined) updates.mobile_number = patch.mobileNumber;
   if (patch.bio !== undefined) updates.bio = patch.bio;
