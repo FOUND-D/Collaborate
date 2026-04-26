@@ -126,6 +126,25 @@ const requireOrgMember = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const requireRole = (allowedRoles = []) => asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'NOT_AUTHENTICATED' });
+  }
+
+  const normalizedAllowedRoles = allowedRoles.map((role) => String(role).toLowerCase());
+  const userRole = String(req.user.role || '').toLowerCase();
+
+  if (!normalizedAllowedRoles.includes(userRole)) {
+    return res.status(403).json({
+      error: 'FORBIDDEN',
+      role: req.user.role || null,
+      allowedRoles,
+    });
+  }
+
+  next();
+});
+
 const requireOrgPermission = (flag) => asyncHandler(async (req, res, next) => {
   const orgId = req.params.orgId || req.params.id;
   console.log(`[requireOrgPermission] START - flag:${flag} org:${orgId} user:${req.user?._id}`);
@@ -209,4 +228,11 @@ const requireOrgCompliance = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { PERMISSION_FLAGS, requireOrgMember, requireOrgPermission, enforceOrgCompliance, requireOrgCompliance };
+module.exports = {
+  PERMISSION_FLAGS,
+  requireRole,
+  requireOrgMember,
+  requireOrgPermission,
+  enforceOrgCompliance,
+  requireOrgCompliance,
+};

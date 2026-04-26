@@ -185,6 +185,53 @@
 .sidebar-bottom {
   flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.05); padding: 8px 8px 10px; display: flex; flex-direction: column; gap: 1px; overflow: hidden;
 }
+.sidebar-credit-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 8px 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(16,185,129,0.16));
+  border: 1px solid rgba(96,165,250,0.18);
+  overflow: hidden;
+}
+.sidebar-credit-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  color: #f8fafc;
+  flex-shrink: 0;
+}
+.sidebar-credit-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-credit-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(241,245,249,0.56);
+}
+.sidebar-credit-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.1;
+}
+.sidebar-closed .sidebar-credit-chip {
+  justify-content: center;
+  padding: 8px 0;
+}
+.sidebar-closed .sidebar-credit-copy {
+  display: none;
+}
 .sidebar-user-row {
   display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px;
   cursor: pointer; transition: background 0.13s; overflow: hidden;

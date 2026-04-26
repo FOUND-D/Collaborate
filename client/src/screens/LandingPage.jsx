@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaMoon, FaSun } from 'react-icons/fa';
+import { useTheme } from '../context/ThemeContext';
 import './LandingPage.css';
 
 const navItems = [
@@ -144,6 +146,7 @@ const CountUpStat = ({ label, value, prefix = '', suffix = '' }) => {
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const stats = useMemo(() => statConfig, []);
+  const { theme, toggleTheme } = useTheme();
 
   const scrollToMockup = () => {
     document.getElementById('hero-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -168,6 +171,15 @@ const LandingPage = () => {
             </nav>
 
             <div className="lp-nav-actions">
+              <button
+                type="button"
+                className="lp-theme-toggle"
+                onClick={toggleTheme}
+                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {theme === 'dark' ? <FaSun size={14} /> : <FaMoon size={14} />}
+                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+              </button>
               <Link to="/login" className="lp-login-btn">Log In</Link>
               <Link to="/register" className="lp-signup-btn">Get Started</Link>
             </div>
@@ -190,6 +202,15 @@ const LandingPage = () => {
               </a>
             ))}
             <div className="lp-mobile-actions">
+              <button
+                type="button"
+                className="lp-theme-toggle"
+                onClick={toggleTheme}
+                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {theme === 'dark' ? <FaSun size={14} /> : <FaMoon size={14} />}
+                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+              </button>
               <Link to="/login" className="lp-login-btn" onClick={() => setMenuOpen(false)}>Log In</Link>
               <Link to="/register" className="lp-signup-btn" onClick={() => setMenuOpen(false)}>Get Started</Link>
             </div>

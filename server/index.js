@@ -44,8 +44,8 @@ const socketToTeamMap = {};
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  const resolveMeetingTeamId = (meeting) => meeting?.team || meeting?.teamId || meeting?.team_id;
-  const resolveMeetingUserId = (payload) => payload?.user?._id || payload?.userId || payload?.user?._id;
+  const resolveSessionTeamId = (session) => session?.team || session?.teamId || session?.team_id;
+  const resolveSessionUserId = (payload) => payload?.user?._id || payload?.userId || payload?.user?._id;
 
   socket.on('joinTeamRoom', (teamId) => {
     socket.join(teamId);
@@ -93,17 +93,33 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('startMeeting', (meeting) => {
-    const teamId = resolveMeetingTeamId(meeting);
+  socket.on('startSession', (session) => {
+    const teamId = resolveSessionTeamId(session);
     if (!teamId) return;
     participants[teamId] = {};
+    io.to(teamId).emit('sessionStarted', session);
+  });
+
+  socket.on('startMeeting', (meeting) => {
+    const teamId = resolveSessionTeamId(meeting);
+    if (!teamId) return;
+    participants[teamId] = {};
+    io.to(teamId).emit('sessionStarted', meeting);
     io.to(teamId).emit('meetingStarted', meeting);
   });
 
-  socket.on('endMeeting', (meeting) => {
-    const teamId = resolveMeetingTeamId(meeting);
+  socket.on('endSession', (session) => {
+    const teamId = resolveSessionTeamId(session);
     if (!teamId) return;
     delete participants[teamId];
+    io.to(teamId).emit('sessionEnded', session);
+  });
+
+  socket.on('endMeeting', (meeting) => {
+    const teamId = resolveSessionTeamId(meeting);
+    if (!teamId) return;
+    delete participants[teamId];
+    io.to(teamId).emit('sessionEnded', meeting);
     io.to(teamId).emit('meetingEnded', meeting);
   });
 
@@ -122,7 +138,7 @@ io.on('connection', (socket) => {
 
   socket.on('userLeft', (payload) => {
     const teamId = payload?.teamId;
-    const userId = resolveMeetingUserId(payload);
+    const userId = resolveSessionUserId(payload);
     if (participants[teamId] && userId && participants[teamId][userId]) {
       delete participants[teamId][userId];
       io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));

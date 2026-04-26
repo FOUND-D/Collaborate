@@ -1,15 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaMoon, FaSun, FaUpload } from 'react-icons/fa';
+import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload } from 'react-icons/fa';
 import { register } from '../actions/userActions';
 import Loader from '../components/Loader';
-import { useTheme } from '../context/ThemeContext';
 import '../styles/auth.css';
 
 const RegisterScreen = () => {
+  const departmentOptions = [
+    'Computer Science',
+    'Information Technology',
+    'Electronics',
+    'Mechanical',
+    'Civil',
+    'Business',
+    'Design',
+    'Other',
+  ];
+  const roleOptions = [
+    { value: 'student', label: 'Student' },
+    { value: 'faculty', label: 'Faculty' },
+    { value: 'admin', label: 'Admin' },
+  ];
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [department, setDepartment] = useState('');
+  const [role, setRole] = useState('student');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,8 +43,6 @@ const RegisterScreen = () => {
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
-  const { setTheme } = useTheme();
-  const [authTheme, setAuthTheme] = useState('dark');
 
   const userRegister = useSelector((state) => state.userRegister);
   const { loading, error } = userRegister;
@@ -64,9 +79,13 @@ const RegisterScreen = () => {
       setMessage('Passwords do not match');
       return;
     }
+    if (!department) {
+      setMessage('Please select your department');
+      return;
+    }
 
     setMessage(null);
-    dispatch(register(name, email, password, image));
+    dispatch(register(name, email, password, image, department, role));
   };
 
   return (
@@ -116,20 +135,7 @@ const RegisterScreen = () => {
         </div>
       </aside>
 
-      <section className={`auth-right auth-theme-${authTheme}`}>
-        <button
-          type="button"
-          className="auth-theme-toggle"
-          onClick={() => {
-            const nextTheme = authTheme === 'dark' ? 'light' : 'dark';
-            setAuthTheme(nextTheme);
-            setTheme(nextTheme);
-          }}
-          aria-label={authTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-        >
-          {authTheme === 'dark' ? <FaSun size={14} /> : <FaMoon size={14} />}
-          <span>{authTheme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
-        </button>
+      <section className="auth-right">
         <div className="auth-form-wrap">
           <div className="auth-form-header">
             <h1>Create your account</h1>
@@ -162,6 +168,35 @@ const RegisterScreen = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="department">Department</label>
+              <select
+                id="department"
+                className="field-input"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+              >
+                <option value="">Select department</option>
+                {departmentOptions.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="role">Role</label>
+              <select
+                id="role"
+                className="field-input"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </div>
 
             <div className="field-group">

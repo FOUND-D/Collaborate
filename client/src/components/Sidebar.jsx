@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
 import { BACKEND_URL } from '../config/runtime';
@@ -14,6 +14,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
   const navigate = useNavigate();
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const creditBalance = userInfo?.credits ?? 50;
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -57,6 +58,18 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <FaTasks className="nav-item-icon" />
             <span className="nav-item-label">Tasks</span>
           </NavLink>
+          <NavLink to="/exchange-board" className={getNavLinkClass}>
+            <FaExchangeAlt className="nav-item-icon" />
+            <span className="nav-item-label">Exchange Board</span>
+          </NavLink>
+          <NavLink to="/sessions" className={getNavLinkClass}>
+            <FaVideo className="nav-item-icon" />
+            <span className="nav-item-label">Sessions</span>
+          </NavLink>
+          <NavLink to="/resources" className={getNavLinkClass}>
+            <FaFolderOpen className="nav-item-icon" />
+            <span className="nav-item-label">Resources</span>
+          </NavLink>
           <button className="nav-item" onClick={toggleChat}>
             <FaComments className="nav-item-icon" />
             <span className="nav-item-label">Chat</span>
@@ -84,6 +97,15 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
         </NavLink>
 
         <div className="sidebar-bottom">
+          <div className="sidebar-credit-chip" title={`Credits: ${creditBalance}`}>
+            <div className="sidebar-credit-icon">
+              <FaCoins size={11} />
+            </div>
+            <div className="sidebar-credit-copy">
+              <span className="sidebar-credit-label">Credits</span>
+              <span className="sidebar-credit-value">{creditBalance}</span>
+            </div>
+          </div>
           {userInfo && (
             <NavLink to="/profile" className="sidebar-user-row">
               <div className="sidebar-user-avatar">
