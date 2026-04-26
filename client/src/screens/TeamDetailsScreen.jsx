@@ -33,8 +33,8 @@ const TeamDetailsScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const [meeting, setMeeting] = useState(null);
-  const [meetingError, setMeetingError] = useState(null);
+  const [session, setSession] = useState(null);
+  const [sessionError, setSessionError] = useState(null);
   const [orgMembers, setOrgMembers] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [memberActionLoading, setMemberActionLoading] = useState(false);
@@ -61,15 +61,15 @@ const TeamDetailsScreen = () => {
     const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
-    const fetchMeeting = async () => {
+    const fetchSession = async () => {
       try {
-        const { data } = await api.get(`/api/teams/${id}/meetings`);
-        setMeeting(data);
+        const { data } = await api.get(`/api/teams/${id}/sessions`);
+        setSession(data);
       } catch {
-        // No active meeting found
+        // No active session found
       }
     };
-    fetchMeeting();
+    fetchSession();
 
     return () => {
       socketRef.current = null;
@@ -82,17 +82,17 @@ const TeamDetailsScreen = () => {
     if (socket && id) {
       socket.emit('joinTeamRoom', id);
 
-      socket.on('meetingStarted', (newMeeting) => {
-        setMeeting(newMeeting);
+      socket.on('sessionStarted', (newSession) => {
+        setSession(newSession);
       });
 
-      socket.on('meetingEnded', () => {
-        setMeeting(null);
+      socket.on('sessionEnded', () => {
+        setSession(null);
       });
 
       return () => {
-        socket.off('meetingStarted');
-        socket.off('meetingEnded');
+        socket.off('sessionStarted');
+        socket.off('sessionEnded');
       };
     }
   }, [id]);
@@ -134,32 +134,32 @@ const TeamDetailsScreen = () => {
     setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
   };
 
-  const startMeetingHandler = async () => {
+  const startSessionHandler = async () => {
     try {
-      const { data } = await api.post(`/api/teams/${id}/meetings`, {});
-      socketRef.current?.emit('startMeeting', data);
-      setMeeting(data);
-      navigate(`/team/${id}/meeting`);
+      const { data } = await api.post(`/api/teams/${id}/sessions`, {});
+      socketRef.current?.emit('startSession', data);
+      setSession(data);
+      navigate(`/team/${id}/session`);
     } catch (error) {
       const message =
         error.response && error.response.data.message
           ? error.response.data.message
           : error.message;
-      setMeetingError(message);
+      setSessionError(message);
     }
   };
 
-  const endMeetingHandler = async () => {
+  const endSessionHandler = async () => {
     try {
-      await api.put(`/api/teams/${id}/meetings/${meeting._id}`, {});
-      socketRef.current?.emit('endMeeting', meeting);
-      setMeeting(null);
+      await api.put(`/api/teams/${id}/sessions/${session._id}`, {});
+      socketRef.current?.emit('endSession', session);
+      setSession(null);
     } catch (error) {
       const message =
         error.response && error.response.data.message
           ? error.response.data.message
           : error.message;
-      setMeetingError(message);
+      setSessionError(message);
     }
   };
 
@@ -206,21 +206,21 @@ const TeamDetailsScreen = () => {
                 {copied ? <FaCheck style={{ color: 'green' }} /> : <FaRegCopy />}
               </button>
             </div>
-            {meetingError && <Message variant="danger">{meetingError}</Message>}
-            {meeting ? (
+            {sessionError && <Message variant="danger">{sessionError}</Message>}
+            {session ? (
               <>
-                <Link to={`/team/${id}/meeting`} className="btn btn-primary">
-                  Join Meeting
+                <Link to={`/team/${id}/session`} className="btn btn-primary">
+                  Join Session
                 </Link>
-                {meeting.startedBy === userInfo._id && (
-                  <button className="btn btn-danger" onClick={endMeetingHandler}>
-                    End Meeting
+                {session.startedBy === userInfo._id && (
+                  <button className="btn btn-danger" onClick={endSessionHandler}>
+                    End Session
                   </button>
                 )}
               </>
             ) : (
-              <button className="btn btn-primary" onClick={startMeetingHandler}>
-                Start Meeting
+              <button className="btn btn-primary" onClick={startSessionHandler}>
+                Start Session
               </button>
             )}
           </div>

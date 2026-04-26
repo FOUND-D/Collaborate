@@ -64,6 +64,10 @@ const MeetingScreen = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [mainScreenUserId, setMainScreenUserId] = useState(null);
+  const [agenda, setAgenda] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoinedSession, setHasJoinedSession] = useState(false);
+  const [sessionError, setSessionError] = useState('');
 
   const socketRef = useRef(null);
   const userInfoRef = useRef(userInfo);
@@ -167,6 +171,37 @@ const MeetingScreen = () => {
   useEffect(() => {
     if (!userInfo?.token) {
       navigate('/login');
+      return undefined;
+    }
+
+    let isCancelled = false;
+
+    const fetchMeeting = async () => {
+      try {
+        const { data } = await axios.get(`/api/teams/${id}/sessions`, {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        });
+        if (!isCancelled) {
+          setMeeting(data);
+          setAgenda(data?.agenda || '');
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setSessionError('No active session found for this team.');
+          console.error('Failed to fetch session', error);
+        }
+      }
+    };
+
+    fetchMeeting();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id, navigate, userInfo?.token]);
+
+  useEffect(() => {
+    if (!hasJoinedSession || !userInfo?.token) {
       return undefined;
     }
 
@@ -281,21 +316,6 @@ const MeetingScreen = () => {
     socket.on('sharing-screen', handleSharingScreen);
     socket.on('stop-sharing-screen', handleStopSharingScreen);
 
-    const fetchMeeting = async () => {
-      try {
-        const { data } = await axios.get(`/api/teams/${id}/meetings`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        });
-        if (!isCancelled) {
-          setMeeting(data);
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          console.error('Failed to fetch meeting', error);
-        }
-      }
-    };
-
     const initMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -321,7 +341,6 @@ const MeetingScreen = () => {
       }
     };
 
-    fetchMeeting();
     initMedia();
 
     return () => {
@@ -358,7 +377,7 @@ const MeetingScreen = () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [closePeerConnection, createPeerConnection, id, joinRoom, navigate, userInfo?.token]);
+  }, [closePeerConnection, createPeerConnection, hasJoinedSession, id, joinRoom, userInfo?.token]);
 
   const toggleCamera = useCallback(() => {
     const track = localStreamRef.current?.getVideoTracks()[0];
@@ -444,6 +463,28 @@ const MeetingScreen = () => {
     navigate(`/team/${id}`);
   }, [id, navigate]);
 
+  const joinSession = useCallback(async () => {
+    if (!meeting?._id || !userInfo?.token) return;
+
+    setIsJoining(true);
+    setSessionError('');
+
+    try {
+      const { data } = await axios.patch(
+        `/api/teams/${id}/sessions/${meeting._id}/agenda`,
+        { agenda },
+        { headers: { Authorization: `Bearer ${userInfo.token}` } }
+      );
+      setMeeting(data);
+      setAgenda(data?.agenda || '');
+      setHasJoinedSession(true);
+    } catch (error) {
+      setSessionError(error.response?.data?.message || 'Failed to save the session agenda.');
+    } finally {
+      setIsJoining(false);
+    }
+  }, [agenda, id, meeting?._id, userInfo?.token]);
+
   const renderTile = (stream, userId, isLocal) => {
     const isCam = isLocal ? isCameraOn : remoteMediaStatus[userId]?.cameraOn;
     const isMic = isLocal ? isMicOn : remoteMediaStatus[userId]?.micOn;
@@ -476,10 +517,57 @@ const MeetingScreen = () => {
     );
   };
 
+  if (!hasJoinedSession) {
+    return (
+      <div className="meeting-screen-container">
+        <div className="meeting-header workspace-surface">
+          <h1 className="workspace-page-title">{meeting ? `Session: ${meeting.roomId}` : 'Session setup'}</h1>
+          <p className="workspace-page-subtitle">
+            {meeting ? 'Add the agenda before joining the live session.' : 'Preparing the live session.'}
+          </p>
+        </div>
+
+        <div className="workspace-surface" style={{ padding: '24px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
+          {sessionError && (
+            <div style={{ marginBottom: '14px', color: '#fda4af' }}>{sessionError}</div>
+          )}
+          <label htmlFor="session-agenda" style={{ display: 'block', marginBottom: '8px', color: '#f1f5f9', fontWeight: 600 }}>
+            Session Agenda
+          </label>
+          <textarea
+            id="session-agenda"
+            value={agenda}
+            onChange={(event) => setAgenda(event.target.value)}
+            placeholder="Add the goal, discussion points, or outcomes for this session."
+            rows={5}
+            style={{
+              width: '100%',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(8,10,12,0.72)',
+              color: '#f8fafc',
+              padding: '14px 16px',
+              resize: 'vertical',
+              marginBottom: '16px',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(`/team/${id}`)}>
+              Back to Team
+            </button>
+            <button className="btn btn-primary workspace-btn" type="button" onClick={joinSession} disabled={!meeting || isJoining}>
+              {isJoining ? 'Joining Session...' : 'Join Session'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="meeting-screen-container">
       <div className="meeting-header workspace-surface">
-        <h1 className="workspace-page-title">{meeting ? `Meeting: ${meeting.roomId}` : 'Connecting...'}</h1>
+        <h1 className="workspace-page-title">{meeting ? `Session: ${meeting.roomId}` : 'Connecting to session...'}</h1>
         <p className="workspace-page-subtitle">{participants.length} Active Participants</p>
       </div>
 
@@ -537,6 +625,11 @@ const MeetingScreen = () => {
       </div>
 
       <div className="meeting-controls workspace-surface">
+        {meeting?.agenda && (
+          <div style={{ width: '100%', color: 'rgba(241,245,249,0.82)', marginBottom: '12px' }}>
+            <strong style={{ color: '#f8fafc' }}>Session Agenda:</strong> {meeting.agenda}
+          </div>
+        )}
         <button className={`btn workspace-btn ${isCameraOn ? 'workspace-btn-secondary' : 'btn-danger workspace-btn-danger'}`} onClick={toggleCamera} type="button">
           {isCameraOn ? <><FaVideo /> Stop Video</> : <><FaVideoSlash /> Start Video</>}
         </button>
