@@ -95,7 +95,7 @@ const MeetingScreen = () => {
     if (!meetingId) return;
     setIsSummarising(true);
     try {
-      const { data } = await api.post(`/api/meetings/${meetingId}/summarise`, {});
+      const { data } = await api.post(`/api/sessions/${meetingId}/summarise`, {});
       setSessionSummary(data?.summary || 'No summary generated.');
     } catch (error) {
       setSessionSummary(error.response?.data?.message || 'Failed to generate the session summary.');
@@ -495,7 +495,7 @@ const MeetingScreen = () => {
     setSessionError('');
 
     try {
-      const { data } = await api.patch(`/api/meetings/${meeting._id}/agenda`, { agenda });
+      const { data } = await api.patch(`/api/sessions/${meeting._id}/agenda`, { agenda });
       setMeeting(data);
       setAgenda(data?.agenda || '');
       setSessionEnded(false);
@@ -511,7 +511,7 @@ const MeetingScreen = () => {
     if (!meeting?._id) return;
     setSessionError('');
     try {
-      await api.put(`/api/meetings/${meeting._id}`, {});
+      await api.put(`/api/sessions/${meeting._id}`, {});
     } catch (error) {
       setSessionError(error.response?.data?.message || 'Failed to end the session.');
     }

@@ -20,6 +20,5 @@ router.route('/:id/join').post(protect, joinTeam).put(protect, updateTeamJoinReq
 router.route('/:id').get(protect, getTeamById).delete(protect, deleteTeam); // New route for deleting a team
 
 router.use('/:teamId/sessions', meetingRoutes);
-router.use('/:teamId/meetings', meetingRoutes);
 
 module.exports = router;
