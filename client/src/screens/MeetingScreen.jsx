@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import io from 'socket.io-client';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
 import { SOCKET_URL } from '../config/runtime';
+import api from '../utils/api';
 import '../styles/workspace.css';
 
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
@@ -68,6 +68,9 @@ const MeetingScreen = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoinedSession, setHasJoinedSession] = useState(false);
   const [sessionError, setSessionError] = useState('');
+  const [sessionSummary, setSessionSummary] = useState('');
+  const [isSummarising, setIsSummarising] = useState(false);
+  const [sessionEnded, setSessionEnded] = useState(false);
 
   const socketRef = useRef(null);
   const userInfoRef = useRef(userInfo);
@@ -85,6 +88,19 @@ const MeetingScreen = () => {
     if (peerConnection) {
       peerConnection.close();
       delete peerConnectionsRef.current[userId];
+    }
+  }, []);
+
+  const summariseSession = useCallback(async (meetingId) => {
+    if (!meetingId) return;
+    setIsSummarising(true);
+    try {
+      const { data } = await api.post(`/api/meetings/${meetingId}/summarise`, {});
+      setSessionSummary(data?.summary || 'No summary generated.');
+    } catch (error) {
+      setSessionSummary(error.response?.data?.message || 'Failed to generate the session summary.');
+    } finally {
+      setIsSummarising(false);
     }
   }, []);
 
@@ -178,12 +194,12 @@ const MeetingScreen = () => {
 
     const fetchMeeting = async () => {
       try {
-        const { data } = await axios.get(`/api/teams/${id}/sessions`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        });
+        const { data } = await api.get(`/api/teams/${id}/sessions`);
         if (!isCancelled) {
           setMeeting(data);
           setAgenda(data?.agenda || '');
+          setSessionEnded(false);
+          setSessionSummary('');
         }
       } catch (error) {
         if (!isCancelled) {
@@ -302,6 +318,13 @@ const MeetingScreen = () => {
       setMainScreenUserId((current) => (current === userId ? null : current));
     };
 
+    const handleSessionEnded = async (endedSession) => {
+      setMeeting(endedSession || null);
+      setHasJoinedSession(false);
+      setSessionEnded(true);
+      await summariseSession(endedSession?._id || meeting?._id);
+    };
+
     socket.on('connect', joinRoom);
     socket.on('participantsUpdated', handleParticipantsUpdated);
     socket.on('user-disconnected', handleUserDisconnected);
@@ -315,6 +338,7 @@ const MeetingScreen = () => {
     socket.on('toggle-mic', handleMicToggle);
     socket.on('sharing-screen', handleSharingScreen);
     socket.on('stop-sharing-screen', handleStopSharingScreen);
+    socket.on('sessionEnded', handleSessionEnded);
 
     const initMedia = async () => {
       try {
@@ -360,6 +384,7 @@ const MeetingScreen = () => {
       socket.off('toggle-mic', handleMicToggle);
       socket.off('sharing-screen', handleSharingScreen);
       socket.off('stop-sharing-screen', handleStopSharingScreen);
+      socket.off('sessionEnded', handleSessionEnded);
 
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -377,7 +402,7 @@ const MeetingScreen = () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [closePeerConnection, createPeerConnection, hasJoinedSession, id, joinRoom, userInfo?.token]);
+  }, [closePeerConnection, createPeerConnection, hasJoinedSession, id, joinRoom, meeting?._id, summariseSession, userInfo?.token]);
 
   const toggleCamera = useCallback(() => {
     const track = localStreamRef.current?.getVideoTracks()[0];
@@ -470,20 +495,27 @@ const MeetingScreen = () => {
     setSessionError('');
 
     try {
-      const { data } = await axios.patch(
-        `/api/teams/${id}/sessions/${meeting._id}/agenda`,
-        { agenda },
-        { headers: { Authorization: `Bearer ${userInfo.token}` } }
-      );
+      const { data } = await api.patch(`/api/meetings/${meeting._id}/agenda`, { agenda });
       setMeeting(data);
       setAgenda(data?.agenda || '');
+      setSessionEnded(false);
       setHasJoinedSession(true);
     } catch (error) {
       setSessionError(error.response?.data?.message || 'Failed to save the session agenda.');
     } finally {
       setIsJoining(false);
     }
-  }, [agenda, id, meeting?._id, userInfo?.token]);
+  }, [agenda, meeting?._id, userInfo?.token]);
+
+  const endSession = useCallback(async () => {
+    if (!meeting?._id) return;
+    setSessionError('');
+    try {
+      await api.put(`/api/meetings/${meeting._id}`, {});
+    } catch (error) {
+      setSessionError(error.response?.data?.message || 'Failed to end the session.');
+    }
+  }, [meeting?._id]);
 
   const renderTile = (stream, userId, isLocal) => {
     const isCam = isLocal ? isCameraOn : remoteMediaStatus[userId]?.cameraOn;
@@ -516,6 +548,32 @@ const MeetingScreen = () => {
       </div>
     );
   };
+
+  if (!hasJoinedSession && sessionEnded) {
+    return (
+      <div className="meeting-screen-container">
+        <div className="meeting-header workspace-surface">
+          <h1 className="workspace-page-title">Session complete</h1>
+          <p className="workspace-page-subtitle">The live session has ended. Review the generated summary below.</p>
+        </div>
+
+        <div className="workspace-surface" style={{ padding: '24px', maxWidth: '780px', margin: '0 auto', width: '100%' }}>
+          {isSummarising ? (
+            <p style={{ color: '#cbd5e1' }}>Generating session summary...</p>
+          ) : (
+            <div style={{ whiteSpace: 'pre-wrap', color: '#e2e8f0', lineHeight: 1.6 }}>
+              {sessionSummary || 'No summary available.'}
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(`/team/${id}`)}>
+              Back to Team
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasJoinedSession) {
     return (
@@ -639,6 +697,11 @@ const MeetingScreen = () => {
         <button className="btn workspace-btn workspace-btn-secondary" onClick={isSharingScreen ? stopScreenShare : startScreenShare} type="button">
           {isSharingScreen ? 'Stop Sharing' : 'Share Screen'}
         </button>
+        {meeting?.startedBy === userInfo?._id && (
+          <button className="btn btn-danger workspace-btn workspace-btn-danger" onClick={endSession} type="button">
+            End Session
+          </button>
+        )}
         <button className="btn btn-danger workspace-btn workspace-btn-danger" onClick={leaveMeeting} type="button">
           Leave
         </button>

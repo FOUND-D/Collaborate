@@ -12,8 +12,14 @@ const toPublicUser = (u) => {
     role: u.role,
     department: u.department || '',
     yearOfStudy: u.year_of_study ?? null,
+    year_of_study: u.year_of_study ?? null,
+    studentId: u.student_id || '',
+    student_id: u.student_id || '',
     credits: u.credits ?? 50,
+    avgRating: u.avg_rating ?? null,
+    avg_rating: u.avg_rating ?? null,
     portfolioSlug: u.portfolio_slug || '',
+    portfolio_slug: u.portfolio_slug || '',
     profileImage: u.profile_image || '',
     mobileNumber: u.mobile_number || '',
     bio: u.bio || '',
@@ -142,10 +148,17 @@ const getUserByEmail = async (email) => {
   return data ? toPublicUser(data) : null;
 };
 
-const createUser = async ({ name, email, password, role, department, techStack, profileImage }) => {
+const createUser = async ({ name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage }) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const { data, error } = await supabase.from('users').insert({
-    name, email, password_hash: passwordHash, role: role || 'student', department: department || null,
+    name,
+    email,
+    password_hash: passwordHash,
+    role: role || 'undergrad',
+    department: department || null,
+    year_of_study: yearOfStudy ?? null,
+    student_id: studentId || null,
+    credits: 50,
     tech_stack: techStack || [], profile_image: profileImage || '', mobile_number: '', bio: '', designation: '', custom_fields: {},
   }).select('*').single();
   if (error) throw error;
@@ -166,8 +179,14 @@ const updateUser = async (id, patch) => {
   if (patch.role !== undefined) updates.role = patch.role;
   if (patch.department !== undefined) updates.department = patch.department;
   if (patch.yearOfStudy !== undefined) updates.year_of_study = patch.yearOfStudy;
+  if (patch.year_of_study !== undefined) updates.year_of_study = patch.year_of_study;
+  if (patch.studentId !== undefined) updates.student_id = patch.studentId || null;
+  if (patch.student_id !== undefined) updates.student_id = patch.student_id || null;
   if (patch.credits !== undefined) updates.credits = patch.credits;
+  if (patch.avgRating !== undefined) updates.avg_rating = patch.avgRating;
+  if (patch.avg_rating !== undefined) updates.avg_rating = patch.avg_rating;
   if (patch.portfolioSlug !== undefined) updates.portfolio_slug = patch.portfolioSlug;
+  if (patch.portfolio_slug !== undefined) updates.portfolio_slug = patch.portfolio_slug;
   if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
   if (patch.mobileNumber !== undefined) updates.mobile_number = patch.mobileNumber;
   if (patch.bio !== undefined) updates.bio = patch.bio;

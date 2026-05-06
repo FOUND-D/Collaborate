@@ -10,10 +10,23 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import './ProfileScreen.css'; // Import the new CSS file
 
+const yearOptions = [
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5', label: 'PG-1' },
+  { value: '6', label: 'PG-2' },
+  { value: '7', label: 'Faculty' },
+];
+
 const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
+  const [department, setDepartment] = useState('');
+  const [yearOfStudy, setYearOfStudy] = useState('');
+  const [studentId, setStudentId] = useState('');
   const [techStack, setTechStack] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,6 +74,9 @@ const ProfileScreen = () => {
       setName(userInfo.name);
       setEmail(userInfo.email);
       setRole(userInfo.role);
+      setDepartment(userInfo.department || '');
+      setYearOfStudy(userInfo.yearOfStudy ? String(userInfo.yearOfStudy) : '');
+      setStudentId(userInfo.studentId || '');
       if (Array.isArray(userInfo.techStack)) {
         setTechStack(userInfo.techStack.join(','));
       }
@@ -75,6 +91,9 @@ const ProfileScreen = () => {
       const isNameChanged = name !== userInfo.name;
       const isEmailChanged = email !== userInfo.email;
       const isRoleChanged = role !== userInfo.role;
+      const isDepartmentChanged = department !== (userInfo.department || '');
+      const isYearChanged = yearOfStudy !== (userInfo.yearOfStudy ? String(userInfo.yearOfStudy) : '');
+      const isStudentIdChanged = studentId !== (userInfo.studentId || '');
       const isTechStackChanged =
         techStack !== (Array.isArray(userInfo.techStack) ? userInfo.techStack.join(',') : '');
       const isPasswordChanged = password !== '';
@@ -82,11 +101,14 @@ const ProfileScreen = () => {
         isNameChanged ||
         isEmailChanged ||
         isRoleChanged ||
+        isDepartmentChanged ||
+        isYearChanged ||
+        isStudentIdChanged ||
         isTechStackChanged ||
         isPasswordChanged
       );
     }
-  }, [name, email, role, techStack, password, userInfo]);
+  }, [name, email, role, department, yearOfStudy, studentId, techStack, password, userInfo]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -98,6 +120,9 @@ const ProfileScreen = () => {
         name,
         email,
         role,
+        department,
+        yearOfStudy: yearOfStudy ? Number(yearOfStudy) : null,
+        studentId,
         techStack: techStack.split(','),
       };
       if (showPasswordFields && password) {
@@ -119,6 +144,20 @@ const ProfileScreen = () => {
             <Loader />
           </div>
         )}
+        <div
+          style={{
+            marginBottom: '1rem',
+            padding: '0.85rem 1rem',
+            borderRadius: '12px',
+            border: '1px solid var(--border-color)',
+            background: 'var(--background-secondary-cards)',
+            display: 'inline-flex',
+            gap: '0.5rem',
+            alignItems: 'center',
+          }}
+        >
+          <strong>Credits:</strong> <span>{userInfo?.credits ?? 50}</span>
+        </div>
         <img
           src={
             image && image.startsWith('data:image')
@@ -179,12 +218,48 @@ const ProfileScreen = () => {
           </div>
           <div className="form-group">
             <label htmlFor="role">Role</label>
-            <input
-              type="text"
+            <select
               id="role"
-              placeholder="Enter your role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="undergrad">Undergrad</option>
+              <option value="postgrad">Postgrad</option>
+              <option value="faculty">Faculty</option>
+              {userInfo?.role === 'admin' && <option value="admin">Admin</option>}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="department">Department</label>
+            <input
+              type="text"
+              id="department"
+              placeholder="Enter your department"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="yearOfStudy">Year of Study</label>
+            <select
+              id="yearOfStudy"
+              value={yearOfStudy}
+              onChange={(e) => setYearOfStudy(e.target.value)}
+            >
+              <option value="">Select year</option>
+              {yearOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="studentId">Student ID</label>
+            <input
+              type="text"
+              id="studentId"
+              placeholder="Enter your student ID"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
             />
           </div>
           <div className="form-group">

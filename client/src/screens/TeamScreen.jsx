@@ -25,6 +25,8 @@ const TeamScreen = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [createTeamName, setCreateTeamName] = useState('');
+  const [createTeamType, setCreateTeamType] = useState('study_group');
+  const [subjectCode, setSubjectCode] = useState('');
   const [joinTeamId, setJoinTeamId] = useState('');
 
   const dispatch = useDispatch();
@@ -100,9 +102,16 @@ const TeamScreen = () => {
   const submitCreateTeamHandler = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(createTeam(createTeamName, currentOrg?._id));
+      await dispatch(createTeam({
+        name: createTeamName,
+        organisation: currentOrg?._id,
+        type: createTeamType,
+        subjectCode,
+      }));
       setShowCreate(false);
       setCreateTeamName('');
+      setCreateTeamType('study_group');
+      setSubjectCode('');
       dispatch(listTeams());
     } catch {
       // reducer state already carries the error message for the modal
@@ -251,7 +260,19 @@ const TeamScreen = () => {
                     <div className="team-avatar" style={{ backgroundColor: team.color || '#a78bfa' }}>
                       {getInitials(team.name)}
                     </div>
-                    <h3 className="team-card-name">{team.name}</h3>
+                    <div>
+                      <h3 className="team-card-name">{team.name}</h3>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+                        <span className="task-status-pill pending" style={{ textTransform: 'capitalize' }}>
+                          {(team.type || 'study_group').replace('_', ' ')}
+                        </span>
+                        {team.subjectCode && (
+                          <span className="task-status-pill inprogress">
+                            {team.subjectCode}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div className="team-card-meta">
                     {team.owner && (
@@ -304,6 +325,30 @@ const TeamScreen = () => {
                     onChange={(e) => setCreateTeamName(e.target.value)}
                   />
                   <label htmlFor="createTeamName">Team Name</label>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="createTeamType">Group Type</label>
+                  <select
+                    id="createTeamType"
+                    className="form-input"
+                    value={createTeamType}
+                    onChange={(e) => setCreateTeamType(e.target.value)}
+                  >
+                    <option value="study_group">Study Group</option>
+                    <option value="project_group">Project Group</option>
+                    <option value="course">Course</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="subjectCode">Subject Code</label>
+                  <input
+                    type="text"
+                    id="subjectCode"
+                    className="form-input"
+                    placeholder="Optional subject code"
+                    value={subjectCode}
+                    onChange={(e) => setSubjectCode(e.target.value)}
+                  />
                 </div>
                 <div className="form-actions">
                     <button type="button" className="btn btn-secondary" onClick={handleCloseCreate}>Cancel</button>

@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
 import { BACKEND_URL } from '../config/runtime';
@@ -58,17 +58,21 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             <FaTasks className="nav-item-icon" />
             <span className="nav-item-label">Tasks</span>
           </NavLink>
-          <NavLink to="/exchange-board" className={getNavLinkClass}>
+          <NavLink to="/exchange" className={getNavLinkClass}>
             <FaExchangeAlt className="nav-item-icon" />
             <span className="nav-item-label">Exchange Board</span>
           </NavLink>
           <NavLink to="/sessions" className={getNavLinkClass}>
             <FaVideo className="nav-item-icon" />
-            <span className="nav-item-label">Sessions</span>
+            <span className="nav-item-label">My Sessions</span>
           </NavLink>
           <NavLink to="/resources" className={getNavLinkClass}>
             <FaFolderOpen className="nav-item-icon" />
             <span className="nav-item-label">Resources</span>
+          </NavLink>
+          <NavLink to="/leaderboard" className={getNavLinkClass}>
+            <FaMedal className="nav-item-icon" />
+            <span className="nav-item-label">Leaderboard</span>
           </NavLink>
           <button className="nav-item" onClick={toggleChat}>
             <FaComments className="nav-item-icon" />
@@ -95,6 +99,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           <FaCog className="nav-item-icon" />
           <span className="nav-item-label">Settings</span>
         </NavLink>
+        {userInfo?.role === 'admin' && (
+          <NavLink to="/admin" className={getNavLinkClass}>
+            <FaShieldAlt className="nav-item-icon" />
+            <span className="nav-item-label">Admin</span>
+          </NavLink>
+        )}
 
         <div className="sidebar-bottom">
           <div className="sidebar-credit-chip" title={`Credits: ${creditBalance}`}>

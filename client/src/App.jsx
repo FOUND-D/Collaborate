@@ -42,6 +42,21 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const AdminRoute = ({ children }) => {
+  const userInfo = useSelector((state) => state.userLogin.userInfo);
+  const location = useLocation();
+
+  if (!userInfo) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (userInfo.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
 // Inner App component that uses theme context
 const AppContent = () => {
   const dispatch = useDispatch(); // Initialize dispatch
@@ -140,9 +155,13 @@ const AppContent = () => {
               <Route path="/team/:id/meeting" element={<MeetingScreen />} />
               <Route path="/team/:id/session" element={<MeetingScreen />} />
               <Route path="/tasks" element={<TaskScreen />} />
-              <Route path="/exchange-board" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Exchange Board" description="This Phase 1 area is reserved for the skill exchange board experience." /></ProtectedRoute>} />
+              <Route path="/exchange" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Exchange Board" description="This Phase 1 area is reserved for the skill exchange board experience." /></ProtectedRoute>} />
+              <Route path="/exchange-board" element={<Navigate to="/exchange" replace />} />
               <Route path="/sessions" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Sessions" description="This Phase 1 area will hold the renamed sessions workflow and agenda experience." /></ProtectedRoute>} />
               <Route path="/resources" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Resources" description="This Phase 1 area will hold reusable academic resources and supporting material." /></ProtectedRoute>} />
+              <Route path="/leaderboard" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Leaderboard" description="This Phase 1 area will surface credits, rankings, and participation history." /></ProtectedRoute>} />
+              <Route path="/admin" element={<AdminRoute><PhaseOnePlaceholderScreen title="Admin" description="Coming in Phase 2." /></AdminRoute>} />
+              <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />
               <Route path="/task/create" element={<TaskEditScreen />} />
               <Route path="/task/:id/edit" element={<TaskEditScreen />} />
               <Route path="/project/create" element={<ProjectCreateScreen />} />

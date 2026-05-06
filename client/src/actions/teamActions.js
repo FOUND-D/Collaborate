@@ -103,7 +103,7 @@ export const getTeamDetails = (id) => async (dispatch, getState) => {
   }
 };
 
-export const createTeam = (name, organisation = null) => async (dispatch, getState) => {
+export const createTeam = ({ name, organisation = null, type = 'study_group', subjectCode = '' }) => async (dispatch, getState) => {
   try {
     dispatch({
       type: TEAM_CREATE_REQUEST,
@@ -126,7 +126,7 @@ export const createTeam = (name, organisation = null) => async (dispatch, getSta
       },
     };
 
-    const payload = organisation ? { name, organisation } : { name };
+    const payload = organisation ? { name, organisation, type, subjectCode } : { name, type, subjectCode };
     const { data } = await api.post('/api/teams', payload, config);
 
     dispatch({

@@ -232,6 +232,8 @@ app.use((req, res, next) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/meetings', require('./routes/meetingRoutes'));
+app.use('/api/sessions', require('./routes/meetingRoutes'));
 app.use('/api/organisations', organisationRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/tasks', taskRoutes);

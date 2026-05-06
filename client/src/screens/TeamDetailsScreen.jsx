@@ -196,7 +196,15 @@ const TeamDetailsScreen = () => {
             <span>Teams</span>
           </Link>
 
-          <h1 className="team-detail-title">{team.name}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <h1 className="team-detail-title" style={{ marginBottom: 0 }}>{team.name}</h1>
+            <span className="task-status-pill pending" style={{ textTransform: 'capitalize' }}>
+              {(team.type || 'study_group').replace('_', ' ')}
+            </span>
+            {team.subjectCode && (
+              <span className="task-status-pill inprogress">{team.subjectCode}</span>
+            )}
+          </div>
 
           <div className="detail-section-group">
             <h2 className="detail-section-title">Team Info</h2>

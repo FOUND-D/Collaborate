@@ -9,10 +9,19 @@ import { TASK_CREATE_RESET, TASK_UPDATE_RESET } from '../constants/taskConstants
 import { listProjects } from '../actions/projectActions';
 
 const TaskForm = ({ task, isEditMode, projects, onSubmit }) => {
+  const categoryOptions = [
+    { value: 'assignment', label: 'Assignment' },
+    { value: 'exam_prep', label: 'Exam Prep' },
+    { value: 'research', label: 'Research' },
+    { value: 'study_goal', label: 'Study Goal' },
+    { value: 'project_milestone', label: 'Project Milestone' },
+    { value: 'personal', label: 'Personal' },
+  ];
   const [name, setName] = useState(() => (isEditMode ? task?.name || '' : ''));
   const [description, setDescription] = useState(() => (isEditMode ? task?.description || '' : ''));
   const [status, setStatus] = useState(() => (isEditMode ? task?.status || 'To Do' : 'To Do'));
   const [priority, setPriority] = useState(() => (isEditMode ? task?.priority || 'Medium' : 'Medium'));
+  const [category, setCategory] = useState(() => (isEditMode ? task?.category || 'assignment' : 'assignment'));
   const [dueDate, setDueDate] = useState(() => (
     isEditMode
       ? (task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
@@ -28,6 +37,7 @@ const TaskForm = ({ task, isEditMode, projects, onSubmit }) => {
       _id: task?._id,
       name,
       description,
+      category,
       status,
       priority,
       dueDate,
@@ -75,6 +85,19 @@ const TaskForm = ({ task, isEditMode, projects, onSubmit }) => {
           onChange={(e) => setDuration(e.target.value)}
           min="0"
         />
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Category</label>
+        <select
+          style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-small)', border: '1px solid var(--border-color)', background: 'var(--background-tertiary-inputs)', color: 'var(--text-primary)' }}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          {categoryOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>

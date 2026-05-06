@@ -96,12 +96,19 @@ const TaskScreen = () => {
      STATE: FILTER
   =============================== */
   const [activeFilter, setActiveFilter] = React.useState('All');
+  const [activeCategory, setActiveCategory] = React.useState('All Categories');
 
   const filterOptions = ['All', 'To Do', 'In Progress', 'Completed', 'Blocked'];
+  const categoryOptions = ['All Categories', 'assignment', 'exam_prep', 'research', 'study_goal', 'project_milestone', 'personal'];
 
   const filteredTasks = tasks ? tasks.filter(task => {
-    if (activeFilter === 'All') return true;
-    return task.status && task.status.toLowerCase().replace(' ', '') === activeFilter.toLowerCase().replace(' ', '');
+    const statusMatches = activeFilter === 'All'
+      ? true
+      : task.status && task.status.toLowerCase().replace(' ', '') === activeFilter.toLowerCase().replace(' ', '');
+    const categoryMatches = activeCategory === 'All Categories'
+      ? true
+      : task.category === activeCategory;
+    return statusMatches && categoryMatches;
   }) : [];
 
 
@@ -130,6 +137,18 @@ const TaskScreen = () => {
             onClick={() => setActiveFilter(option)}
           >
             {option}
+          </button>
+        ))}
+      </div>
+
+      <div className="task-filters" style={{ marginTop: '0.75rem' }}>
+        {categoryOptions.map((option) => (
+          <button
+            key={option}
+            className={`task-filter-btn ${activeCategory === option ? 'active' : ''}`}
+            onClick={() => setActiveCategory(option)}
+          >
+            {option === 'All Categories' ? option : option.replace(/_/g, ' ')}
           </button>
         ))}
       </div>
@@ -193,6 +212,11 @@ const TaskScreen = () => {
                         </span>
                       ) : (
                         <span className="task-assignee-meta muted">Unassigned</span>
+                      )}
+                      {task.category && (
+                        <span className="task-assignee-meta" style={{ marginLeft: '12px' }}>
+                          {task.category.replace(/_/g, ' ')}
+                        </span>
                       )}
                     </div>
                   </div>

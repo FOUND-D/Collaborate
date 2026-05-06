@@ -13,18 +13,6 @@ const getOrgMembership = async (organisationId, userId) => {
   return data;
 };
 
-const canManageTeam = (team, userId, orgMembership) => {
-  if (!team || !userId) return false;
-  if (team.owner_id === userId) return true;
-  return Boolean(
-    team.organisation_id &&
-    (
-      orgMembership?.org_roles?.can_manage_teams ||
-      ['owner', 'admin'].includes(String(orgMembership?.org_roles?.slug || orgMembership?.role || '').toLowerCase())
-    )
-  );
-};
-
 const hydrateTeam = async (team, viewerId = null) => {
   const [{ data: owner }, { data: members }, { data: requests }, { data: projects }] = await Promise.all([
     supabase.from('users').select('id,name,email').eq('id', team.owner_id).maybeSingle(),
@@ -32,20 +20,21 @@ const hydrateTeam = async (team, viewerId = null) => {
     supabase.from('team_join_requests').select('users(id,name,email)').eq('team_id', team.id),
     supabase.from('projects').select('*').eq('team_id', team.id),
   ]);
-  const viewerMembership = viewerId && team.organisation_id
-    ? await getOrgMembership(team.organisation_id, viewerId)
-    : null;
   return {
     _id: team.id,
     name: team.name,
+    type: team.type || 'study_group',
+    subjectCode: team.subject_code || '',
+    subject_code: team.subject_code || '',
+    createdByRole: team.created_by_role || '',
     owner: owner ? { _id: owner.id, name: owner.name, email: owner.email } : null,
     members: (members || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
     pendingJoinRequests: (requests || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
     projects: projects || [],
     organisation: team.organisation_id,
     permissions: {
-      canManageMembers: canManageTeam(team, viewerId, viewerMembership),
-      canManageProjects: canManageTeam(team, viewerId, viewerMembership),
+      canManageMembers: Boolean(viewerId && team.owner_id === viewerId),
+      canManageProjects: Boolean(viewerId && team.owner_id === viewerId),
     },
   };
 };
@@ -57,26 +46,27 @@ const getTeamById = asyncHandler(async (req, res) => {
 });
 
 const createTeam = asyncHandler(async (req, res) => {
-  const { name, organisation } = req.body;
+  const { name, organisation, type, subjectCode, subject_code } = req.body;
   if (!organisation) {
     return res.status(400).json({ message: 'Join or create an organisation before creating a team' });
   }
-
-  const orgMembership = await getOrgMembership(organisation, req.user._id);
-  if (!orgMembership) {
-    return res.status(403).json({ message: 'You must be part of this organisation before creating a team' });
-  }
-  const canManageTeams = Boolean(
-    orgMembership?.org_roles?.can_manage_teams ||
-    ['owner', 'admin'].includes(String(orgMembership?.org_roles?.slug || orgMembership?.role || '').toLowerCase())
-  );
-  if (!canManageTeams) {
-    return res.status(403).json({ message: 'Your organisation role does not allow team management' });
+  if (req.body.type === 'course' && req.user.role !== 'faculty') {
+    return res.status(403).json({ message: 'Only faculty can create course groups' });
   }
 
-  const { data, error } = await supabase.from('teams').insert({ name, owner_id: req.user._id, organisation_id: organisation || null }).select('*').single();
+  const normalizedType = type || 'study_group';
+  const normalizedSubjectCode = subjectCode || subject_code || null;
+  const { data, error } = await supabase.from('teams').insert({
+    name,
+    owner_id: req.user._id,
+    organisation_id: organisation || null,
+    type: normalizedType,
+    subject_code: normalizedSubjectCode,
+    created_by_role: req.user.role || null,
+  }).select('*').single();
   if (error) throw error;
   await supabase.from('team_members').insert({ team_id: data.id, user_id: req.user._id });
+  req.io?.to(organisation).emit('teamCreated', { teamId: data.id, type: normalizedType });
   res.status(201).json(await hydrateTeam(data, req.user._id));
 });
 
@@ -112,11 +102,6 @@ const addMember = asyncHandler(async (req, res) => {
   const { data: team, error: teamError } = await supabase.from('teams').select('*').eq('id', req.params.id).single();
   if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
 
-  const orgMembership = await getOrgMembership(team.organisation_id, req.user._id);
-  if (!canManageTeam(team, req.user._id, orgMembership)) {
-    return res.status(403).json({ message: 'Only team managers can add members' });
-  }
-
   if (team.organisation_id) {
     const targetMembership = await getOrgMembership(team.organisation_id, userId);
     if (!targetMembership) {
@@ -146,13 +131,6 @@ const joinTeam = asyncHandler(async (req, res) => {
   const { data: team, error: teamError } = await supabase.from('teams').select('*').eq('id', req.params.id).maybeSingle();
   if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
 
-  if (team.organisation_id) {
-    const orgMembership = await getOrgMembership(team.organisation_id, req.user._id);
-    if (!orgMembership) {
-      return res.status(403).json({ message: 'Join this organisation before requesting access to its teams' });
-    }
-  }
-
   await supabase.from('team_join_requests').upsert({ team_id: req.params.id, user_id: req.user._id });
   res.json({ message: 'Join request sent successfully' });
 });
@@ -160,11 +138,6 @@ const joinTeam = asyncHandler(async (req, res) => {
 const deleteTeam = asyncHandler(async (req, res) => {
   const { data: team, error: teamError } = await supabase.from('teams').select('*').eq('id', req.params.id).maybeSingle();
   if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
-
-  const orgMembership = await getOrgMembership(team.organisation_id, req.user._id);
-  if (!canManageTeam(team, req.user._id, orgMembership)) {
-    return res.status(403).json({ message: 'Only team managers can delete this team' });
-  }
 
   await supabase.from('task_dependencies').delete().in('task_id', []);
   await supabase.from('tasks').delete().eq('team_id', req.params.id);
@@ -179,11 +152,6 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
   const { userId, action } = req.body;
   const { data: team, error: teamError } = await supabase.from('teams').select('*').eq('id', req.params.id).maybeSingle();
   if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
-
-  const orgMembership = await getOrgMembership(team.organisation_id, req.user._id);
-  if (!canManageTeam(team, req.user._id, orgMembership)) {
-    return res.status(403).json({ message: 'Only team managers can review join requests' });
-  }
 
   await supabase.from('team_join_requests').delete().eq('team_id', req.params.id).eq('user_id', userId);
   if (action === 'approve') {

@@ -7,26 +7,27 @@ import Loader from '../components/Loader';
 import '../styles/auth.css';
 
 const RegisterScreen = () => {
-  const departmentOptions = [
-    'Computer Science',
-    'Information Technology',
-    'Electronics',
-    'Mechanical',
-    'Civil',
-    'Business',
-    'Design',
-    'Other',
+  const yearOptions = [
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+    { value: '5', label: 'PG-1' },
+    { value: '6', label: 'PG-2' },
+    { value: '7', label: 'Faculty' },
   ];
   const roleOptions = [
-    { value: 'student', label: 'Student' },
+    { value: 'undergrad', label: 'Undergrad' },
+    { value: 'postgrad', label: 'Postgrad' },
     { value: 'faculty', label: 'Faculty' },
-    { value: 'admin', label: 'Admin' },
   ];
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [department, setDepartment] = useState('');
-  const [role, setRole] = useState('student');
+  const [yearOfStudy, setYearOfStudy] = useState('1');
+  const [studentId, setStudentId] = useState('');
+  const [role, setRole] = useState('undergrad');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -85,7 +86,7 @@ const RegisterScreen = () => {
     }
 
     setMessage(null);
-    dispatch(register(name, email, password, image, department, role));
+    dispatch(register(name, email, password, image, department, role, Number(yearOfStudy), studentId));
   };
 
   return (
@@ -159,12 +160,12 @@ const RegisterScreen = () => {
             </div>
 
             <div className="field-group">
-              <label className="field-label" htmlFor="email">Work email</label>
+              <label className="field-label" htmlFor="email">Email</label>
               <input
                 id="email"
                 type="email"
                 className="field-input"
-                placeholder="Enter your work email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -172,15 +173,26 @@ const RegisterScreen = () => {
 
             <div className="field-group">
               <label className="field-label" htmlFor="department">Department</label>
-              <select
+              <input
                 id="department"
+                type="text"
                 className="field-input"
+                placeholder="Enter your department"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
+              />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="yearOfStudy">Year of study</label>
+              <select
+                id="yearOfStudy"
+                className="field-input"
+                value={yearOfStudy}
+                onChange={(e) => setYearOfStudy(e.target.value)}
               >
-                <option value="">Select department</option>
-                {departmentOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                {yearOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
@@ -197,6 +209,20 @@ const RegisterScreen = () => {
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="field-group">
+              <label className="field-label" htmlFor="studentId">
+                Student ID <span className="field-optional">(optional)</span>
+              </label>
+              <input
+                id="studentId"
+                type="text"
+                className="field-input"
+                placeholder="Enter your student ID"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+              />
             </div>
 
             <div className="field-group">

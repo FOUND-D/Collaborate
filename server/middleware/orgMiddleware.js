@@ -128,18 +128,15 @@ const requireOrgMember = asyncHandler(async (req, res, next) => {
 
 const requireRole = (allowedRoles = []) => asyncHandler(async (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({ error: 'NOT_AUTHENTICATED' });
+    return res.status(401).json({ message: 'Not authenticated' });
   }
 
-  const normalizedAllowedRoles = allowedRoles.map((role) => String(role).toLowerCase());
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const normalizedAllowedRoles = roles.map((role) => String(role).toLowerCase());
   const userRole = String(req.user.role || '').toLowerCase();
 
   if (!normalizedAllowedRoles.includes(userRole)) {
-    return res.status(403).json({
-      error: 'FORBIDDEN',
-      role: req.user.role || null,
-      allowedRoles,
-    });
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   next();
