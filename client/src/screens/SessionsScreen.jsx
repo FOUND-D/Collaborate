@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { FaCalendar, FaClock, FaVideo } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { RATING_CREATE_RESET } from '../constants/ratingConstants';
+import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { listSessions } from '../actions/sessionActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import './SkillExchange.css';
@@ -11,6 +13,7 @@ const SessionsScreen = () => {
   const dispatch = useDispatch();
   const { sessions = { upcoming: [], past: [] }, loading } = useSelector((state) => state.sessionList);
   const sessionStatus = useSelector((state) => state.sessionStatus);
+  const { success: ratingCreateSuccess } = useSelector((state) => state.ratingCreate);
   const [tab, setTab] = useState('upcoming');
   const [ratingSession, setRatingSession] = useState(null);
 
@@ -22,8 +25,17 @@ const SessionsScreen = () => {
     if (sessionStatus?.session?.status === 'completed') {
       setRatingSession(sessionStatus.session);
       setTab('past');
+      dispatch({ type: SESSION_STATUS_RESET });
     }
-  }, [sessionStatus]);
+  }, [dispatch, sessionStatus]);
+
+  useEffect(() => {
+    if (!ratingCreateSuccess) return;
+
+    setRatingSession(null);
+    dispatch(listSessions());
+    dispatch({ type: RATING_CREATE_RESET });
+  }, [dispatch, ratingCreateSuccess]);
 
   const activeSessions = useMemo(
     () => (tab === 'upcoming' ? sessions.upcoming || [] : sessions.past || []),

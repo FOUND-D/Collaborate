@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FaCalendarAlt, FaCheckCircle, FaCoins, FaDoorOpen, FaTimesCircle, FaVideo } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import { RATING_CREATE_RESET } from '../constants/ratingConstants';
+import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { cancelSession, completeSession, confirmSession, listSessions } from '../actions/sessionActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import './SkillExchange.css';
@@ -11,6 +13,7 @@ const SessionDetailScreen = () => {
   const dispatch = useDispatch();
   const { sessions = { upcoming: [], past: [] }, loading } = useSelector((state) => state.sessionList);
   const sessionStatus = useSelector((state) => state.sessionStatus);
+  const { success: ratingCreateSuccess } = useSelector((state) => state.ratingCreate);
   const [showRating, setShowRating] = useState(false);
 
   useEffect(() => {
@@ -20,8 +23,17 @@ const SessionDetailScreen = () => {
   useEffect(() => {
     if (sessionStatus?.session?._id === id && sessionStatus?.session?.status === 'completed') {
       setShowRating(true);
+      dispatch({ type: SESSION_STATUS_RESET });
     }
-  }, [sessionStatus, id]);
+  }, [dispatch, sessionStatus, id]);
+
+  useEffect(() => {
+    if (!ratingCreateSuccess) return;
+
+    setShowRating(false);
+    dispatch(listSessions());
+    dispatch({ type: RATING_CREATE_RESET });
+  }, [dispatch, ratingCreateSuccess]);
 
   const session = useMemo(
     () => [...(sessions.upcoming || []), ...(sessions.past || [])].find((entry) => entry._id === id),

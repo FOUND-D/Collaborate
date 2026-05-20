@@ -18,6 +18,7 @@ import {
   SESSION_COMPLETE_REQUEST,
   SESSION_COMPLETE_SUCCESS,
   SESSION_COMPLETE_FAIL,
+  SESSION_STATUS_RESET,
 } from '../constants/sessionConstants';
 
 export const sessionListReducer = (state = { sessions: { upcoming: [], past: [] } }, action) => {
@@ -75,6 +76,8 @@ export const sessionStatusReducer = (state = {}, action) => {
     case SESSION_CANCEL_FAIL:
     case SESSION_COMPLETE_FAIL:
       return { loading: false, error: action.payload };
+    case SESSION_STATUS_RESET:
+      return {};
     default:
       return state;
   }

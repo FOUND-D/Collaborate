@@ -4,6 +4,7 @@ import { FaBolt, FaFilter, FaPlus, FaSearch, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { listListings } from '../actions/listingActions';
+import { LISTING_CREATE_RESET } from '../constants/listingConstants';
 import { listSkillMatches, listSkills } from '../actions/skillActions';
 import ListingCreateModal from '../components/ListingCreateModal';
 import './SkillExchange.css';
@@ -13,6 +14,7 @@ const ExchangeBoardScreen = () => {
   const { listings = [], loading } = useSelector((state) => state.listingList);
   const { matches = [] } = useSelector((state) => state.skillMatchList);
   const { skills = [] } = useSelector((state) => state.skillList);
+  const { success: successCreate } = useSelector((state) => state.listingCreate);
 
   const [filters, setFilters] = useState({
     skill_id: '',
@@ -30,6 +32,14 @@ const ExchangeBoardScreen = () => {
   useEffect(() => {
     dispatch(listListings(filters));
   }, [dispatch, filters]);
+
+  useEffect(() => {
+    if (!successCreate) return;
+
+    setIsModalOpen(false);
+    dispatch(listListings(filters));
+    dispatch({ type: LISTING_CREATE_RESET });
+  }, [dispatch, filters, successCreate]);
 
   const departments = useMemo(
     () => [...new Set(listings.map((listing) => listing.user?.department).filter(Boolean))],

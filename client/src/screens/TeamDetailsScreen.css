@@ -1,372 +1,197 @@
 /* =====================================================
-   TEAM DETAILS — APPLE DARK THEME
-===================================================== */
-
-
-/* =====================================================
-   BASE CONTAINER
+   TEAM DETAILS
 ===================================================== */
 
 .team-detail-container {
-
   max-width: 1100px;
   margin: auto;
-
   padding: 3rem 2rem 4rem;
-
   min-height: 100vh;
-
-  background: linear-gradient(180deg,#040507,#0c0e15);
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "Inter",
-    sans-serif;
-
-  color: rgba(255,255,255,0.95);
+  background: var(--surface-panel-gradient);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
 }
-
-
-/* Force white text (kill bootstrap) */
 
 .team-detail-container * {
-
-  color: rgba(255,255,255,0.92);
+  color: var(--text-primary);
 }
 
-
-/* =====================================================
-   BACK NAV
-===================================================== */
-
 .team-detail-nav {
-
   display: inline-flex;
   align-items: center;
-
   gap: 0.4rem;
-
   font-size: 0.9rem;
   font-weight: 600;
-
-  color: rgba(255,255,255,0.75) !important;
-
+  color: var(--text-secondary) !important;
   text-decoration: none;
-
   margin-bottom: 1.5rem;
-
   transition: 0.2s ease;
 }
 
-
 .team-detail-nav:hover {
-
-  color: #ffffff !important;
-
+  color: var(--text-primary) !important;
   transform: translateX(-2px);
 }
 
-
-/* =====================================================
-   TITLE
-===================================================== */
-
 .team-detail-title {
-
   font-size: clamp(2.5rem,5vw,3.2rem);
-
   font-weight: 800;
-
   letter-spacing: -0.03em;
-
   margin-bottom: 2.5rem;
-
-  color: #ffffff !important;
-
-  text-shadow: 0 2px 14px rgba(0,0,0,0.7);
+  color: var(--text-primary) !important;
+  text-shadow: var(--shadow-subtle);
 }
-
-
-/* =====================================================
-   SECTION CARD
-===================================================== */
 
 .detail-section-group {
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(24,24,32,0.95),
-      rgba(14,14,20,0.95)
-    );
-
-  backdrop-filter: blur(26px);
-  -webkit-backdrop-filter: blur(26px);
-
-  border: 1px solid rgba(255,255,255,0.12);
-
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-
   padding: 2.2rem 2.4rem;
-
   margin-bottom: 2.2rem;
-
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: var(--glass-shadow);
 }
-
-
-/* =====================================================
-   SECTION TITLES
-===================================================== */
 
 .detail-section-title {
-
   font-size: 1.35rem;
-
   font-weight: 700;
-
   margin-bottom: 1.5rem;
-
   letter-spacing: -0.01em;
-
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
 }
-
-
-/* =====================================================
-   TEAM ID CAPSULE
-===================================================== */
 
 .copy-id-capsule {
-
   display: flex;
   align-items: center;
-
   gap: 0.8rem;
-
-  background: rgba(255,255,255,0.05);
-
+  background: var(--surface-panel-muted);
   padding: 0.6rem 0.9rem;
-
   border-radius: 12px;
-
-  border: 1px solid rgba(255,255,255,0.08);
-
+  border: 1px solid var(--surface-border);
   width: fit-content;
-
   margin-bottom: 1.5rem;
 }
 
-
 .team-id-text {
-
   font-family: "JetBrains Mono", monospace;
-
   font-size: 0.85rem;
-
-  color: rgba(255,255,255,0.85) !important;
+  color: var(--text-primary) !important;
 }
 
-
 .copy-id-btn {
-
-  background: rgba(255,255,255,0.08);
-
+  background: var(--surface-panel-backdrop);
   border: none;
-
   width: 32px;
   height: 32px;
-
   border-radius: 8px;
-
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: 0.2s ease;
 }
 
-
 .copy-id-btn:hover {
-
-  background: rgba(255,255,255,0.15);
-
+  background: var(--surface-panel-header);
   transform: scale(1.05);
 }
 
-
-/* =====================================================
-   MEETING BUTTONS
-===================================================== */
-
 .detail-section-group .btn {
-
-  background: linear-gradient(135deg,#0a84ff,#5ac8fa);
-
+  background: var(--accent-gradient);
   border: none !important;
-
-  color: white !important;
-
+  color: var(--text-inverse) !important;
   padding: 0.55rem 1.3rem;
-
   border-radius: 999px;
-
   font-weight: 700;
-
   margin-right: 0.6rem;
-
-  box-shadow: 0 6px 16px rgba(10,132,255,0.4);
-
+  box-shadow: var(--accent-glow);
   transition: 0.25s ease;
 }
 
-
 .detail-section-group .btn:hover {
-
   transform: translateY(-2px);
-
-  box-shadow: 0 10px 28px rgba(10,132,255,0.6);
+  box-shadow: var(--shadow-hover);
 }
-
-
-/* Danger */
 
 .detail-section-group .btn-danger {
-
-  background: linear-gradient(135deg,#ef4444,#f87171) !important;
-
-  box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+  background: var(--danger-color) !important;
+  box-shadow: var(--shadow-subtle);
 }
 
-
-/* =====================================================
-   MEMBERS
-===================================================== */
-
 .member-chip-group {
-
   display: flex;
   flex-wrap: wrap;
-
   gap: 0.8rem;
-
   margin-top: 0.8rem;
 }
 
 .team-member-management {
-
   margin-bottom: 1.25rem;
-
   padding: 1rem;
-
-  border: 1px solid rgba(255,255,255,0.1);
-
+  border: 1px solid var(--surface-border);
   border-radius: 16px;
-
-  background: rgba(255,255,255,0.04);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
-
 .team-member-management-copy {
-
-  color: rgba(255,255,255,0.76) !important;
-
+  color: var(--text-secondary) !important;
   font-size: 0.9rem;
-
   margin-bottom: 0.9rem;
 }
 
-
 .team-member-management-form {
-
   display: flex;
   gap: 0.8rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
-
 .team-member-select {
-
   flex: 1 1 320px;
-
   min-height: 44px;
-
   border-radius: 12px;
-
-  border: 1px solid rgba(255,255,255,0.12);
-
-  background: rgba(7,10,18,0.9);
-
+  border: 1px solid var(--surface-border-strong);
+  background: var(--glass-bg-heavy);
   padding: 0.75rem 0.9rem;
-
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
-
 .team-member-management-empty {
-
-  color: rgba(255,255,255,0.7) !important;
-
+  color: var(--text-secondary) !important;
   font-size: 0.88rem;
 }
 
-
 .member-chip {
-
-  background: rgba(255,255,255,0.06);
-
-  border: 1px solid rgba(255,255,255,0.1);
-
+  background: var(--surface-panel-muted);
+  border: 1px solid var(--surface-border);
   border-radius: 999px;
-
   padding: 0.45rem 0.9rem;
-
   display: flex;
   align-items: center;
-
   gap: 0.5rem;
-
   font-size: 0.8rem;
-
   font-weight: 600;
-
   backdrop-filter: blur(10px);
 }
 
-
 .member-chip span {
-
-  color: rgba(255,255,255,0.9);
+  color: var(--text-primary);
 }
 
-
-/* Avatar */
-
 .member-avatar-circle {
-
   width: 24px;
   height: 24px;
-
   border-radius: 50%;
-
-  color: #111;
-
+  color: var(--text-inverse);
   font-size: 0.7rem;
-
   font-weight: 800;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  box-shadow: 0 0 6px rgba(255,255,255,0.25);
+  box-shadow: var(--shadow-subtle);
 }
 
 .member-avatar-circle img {
@@ -376,143 +201,80 @@
   border-radius: 50%;
 }
 
-
-/* =====================================================
-   PROJECT CARD
-===================================================== */
-
 .project-link-card {
-
-  background: rgba(255,255,255,0.04);
-
-  border: 1px solid rgba(255,255,255,0.1);
-
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
-
   padding: 1.2rem 1.4rem;
-
   margin-bottom: 0.8rem;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   text-decoration: none;
-
   transition: 0.25s ease;
-
-  backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
-
 
 .project-link-card:hover {
-
-  background: rgba(255,255,255,0.08);
-
+  background: var(--glass-bg-heavy);
   transform: translateY(-2px);
-
-  box-shadow: 0 8px 22px rgba(0,0,0,0.6);
+  box-shadow: var(--shadow-hover);
 }
 
-
-/* Info */
-
 .project-card-name {
-
   font-weight: 700;
-
   font-size: 1rem;
-
   margin-bottom: 0.4rem;
 }
 
-
-/* Progress */
-
 .progress-bar-container {
-
   width: 180px;
   height: 6px;
-
-  background: rgba(255,255,255,0.1);
-
+  background: var(--surface-border);
   border-radius: 999px;
-
   overflow: hidden;
 }
 
-
 .progress-bar-fill {
-
   height: 100%;
-
-  background: linear-gradient(90deg,#0a84ff,#5ac8fa);
-
+  background: var(--accent-gradient);
   border-radius: inherit;
-
-  box-shadow: 0 0 8px rgba(10,132,255,0.5);
+  box-shadow: var(--accent-glow);
 }
-
-
-/* Due Date */
 
 .project-card-due-date {
-
   font-size: 0.8rem;
-
-  color: rgba(255,255,255,0.7);
+  color: var(--text-secondary);
 }
-
-
-/* =====================================================
-   EMPTY STATE (MESSAGE)
-===================================================== */
 
 .team-detail-container .alert {
-
-  background: rgba(255,255,255,0.05) !important;
-
-  border: 1px solid rgba(255,255,255,0.1) !important;
-
-  color: rgba(255,255,255,0.85) !important;
-
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text-primary) !important;
   border-radius: 14px;
-
   padding: 1rem 1.2rem;
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
 @media (max-width: 768px) {
-
   .team-detail-container {
-
     padding: 2rem 1.2rem;
   }
 
-
   .project-link-card {
-
     flex-direction: column;
     align-items: flex-start;
-
     gap: 0.6rem;
   }
 
-
   .team-member-management-form {
-
     flex-direction: column;
     align-items: stretch;
   }
 
-
   .progress-bar-container {
-
     width: 100%;
   }
-
 }

@@ -43,7 +43,7 @@ const RouteFallback = () => (
       minHeight: '55vh',
       display: 'grid',
       placeItems: 'center',
-      background: 'radial-gradient(circle at top, rgba(59, 130, 246, 0.10), transparent 28%), transparent',
+      background: 'var(--surface-panel-gradient)',
     }}
   >
     <div style={{ display: 'grid', gap: '14px', justifyItems: 'center' }}>
@@ -54,10 +54,12 @@ const RouteFallback = () => (
           width: '52px',
           height: '52px',
           borderRadius: '18px',
-          border: '1px solid rgba(118, 204, 255, 0.22)',
-          background: 'linear-gradient(135deg, rgba(38, 197, 255, 0.14), rgba(94, 255, 199, 0.10))',
-          boxShadow: '0 16px 42px rgba(0, 0, 0, 0.24)',
+          border: '1px solid var(--glass-border)',
+          background: 'var(--glass-bg)',
+          boxShadow: 'var(--glass-shadow)',
           position: 'relative',
+          backdropFilter: 'var(--glass-backdrop)',
+          WebkitBackdropFilter: 'var(--glass-backdrop)',
         }}
       >
         <motion.div
@@ -67,7 +69,7 @@ const RouteFallback = () => (
             position: 'absolute',
             inset: '10px',
             borderRadius: '14px',
-            background: 'linear-gradient(135deg, #39d4ff, #67ffc6)',
+            background: 'var(--accent-gradient-vivid)',
           }}
         />
       </motion.div>
