@@ -12,9 +12,14 @@ const userRoutes = require('./routes/userRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const meetingRoutes = require('./routes/meetingRoutes');
 const organisationRoutes = require('./routes/organisationRoutes');
 const orgRoutes = require('./routes/orgRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const skillRoutes = require('./routes/skillRoutes');
+const listingRoutes = require('./routes/listingRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -232,7 +237,11 @@ app.use((req, res, next) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
-app.use('/api/sessions', require('./routes/meetingRoutes'));
+app.use('/api/meetings', meetingRoutes);
+app.use('/api/skills', skillRoutes);
+app.use('/api/listings', listingRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/ratings', ratingRoutes);
 app.use('/api/organisations', organisationRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/tasks', taskRoutes);
