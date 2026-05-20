@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'; // Add useDispatch
+import { motion } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import LandingPage from './screens/LandingPage';
 import LoginScreen from './screens/LoginScreen';
@@ -29,6 +30,51 @@ import { FaBars } from 'react-icons/fa';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { fetchMembershipStatus, logout } from './actions/userActions'; // Import logout
 import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
+
+const SkillProfileScreen = lazy(() => import('./screens/SkillProfileScreen'));
+const ExchangeBoardScreen = lazy(() => import('./screens/ExchangeBoardScreen'));
+const ListingDetailScreen = lazy(() => import('./screens/ListingDetailScreen'));
+const SessionsScreen = lazy(() => import('./screens/SessionsScreen'));
+const SessionDetailScreen = lazy(() => import('./screens/SessionDetailScreen'));
+
+const RouteFallback = () => (
+  <div
+    style={{
+      minHeight: '55vh',
+      display: 'grid',
+      placeItems: 'center',
+      background: 'radial-gradient(circle at top, rgba(59, 130, 246, 0.10), transparent 28%), transparent',
+    }}
+  >
+    <div style={{ display: 'grid', gap: '14px', justifyItems: 'center' }}>
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+        style={{
+          width: '52px',
+          height: '52px',
+          borderRadius: '18px',
+          border: '1px solid rgba(118, 204, 255, 0.22)',
+          background: 'linear-gradient(135deg, rgba(38, 197, 255, 0.14), rgba(94, 255, 199, 0.10))',
+          boxShadow: '0 16px 42px rgba(0, 0, 0, 0.24)',
+          position: 'relative',
+        }}
+      >
+        <motion.div
+          animate={{ opacity: [0.45, 1, 0.45], scale: [0.92, 1.05, 0.92] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            inset: '10px',
+            borderRadius: '14px',
+            background: 'linear-gradient(135deg, #39d4ff, #67ffc6)',
+          }}
+        />
+      </motion.div>
+      <div style={{ color: 'var(--surface-text-muted)', fontSize: '0.92rem' }}>Loading workspace...</div>
+    </div>
+  </div>
+);
 
 const ProtectedRoute = ({ children }) => {
   const userLogin = useSelector((state) => state.userLogin);
@@ -144,46 +190,51 @@ const AppContent = () => {
                 Server is currently offline. It usually takes about a minute to start up. Please wait...
               </div>
             )}
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/dashboard" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
-              <Route path="/projects" element={<ProtectedRoute><OngoingProjectsScreen /></ProtectedRoute>} />
-              <Route path="/login" element={<LoginScreen />} />
-              <Route path="/register" element={<RegisterScreen />} />
-              <Route path="/teams" element={<TeamScreen />} />
-              <Route path="/team/:id" element={<TeamDetailsScreen />} />
-              <Route path="/team/:id/meeting" element={<MeetingScreen />} />
-              <Route path="/team/:id/session" element={<MeetingScreen />} />
-              <Route path="/tasks" element={<TaskScreen />} />
-              <Route path="/exchange" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Exchange Board" description="This Phase 1 area is reserved for the skill exchange board experience." /></ProtectedRoute>} />
-              <Route path="/exchange-board" element={<Navigate to="/exchange" replace />} />
-              <Route path="/sessions" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Sessions" description="This Phase 1 area will hold the renamed sessions workflow and agenda experience." /></ProtectedRoute>} />
-              <Route path="/resources" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Resources" description="This Phase 1 area will hold reusable academic resources and supporting material." /></ProtectedRoute>} />
-              <Route path="/leaderboard" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Leaderboard" description="This Phase 1 area will surface credits, rankings, and participation history." /></ProtectedRoute>} />
-              <Route path="/admin" element={<AdminRoute><PhaseOnePlaceholderScreen title="Admin" description="Coming in Phase 2." /></AdminRoute>} />
-              <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />
-              <Route path="/task/create" element={<TaskEditScreen />} />
-              <Route path="/task/:id/edit" element={<TaskEditScreen />} />
-              <Route path="/project/create" element={<ProjectCreateScreen />} />
-              <Route path="/project/:id" element={<ProjectScreen />} />
-              <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
-              <Route path="/profile" element={<ProfileScreen />} />
-              <Route path="/settings" element={<SettingsScreen />} />
-              <Route path="/chat" element={<ChatScreen />} />
-              <Route path="/chat/:id" element={<ChatScreen />} />
-              <Route path="/organisations" element={<ProtectedRoute><OrganisationsScreen /></ProtectedRoute>} />
-              <Route path="/organisations/create" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
-              <Route path="/organisations/new" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
-              <Route path="/organisations/:id" element={<ProtectedRoute><OrganisationDetailScreen /></ProtectedRoute>} />
-              <Route path="/organisations/:id/settings/members" element={<ProtectedRoute><MembersPage /></ProtectedRoute>} />
-              <Route path="/organisations/:id/settings/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
-              <Route path="/organisations/:id/settings/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
-              <Route path="/organisations/:id/settings/custom-fields" element={<ProtectedRoute><CustomFieldsPage /></ProtectedRoute>} />
-              <Route path="/organisations/:id/settings/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
-              <Route path="/organisations/:id/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
-              <Route path="/invite/accept" element={<AcceptInviteScreen />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/dashboard" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
+                <Route path="/projects" element={<ProtectedRoute><OngoingProjectsScreen /></ProtectedRoute>} />
+                <Route path="/login" element={<LoginScreen />} />
+                <Route path="/register" element={<RegisterScreen />} />
+                <Route path="/teams" element={<TeamScreen />} />
+                <Route path="/team/:id" element={<TeamDetailsScreen />} />
+                <Route path="/team/:id/meeting" element={<MeetingScreen />} />
+                <Route path="/team/:id/session" element={<MeetingScreen />} />
+                <Route path="/tasks" element={<TaskScreen />} />
+                <Route path="/exchange" element={<ProtectedRoute><ExchangeBoardScreen /></ProtectedRoute>} />
+                <Route path="/exchange/:id" element={<ProtectedRoute><ListingDetailScreen /></ProtectedRoute>} />
+                <Route path="/exchange-board" element={<Navigate to="/exchange" replace />} />
+                <Route path="/sessions" element={<ProtectedRoute><SessionsScreen /></ProtectedRoute>} />
+                <Route path="/sessions/:id" element={<ProtectedRoute><SessionDetailScreen /></ProtectedRoute>} />
+                <Route path="/skills" element={<ProtectedRoute><SkillProfileScreen /></ProtectedRoute>} />
+                <Route path="/resources" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Resources" description="This Phase 1 area will hold reusable academic resources and supporting material." /></ProtectedRoute>} />
+                <Route path="/leaderboard" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Leaderboard" description="This Phase 1 area will surface credits, rankings, and participation history." /></ProtectedRoute>} />
+                <Route path="/admin" element={<AdminRoute><PhaseOnePlaceholderScreen title="Admin" description="Coming in Phase 2." /></AdminRoute>} />
+                <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />
+                <Route path="/task/create" element={<TaskEditScreen />} />
+                <Route path="/task/:id/edit" element={<TaskEditScreen />} />
+                <Route path="/project/create" element={<ProjectCreateScreen />} />
+                <Route path="/project/:id" element={<ProjectScreen />} />
+                <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
+                <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="/settings" element={<SettingsScreen />} />
+                <Route path="/chat" element={<ChatScreen />} />
+                <Route path="/chat/:id" element={<ChatScreen />} />
+                <Route path="/organisations" element={<ProtectedRoute><OrganisationsScreen /></ProtectedRoute>} />
+                <Route path="/organisations/create" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
+                <Route path="/organisations/new" element={<ProtectedRoute><CreateOrganisationScreen /></ProtectedRoute>} />
+                <Route path="/organisations/:id" element={<ProtectedRoute><OrganisationDetailScreen /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/members" element={<ProtectedRoute><MembersPage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/custom-fields" element={<ProtectedRoute><CustomFieldsPage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
+                <Route path="/invite/accept" element={<AcceptInviteScreen />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </div>
           {isChatOpen && <ChatDocked onClose={toggleChat} />}
         </div>

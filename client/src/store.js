@@ -51,6 +51,30 @@ import {
   orgInviteReducer,
   orgCurrentReducer,
 } from './reducers/organisationReducers';
+import {
+  skillListReducer,
+  userSkillListReducer,
+  userSkillCreateReducer,
+  userSkillDeleteReducer,
+  skillMatchListReducer,
+} from './reducers/skillReducers';
+import {
+  listingListReducer,
+  listingDetailsReducer,
+  listingCreateReducer,
+  listingUpdateReducer,
+  listingDeleteReducer,
+} from './reducers/listingReducers';
+import {
+  sessionListReducer,
+  sessionDetailsReducer,
+  sessionCreateReducer,
+  sessionStatusReducer,
+} from './reducers/sessionReducers';
+import {
+  ratingCreateReducer,
+  ratingListReducer,
+} from './reducers/ratingReducers';
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -96,6 +120,22 @@ const rootReducer = combineReducers({
   orgDelete: orgDeleteReducer,
   orgInvite: orgInviteReducer,
   orgCurrent: orgCurrentReducer,
+  skillList: skillListReducer,
+  userSkillList: userSkillListReducer,
+  userSkillCreate: userSkillCreateReducer,
+  userSkillDelete: userSkillDeleteReducer,
+  skillMatchList: skillMatchListReducer,
+  listingList: listingListReducer,
+  listingDetails: listingDetailsReducer,
+  listingCreate: listingCreateReducer,
+  listingUpdate: listingUpdateReducer,
+  listingDelete: listingDeleteReducer,
+  sessionList: sessionListReducer,
+  sessionDetails: sessionDetailsReducer,
+  sessionCreate: sessionCreateReducer,
+  sessionStatus: sessionStatusReducer,
+  ratingCreate: ratingCreateReducer,
+  ratingList: ratingListReducer,
 });
 
 // 4. Wrap your root reducer with the persist function

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { listMessages } from '../actions/messageActions';
+import { listMessages, receiveSocketMessage } from '../actions/messageActions';
 import './ChatPopup.css';
 import io from 'socket.io-client';
 import { SOCKET_URL } from '../config/runtime';
@@ -27,8 +27,7 @@ const ChatPopup = ({ team, onClose }) => {
 
     // Listen for new messages
     socketRef.current.on('newMessage', (message) => {
-      // Logic to update messages in the store will be handled in messageActions
-      dispatch({ type: 'MESSAGE_RECEIVE', payload: message });
+      dispatch(receiveSocketMessage(message));
     });
 
     // Clean up on unmount

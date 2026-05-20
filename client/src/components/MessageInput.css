@@ -1,0 +1,124 @@
+.message-input-session-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(117, 201, 255, 0.18);
+  background: linear-gradient(135deg, rgba(38, 197, 255, 0.18), rgba(94, 255, 199, 0.14));
+  color: #97ebff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.message-input-send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.session-compose-popover {
+  margin: 0 20px 16px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(171, 205, 255, 0.12);
+  background:
+    radial-gradient(circle at top right, rgba(96, 252, 212, 0.14), transparent 35%),
+    rgba(9, 18, 31, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.3);
+}
+
+.session-compose-topline,
+.session-compose-grid {
+  display: flex;
+  gap: 12px;
+}
+
+.session-compose-topline {
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.session-compose-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d5e6ff;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.session-compose-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d9e7ff;
+  cursor: pointer;
+}
+
+.session-compose-form {
+  display: grid;
+  gap: 12px;
+}
+
+.session-compose-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.session-compose-form span {
+  color: rgba(220, 232, 255, 0.78);
+  font-size: 0.84rem;
+}
+
+.session-compose-form input,
+.session-compose-form select {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(171, 205, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f0f5ff;
+  padding: 11px 13px;
+  outline: none;
+}
+
+.session-compose-grid > label {
+  flex: 1;
+}
+
+.session-compose-submit {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #39d4ff, #67ffc6);
+  color: #03111a;
+  cursor: pointer;
+}
+
+.session-compose-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.session-compose-note {
+  margin: 0;
+  color: rgba(220, 232, 255, 0.6);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .session-compose-grid {
+    flex-direction: column;
+  }
+}

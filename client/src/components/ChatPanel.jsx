@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { FaArrowLeft, FaTimes, FaExpand } from 'react-icons/fa';
+import { FaArrowLeft, FaExpand, FaTimes } from 'react-icons/fa';
+import io from 'socket.io-client';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { listMessages } from '../actions/messageActions';
+import { listMessages, receiveSocketMessage } from '../actions/messageActions';
+import { SOCKET_URL } from '../config/runtime';
 import '../screens/ChatScreen.css';
 
 const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
   const [initialLoading, setInitialLoading] = useState(false);
-
   const dispatch = useDispatch();
   const pollingRef = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!selectedChat) return;
+    if (!selectedChat) return undefined;
 
     const loadInitial = async () => {
       setInitialLoading(true);
@@ -36,14 +38,30 @@ const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
         clearInterval(pollingRef.current);
       }
     };
-  }, [selectedChat, dispatch]);
+  }, [dispatch, selectedChat]);
+
+  useEffect(() => {
+    if (!selectedChat) return undefined;
+
+    socketRef.current?.disconnect();
+    socketRef.current = io(SOCKET_URL);
+    socketRef.current.emit('joinConversation', selectedChat.id);
+    socketRef.current.on('newMessage', (message) => {
+      dispatch(receiveSocketMessage(message));
+    });
+
+    return () => {
+      socketRef.current?.emit('leaveConversation', selectedChat.id);
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+    };
+  }, [dispatch, selectedChat]);
 
   return (
     <div className="chat-panel-content">
-      {/* HEADER */}
       <div className="chat-panel-header">
         {isDocked && (
-          <button className="chat-back-btn mobile-only" onClick={onClose} /* Using onClose as back for mobile/docked context if needed */>
+          <button className="chat-back-btn mobile-only" onClick={onClose}>
             <FaArrowLeft />
           </button>
         )}
@@ -67,7 +85,6 @@ const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
         </div>
       </div>
 
-      {/* BODY */}
       <div className="chat-panel-body">
         <div className="chat-messages-wrapper">
           {initialLoading ? (
@@ -76,7 +93,7 @@ const ChatPanel = ({ selectedChat, onClose, isDocked, onExpand }) => {
             <MessageList selectedChat={selectedChat} />
           )}
         </div>
-        <MessageInput selectedChat={selectedChat} />
+        <MessageInput selectedChat={selectedChat} socketRef={socketRef} />
       </div>
     </div>
   );

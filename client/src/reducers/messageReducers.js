@@ -10,7 +10,22 @@ import {
   MESSAGE_MARK_READ_SUCCESS,
   MESSAGE_MARK_READ_FAIL,
   MESSAGE_RECEIVE,
+  MESSAGE_SOCKET_RECEIVE,
 } from '../constants/messageConstants';
+
+const mergeMessages = (messages, incomingMessage) => {
+  const currentMessages = Array.isArray(messages) ? messages : [];
+  if (!incomingMessage?._id) return currentMessages;
+
+  const existingIndex = currentMessages.findIndex((message) => message._id === incomingMessage._id);
+  if (existingIndex === -1) {
+    return [...currentMessages, incomingMessage];
+  }
+
+  return currentMessages.map((message, index) => (
+    index === existingIndex ? { ...message, ...incomingMessage } : message
+  ));
+};
 
 export const messageSendReducer = (state = {}, action) => {
   switch (action.type) {
@@ -45,7 +60,8 @@ export const messageListReducer = (state = { messages: [] }, action) => {
     case MESSAGE_LIST_SUCCESS:
       return { loading: false, messages: action.payload };
     case MESSAGE_RECEIVE:
-      return { ...state, messages: [...state.messages, action.payload] };
+    case MESSAGE_SOCKET_RECEIVE:
+      return { ...state, messages: mergeMessages(state.messages, action.payload) };
     case MESSAGE_LIST_FAIL:
       return { loading: false, error: action.payload, messages: [] };
     case MESSAGE_LIST_RESET:
@@ -54,4 +70,3 @@ export const messageListReducer = (state = { messages: [] }, action) => {
       return state;
   }
 };
-  

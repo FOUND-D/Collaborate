@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
 import { BACKEND_URL } from '../config/runtime';
@@ -65,6 +65,10 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           <NavLink to="/sessions" className={getNavLinkClass}>
             <FaVideo className="nav-item-icon" />
             <span className="nav-item-label">My Sessions</span>
+          </NavLink>
+          <NavLink to="/skills" className={getNavLinkClass}>
+            <FaBrain className="nav-item-icon" />
+            <span className="nav-item-label">Skill Profile</span>
           </NavLink>
           <NavLink to="/resources" className={getNavLinkClass}>
             <FaFolderOpen className="nav-item-icon" />

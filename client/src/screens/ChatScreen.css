@@ -390,6 +390,70 @@
   color: white;
 }
 
+.session-request-card {
+  min-width: min(420px, 100%);
+  border: 1px solid rgba(118, 204, 255, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(90, 255, 200, 0.14), transparent 35%),
+    rgba(8, 18, 28, 0.92);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+}
+
+.session-request-header {
+  margin-bottom: 10px;
+}
+
+.session-request-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(88, 225, 255, 0.12);
+  color: #9ae7ff;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.session-request-card h4 {
+  margin: 0 0 10px;
+  font-size: 1.08rem;
+}
+
+.session-request-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: rgba(215, 230, 255, 0.78);
+  margin-bottom: 10px;
+}
+
+.session-request-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.session-request-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.session-request-btn.accept {
+  background: linear-gradient(135deg, #3fd4ff, #65ffc6);
+  color: #04131a;
+}
+
+.session-request-btn.decline {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255,255,255,0.88);
+}
+
 /* =====================================================
    LIGHT THEME OVERRIDES
 ===================================================== */
