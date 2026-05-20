@@ -1,11 +1,8 @@
 .phase2-page {
   min-height: 100vh;
   padding: 32px 24px 64px;
-  background:
-    radial-gradient(circle at top left, rgba(58, 134, 255, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(0, 255, 200, 0.14), transparent 24%),
-    linear-gradient(180deg, #09111d 0%, #060b14 42%, #04070d 100%);
-  color: #ebf2ff;
+  background: var(--phase2-page-bg);
+  color: var(--phase2-copy);
 }
 
 .phase2-shell {
@@ -14,11 +11,11 @@
 }
 
 .phase2-glass {
-  background: rgba(7, 17, 29, 0.66);
-  border: 1px solid rgba(167, 197, 255, 0.12);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: var(--phase2-shell-bg);
+  border: 1px solid var(--phase2-shell-border);
+  box-shadow: var(--phase2-shell-shadow);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .phase2-hero {
@@ -29,8 +26,13 @@
   margin-bottom: 28px;
 }
 
-.phase2-hero h1 {
+.phase2-hero h1,
+.phase2-detail-main h1 {
   margin: 12px 0 10px;
+  color: var(--phase2-title);
+}
+
+.phase2-hero h1 {
   font-size: clamp(2.3rem, 4vw, 4.2rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -41,8 +43,9 @@
 .phase2-modal-head p,
 .phase2-detail-copy,
 .phase2-profile-card p,
-.phase2-match-card p {
-  color: rgba(223, 233, 255, 0.72);
+.phase2-match-card p,
+.phase2-empty {
+  color: var(--phase2-copy-muted);
 }
 
 .phase2-hero-stat,
@@ -63,8 +66,18 @@
   gap: 4px;
 }
 
+.phase2-hero-stat span,
+.phase2-hero-stat small,
+.phase2-card-meta,
+.phase2-detail-metrics,
+.phase2-session-card .phase2-card-meta,
+.phase2-field span {
+  color: var(--phase2-copy-muted);
+}
+
 .phase2-hero-stat strong {
   font-size: 2rem;
+  color: var(--phase2-title);
 }
 
 .phase2-badge {
@@ -76,15 +89,16 @@
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.06);
-  color: #c5d6ff;
+  background: var(--phase2-badge-bg);
+  color: var(--phase2-badge-text);
+  border: 1px solid transparent;
 }
 
 .phase2-badge-ai {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(112, 236, 255, 0.26);
-  box-shadow: 0 0 0 1px rgba(112, 236, 255, 0.06), 0 0 24px rgba(63, 201, 255, 0.14);
+  border-color: var(--phase2-badge-border);
+  box-shadow: 0 0 0 1px rgba(var(--accent-color-rgb), 0.08), 0 0 24px rgba(var(--accent-color-rgb), 0.14);
 }
 
 .phase2-button {
@@ -98,7 +112,7 @@
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
 }
 
 .phase2-button:hover {
@@ -106,15 +120,15 @@
 }
 
 .phase2-button-primary {
-  background: linear-gradient(135deg, #2ec5ff, #66ffcc);
-  color: #03131d;
-  box-shadow: 0 16px 36px rgba(29, 183, 255, 0.28);
+  background: var(--phase2-primary-bg);
+  color: var(--phase2-primary-text);
+  box-shadow: var(--phase2-primary-shadow);
 }
 
 .phase2-button-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ebf2ff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--phase2-secondary-bg);
+  color: var(--phase2-secondary-text);
+  border: 1px solid var(--phase2-secondary-border);
 }
 
 .phase2-split-grid,
@@ -132,6 +146,16 @@
 .phase2-board-layout {
   grid-template-columns: minmax(0, 1.9fr) minmax(300px, 0.9fr);
   align-items: start;
+}
+
+.phase2-panel,
+.phase2-listing-card,
+.phase2-session-card,
+.phase2-detail-main,
+.phase2-detail-side,
+.phase2-recommendation-card,
+.phase2-modal {
+  position: relative;
 }
 
 .phase2-panel {
@@ -161,8 +185,12 @@
 }
 
 .phase2-panel-title h2,
-.phase2-recommendation-head h2 {
+.phase2-recommendation-head h2,
+.phase2-session-card h3,
+.phase2-listing-card h3,
+.phase2-profile-card h3 {
   margin: 0;
+  color: var(--phase2-title);
 }
 
 .phase2-panel-icon,
@@ -180,8 +208,8 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, rgba(46, 197, 255, 0.2), rgba(102, 255, 204, 0.14));
-  color: #7cecff;
+  background: linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.18), rgba(var(--accent-color-rgb), 0.08));
+  color: var(--accent-color);
 }
 
 .phase2-avatar.large {
@@ -194,8 +222,11 @@
 .phase2-skill-entry,
 .phase2-filter-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) 180px 132px;
   gap: 12px;
+}
+
+.phase2-skill-entry {
+  grid-template-columns: minmax(0, 1.5fr) 180px 132px;
   margin: 20px 0;
 }
 
@@ -212,11 +243,17 @@
 .phase2-field textarea {
   width: 100%;
   border-radius: 14px;
-  border: 1px solid rgba(171, 200, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: #f5f8ff;
+  border: 1px solid var(--phase2-input-border);
+  background: var(--phase2-input-bg);
+  color: var(--phase2-title);
   padding: 13px 14px;
   outline: none;
+}
+
+.phase2-skill-entry input::placeholder,
+.phase2-field input::placeholder,
+.phase2-field textarea::placeholder {
+  color: var(--phase2-copy-muted);
 }
 
 .phase2-field textarea {
@@ -226,14 +263,30 @@
 .phase2-field span {
   display: block;
   margin-bottom: 8px;
-  color: #b3c7ef;
   font-size: 0.88rem;
 }
 
-.phase2-suggestion-list {
+.phase2-suggestion-list,
+.phase2-skill-list,
+.phase2-match-list,
+.phase2-session-side-list,
+.phase2-session-list {
   display: grid;
+}
+
+.phase2-suggestion-list {
   gap: 8px;
   margin-top: 10px;
+}
+
+.phase2-skill-list,
+.phase2-match-list,
+.phase2-session-side-list {
+  gap: 12px;
+}
+
+.phase2-session-list {
+  gap: 16px;
 }
 
 .phase2-suggestion-item,
@@ -247,20 +300,13 @@
   display: flex;
   justify-content: space-between;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #dce7ff;
+  background: var(--phase2-card-bg);
+  color: var(--phase2-title);
   padding: 10px 12px;
 }
 
 .phase2-suggestion-item small {
-  color: rgba(220, 231, 255, 0.52);
-}
-
-.phase2-skill-list,
-.phase2-match-list,
-.phase2-session-side-list {
-  display: grid;
-  gap: 12px;
+  color: var(--phase2-copy-muted);
 }
 
 .phase2-skill-chip,
@@ -271,8 +317,8 @@
   align-items: center;
   border-radius: 18px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--phase2-card-bg);
+  border: 1px solid var(--phase2-card-border);
 }
 
 .phase2-chip-meta,
@@ -295,24 +341,25 @@
 }
 
 .phase2-pill.offer {
-  background: rgba(42, 255, 191, 0.12);
-  color: #7bf7cc;
+  background: var(--phase2-offer-bg);
+  color: var(--phase2-offer-text);
 }
 
 .phase2-pill.request {
-  background: rgba(255, 183, 77, 0.12);
-  color: #ffd08a;
+  background: var(--phase2-request-bg);
+  color: var(--phase2-request-text);
 }
 
 .phase2-pill.subtle,
-.phase2-endorsement-pill {
-  background: rgba(255, 255, 255, 0.06);
-  color: #cfe0ff;
+.phase2-endorsement-pill,
+.phase2-pill:not(.offer):not(.request) {
+  background: var(--phase2-subtle-pill-bg);
+  color: var(--phase2-subtle-pill-text);
 }
 
 .phase2-chip-remove {
   background: transparent;
-  color: #9bb4e9;
+  color: var(--phase2-copy-muted);
 }
 
 .phase2-main-column,
@@ -334,7 +381,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #acd3ff;
+  color: var(--phase2-badge-text);
   font-weight: 700;
 }
 
@@ -375,13 +422,20 @@
 .phase2-card-meta,
 .phase2-detail-metrics,
 .phase2-session-card .phase2-card-meta {
-  color: #aac0e8;
   font-size: 0.9rem;
 }
 
 .phase2-card-footer {
   justify-content: space-between;
   margin-top: 18px;
+}
+
+.phase2-card-footer strong,
+.phase2-card-footer small,
+.phase2-profile-card strong,
+.phase2-detail-actions .phase2-button,
+.phase2-session-side-person strong {
+  color: var(--phase2-title);
 }
 
 .phase2-recommendation-card {
@@ -397,7 +451,7 @@
   inset: -40% auto auto -20%;
   width: 240px;
   height: 240px;
-  background: radial-gradient(circle, rgba(102, 255, 204, 0.18), transparent 62%);
+  background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.18), transparent 62%);
   pointer-events: none;
 }
 
@@ -415,8 +469,8 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: rgba(46, 197, 255, 0.12);
-  color: #7cecff;
+  background: var(--phase2-score-bg);
+  color: var(--phase2-score-text);
   font-weight: 800;
 }
 
@@ -436,7 +490,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #ffd98f;
+  color: var(--phase2-star-active);
 }
 
 .phase2-tabs {
@@ -451,7 +505,7 @@
 .phase2-tabs button {
   border: 0;
   background: transparent;
-  color: #a9bde0;
+  color: var(--phase2-copy-muted);
   border-radius: 14px;
   padding: 12px 18px;
   font-weight: 700;
@@ -459,13 +513,8 @@
 }
 
 .phase2-tabs button.active {
-  background: rgba(255, 255, 255, 0.08);
-  color: #eef4ff;
-}
-
-.phase2-session-list {
-  display: grid;
-  gap: 16px;
+  background: var(--phase2-secondary-bg);
+  color: var(--phase2-title);
 }
 
 .phase2-session-card {
@@ -478,13 +527,12 @@
 .phase2-empty {
   padding: 28px;
   text-align: center;
-  color: #a8bbde;
 }
 
 .phase2-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(1, 6, 12, 0.76);
+  background: var(--phase2-overlay);
   display: grid;
   place-items: center;
   padding: 20px;
@@ -503,6 +551,10 @@
   margin-bottom: 20px;
 }
 
+.phase2-modal-head h2 {
+  color: var(--phase2-title);
+}
+
 .phase2-modal-close {
   position: absolute;
   top: 16px;
@@ -511,8 +563,8 @@
   height: 38px;
   border-radius: 12px;
   border: 0;
-  background: rgba(255, 255, 255, 0.06);
-  color: #dce8ff;
+  background: var(--phase2-secondary-bg);
+  color: var(--phase2-copy-muted);
   cursor: pointer;
 }
 
@@ -538,7 +590,7 @@
   inset: -10% 20% auto auto;
   width: 220px;
   height: 220px;
-  background: radial-gradient(circle, rgba(37, 255, 193, 0.24), transparent 60%);
+  background: var(--phase2-mesh);
   filter: blur(14px);
   pointer-events: none;
 }
@@ -551,20 +603,21 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #7388b2;
+  background: var(--phase2-star-idle-bg);
+  color: var(--phase2-star-idle);
 }
 
 .phase2-star-btn.active {
-  color: #ffd47f;
-  background: rgba(255, 212, 127, 0.14);
+  color: var(--phase2-star-active);
+  background: var(--phase2-star-active-bg);
 }
 
 .phase2-rating-user {
   margin-bottom: 18px;
   padding: 16px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--phase2-card-bg);
+  border: 1px solid var(--phase2-card-border);
 }
 
 @media (max-width: 1024px) {
@@ -600,10 +653,7 @@
     align-items: start;
   }
 
-  .phase2-card-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .phase2-card-grid,
   .phase2-filter-bar {
     grid-template-columns: 1fr;
   }

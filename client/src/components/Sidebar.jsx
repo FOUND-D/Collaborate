@@ -6,6 +6,7 @@ import { logout } from '../actions/userActions';
 import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
+import ThemeToggle from './ThemeToggle';
 import { BACKEND_URL } from '../config/runtime';
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
@@ -111,6 +112,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
         )}
 
         <div className="sidebar-bottom">
+          <ThemeToggle collapsed={collapsed} />
           <div className="sidebar-credit-chip" title={`Credits: ${creditBalance}`}>
             <div className="sidebar-credit-icon">
               <FaCoins size={11} />

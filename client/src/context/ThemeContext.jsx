@@ -1,66 +1,58 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// Create the Theme Context
 const ThemeContext = createContext();
+const STORAGE_KEY = 'collaborate-theme';
+const VALID_THEMES = new Set(['light', 'dark']);
 
-// Theme Provider Component
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') {
+    return 'light';
+  }
+
+  const storedTheme = window.localStorage.getItem(STORAGE_KEY);
+  return VALID_THEMES.has(storedTheme) ? storedTheme : 'light';
+};
+
 export const ThemeProvider = ({ children }) => {
-  // Initialize theme from localStorage or default to 'dark'
-  const [theme, setTheme] = useState(() => {
-    const storedTheme = localStorage.getItem('collaborate-theme');
-    return storedTheme || 'dark';
-  });
+  const [theme, setTheme] = useState(getInitialTheme);
 
-  // Effect to apply theme class to body and persist preference
   useEffect(() => {
-    const root = document.body;
     const html = document.documentElement;
-    
-    // Remove existing theme classes
-    root.classList.remove('light-theme', 'dark-theme');
-    html.classList.remove('light-theme', 'dark-theme');
-    
-    // Apply the current theme class
-    if (theme === 'light') {
-      root.classList.add('light-theme');
-      html.classList.add('light-theme');
-    } else {
-      root.classList.add('dark-theme');
-      html.classList.add('dark-theme');
-    }
-    
-    // Persist to localStorage
-    localStorage.setItem('collaborate-theme', theme);
+    const body = document.body;
+
+    html.dataset.theme = theme;
+    html.classList.toggle('light-theme', theme === 'light');
+    html.classList.toggle('dark-theme', theme === 'dark');
+    body.classList.toggle('light-theme', theme === 'light');
+    body.classList.toggle('dark-theme', theme === 'dark');
+    window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
-  // Toggle function to switch between themes
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
+    setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'));
   };
 
-  // Set a specific theme
-  const setSpecificTheme = (newTheme) => {
-    if (newTheme === 'light' || newTheme === 'dark') {
-      setTheme(newTheme);
+  const setSpecificTheme = (nextTheme) => {
+    if (VALID_THEMES.has(nextTheme)) {
+      setTheme(nextTheme);
     }
-  };
-
-  const value = {
-    theme,
-    toggleTheme,
-    setTheme: setSpecificTheme,
-    isDark: theme === 'dark',
-    isLight: theme === 'light',
   };
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        setTheme: setSpecificTheme,
+        isDark: theme === 'dark',
+        isLight: theme === 'light',
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
 
-// Custom hook to use the Theme Context
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
