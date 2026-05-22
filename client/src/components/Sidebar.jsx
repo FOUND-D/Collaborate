@@ -30,11 +30,14 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
       <UserGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
       <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'} ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo-row">
-            <div className="sidebar-logo-icon"><FaBuilding color="#fff" size={12} /></div>
-            <span className="sidebar-logo-text">Collaborate</span>
+          <div className="sidebar-brand-block">
+            <div className="sidebar-logo-row">
+              <div className="sidebar-logo-icon"><FaBuilding color="#fff" size={12} /></div>
+              <span className="sidebar-logo-text">Collaborate</span>
+            </div>
+            <div className="sidebar-logo-meta">Workspace</div>
           </div>
-          <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
+          <button className="sidebar-toggle-btn" onClick={toggleSidebar} type="button" aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}>
             {isSidebarOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
@@ -112,7 +115,9 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
         )}
 
         <div className="sidebar-bottom">
-          <ThemeToggle collapsed={collapsed} />
+          <div className="sidebar-footer-links">
+            <ThemeToggle collapsed={collapsed} />
+          </div>
           <div className="sidebar-credit-chip" title={`Credits: ${creditBalance}`}>
             <div className="sidebar-credit-icon">
               <FaCoins size={11} />
@@ -134,10 +139,13 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                   userInfo.name.charAt(0).toUpperCase()
                 )}
               </div>
-              <span className="sidebar-user-name">{userInfo.name}</span>
+              <div className="sidebar-user-copy">
+                <span className="sidebar-user-name">{userInfo.name}</span>
+                <span className="sidebar-user-role">{userInfo.role || 'member'}</span>
+              </div>
             </NavLink>
           )}
-          <button className="sidebar-logout-btn" onClick={logoutHandler}>
+          <button className="sidebar-logout-btn" onClick={logoutHandler} type="button">
             <FaSignOutAlt className="nav-item-icon" />
             <span className="sidebar-logout-label">Logout</span>
           </button>

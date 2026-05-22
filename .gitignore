@@ -46,3 +46,5 @@ logs
 
 # Misc
 .DS_Store
+.tmp/
+*.zip

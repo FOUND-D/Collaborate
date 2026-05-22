@@ -5,6 +5,7 @@
 @import url('./components/AuthLayout.css');
 @import url('./components/FormContainer.css');
 @import url('./components/TaskSideDrawer.css');
+@import url('./styles/figma-enhancement.css');
 @import url('./screens/HomeScreen.css');
 @import url('./screens/ProjectScreen.css');
 @import url('./screens/TeamScreen.css');
