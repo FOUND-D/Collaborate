@@ -129,7 +129,7 @@ const SkillProfileScreen = () => {
                         key={skill._id}
                         type="button"
                         className="phase2-suggestion-item"
-                        onClick={() => updateDraft(type, { query: skill.name, selectedSkillId: skill._id })}
+                        onClick={() => updateDraft(type, { query: skill.name, selectedSkillId: skill.id })}
                       >
                         <span>{skill.name}</span>
                         <small>{skill.category || 'General'}</small>
@@ -195,3 +195,4 @@ const SkillProfileScreen = () => {
 };
 
 export default SkillProfileScreen;
+;
