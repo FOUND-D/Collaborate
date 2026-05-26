@@ -96,8 +96,6 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
           </button>
         </nav>
 
-        <div style={{ flex: 1 }} />
-
         <div className="sidebar-section-label">Account</div>
         <NavLink to="/organisations" className={getNavLinkClass}>
           <FaBuilding className="nav-item-icon" />

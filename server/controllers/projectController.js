@@ -3,7 +3,7 @@ const Groq = require('groq-sdk');
 const { supabase } = require('../lib/repo');
 const dotenv = require('dotenv');
 dotenv.config();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
 const getOrgMembership = async (organisationId, userId) => {
   if (!organisationId || !userId) return null;
@@ -201,6 +201,11 @@ const createProjectWithAI = asyncHandler(async (req, res) => {
   if (context.error) {
     return res.status(context.error.status).json({ message: context.error.message });
   }
+
+  if (!groq) {
+    return res.status(503).json({ message: 'AI Project Creation is currently unavailable (Missing API Key)' });
+  }
+
   const chatCompletion = await groq.chat.completions.create({ messages: [{ role: 'user', content: `Generate JSON tasks for project: ${goal}` }], model: 'openai/gpt-oss-120b', response_format: { type: 'json_object' } });
   const roadmap = JSON.parse(chatCompletion.choices[0]?.message?.content || '{}');
   const project = await supabase.from('projects').insert({
