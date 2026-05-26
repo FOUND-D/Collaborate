@@ -1,78 +1,31 @@
-.theme-toggle {
-  width: 100%;
+.theme-toggle-simple {
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0;
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid var(--surface-border);
-  background: var(--glass-bg);
-  color: var(--sidebar-text-strong);
-  box-shadow: var(--shadow-subtle);
-  backdrop-filter: var(--glass-backdrop);
-  -webkit-backdrop-filter: var(--glass-backdrop);
-  transition: transform var(--transition-main), border-color var(--transition-main), box-shadow var(--transition-main), background var(--transition-main);
-}
-
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  border-color: var(--surface-accent-border);
-  box-shadow: var(--shadow-hover);
-}
-
-.theme-toggle.collapsed {
   justify-content: center;
-  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin: 0 auto 12px;
 }
 
-.theme-toggle-track {
-  position: relative;
-  width: 54px;
-  height: 30px;
-  padding: 3px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.16), rgba(var(--accent-color-rgb), 0.32));
-  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+.theme-toggle-simple:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.theme-toggle-icon-container {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  flex-shrink: 0;
+  justify-content: center;
 }
 
-.theme-toggle.is-dark .theme-toggle-track {
-  justify-content: flex-end;
-}
-
-.theme-toggle-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--surface-main);
-  color: var(--accent-color);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
-}
-
-.theme-toggle-thumb-icon {
-  display: grid;
-  place-items: center;
-}
-
-.theme-toggle-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.theme-toggle-copy strong {
-  font-size: 0.88rem;
-  color: var(--sidebar-text-strong);
-}
-
-.theme-toggle-copy span {
-  font-size: 0.72rem;
-  color: var(--sidebar-text-muted);
+/* For sidebar layout consistency */
+.sidebar-closed .theme-toggle-simple {
+  margin: 0 auto 12px;
 }

@@ -14,8 +14,6 @@
   background: var(--phase2-shell-bg);
   border: 1px solid var(--phase2-shell-border);
   box-shadow: var(--phase2-shell-shadow);
-  backdrop-filter: var(--glass-backdrop);
-  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .phase2-hero {

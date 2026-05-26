@@ -24,6 +24,8 @@ import OrganisationDetailScreen from './screens/OrganisationDetailScreen';
 import { MembersPage, RolesPage, CompliancePage, CustomFieldsPage, AuditLogPage, CompleteProfilePage } from './screens/OrgManagementPages';
 import AcceptInviteScreen from './screens/AcceptInviteScreen';
 import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
+import ResourcesScreen from './screens/ResourcesScreen';
+import LeaderboardScreen from './screens/LeaderboardScreen';
 import ChatDocked from './components/ChatDocked';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
@@ -210,8 +212,8 @@ const AppContent = () => {
                 <Route path="/sessions" element={<ProtectedRoute><SessionsScreen /></ProtectedRoute>} />
                 <Route path="/sessions/:id" element={<ProtectedRoute><SessionDetailScreen /></ProtectedRoute>} />
                 <Route path="/skills" element={<ProtectedRoute><SkillProfileScreen /></ProtectedRoute>} />
-                <Route path="/resources" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Resources" description="This Phase 1 area will hold reusable academic resources and supporting material." /></ProtectedRoute>} />
-                <Route path="/leaderboard" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Leaderboard" description="This Phase 1 area will surface credits, rankings, and participation history." /></ProtectedRoute>} />
+                <Route path="/resources" element={<ProtectedRoute><ResourcesScreen /></ProtectedRoute>} />
+                <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardScreen /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><PhaseOnePlaceholderScreen title="Admin" description="Coming in Phase 2." /></AdminRoute>} />
                 <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />
                 <Route path="/task/create" element={<TaskEditScreen />} />
