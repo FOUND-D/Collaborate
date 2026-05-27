@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { 
     FaBars, 
     FaChevronRight, 
+    FaChevronLeft,
     FaCoins, 
     FaBell, 
     FaComments,
@@ -44,9 +45,9 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                 <button 
                     className="header-icon-btn ghost sidebar-toggle" 
                     onClick={toggleSidebar}
-                    aria-label="Toggle Sidebar"
+                    aria-label={isSidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
                 >
-                    <FaBars />
+                    {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
                 </button>
                 <div className="header-divider" />
                 <div className="header-breadcrumb">
