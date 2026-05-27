@@ -114,7 +114,10 @@ const ExchangeBoardScreen = () => {
                     <div className="phase2-card-meta">
                       <span>{listing.user?.name || 'Anonymous'}</span>
                       <span>{listing.user?.department || 'Open department'}</span>
-                      <span><FaStar /> {listing.user?.avgRating ?? 'New'}</span>
+                      <span className="listing-rating-badge">
+                        <FaStar style={{ color: '#fbbf24', marginRight: '4px' }} />
+                        {listing.user?.avgRating ? listing.user.avgRating.toFixed(1) : 'New'}
+                      </span>
                     </div>
                     <div className="phase2-card-footer">
                       <div>

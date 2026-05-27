@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain, FaStar } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
 import ThemeToggle from './ThemeToggle';
@@ -140,6 +140,20 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
               <div className="sidebar-user-copy">
                 <span className="sidebar-user-name">{userInfo.name}</span>
                 <span className="sidebar-user-role">{userInfo.role || 'member'}</span>
+                <div className="sidebar-user-rating">
+                  {userInfo.avg_rating ? (
+                    <>
+                      <div className="sidebar-stars">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <FaStar key={i} className={i <= Math.round(userInfo.avg_rating) ? 'star-filled' : 'star-empty'} />
+                        ))}
+                      </div>
+                      <span className="rating-value">{userInfo.avg_rating.toFixed(1)} ★</span>
+                    </>
+                  ) : (
+                    <span className="no-rating">No ratings yet</span>
+                  )}
+                </div>
               </div>
             </NavLink>
           )}

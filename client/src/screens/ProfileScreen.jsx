@@ -5,9 +5,11 @@ import {
   updateUserProfile,
   updateUserProfileImage,
 } from '../actions/userActions';
+import { listRatings } from '../actions/ratingActions';
 import { BACKEND_URL } from '../config/runtime';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 import './ProfileScreen.css'; // Import the new CSS file
 
 const yearOptions = [
@@ -44,6 +46,9 @@ const ProfileScreen = () => {
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
   const { success, loading, error } = userUpdateProfile;
 
+  const ratingList = useSelector((state) => state.ratingList);
+  const { ratings = [] } = ratingList;
+
   const [isDirty, setIsDirty] = useState(false);
 
   const uploadFileHandler = async (e) => {
@@ -71,6 +76,7 @@ const ProfileScreen = () => {
     if (!userInfo) {
       navigate('/login');
     } else {
+      dispatch(listRatings(userInfo._id));
       setName(userInfo.name);
       setEmail(userInfo.email);
       setRole(userInfo.role);
@@ -135,7 +141,27 @@ const ProfileScreen = () => {
   return (
     <div className="profile-page-wrapper">
       <div className="profile-card-container">
-        <h2>User Profile</h2>
+        <div className="profile-header-main">
+            <h2>User Profile</h2>
+            <div className="profile-rating-display">
+                {userInfo?.avg_rating ? (
+                    <>
+                        <div className="profile-stars">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                i <= Math.round(userInfo.avg_rating) 
+                                ? <FaStar key={i} className="star-filled" /> 
+                                : <FaRegStar key={i} className="star-empty" />
+                            ))}
+                        </div>
+                        <span className="rating-text">
+                            {userInfo.avg_rating.toFixed(1)} / 5.0 ({ratings.length} ratings)
+                        </span>
+                    </>
+                ) : (
+                    <span className="rating-text muted">Not yet rated</span>
+                )}
+            </div>
+        </div>
         {message && <Message variant="danger">{message}</Message>}
         {error && <Message variant="danger">{error}</Message>}
         {success && <Message variant="success">Profile Updated</Message>}

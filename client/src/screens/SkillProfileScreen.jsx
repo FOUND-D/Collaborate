@@ -100,9 +100,25 @@ const SkillProfileScreen = () => {
             <p>Shape a clear teach/learn identity so matching, listings, and session invitations become precise.</p>
           </div>
           <div className="phase2-hero-stat phase2-glass">
-            <span>Profile signal</span>
-            <strong>{groupedSkills.can_teach.length + groupedSkills.wants_to_learn.length}</strong>
-            <small>tracked skills</small>
+            <div>
+              <span>Profile signal</span>
+              <strong>{groupedSkills.can_teach.length + groupedSkills.wants_to_learn.length}</strong>
+              <small>tracked skills</small>
+            </div>
+            <div className="profile-signal-rating">
+              {userInfo?.avg_rating ? (
+                <>
+                  <div className="sidebar-stars">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <FaStar key={i} className={i <= Math.round(userInfo.avg_rating) ? 'star-filled' : 'star-empty'} />
+                    ))}
+                  </div>
+                  <span className="rating-value">{userInfo.avg_rating.toFixed(1)} ★</span>
+                </>
+              ) : (
+                <span className="no-rating">No ratings yet</span>
+              )}
+            </div>
           </div>
         </div>
 

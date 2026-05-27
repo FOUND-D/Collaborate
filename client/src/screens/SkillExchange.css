@@ -656,3 +656,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+.profile-signal-rating {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--phase2-shell-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phase2-hero-stat {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+}

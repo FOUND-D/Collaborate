@@ -269,3 +269,57 @@
 }
 .sidebar.collapsed ~ .app-main,
 .app-main.sidebar-collapsed { margin-left: 68px; }
+
+.sidebar-user-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-user-role {
+  font-size: 11px;
+  color: var(--sidebar-text-muted);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.sidebar-user-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sidebar-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.sidebar-stars svg {
+  font-size: 12px;
+}
+
+.star-filled {
+  color: #fbbf24;
+}
+
+.star-empty {
+  color: var(--sidebar-text-muted);
+  opacity: 0.3;
+}
+
+.rating-value {
+  font-size: 11px;
+  color: var(--sidebar-text-muted);
+  font-weight: 600;
+}
+
+.no-rating {
+  font-size: 10px;
+  color: var(--sidebar-text-muted);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.sidebar-closed .sidebar-user-rating {
+  display: none;
+}
