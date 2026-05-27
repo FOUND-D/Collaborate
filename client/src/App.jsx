@@ -116,25 +116,26 @@ const AppContent = () => {
   const { status } = serverStatus;
   const userInfo = useSelector((state) => state.userLogin.userInfo);
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  
   const isPublicRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
-  // Cross-tab Login Synchronization
+  const toggleSidebar = () => setSidebarCollapsed(prev => !prev);
+
+  // Keyboard Shortcut: Ctrl/Cmd + B
   useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'userInfo') {
-        if (e.newValue) {
-          dispatch({ type: USER_LOGIN_SUCCESS, payload: JSON.parse(e.newValue) });
-        } else {
-          dispatch(logout()); // Use action creator if possible, or simple dispatch
-        }
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        toggleSidebar();
       }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [dispatch]);
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -144,10 +145,8 @@ const AppContent = () => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (!mobile && !isSidebarOpen) {
-        setIsSidebarOpen(true);
-      } else if (mobile && isSidebarOpen) {
-        setIsSidebarOpen(false);
+      if (mobile) {
+        setSidebarCollapsed(true);
       }
     };
 
@@ -162,37 +161,43 @@ const AppContent = () => {
     }
   }, [dispatch, userInfo?.token]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const getShiftClass = () => {
-    if (isPublicRoute) {
-      return 'public-route';
-    }
-    if (isMobile) {
-      return isSidebarOpen ? 'main-content-shifted' : '';
-    } else {
-      return isSidebarOpen ? '' : 'main-content-shifted';
-    }
-  };
-
-  const mainContentClass = `main-content app-main ${getShiftClass()} ${isChatOpen ? 'chat-open' : ''}`;
+  const mainContentClass = `app-main ${isChatOpen ? 'chat-open' : ''}`;
+  const contentMargin = isMobile ? '0px' : (sidebarCollapsed ? '64px' : '280px');
 
   return (
     <div className="app-layout">
-        {/* Mobile-only toggle button (visible when sidebar is closed on mobile) */}
-        {!isPublicRoute && isMobile && !isSidebarOpen && (
-          <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
-            <FaBars />
-          </button>
+        {!isPublicRoute && isMobile && !sidebarCollapsed && (
+          <div 
+            style={{ 
+              position: 'fixed', 
+              inset: 0, 
+              background: 'rgba(0,0,0,0.5)', 
+              zIndex: 40,
+              transition: 'opacity 300ms ease'
+            }} 
+            onClick={toggleSidebar}
+          />
         )}
-        {!isPublicRoute && <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} toggleChat={toggleChat} />}
+        {!isPublicRoute && (
+          <Sidebar 
+            isCollapsed={sidebarCollapsed} 
+            toggleSidebar={toggleSidebar} 
+            toggleChat={toggleChat}
+            isMobile={isMobile}
+          />
+        )}
         <div className="app-body">
-          <div className={mainContentClass}>
+          <div 
+            className={mainContentClass}
+            style={{ 
+              marginLeft: contentMargin, 
+              transition: 'margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+              width: isMobile ? '100vw' : `calc(100vw - ${contentMargin})`
+            }}
+          >
             {!isPublicRoute && (
               <TopHeader 
-                isSidebarOpen={isSidebarOpen} 
+                isSidebarOpen={!sidebarCollapsed} 
                 toggleSidebar={toggleSidebar} 
                 toggleChat={toggleChat} 
               />
