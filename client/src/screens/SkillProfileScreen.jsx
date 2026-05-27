@@ -25,8 +25,8 @@ const SkillProfileScreen = () => {
   const { skills: userSkills = [], loading } = useSelector((state) => state.userSkillList);
 
   const [drafts, setDrafts] = useState({
-    can_teach: { query: '', level: 'advanced', selectedSkillId: '' },
-    wants_to_learn: { query: '', level: 'beginner', selectedSkillId: '' },
+    can_teach: { query: '', level: 'advanced', selectedSkillId: '', showSuggestions: false },
+    wants_to_learn: { query: '', level: 'beginner', selectedSkillId: '', showSuggestions: false },
   });
 
   useEffect(() => {
@@ -70,6 +70,7 @@ const SkillProfileScreen = () => {
           ...prev[type],
           query: '',
           selectedSkillId: '',
+          showSuggestions: false,
         },
       }));
     }
@@ -79,6 +80,14 @@ const SkillProfileScreen = () => {
     const query = drafts[type].query.trim().toLowerCase();
     if (!query) return taxonomy.slice(0, 6);
     return taxonomy.filter((skill) => skill.name.toLowerCase().includes(query)).slice(0, 6);
+  };
+
+  const handleSelectSuggestion = (type, skill) => {
+    updateDraft(type, { 
+      query: skill.name, 
+      selectedSkillId: skill.id,
+      showSuggestions: false 
+    });
   };
 
   return (
@@ -120,22 +129,29 @@ const SkillProfileScreen = () => {
                 <div className="phase2-skill-input-wrap">
                   <input
                     value={drafts[type].query}
-                    onChange={(e) => updateDraft(type, { query: e.target.value, selectedSkillId: '' })}
+                    onChange={(e) => updateDraft(type, { 
+                      query: e.target.value, 
+                      selectedSkillId: '',
+                      showSuggestions: true 
+                    })}
+                    onFocus={() => updateDraft(type, { showSuggestions: true })}
                     placeholder="Add skill or search taxonomy"
                   />
-                  <div className="phase2-suggestion-list">
-                    {suggestionList(type).map((skill) => (
-                      <button
-                        key={skill._id}
-                        type="button"
-                        className="phase2-suggestion-item"
-                        onClick={() => updateDraft(type, { query: skill.name, selectedSkillId: skill.id })}
-                      >
-                        <span>{skill.name}</span>
-                        <small>{skill.category || 'General'}</small>
-                      </button>
-                    ))}
-                  </div>
+                  {drafts[type].showSuggestions && (
+                    <div className="phase2-suggestion-list">
+                      {suggestionList(type).map((skill) => (
+                        <button
+                          key={skill.id}
+                          type="button"
+                          className="phase2-suggestion-item"
+                          onClick={() => handleSelectSuggestion(type, skill)}
+                        >
+                          <span>{skill.name}</span>
+                          <small>{skill.category || 'General'}</small>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <select
