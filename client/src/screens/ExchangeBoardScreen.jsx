@@ -67,7 +67,7 @@ const ExchangeBoardScreen = () => {
               <select value={filters.skill_id} onChange={(e) => setFilters((prev) => ({ ...prev, skill_id: e.target.value }))}>
                 <option value="">All skills</option>
                 {skills.map((skill) => (
-                  <option key={skill._id} value={skill._id}>{skill.name}</option>
+                  <option key={skill.id} value={skill.id}>{skill.name}</option>
                 ))}
               </select>
               <select value={filters.department} onChange={(e) => setFilters((prev) => ({ ...prev, department: e.target.value }))}>
