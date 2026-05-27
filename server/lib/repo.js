@@ -172,7 +172,7 @@ const toPublicMeeting = (meeting) => {
 };
 
 const toPublicSkill = (skill) => skill && ({
-  _id: skill.id,
+  id: skill.id,
   name: skill.name,
   category: skill.category || '',
   createdAt: skill.created_at,
