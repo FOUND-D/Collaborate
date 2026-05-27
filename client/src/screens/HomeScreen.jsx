@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './HomeScreen.css';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock } from 'react-icons/fa';
+import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock, FaStar, FaRegStar } from 'react-icons/fa';
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
-import { FaBuilding, FaPlus } from 'react-icons/fa';
+import { listSkillMatches } from '../actions/skillActions';
+import { FaBuilding, FaPlus, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
 
@@ -21,6 +22,9 @@ const HomeScreen = () => {
 
   const taskList = useSelector((state) => state.taskList);
   const { tasks } = taskList;
+
+  const { matches = [] } = useSelector((state) => state.skillMatchList);
+
   const orgCurrent = useSelector((state) => state.orgCurrent);
   const orgList = useSelector((state) => state.orgList);
   const currentOrg = orgCurrent.organisation || orgList.organisations?.[0];
@@ -31,6 +35,7 @@ const HomeScreen = () => {
       dispatch(listProjects());
       dispatch(listTasks());
       dispatch(listMyOrganisations());
+      dispatch(listSkillMatches());
       api.get('/api/users/profile').then(({ data }) => setProfile(data)).catch(() => setProfile(null));
     }
   }, [dispatch, userInfo]);
@@ -87,7 +92,7 @@ const HomeScreen = () => {
       )}
       <div className="dashboard-greeting">
         <div className="dashboard-greeting-top">
-          <div>
+          <div className="greeting-text">
             <h1 className="dashboard-title">
               Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'},
               <span className="name-accent"> {userInfo ? userInfo.name.split(' ')[0] : 'Guest'}</span>
@@ -96,8 +101,29 @@ const HomeScreen = () => {
               Here's what's happening in your workspace today.
             </p>
           </div>
-          <div className="dashboard-date-badge">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          
+          <div className="dashboard-summary-cards">
+             <div className="dashboard-summary-card credits-gradient">
+                <div className="summary-label">Credits</div>
+                <div className="summary-value">{userInfo?.credits ?? 0}</div>
+                <div className="summary-sublabel">Available</div>
+             </div>
+             
+             <div className="dashboard-summary-card rating-gradient">
+                <div className="summary-label">Rating</div>
+                <div className="summary-value">{userInfo?.avg_rating ? userInfo.avg_rating.toFixed(1) : "—"}</div>
+                <div className="summary-stars">
+                    {[1, 2, 3, 4, 5].map((index) => {
+                        const rating = userInfo?.avg_rating || 0;
+                        const roundedRating = Math.round(rating);
+                        if (index <= roundedRating) {
+                            return <FaStar key={index} className="star-icon filled" />;
+                        } else {
+                            return <FaRegStar key={index} className="star-icon" />;
+                        }
+                    })}
+                </div>
+             </div>
           </div>
         </div>
       </div>
@@ -166,6 +192,47 @@ const HomeScreen = () => {
             <span className="quick-card-link muted">Join or create a team first to unlock projects</span>
           </Link>
         ))}
+      </div>
+
+      <div className="section-header-row">
+        <div className="section-header-bar" />
+        <div className="section-header-title">Matched for you</div>
+      </div>
+
+      <div className="quick-actions-grid">
+        {matches.length === 0 ? (
+          <div className="quick-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+            <p className="quick-card-desc">Add skills to your profile to see peer recommendations</p>
+            <Link to="/skills" className="quick-card-link blue" style={{ justifyContent: 'center' }}>
+              Update Profile <FaArrowRight />
+            </Link>
+          </div>
+        ) : (
+          matches.slice(0, 5).map((match) => (
+            <div key={match.user?._id} className="quick-card">
+              <div className="phase2-match-header" style={{ marginBottom: '12px' }}>
+                <div className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</div>
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <h3 className="quick-card-title" style={{ margin: 0, fontSize: '1rem' }}>{match.user?.name}</h3>
+                  <p className="quick-card-desc" style={{ margin: 0, fontSize: '0.85rem' }}>{match.user?.department || 'Open department'}</p>
+                </div>
+                <div className="phase2-match-score" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
+                  {Math.round(match.matchScore)}%
+                </div>
+              </div>
+              <div className="phase2-match-skills" style={{ marginBottom: '16px' }}>
+                {match.matchedSkills?.slice(0, 3).map((ms) => (
+                  <span key={ms.skillId} className="phase2-pill subtle" style={{ fontSize: '0.7rem', padding: '4px 8px' }}>
+                    {ms.skillName}
+                  </span>
+                ))}
+              </div>
+              <Link to={`/exchange?skill_id=${match.matchedSkills?.[0]?.skillId || ''}`} className="quick-card-link blue">
+                View Matches <FaArrowRight />
+              </Link>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
