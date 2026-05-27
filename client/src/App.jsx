@@ -27,6 +27,7 @@ import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
 import ResourcesScreen from './screens/ResourcesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import ChatDocked from './components/ChatDocked';
+import TopHeader from './components/TopHeader';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { FaBars } from 'react-icons/fa';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
@@ -189,6 +190,13 @@ const AppContent = () => {
         {!isPublicRoute && <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} toggleChat={toggleChat} />}
         <div className="app-body">
           <div className={mainContentClass}>
+            {!isPublicRoute && (
+              <TopHeader 
+                isSidebarOpen={isSidebarOpen} 
+                toggleSidebar={toggleSidebar} 
+                toggleChat={toggleChat} 
+              />
+            )}
             {status === SERVER_STATUS_OFFLINE && (
               <div className="server-status-message">
                 Server is currently offline. It usually takes about a minute to start up. Please wait...

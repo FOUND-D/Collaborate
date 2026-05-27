@@ -1,0 +1,116 @@
+.top-header {
+    height: 64px;
+    width: 100%;
+    background: var(--surface-panel-bg);
+    border-bottom: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    gap: 12px;
+}
+
+.header-icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: var(--sidebar-text-muted);
+}
+
+.header-icon-btn.ghost:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text);
+}
+
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--sidebar-border);
+    margin: 0 16px;
+}
+
+.header-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.breadcrumb-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sidebar-text-muted);
+}
+
+.breadcrumb-icon {
+    font-size: 14px;
+}
+
+.breadcrumb-chevron {
+    font-size: 10px;
+    color: var(--sidebar-text-muted);
+    opacity: 0.5;
+}
+
+.breadcrumb-current {
+    color: var(--sidebar-text-strong);
+}
+
+.credits-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(234, 88, 12, 0.2);
+}
+
+.credits-icon {
+    font-size: 14px;
+}
+
+.notification-btn {
+    position: relative;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    border: 2px solid var(--surface-panel-bg);
+}
+
+/* Response to Sidebar collapsed */
+.sidebar-closed ~ .app-body .top-header {
+    /* Potential adjustments if needed, but sticky should handle it */
+}
