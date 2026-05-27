@@ -244,6 +244,28 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
   }
 };
 
+export const getUserProfile = () => async (dispatch, getState) => {
+  try {
+    const { userLogin: { userInfo } } = getState();
+    if (!userInfo?.token) return;
+    
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+    
+    const { data } = await api.get('/api/users/profile', config);
+    const updatedUserInfo = { ...userInfo, ...data };
+    
+    dispatch({ type: USER_UPDATE_PROFILE_SUCCESS, payload: updatedUserInfo });
+    dispatch({ type: USER_LOGIN_SUCCESS, payload: updatedUserInfo });
+    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+  } catch (error) {
+    console.error('Profile refresh failed:', error);
+  }
+};
+
 export const updateUserProfile = (user) => async (dispatch, getState) => {
   try {
     dispatch({

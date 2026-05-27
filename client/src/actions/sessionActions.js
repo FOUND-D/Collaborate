@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { logout } from './userActions';
+import { logout, getUserProfile } from './userActions';
 import {
   SESSION_LIST_REQUEST,
   SESSION_LIST_SUCCESS,
@@ -92,6 +92,9 @@ const updateSessionAction = async ({ dispatch, getState, id, path, requestType, 
     const { data } = await api.put(`/api/sessions/${id}/${path}`, {}, config);
     dispatch({ type: successType, payload: data });
     dispatch(listSessions());
+    if (path === 'complete') {
+      dispatch(getUserProfile());
+    }
     return data;
   } catch (error) {
     handleAuthError(dispatch, error, failType);

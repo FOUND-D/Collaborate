@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { logout } from './userActions';
+import { logout, getUserProfile } from './userActions';
 import {
   RATING_CREATE_REQUEST,
   RATING_CREATE_SUCCESS,
@@ -40,6 +40,7 @@ export const createRating = (payload) => async (dispatch, getState) => {
     const config = getAuthConfig(getState, true);
     const { data } = await api.post('/api/ratings', payload, config);
     dispatch({ type: RATING_CREATE_SUCCESS, payload: data });
+    dispatch(getUserProfile());
     return data;
   } catch (error) {
     handleAuthError(dispatch, error, RATING_CREATE_FAIL);
