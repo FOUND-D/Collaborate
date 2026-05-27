@@ -28,7 +28,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
   }, [dispatch, isOpen]);
 
   const selectedSkill = useMemo(
-    () => skills.find((skill) => skill._id === form.skillId),
+    () => skills.find((skill) => skill.id === form.skillId),
     [skills, form.skillId]
   );
 
@@ -85,7 +85,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
                 >
                   <option value="">Select a skill</option>
                   {skills.map((skill) => (
-                    <option key={skill._id} value={skill._id}>
+                    <option key={skill.id} value={skill.id}>
                       {skill.name}
                     </option>
                   ))}
