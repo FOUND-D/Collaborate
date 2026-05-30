@@ -721,7 +721,7 @@ const createSessionBooking = async ({ listingId, actorId, scheduledAt, durationM
   const learnerId = listing.listing_type === 'offer' ? actorId : listing.user_id;
 
   const { data, error } = await supabase
-    .from('sessions')
+    .from('booking_sessions')
     .insert({
       listing_id: listing.id,
       teacher_id: teacherId,
@@ -738,7 +738,7 @@ const createSessionBooking = async ({ listingId, actorId, scheduledAt, durationM
 };
 
 const getSessionRecordById = async (sessionId) => {
-  const { data, error } = await supabase.from('sessions').select('*').eq('id', sessionId).maybeSingle();
+  const { data, error } = await supabase.from('booking_sessions').select('*').eq('id', sessionId).maybeSingle();
   if (error) throw error;
   return data || null;
 };
@@ -752,14 +752,14 @@ const getSessionById = async (sessionId) => {
 const getSessionsByIds = async (sessionIds) => {
   const ids = unique(sessionIds);
   if (!ids.length) return [];
-  const { data, error } = await supabase.from('sessions').select('*').in('id', ids);
+  const { data, error } = await supabase.from('booking_sessions').select('*').in('id', ids);
   if (error) throw error;
   return (await enrichSessions(data || [])).map(toPublicSession);
 };
 
 const listUserSessions = async (userId) => {
   const { data, error } = await supabase
-    .from('sessions')
+    .from('booking_sessions')
     .select('*')
     .or(`teacher_id.eq.${userId},learner_id.eq.${userId}`)
     .order('scheduled_at', { ascending: true });
@@ -785,7 +785,7 @@ const listUserSessions = async (userId) => {
 
 const updateSessionStatus = async ({ sessionId, updates }) => {
   const { data, error } = await supabase
-    .from('sessions')
+    .from('booking_sessions')
     .update(updates)
     .eq('id', sessionId)
     .select('*')
