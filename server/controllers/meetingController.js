@@ -26,6 +26,10 @@ const startMeeting = asyncHandler(async (req, res) => {
   const session = toPublicMeeting(data);
   req.io.to(req.params.teamId).emit('sessionStarted', session);
   req.io.to(req.params.teamId).emit('meetingStarted', session);
+  
+  // Emit to user's personal room to refresh sessions list
+  req.io.to(req.user._id).emit('sessionCreated', session);
+  
   res.status(201).json(session);
 });
 
