@@ -138,6 +138,7 @@ io.on('connection', (socket) => {
       cameraOn: user.cameraOn ?? false,
       micOn: user.micOn ?? false,
     };
+    socket.join(user._id);
     io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
   });
 
@@ -241,6 +242,7 @@ app.use('/api/meetings', meetingRoutes);
 app.use('/api/skills', skillRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/booking-sessions', sessionRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/organisations', organisationRoutes);
 app.use('/api/orgs', orgRoutes);
