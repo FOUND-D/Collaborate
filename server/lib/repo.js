@@ -329,14 +329,6 @@ const fetchListingsMap = async (listingIds) => {
   return buildMap(data || []);
 };
 
-const fetchMeetingsMap = async (meetingIds) => {
-  const ids = unique(meetingIds);
-  if (!ids.length) return {};
-  const { data, error } = await supabase.from('meetings').select('*').in('id', ids);
-  if (error) throw error;
-  return buildMap(data || []);
-};
-
 const enrichListings = async (listings) => {
   const rows = listings || [];
   if (!rows.length) return [];
@@ -359,14 +351,12 @@ const enrichSessions = async (sessions) => {
   const enrichedListings = await enrichListings(Object.values(listingMap));
   const hydratedListingMap = buildMap(enrichedListings);
   const userMap = await fetchUsersMap(rows.flatMap((row) => [row.teacher_id, row.learner_id]));
-  const meetingMap = await fetchMeetingsMap(rows.map((row) => row.meeting_id));
 
   return rows.map((row) => ({
     ...row,
     listing: hydratedListingMap[row.listing_id] || null,
     teacher: userMap[row.teacher_id] || null,
     learner: userMap[row.learner_id] || null,
-    meeting: meetingMap[row.meeting_id] || null,
   }));
 };
 
@@ -970,6 +960,22 @@ const markMessagesRead = async ({ userId, messageIds }) => {
   const { error } = await supabase.from('message_reads').upsert(rows, { onConflict: 'message_id,user_id' });
   if (error) throw error;
   return true;
+};
+
+const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const uniqueSlug = async (name, excludeId) => {
+  const base = slugify(name);
+  let slug = base;
+  let i = 2;
+  while (true) {
+    let q = supabase.from('organisations').select('id').eq('slug', slug);
+    if (excludeId) q = q.neq('id', excludeId);
+    const { data, error } = await q.limit(1);
+    if (error) throw error;
+    if (!data.length) return slug;
+    slug = `${base}-${i++}`;
+  }
 };
 
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
