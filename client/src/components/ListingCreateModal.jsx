@@ -2,12 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBolt, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { createListing } from '../actions/listingActions';
-import { listSkills } from '../actions/skillActions';
+import { listUserSkills } from '../actions/skillActions';
 import '../screens/SkillExchange.css';
 
 const defaultState = {
-  skillId: '',
+  selectedSkill: null,
+  query: '',
+  showSuggestions: false,
+  activeIndex: -1,
   listingType: 'offer',
   level: 'intermediate',
   creditRate: 10,
@@ -19,23 +23,35 @@ const defaultState = {
 const ListingCreateModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const [form, setForm] = useState(defaultState);
-  const { skills = [] } = useSelector((state) => state.skillList);
+  const userInfo = useSelector((state) => state.userLogin.userInfo);
+  const { skills: userSkills = [] } = useSelector((state) => state.userSkillList);
 
   useEffect(() => {
-    if (isOpen) {
-      dispatch(listSkills());
+    if (isOpen && userInfo?._id) {
+      dispatch(listUserSkills(userInfo._id));
     }
-  }, [dispatch, isOpen]);
+  }, [dispatch, isOpen, userInfo?._id]);
 
-  const selectedSkill = useMemo(
-    () => skills.find((skill) => skill.id === form.skillId),
-    [skills, form.skillId]
+  const teachableSkills = useMemo(
+    () => userSkills.filter((us) => us.type === 'can_teach').map(us => us.skill),
+    [userSkills]
   );
+
+  const filteredSuggestions = useMemo(() => {
+    const q = form.query.trim().toLowerCase();
+    if (q.length < 1) return [];
+    return teachableSkills
+      .filter((s) => s.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8);
+  }, [teachableSkills, form.query]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!form.selectedSkill) return;
+
     const payload = {
-      skillId: form.skillId,
+      skillId: form.selectedSkill.id,
       listingType: form.listingType,
       level: form.level,
       creditRate: Number(form.creditRate || 0),
@@ -48,6 +64,33 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
     if (created) {
       setForm(defaultState);
       onClose();
+    }
+  };
+
+  const handleSelectSkill = (skill) => {
+    setForm(prev => ({
+      ...prev,
+      selectedSkill: skill,
+      query: '',
+      showSuggestions: false,
+      activeIndex: -1
+    }));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setForm(prev => ({ ...prev, activeIndex: (prev.activeIndex + 1) % filteredSuggestions.length }));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setForm(prev => ({ ...prev, activeIndex: (prev.activeIndex - 1 + filteredSuggestions.length) % filteredSuggestions.length }));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (form.activeIndex >= 0 && filteredSuggestions[form.activeIndex]) {
+        handleSelectSkill(filteredSuggestions[form.activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      setForm(prev => ({ ...prev, showSuggestions: false, activeIndex: -1 }));
     }
   };
 
@@ -76,21 +119,48 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
             </div>
 
             <form className="phase2-form-grid" onSubmit={handleSubmit}>
-              <label className="phase2-field">
+              <div className="phase2-field phase2-field-full">
                 <span>Skill</span>
-                <select
-                  value={form.skillId}
-                  onChange={(e) => setForm((prev) => ({ ...prev, skillId: e.target.value }))}
-                  required
-                >
-                  <option value="">Select a skill</option>
-                  {skills.map((skill) => (
-                    <option key={skill.id} value={skill.id}>
-                      {skill.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                {teachableSkills.length === 0 ? (
+                  <div className="phase2-empty" style={{ padding: '12px', textAlign: 'left', borderRadius: '14px', background: 'var(--phase2-secondary-bg)' }}>
+                    Add skills to your <Link to="/skills" onClick={onClose} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Skill Profile</Link> first.
+                  </div>
+                ) : (
+                  <div className="phase2-autocomplete-wrapper">
+                    <input
+                      value={form.query}
+                      onChange={(e) => setForm(prev => ({ ...prev, query: e.target.value, showSuggestions: true, activeIndex: -1 }))}
+                      onFocus={() => setForm(prev => ({ ...prev, showSuggestions: true }))}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type to search your skills..."
+                      required={!form.selectedSkill}
+                    />
+                    {form.showSuggestions && filteredSuggestions.length > 0 && (
+                      <div className="phase2-autocomplete-dropdown">
+                        {filteredSuggestions.map((skill, sIdx) => (
+                          <button
+                            key={skill.id}
+                            type="button"
+                            className={`phase2-autocomplete-item ${form.activeIndex === sIdx ? 'active' : ''}`}
+                            onClick={() => handleSelectSkill(skill)}
+                          >
+                            <span>{skill.name}</span>
+                            <small>{skill.category || 'General'}</small>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {form.selectedSkill && (
+                      <div className="phase2-selected-skill-chip">
+                        {form.selectedSkill.name}
+                        <button type="button" onClick={() => setForm(prev => ({ ...prev, selectedSkill: null }))}>
+                          <FaTimes />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <label className="phase2-field">
                 <span>Listing type</span>
@@ -102,6 +172,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
                   <option value="request">Request</option>
                 </select>
               </label>
+
 
               <label className="phase2-field">
                 <span>Level</span>
@@ -151,7 +222,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
                 <span>Description</span>
                 <textarea
                   rows="4"
-                  placeholder={selectedSkill ? `What should people expect from your ${selectedSkill.name} exchange?` : 'Describe scope, expectations, and ideal partner.'}
+                  placeholder={form.selectedSkill ? `What should people expect from your ${form.selectedSkill.name} exchange?` : 'Describe scope, expectations, and ideal partner.'}
                   value={form.description}
                   onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                 />
