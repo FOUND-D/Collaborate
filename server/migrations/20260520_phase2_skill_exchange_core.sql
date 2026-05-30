@@ -32,6 +32,8 @@ create table if not exists public.exchange_listings (
 create table if not exists public.booking_sessions (
   id uuid primary key default gen_random_uuid(),
   listing_id uuid references public.exchange_listings(id) on delete set null,
+  skill_id uuid references public.skills(id) on delete set null,
+  team_id uuid references public.teams(id) on delete set null,
   teacher_id uuid not null references public.users(id) on delete cascade,
   learner_id uuid references public.users(id) on delete set null,
   scheduled_at timestamptz not null,
