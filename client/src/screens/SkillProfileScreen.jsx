@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaCheckCircle, FaGraduationCap, FaPlus, FaSearch, FaStar } from 'react-icons/fa';
+import { FaCheckCircle, FaGraduationCap, FaPlus, FaSearch, FaStar, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { createUserSkill, deleteUserSkill, listSkills, listUserSkills } from '../actions/skillActions';
 import './SkillExchange.css';
@@ -23,11 +23,28 @@ const SkillProfileScreen = () => {
   const userInfo = useSelector((state) => state.userLogin.userInfo);
   const { skills: taxonomy = [] } = useSelector((state) => state.skillList);
   const { skills: userSkills = [], loading } = useSelector((state) => state.userSkillList);
+  const { error: createError } = useSelector((state) => state.userSkillCreate);
 
   const [drafts, setDrafts] = useState({
-    can_teach: { query: '', level: 'advanced', selectedSkillId: '', showSuggestions: false },
-    wants_to_learn: { query: '', level: 'beginner', selectedSkillId: '', showSuggestions: false },
+    can_teach: { 
+      query: '', 
+      level: 'advanced', 
+      selectedSkill: null, 
+      showSuggestions: false, 
+      activeIndex: -1,
+      inlineError: false 
+    },
+    wants_to_learn: { 
+      query: '', 
+      level: 'beginner', 
+      selectedSkill: null, 
+      showSuggestions: false, 
+      activeIndex: -1,
+      inlineError: false 
+    },
   });
+
+  const lastProcessedError = useRef(null);
 
   useEffect(() => {
     if (userInfo?._id) {
@@ -35,6 +52,20 @@ const SkillProfileScreen = () => {
       dispatch(listUserSkills(userInfo._id));
     }
   }, [dispatch, userInfo?._id]);
+
+  useEffect(() => {
+    if (createError && createError !== lastProcessedError.current) {
+      lastProcessedError.current = createError;
+      // Identify which draft to show error for. This is tricky since Redux error is global.
+      // We'll show it for whichever draft has a selectedSkill but failed.
+      Object.keys(drafts).forEach(type => {
+        if (drafts[type].selectedSkill) {
+          updateDraft(type, { inlineError: true });
+          setTimeout(() => updateDraft(type, { inlineError: false }), 2000);
+        }
+      });
+    }
+  }, [createError]);
 
   const groupedSkills = useMemo(() => ({
     can_teach: userSkills.filter((item) => item.type === 'can_teach'),
@@ -53,41 +84,62 @@ const SkillProfileScreen = () => {
 
   const addSkill = async (type) => {
     const draft = drafts[type];
-    const trimmedName = draft.query.trim();
-    if (!trimmedName && !draft.selectedSkillId) return;
+    if (!draft.selectedSkill) return;
 
     const created = await dispatch(createUserSkill({
-      skillId: draft.selectedSkillId || undefined,
-      name: draft.selectedSkillId ? undefined : trimmedName,
+      skillId: draft.selectedSkill.id,
       type,
       level: draft.level,
     }));
 
     if (created) {
-      setDrafts((prev) => ({
-        ...prev,
-        [type]: {
-          ...prev[type],
-          query: '',
-          selectedSkillId: '',
-          showSuggestions: false,
-        },
-      }));
+      updateDraft(type, {
+        query: '',
+        selectedSkill: null,
+        showSuggestions: false,
+        activeIndex: -1
+      });
     }
   };
 
-  const suggestionList = (type) => {
+  const filteredSuggestions = (type) => {
     const query = drafts[type].query.trim().toLowerCase();
-    if (!query) return taxonomy.slice(0, 6);
-    return taxonomy.filter((skill) => skill.name.toLowerCase().includes(query)).slice(0, 6);
+    if (query.length < 1) return [];
+    return taxonomy
+      .filter((skill) => skill.name.toLowerCase().includes(query))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8);
   };
 
-  const handleSelectSuggestion = (type, skill) => {
+  const handleSelectSkill = (type, skill) => {
     updateDraft(type, { 
-      query: skill.name, 
-      selectedSkillId: skill.id,
-      showSuggestions: false 
+      query: '', 
+      selectedSkill: skill,
+      showSuggestions: false,
+      activeIndex: -1 
     });
+  };
+
+  const handleKeyDown = (e, type) => {
+    const suggestions = filteredSuggestions(type);
+    const draft = drafts[type];
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (draft.activeIndex + 1) % suggestions.length;
+      updateDraft(type, { activeIndex: nextIndex });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const nextIndex = (draft.activeIndex - 1 + suggestions.length) % suggestions.length;
+      updateDraft(type, { activeIndex: nextIndex });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (draft.activeIndex >= 0 && suggestions[draft.activeIndex]) {
+        handleSelectSkill(type, suggestions[draft.activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      updateDraft(type, { showSuggestions: false, activeIndex: -1 });
+    }
   };
 
   return (
@@ -142,31 +194,43 @@ const SkillProfileScreen = () => {
               </div>
 
               <div className="phase2-skill-entry">
-                <div className="phase2-skill-input-wrap">
+                <div className="phase2-autocomplete-wrapper">
                   <input
                     value={drafts[type].query}
                     onChange={(e) => updateDraft(type, { 
                       query: e.target.value, 
-                      selectedSkillId: '',
-                      showSuggestions: true 
+                      showSuggestions: true,
+                      activeIndex: -1 
                     })}
                     onFocus={() => updateDraft(type, { showSuggestions: true })}
-                    placeholder="Add skill or search taxonomy"
+                    onKeyDown={(e) => handleKeyDown(e, type)}
+                    placeholder="Type to search skills..."
                   />
-                  {drafts[type].showSuggestions && (
-                    <div className="phase2-suggestion-list">
-                      {suggestionList(type).map((skill) => (
+                  {drafts[type].showSuggestions && filteredSuggestions(type).length > 0 && (
+                    <div className="phase2-autocomplete-dropdown">
+                      {filteredSuggestions(type).map((skill, sIdx) => (
                         <button
                           key={skill.id}
                           type="button"
-                          className="phase2-suggestion-item"
-                          onClick={() => handleSelectSuggestion(type, skill)}
+                          className={`phase2-autocomplete-item ${drafts[type].activeIndex === sIdx ? 'active' : ''}`}
+                          onClick={() => handleSelectSkill(type, skill)}
                         >
                           <span>{skill.name}</span>
                           <small>{skill.category || 'General'}</small>
                         </button>
                       ))}
                     </div>
+                  )}
+                  {drafts[type].selectedSkill && (
+                    <div className="phase2-selected-skill-chip">
+                      {drafts[type].selectedSkill.name}
+                      <button type="button" onClick={() => updateDraft(type, { selectedSkill: null })}>
+                        <FaTimes />
+                      </button>
+                    </div>
+                  )}
+                  {drafts[type].inlineError && (
+                    <div className="phase2-inline-error">Already in your profile</div>
                   )}
                 </div>
 
@@ -179,7 +243,13 @@ const SkillProfileScreen = () => {
                   <option value="advanced">Advanced</option>
                 </select>
 
-                <button type="button" className="phase2-button phase2-button-primary" onClick={() => addSkill(type)}>
+                <button 
+                  type="button" 
+                  className="phase2-button phase2-button-primary" 
+                  onClick={() => addSkill(type)}
+                  disabled={!drafts[type].selectedSkill}
+                  style={{ opacity: drafts[type].selectedSkill ? 1 : 0.5 }}
+                >
                   <FaPlus /> Add
                 </button>
               </div>
@@ -227,4 +297,5 @@ const SkillProfileScreen = () => {
 };
 
 export default SkillProfileScreen;
+
 ;
