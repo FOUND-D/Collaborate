@@ -35,6 +35,7 @@ const TeamDetailsScreen = () => {
   const [copied, setCopied] = useState(false);
   const [session, setSession] = useState(null);
   const [sessionError, setSessionError] = useState(null);
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [orgMembers, setOrgMembers] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [memberActionLoading, setMemberActionLoading] = useState(false);
@@ -69,7 +70,25 @@ const TeamDetailsScreen = () => {
         // No active session found
       }
     };
+    
+    const fetchUpcomingSessions = async () => {
+      try {
+        const { data } = await api.get(`/api/booking-sessions?team_id=${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const now = new Date();
+        const upcoming = data.filter(s => {
+          const scheduled = new Date(s.scheduled_at);
+          return (s.status === 'pending' || s.status === 'confirmed') && scheduled > now;
+        });
+        setUpcomingSessions(upcoming);
+      } catch (err) {
+        console.error('Failed to fetch upcoming booked sessions', err);
+      }
+    };
+
     fetchSession();
+    fetchUpcomingSessions();
 
     return () => {
       socketRef.current = null;
@@ -230,6 +249,36 @@ const TeamDetailsScreen = () => {
               <button className="btn btn-primary" onClick={startSessionHandler}>
                 Start Session
               </button>
+            )}
+            
+            {upcomingSessions.length > 0 && (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '12px' }}>Upcoming Sessions</h3>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {upcomingSessions.map(sess => {
+                    const scheduledDate = new Date(sess.scheduled_at);
+                    const now = new Date();
+                    const diffMins = (scheduledDate - now) / 1000 / 60;
+                    const canJoin = diffMins <= 15 || scheduledDate <= now;
+
+                    return (
+                      <div key={sess.id} className="phase2-glass" style={{ padding: '12px 16px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong>{sess.skill?.name || 'Skill session'}</strong>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {scheduledDate.toLocaleString()} • Booked by {sess.teacher?.name}
+                          </div>
+                        </div>
+                        {canJoin && (
+                          <span className="task-status-pill inprogress" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span className="pulse-dot"></span> Join Now
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
