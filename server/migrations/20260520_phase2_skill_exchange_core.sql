@@ -29,7 +29,7 @@ create table if not exists public.exchange_listings (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.sessions (
+create table if not exists public.booking_sessions (
   id uuid primary key default gen_random_uuid(),
   listing_id uuid references public.exchange_listings(id) on delete set null,
   teacher_id uuid not null references public.users(id) on delete cascade,
@@ -39,12 +39,11 @@ create table if not exists public.sessions (
   status text not null default 'pending',
   credits_transacted integer,
   agenda text,
-  ai_summary text,
-  meeting_id uuid references public.meetings(id) on delete set null
+  ai_summary text
 );
 
 create table if not exists public.ratings (
-  session_id uuid not null references public.sessions(id) on delete cascade,
+  session_id uuid not null references public.booking_sessions(id) on delete cascade,
   rater_id uuid not null references public.users(id) on delete cascade,
   ratee_id uuid not null references public.users(id) on delete cascade,
   stars smallint,
@@ -58,9 +57,8 @@ create index if not exists idx_user_skills_endorsed_by on public.user_skills(end
 create index if not exists idx_exchange_listings_user_id on public.exchange_listings(user_id);
 create index if not exists idx_exchange_listings_skill_id on public.exchange_listings(skill_id);
 create index if not exists idx_exchange_listings_status on public.exchange_listings(status);
-create index if not exists idx_sessions_listing_id on public.sessions(listing_id);
-create index if not exists idx_sessions_teacher_id on public.sessions(teacher_id);
-create index if not exists idx_sessions_learner_id on public.sessions(learner_id);
-create index if not exists idx_sessions_scheduled_at on public.sessions(scheduled_at);
-create index if not exists idx_sessions_meeting_id on public.sessions(meeting_id);
+create index if not exists idx_booking_sessions_listing_id on public.booking_sessions(listing_id);
+create index if not exists idx_booking_sessions_teacher_id on public.booking_sessions(teacher_id);
+create index if not exists idx_booking_sessions_learner_id on public.booking_sessions(learner_id);
+create index if not exists idx_booking_sessions_scheduled_at on public.booking_sessions(scheduled_at);
 create index if not exists idx_ratings_ratee_id on public.ratings(ratee_id);
