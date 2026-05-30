@@ -233,6 +233,94 @@
   position: relative;
 }
 
+.phase2-autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--phase2-card-bg);
+  border: 1px solid var(--phase2-card-border);
+  border-radius: 14px;
+  margin-top: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: var(--phase2-shell-shadow);
+}
+
+.phase2-autocomplete-item {
+  width: calc(100% - 16px);
+  margin: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--phase2-primary-bg);
+  border-radius: 12px;
+  background: var(--phase2-card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.phase2-autocomplete-item:hover,
+.phase2-autocomplete-item.active {
+  background: var(--phase2-primary-bg);
+}
+
+.phase2-autocomplete-item:hover span,
+.phase2-autocomplete-item:hover small,
+.phase2-autocomplete-item.active span,
+.phase2-autocomplete-item.active small {
+  color: var(--phase2-primary-text);
+}
+
+.phase2-autocomplete-item span {
+  font-weight: 600;
+  color: var(--phase2-title);
+}
+
+.phase2-autocomplete-item small {
+  color: var(--phase2-copy-muted);
+  font-size: 0.75rem;
+}
+
+.phase2-selected-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--phase2-primary-bg);
+  color: var(--phase2-primary-text);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.phase2-selected-skill-chip button {
+  background: transparent;
+  border: 0;
+  color: currentColor;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  font-size: 1rem;
+}
+
+.phase2-inline-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  animation: phase2-fadeIn 0.2s ease-out;
+}
+
+@keyframes phase2-fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .phase2-skill-entry input,
 .phase2-skill-entry select,
 .phase2-filter-bar select,
@@ -273,8 +361,7 @@
 }
 
 .phase2-suggestion-list {
-  gap: 8px;
-  margin-top: 10px;
+  display: none;
 }
 
 .phase2-skill-list,
