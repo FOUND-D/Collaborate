@@ -50,8 +50,14 @@ export const listSessions = () => async (dispatch, getState) => {
   try {
     dispatch({ type: SESSION_LIST_REQUEST });
     const config = getAuthConfig(getState);
-    const { data } = await api.get('/api/sessions', config);
-    dispatch({ type: SESSION_LIST_SUCCESS, payload: data });
+    const { data } = await api.get('/api/booking-sessions', config);
+    
+    const payload = {
+      upcoming: data?.upcoming || [],
+      past: data?.past || []
+    };
+    
+    dispatch({ type: SESSION_LIST_SUCCESS, payload });
   } catch (error) {
     handleAuthError(dispatch, error, SESSION_LIST_FAIL);
   }
