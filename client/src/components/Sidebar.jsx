@@ -15,7 +15,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
   const navigate = useNavigate();
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
-  const creditBalance = userInfo?.credits ?? 50;
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -137,15 +136,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
         <div className="sidebar-bottom">
           <div className="sidebar-footer-links" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start' }}>
             <ThemeToggle collapsed={isCollapsed && !isMobile} />
-          </div>
-          <div className="sidebar-credit-chip" title={`Credits: ${creditBalance}`} style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', padding: isCollapsed && !isMobile ? '10px 0' : '10px' }}>
-            <div className="sidebar-credit-icon">
-              <FaCoins size={11} />
-            </div>
-            <div className="sidebar-credit-copy" style={labelStyle}>
-              <span className="sidebar-credit-label">Credits</span>
-              <span className="sidebar-credit-value">{creditBalance}</span>
-            </div>
           </div>
           {userInfo && (
             <NavLink to="/profile" className="sidebar-user-row" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', padding: isCollapsed && !isMobile ? '6px 0' : '6px 10px' }}>
