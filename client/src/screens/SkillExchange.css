@@ -129,6 +129,16 @@
   border: 1px solid var(--phase2-secondary-border);
 }
 
+.phase2-button-danger {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.phase2-button-danger:hover {
+  background: #dc2626;
+}
+
 .phase2-split-grid,
 .phase2-detail-grid,
 .phase2-board-layout {

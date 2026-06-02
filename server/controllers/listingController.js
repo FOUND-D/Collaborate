@@ -1,10 +1,10 @@
 const asyncHandler = require('../middleware/asyncHandler');
+const supabase = require('../lib/supabase');
 const {
   createListing,
   listListings,
   getListingById,
   updateListing,
-  deleteListing,
 } = require('../lib/repo');
 
 const createExchangeListing = asyncHandler(async (req, res) => {
@@ -47,12 +47,16 @@ const updateExchangeListing = asyncHandler(async (req, res) => {
   res.json(listing);
 });
 
-const deleteExchangeListing = asyncHandler(async (req, res) => {
-  await deleteListing({
-    listingId: req.params.id,
-    userId: req.user._id,
-  });
-  res.json({ message: 'Listing deleted' });
+const deleteListing = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase
+    .from('exchange_listings')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', req.user._id);
+
+  if (error) return res.status(400).json({ message: error.message });
+  res.json({ message: 'Listing removed' });
 });
 
 module.exports = {
@@ -60,5 +64,5 @@ module.exports = {
   getExchangeListings,
   getExchangeListingById,
   updateExchangeListing,
-  deleteExchangeListing,
+  deleteListing,
 };

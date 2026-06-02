@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FaCalendarAlt, FaCoins, FaStar, FaUsers } from 'react-icons/fa';
+import { FaCalendarAlt, FaCoins, FaStar, FaTrash, FaUsers } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
-import { getListingDetails } from '../actions/listingActions';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { deleteListing, getListingDetails } from '../actions/listingActions';
 import { createSession } from '../actions/sessionActions';
 import './SkillExchange.css';
 
 const ListingDetailScreen = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { listing, loading } = useSelector((state) => state.listingDetails);
+  const { userInfo } = useSelector((state) => state.userLogin);
+
   const [booking, setBooking] = useState({
     scheduledAt: '',
     durationMin: 60,
@@ -33,6 +37,13 @@ const ListingDetailScreen = () => {
 
     if (created) {
       setIsOpen(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to remove this listing?')) {
+      await dispatch(deleteListing(listing._id));
+      navigate('/exchange');
     }
   };
 
@@ -68,6 +79,11 @@ const ListingDetailScreen = () => {
               <button type="button" className="phase2-button phase2-button-primary" onClick={() => setIsOpen(true)}>
                 Book session
               </button>
+              {listing.userId === userInfo?._id && (
+                <button type="button" className="phase2-button phase2-button-danger" onClick={handleDelete}>
+                  <FaTrash /> Delete listing
+                </button>
+              )}
               <Link className="phase2-button phase2-button-secondary" to="/exchange">
                 Back to board
               </Link>
