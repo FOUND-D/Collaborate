@@ -28,6 +28,10 @@ const buildTaskPayload = (body, userId, { includeOwner = false, assignedBy = fal
   if (body.category !== undefined) {
     payload.category = body.category || null;
   }
+  if (body.dueDate !== undefined || body.due_date !== undefined) {
+    payload.due_date = body.dueDate || body.due_date || null;
+    delete payload.dueDate;
+  }
   delete payload.dependencies;
   delete payload._id;
   return payload;
