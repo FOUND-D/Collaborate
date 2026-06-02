@@ -86,13 +86,14 @@ const SkillProfileScreen = () => {
     const draft = drafts[type];
     if (!draft.selectedSkill) return;
 
-    const created = await dispatch(createUserSkill({
-      skillId: draft.selectedSkill.id,
-      type,
-      level: draft.level,
-    }));
+    const payload = draft.selectedSkill.id 
+      ? { skillId: draft.selectedSkill.id, type, level: draft.level }
+      : { name: draft.selectedSkill.name, type, level: draft.level };
+
+    const created = await dispatch(createUserSkill(payload));
 
     if (created) {
+      dispatch(listSkills());
       updateDraft(type, {
         query: '',
         selectedSkill: null,
@@ -105,10 +106,12 @@ const SkillProfileScreen = () => {
   const filteredSuggestions = (type) => {
     const query = drafts[type].query.trim().toLowerCase();
     if (query.length < 1) return [];
-    return taxonomy
+    const matches = taxonomy
       .filter((skill) => skill.name.toLowerCase().includes(query))
       .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, 8);
+    
+    return matches;
   };
 
   const handleSelectSkill = (type, skill) => {
@@ -122,20 +125,26 @@ const SkillProfileScreen = () => {
 
   const handleKeyDown = (e, type) => {
     const suggestions = filteredSuggestions(type);
-    const draft = drafts[type];
+    const query = drafts[type].query.trim();
+    const hasMatches = suggestions.length > 0;
+    const canAddNew = query.length > 0 && !hasMatches;
+    
+    const maxIndex = hasMatches ? suggestions.length - 1 : (canAddNew ? 0 : -1);
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const nextIndex = (draft.activeIndex + 1) % suggestions.length;
+      const nextIndex = maxIndex >= 0 ? (drafts[type].activeIndex + 1) % (maxIndex + 1) : -1;
       updateDraft(type, { activeIndex: nextIndex });
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const nextIndex = (draft.activeIndex - 1 + suggestions.length) % suggestions.length;
+      const nextIndex = maxIndex >= 0 ? (drafts[type].activeIndex - 1 + (maxIndex + 1)) % (maxIndex + 1) : -1;
       updateDraft(type, { activeIndex: nextIndex });
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (draft.activeIndex >= 0 && suggestions[draft.activeIndex]) {
-        handleSelectSkill(type, suggestions[draft.activeIndex]);
+      if (hasMatches && drafts[type].activeIndex >= 0 && suggestions[drafts[type].activeIndex]) {
+        handleSelectSkill(type, suggestions[drafts[type].activeIndex]);
+      } else if (canAddNew && drafts[type].activeIndex === 0) {
+        handleSelectSkill(type, { id: null, name: query });
       }
     } else if (e.key === 'Escape') {
       updateDraft(type, { showSuggestions: false, activeIndex: -1 });
@@ -206,7 +215,7 @@ const SkillProfileScreen = () => {
                     onKeyDown={(e) => handleKeyDown(e, type)}
                     placeholder="Type to search skills..."
                   />
-                  {drafts[type].showSuggestions && filteredSuggestions(type).length > 0 && (
+                  {drafts[type].showSuggestions && (
                     <div className="phase2-autocomplete-dropdown">
                       {filteredSuggestions(type).map((skill, sIdx) => (
                         <button
@@ -219,6 +228,16 @@ const SkillProfileScreen = () => {
                           <small>{skill.category || 'General'}</small>
                         </button>
                       ))}
+                      {drafts[type].query.trim().length > 0 && filteredSuggestions(type).length === 0 && (
+                        <button
+                          type="button"
+                          className={`phase2-autocomplete-item ${drafts[type].activeIndex === 0 ? 'active' : ''}`}
+                          style={{ borderStyle: 'dashed', color: '#2dd4bf', fontStyle: 'italic' }}
+                          onClick={() => handleSelectSkill(type, { id: null, name: drafts[type].query.trim() })}
+                        >
+                          + Add "{drafts[type].query.trim()}" as new skill
+                        </button>
+                      )}
                     </div>
                   )}
                   {drafts[type].selectedSkill && (

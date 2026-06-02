@@ -1,4 +1,5 @@
 const asyncHandler = require('../middleware/asyncHandler');
+const supabase = require('../lib/supabase');
 const {
   listSkills,
   addUserSkill,
@@ -12,22 +13,67 @@ const getSkills = asyncHandler(async (req, res) => {
 });
 
 const createUserSkill = asyncHandler(async (req, res) => {
-  const { skillId, skill_id, name, category, type, level } = req.body;
+  const { skillId, skill_id, name, type, level } = req.body;
 
   if (!type || !['can_teach', 'wants_to_learn'].includes(type)) {
     return res.status(400).json({ message: 'type must be can_teach or wants_to_learn' });
   }
 
-  const userSkill = await addUserSkill({
-    userId: req.user._id,
-    skillId: skillId || skill_id,
-    name,
-    category,
-    type,
-    level,
-  });
+  let finalSkillId = skillId || skill_id;
 
-  res.status(201).json(userSkill);
+  if (!finalSkillId && name) {
+    // 1. Case-insensitive search for existing skill
+    const { data: existing } = await supabase
+      .from('skills')
+      .select('id, name, category')
+      .ilike('name', name.trim())
+      .maybeSingle();
+
+    if (existing) {
+      // skill exists — use it
+      finalSkillId = existing.id;
+    } else {
+      // skill doesn't exist — create it
+      const { data: newSkill, error: insertError } = await supabase
+        .from('skills')
+        .insert({ name: name.trim(), category: 'General' })
+        .select()
+        .single();
+      if (insertError) return res.status(400).json({ message: insertError.message });
+      finalSkillId = newSkill.id;
+    }
+  }
+
+  if (!finalSkillId) {
+    return res.status(400).json({ message: 'skill_id or name is required' });
+  }
+
+  // 2. Now insert into user_skills using finalSkillId
+  const { data: userSkill, error: upsertError } = await supabase
+    .from('user_skills')
+    .upsert({
+      user_id: req.user._id,
+      skill_id: finalSkillId,
+      type,
+      level: level || null,
+    }, { onConflict: 'user_id,skill_id,type' })
+    .select('*, skill:skills(*)')
+    .single();
+
+  if (upsertError) return res.status(400).json({ message: upsertError.message });
+
+  // Map to public format manually or fetch enriched
+  res.status(201).json({
+    userId: userSkill.user_id,
+    skillId: userSkill.skill_id,
+    type: userSkill.type,
+    level: userSkill.level,
+    skill: userSkill.skill ? {
+      id: userSkill.skill.id,
+      name: userSkill.skill.name,
+      category: userSkill.skill.category
+    } : null
+  });
 });
 
 const deleteUserSkill = asyncHandler(async (req, res) => {

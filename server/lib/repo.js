@@ -978,22 +978,6 @@ const uniqueSlug = async (name, excludeId) => {
   }
 };
 
-const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-const uniqueSlug = async (name, excludeId) => {
-  const base = slugify(name);
-  let slug = base;
-  let i = 2;
-  while (true) {
-    let q = supabase.from('organisations').select('id').eq('slug', slug);
-    if (excludeId) q = q.neq('id', excludeId);
-    const { data, error } = await q.limit(1);
-    if (error) throw error;
-    if (!data.length) return slug;
-    slug = `${base}-${i++}`;
-  }
-};
-
 module.exports = {
   supabase,
   crypto,
