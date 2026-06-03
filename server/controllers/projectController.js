@@ -244,37 +244,72 @@ const createProjectWithAI = asyncHandler(async (req, res) => {
   const chatCompletion = await groq.chat.completions.create({
     messages: [
       {
+        role: 'system',
+        content: 'You are an expert project manager. You generate detailed project roadmaps in structured JSON format.'
+      },
+      {
         role: 'user',
-        content: `Generate a JSON object representing a project plan for: "${goal}".
-The JSON object MUST contain a "tasks" array. Each task should have:
-- name: string (short name)
-- description: string
-- duration: number (in days)
-- priority: string ("Low", "Medium", or "High")
-- subtasks: array of task objects (optional)
+        content: `Generate a JSON object representing a project plan for the goal: "${goal}".
+The JSON object MUST contain "challenge", "solution", and "tasks" fields at the root level.
+
+Specifically:
+1. "challenge": A concise description of the key problem/challenge that needs to be solved.
+2. "solution": A concise explanation of the proposed solution and how it will work.
+3. "tasks": An array of tasks. Each task should have:
+   - name: string (short, clear name)
+   - description: string (informative, action-oriented)
+   - duration: number (integer representing duration in days, default to 1 if unsure)
+   - priority: string (MUST be exactly "Low", "Medium", or "High")
+   - subtasks: array of task objects with the same structure (optional, nesting up to 2-3 levels is fine)
 
 Example format:
 {
+  "challenge": "Manual fee processing is time-consuming and error-prone for schools.",
+  "solution": "An automated school website with fee integration.",
   "tasks": [
     {
-      "name": "Initial Setup",
-      "description": "Setup project files",
+      "name": "Database Setup",
+      "description": "Create schema and initialize tables",
       "duration": 2,
       "priority": "High",
-      "subtasks": []
+      "subtasks": [
+        {
+          "name": "Design Schema",
+          "description": "Draft DB diagram and relational mappings",
+          "duration": 1,
+          "priority": "High"
+        }
+      ]
     }
   ]
 }`
       }
     ],
-    model: 'openai/gpt-oss-120b',
+    model: 'llama-3.3-70b-versatile',
     response_format: { type: 'json_object' }
   });
 
-  const roadmap = JSON.parse(chatCompletion.choices[0]?.message?.content || '{}');
+  let roadmap = {};
+  try {
+    roadmap = JSON.parse(chatCompletion.choices[0]?.message?.content || '{}');
+  } catch (parseErr) {
+    console.error('Failed to parse Groq AI response as JSON:', parseErr);
+    console.log('Raw output:', chatCompletion.choices[0]?.message?.content);
+    return res.status(500).json({ message: 'Failed to generate a valid project roadmap. Please try again.' });
+  }
+
+  // Determine a structured goal description for the DB
+  let projectGoal = goal;
+  if (roadmap.challenge && roadmap.solution) {
+    projectGoal = `Challenge: ${roadmap.challenge.trim()}\n\nSolution: ${roadmap.solution.trim()}`;
+  } else {
+    // Fallback if keys are missing
+    projectGoal = `Challenge: ${goal}\n\nSolution: Plan to be developed based on goal.`;
+  }
+
   const project = await supabase.from('projects').insert({
     name,
-    goal,
+    goal: projectGoal,
     due_date: dueDate || null,
     team_id: context.teamId,
     organisation_id: context.organisationId,
@@ -283,19 +318,45 @@ Example format:
 
   if (project.error) throw project.error;
 
-  const taskData = roadmap.tasks || [];
+  // Extract tasks robustly from response structure
+  let taskData = [];
+  if (Array.isArray(roadmap.tasks)) {
+    taskData = roadmap.tasks;
+  } else if (roadmap.project && Array.isArray(roadmap.project.tasks)) {
+    taskData = roadmap.project.tasks;
+  } else if (Array.isArray(roadmap)) {
+    taskData = roadmap;
+  }
 
   // Helper to recursively insert tasks in Supabase
   const insertTasks = async (tasksList, projectId, teamId, ownerId, parentId = null) => {
     for (const task of tasksList) {
+      const taskName = (task.name || 'Unnamed Task').trim();
+      const taskDescription = (task.description || '').trim();
+      
+      // Ensure duration is a valid integer
+      let duration = parseInt(task.duration, 10);
+      if (isNaN(duration) || duration <= 0) {
+        duration = 1;
+      }
+
+      // Map priority case-insensitively to match postgres Check Constraints
+      const rawPriority = String(task.priority || 'Medium').trim().toLowerCase();
+      let priority = 'Medium';
+      if (rawPriority === 'high') {
+        priority = 'High';
+      } else if (rawPriority === 'low') {
+        priority = 'Low';
+      }
+
       const { data: createdTask, error: insertError } = await supabase
         .from('tasks')
         .insert({
-          name: task.name || 'Unnamed Task',
-          description: task.description || '',
-          duration: task.duration || 1,
+          name: taskName,
+          description: taskDescription,
+          duration,
           status: 'pending',
-          priority: task.priority || 'Medium',
+          priority,
           project_id: projectId,
           team_id: teamId || null,
           parent_id: parentId,
@@ -305,18 +366,28 @@ Example format:
         .single();
 
       if (insertError) {
-        console.error('Error inserting AI task:', insertError);
+        console.error('Error inserting AI task in database:', insertError);
+        console.error('Attempted task payload:', {
+          name: taskName,
+          duration,
+          priority,
+          project_id: projectId,
+          parent_id: parentId
+        });
         continue;
       }
 
-      if (task.subtasks && task.subtasks.length > 0) {
-        await insertTasks(task.subtasks, projectId, teamId, ownerId, createdTask.id);
+      const subtasksList = task.subtasks || task.subTasks;
+      if (Array.isArray(subtasksList) && subtasksList.length > 0) {
+        await insertTasks(subtasksList, projectId, teamId, ownerId, createdTask.id);
       }
     }
   };
 
   if (Array.isArray(taskData) && taskData.length > 0) {
     await insertTasks(taskData, project.data.id, context.teamId, req.user._id);
+  } else {
+    console.warn('AI generated no tasks or tasks were in an unexpected format. Roadmap keys:', Object.keys(roadmap));
   }
 
   res.status(201).json({ ...project.data, roadmap, techStack });
