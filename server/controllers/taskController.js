@@ -51,6 +51,16 @@ const buildTaskPayload = (body, userId, { includeOwner = false, assignedBy = fal
   return payload;
 };
 
+const toPublicTask = (task) => {
+  if (!task) return null;
+  return {
+    ...task,
+    _id: task.id,
+    dueDate: task.due_date || task.commitment_timestamp || null,
+    due_date: task.due_date || task.commitment_timestamp || null,
+  };
+};
+
 const createTask = asyncHandler(async (req, res) => {
   const payload = buildTaskPayload(req.body, req.user._id, { includeOwner: true, assignedBy: true });
   const { data, error } = await supabase.from('tasks').insert(payload).select('*').single();
@@ -58,32 +68,34 @@ const createTask = asyncHandler(async (req, res) => {
   if (Array.isArray(req.body.dependencies)) {
     await supabase.from('task_dependencies').insert(req.body.dependencies.map((dependencyId) => ({ task_id: data.id, depends_on_task_id: dependencyId })));
   }
+  const publicTask = toPublicTask(data);
   if (data.team_id) {
-    req.io?.to(data.team_id).emit('taskCreated', data);
+    req.io?.to(data.team_id).emit('taskCreated', publicTask);
   }
-  res.status(201).json(data);
+  res.status(201).json(publicTask);
 });
 
 const getTasks = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('tasks').select('*').or(`assignee_id.eq.${req.user._id},owner_id.eq.${req.user._id}`);
   if (error) throw error;
-  res.json(data || []);
+  res.json((data || []).map(toPublicTask));
 });
 
 const getTaskById = asyncHandler(async (req, res) => {
   const { data } = await supabase.from('tasks').select('*').eq('id', req.params.id).maybeSingle();
   if (!data) return res.status(404).json({ message: 'Task not found' });
-  res.json(data);
+  res.json(toPublicTask(data));
 });
 
 const updateTask = asyncHandler(async (req, res) => {
   const payload = buildTaskPayload(req.body, req.user._id);
   const { data, error } = await supabase.from('tasks').update(payload).eq('id', req.params.id).select('*').single();
   if (error) throw error;
+  const publicTask = toPublicTask(data);
   if (data.team_id) {
-    req.io?.to(data.team_id).emit('taskUpdated', data);
+    req.io?.to(data.team_id).emit('taskUpdated', publicTask);
   }
-  res.json(data);
+  res.json(publicTask);
 });
 
 const assignTaskToTeam = asyncHandler(async (req, res) => {
@@ -111,8 +123,9 @@ const assignTaskToTeam = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('tasks').insert(rows).select('*');
   if (error) throw error;
 
-  req.io?.to(teamId).emit('teamTasksAssigned', data || []);
-  res.status(201).json(data || []);
+  const publicTasks = (data || []).map(toPublicTask);
+  req.io?.to(teamId).emit('teamTasksAssigned', publicTasks);
+  res.status(201).json(publicTasks);
 });
 
 const deleteTask = asyncHandler(async (req, res) => {
@@ -121,4 +134,4 @@ const deleteTask = asyncHandler(async (req, res) => {
   res.json({ message: 'Task removed' });
 });
 
-module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, assignTaskToTeam };
+module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, assignTaskToTeam, toPublicTask };

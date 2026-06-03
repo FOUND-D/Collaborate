@@ -2,7 +2,17 @@ const asyncHandler = require('../middleware/asyncHandler');
 const Groq = require('groq-sdk');
 const { supabase } = require('../lib/repo');
 const dotenv = require('dotenv');
+const { toPublicTask } = require('./taskController');
 dotenv.config();
+
+const toPublicProject = (project) => {
+  if (!project) return null;
+  return {
+    ...project,
+    _id: project.id,
+    dueDate: project.due_date || null,
+  };
+};
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
 const getOrgMembership = async (organisationId, userId) => {
@@ -100,7 +110,7 @@ const getProjects = asyncHandler(async (req, res) => {
 
   const { data, error } = await query;
   if (error) throw error;
-  res.json(data || []);
+  res.json((data || []).map(toPublicProject));
 });
 
 const createProject = asyncHandler(async (req, res) => {
@@ -118,7 +128,7 @@ const createProject = asyncHandler(async (req, res) => {
     owner_id: req.user._id,
   }).select('*').single();
   if (error) throw error;
-  res.status(201).json(data);
+  res.status(201).json(toPublicProject(data));
 });
 
 const updateProject = asyncHandler(async (req, res) => {
@@ -163,7 +173,7 @@ const updateProject = asyncHandler(async (req, res) => {
     organisation_id: nextOrganisationId,
   }).eq('id', req.params.id).select('*').single();
   if (error) throw error;
-  res.json(data);
+  res.json(toPublicProject(data));
 });
 
 const deleteProject = asyncHandler(async (req, res) => {
@@ -186,7 +196,7 @@ const deleteProject = asyncHandler(async (req, res) => {
 const getProjectById = asyncHandler(async (req, res) => {
   const { data, error } = await supabase
     .from('projects')
-    .select('*, owner:users(id, name, email), team:teams(id, name), tasks(*, assignee:users(id, name, email))')
+    .select('*, owner:users(id, name, email), team:teams(id, name), tasks(*, assignee:users!tasks_assignee_id_fkey(id, name, email))')
     .eq('id', req.params.id)
     .maybeSingle();
 
@@ -205,9 +215,9 @@ const getProjectById = asyncHandler(async (req, res) => {
     const taskMap = {};
     const rootTasks = [];
 
-    // First pass: create mapping and initialize subTasks array
+    // First pass: create mapping and initialize subTasks array using formatted tasks
     data.tasks.forEach(task => {
-      taskMap[task.id] = { ...task, subTasks: [] };
+      taskMap[task.id] = { ...toPublicTask(task), subTasks: [] };
     });
 
     // Second pass: associate child tasks with parents
@@ -227,7 +237,7 @@ const getProjectById = asyncHandler(async (req, res) => {
     data.tasks = [];
   }
 
-  res.json(data);
+  res.json(toPublicProject(data));
 });
 
 const createProjectWithAI = asyncHandler(async (req, res) => {
@@ -390,7 +400,7 @@ Example format:
     console.warn('AI generated no tasks or tasks were in an unexpected format. Roadmap keys:', Object.keys(roadmap));
   }
 
-  res.status(201).json({ ...project.data, roadmap, techStack });
+  res.status(201).json({ ...toPublicProject(project.data), roadmap, techStack });
 });
 
 module.exports = { getProjects, createProjectWithAI, getProjectById, deleteProject, createProject, updateProject };
