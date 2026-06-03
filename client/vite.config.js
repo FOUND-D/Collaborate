@@ -4,8 +4,8 @@ import process from 'node:process';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const backendTarget = env.VITE_API_URL || 'https://collaborate-arin.onrender.com';
-  const socketTarget = env.VITE_SOCKET_URL || 'https://collaborate-arin.onrender.com';
+  const backendTarget = env.VITE_API_URL || 'https://collaborate-1.onrender.com';
+  const socketTarget = env.VITE_SOCKET_URL || 'https://collaborate-1.onrender.com';
 
   return {
     plugins: [react()],
