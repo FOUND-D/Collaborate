@@ -5,35 +5,49 @@ const buildTaskPayload = (body, userId, { includeOwner = false, assignedBy = fal
   const payload = { ...body };
   if (includeOwner) payload.owner_id = userId;
   if (assignedBy) payload.assigned_by = userId;
+
+  // Map client fields to database columns
   if (body.assignee !== undefined) {
     payload.assignee_id = body.assignee || null;
-    delete payload.assignee;
   }
   if (body.project !== undefined) {
     payload.project_id = body.project || null;
-    delete payload.project;
   }
   if (body.team !== undefined) {
     payload.team_id = body.team || null;
-    delete payload.team;
   }
   if (body.teamId !== undefined) {
     payload.team_id = body.teamId || null;
-    delete payload.teamId;
   }
   if (body.projectId !== undefined) {
     payload.project_id = body.projectId || null;
-    delete payload.projectId;
   }
   if (body.category !== undefined) {
     payload.category = body.category || null;
   }
   if (body.dueDate !== undefined || body.due_date !== undefined) {
     payload.due_date = body.dueDate || body.due_date || null;
-    delete payload.dueDate;
   }
-  delete payload.dependencies;
-  delete payload._id;
+
+  // Explicitly delete all client-only/temporary keys to prevent PostgREST column schema cache errors
+  const keysToDelete = [
+    'assignee',
+    'project',
+    'team',
+    'teamId',
+    'projectId',
+    'dueDate',
+    'duedate',
+    'dependencies',
+    '_id',
+    'subTasks',
+    'subtasks'
+  ];
+  
+  keysToDelete.forEach(key => {
+    delete payload[key];
+  });
+
   return payload;
 };
 

@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "check-tasks": "node check-tasks-columns.js",
     "start": "node index.js"
   },
   "keywords": [],
