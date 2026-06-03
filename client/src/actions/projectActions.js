@@ -253,7 +253,7 @@ export const updateProject = (project) => async (dispatch, getState) => {
     };
 
     const { data } = await api.put(
-      `/api/projects/${project._id}`,
+      `/api/projects/${project._id || project.id}`,
       project,
       config
     );

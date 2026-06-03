@@ -162,7 +162,7 @@ export const updateTask = (task) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await api.put(`/api/tasks/${task._id}`, task, config);
+    const { data } = await api.put(`/api/tasks/${task._id || task.id}`, task, config);
 
     dispatch({
       type: TASK_UPDATE_SUCCESS,

@@ -216,7 +216,7 @@ const TaskEditScreen = () => {
   }, [dispatch, navigate, successCreate, successUpdate]);
 
   useEffect(() => {
-    if (isEditMode && (!task || task._id !== id)) {
+    if (isEditMode && (!task || (task._id || task.id) !== id)) {
       dispatch(getTaskDetails(id));
     }
   }, [dispatch, id, task, isEditMode]);

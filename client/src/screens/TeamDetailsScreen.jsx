@@ -349,7 +349,7 @@ const TeamDetailsScreen = () => {
                 team.projects.map((project) => {
                     const progress = calculateProgress(project.tasks);
                     return (
-                        <Link to={`/project/${project._id}`} key={project._id} className="project-link-card">
+                        <Link to={`/project/${project._id || project.id}`} key={project._id || project.id} className="project-link-card">
                             <div className="project-card-info">
                                 <div className="project-card-name">{project.name}</div>
                                 <div className="project-card-progress">

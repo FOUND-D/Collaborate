@@ -128,7 +128,7 @@ const OngoingProjectsScreen = () => {
           ) : (
             projects.map((project) => (
               <ProjectListItem
-                key={project._id}
+                key={project._id || project.id}
                 project={project}
                 userInfo={userInfo}
                 onDelete={deleteHandler}

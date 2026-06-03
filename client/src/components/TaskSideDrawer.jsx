@@ -148,7 +148,7 @@ const TaskSideDrawer = ({ taskId, projectId, isCreatingTask, onClose }) => {
     } else if (successUpdate) {
       dispatch({ type: TASK_UPDATE_RESET });
       onClose(); // Close drawer on successful update
-    } else if (taskId && (!task || task._id !== taskId)) {
+    } else if (taskId && (!task || (task._id || task.id) !== taskId)) {
       dispatch(getTaskDetails(taskId));
     }
   }, [dispatch, taskId, task, successUpdate, isCreatingTask, onClose]);

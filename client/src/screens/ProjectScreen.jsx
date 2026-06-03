@@ -41,7 +41,7 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
             {isCompleted && <FaCheck size="0.8em" />}
           </div>
         </div>
-        <div className="task-details-main" onClick={() => onEdit(task._id)}>
+        <div className="task-details-main" onClick={() => onEdit(task._id || task.id)}>
           <span className={`task-name ${isCompleted ? 'completed' : ''}`}>
             {task.name}
           </span>
@@ -64,7 +64,7 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
               {subtasksVisible ? <FaMinus /> : <FaPlus />}
             </button>
           )}
-          <button className="task-action-btn workspace-icon-btn" onClick={() => onEdit(task._id)} type="button">
+          <button className="task-action-btn workspace-icon-btn" onClick={() => onEdit(task._id || task.id)} type="button">
             <FaEdit />
           </button>
         </div>
@@ -72,7 +72,7 @@ const TaskItem = ({ task, onCheck, onEdit, level = 0 }) => {
       {subtasksVisible && task.subTasks && (
         <div className="modern-task-list subtask-list">
           {task.subTasks.map(subtask => (
-            <TaskItem key={subtask._id} task={subtask} onCheck={onCheck} onEdit={onEdit} level={level + 1} />
+            <TaskItem key={subtask._id || subtask.id} task={subtask} onCheck={onCheck} onEdit={onEdit} level={level + 1} />
           ))}
         </div>
       )}
@@ -256,7 +256,7 @@ const ProjectScreen = () => {
             ) : (
               <div className="modern-task-list">
                 {project.tasks && project.tasks.map((task) => (
-                  <TaskItem key={task._id} task={task} onCheck={handleTaskCheck} onEdit={handleEditTask} />
+                  <TaskItem key={task._id || task.id} task={task} onCheck={handleTaskCheck} onEdit={handleEditTask} />
                 ))}
               </div>
             )}

@@ -38,7 +38,7 @@ const ProjectCreateScreen = () => {
     }
     if (success) {
       dispatch({ type: PROJECT_CREATE_WITH_AI_RESET });
-      navigate(`/project/${project._id}`);
+      navigate(`/project/${project._id || project.id}`);
     }
   }, [dispatch, navigate, success, project, userInfo]);
 

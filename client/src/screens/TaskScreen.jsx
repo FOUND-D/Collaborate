@@ -183,7 +183,7 @@ const TaskScreen = () => {
           ) : (
             <div className="modern-task-list">
               {filteredTasks.map((task) => (
-                <div key={task._id} className="task-list-item">
+                <div key={task._id || task.id} className="task-list-item">
                   <div className="task-checkbox-container">
                     <div
                       className={`task-checkbox ${task.status === 'Completed' ? 'checked' : ''}`}
@@ -193,7 +193,7 @@ const TaskScreen = () => {
                     </div>
                   </div>
 
-                  <div className="task-details-main" onClick={() => navigate(`/task/${task._id}/edit`)} style={{ cursor: 'pointer' }}>
+                  <div className="task-details-main" onClick={() => navigate(`/task/${task._id || task.id}/edit`)} style={{ cursor: 'pointer' }}>
                     <span className={`task-name ${task.status === 'Completed' ? 'completed' : ''}`}>
                       {task.name}
                     </span>
@@ -220,13 +220,13 @@ const TaskScreen = () => {
                   </div>
 
                   <div className="task-actions-group">
-                    <button className="task-action-btn" onClick={() => navigate(`/task/${task._id}/edit`)} title="Edit" type="button">
+                    <button className="task-action-btn" onClick={() => navigate(`/task/${task._id || task.id}/edit`)} title="Edit" type="button">
                       <FaEdit />
                     </button>
-                    {userInfo && task.owner === userInfo._id && (
+                    {userInfo && (task.owner === userInfo._id || task.owner === userInfo.id) && (
                       <button
                         className="task-action-btn"
-                        onClick={() => deleteHandler(task._id)}
+                        onClick={() => deleteHandler(task._id || task.id)}
                         title="Delete"
                         type="button"
                       >

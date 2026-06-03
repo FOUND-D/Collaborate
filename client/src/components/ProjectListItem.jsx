@@ -14,7 +14,7 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
 
   // --- Robust Ownership Check ---
   // This handles cases where project.owner is populated (an object) OR just an ID string
-  const ownerId = project.owner?._id || project.owner;
+  const ownerId = project.owner?._id || project.owner?.id || project.owner;
   const userId = userInfo?._id;
   
   // We use toString() to ensure we are comparing "String" vs "String"
@@ -24,8 +24,8 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
   const progress = calculateProgress(project.tasks);
 
   const handleViewClick = () => {
-    if (project._id) {
-      navigate(`/project/${project._id}`);
+    if (project._id || project.id) {
+      navigate(`/project/${project._id || project.id}`);
     }
   };
 
@@ -44,14 +44,14 @@ const ProjectListItem = ({ project, userInfo, onDelete }) => {
     // Parent: const deleteHandler = (id) => { if (window.confirm...) { dispatch... } }
     // Yes, that is a double confirm. I will remove the confirm check from the Child to improve UX.
     // The parent handler handles the confirmation logic.
-    onDelete(project._id);
+    onDelete(project._id || project.id);
   };
 
   return (
     <div className="project-list-item">
       <div className="project-card-top">
         <div className="project-info">
-        <Link to={`/project/${project._id}`} className="project-name-link">
+        <Link to={`/project/${project._id || project.id}`} className="project-name-link">
           {project.name}
         </Link>
           <div className="project-metadata-capsules">

@@ -184,14 +184,49 @@ const deleteProject = asyncHandler(async (req, res) => {
 });
 
 const getProjectById = asyncHandler(async (req, res) => {
-  const { data } = await supabase.from('projects').select('*').eq('id', req.params.id).maybeSingle();
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*, owner:users(id, name, email), team:teams(id, name), tasks(*, assignee:users(id, name, email))')
+    .eq('id', req.params.id)
+    .maybeSingle();
+
+  if (error) throw error;
   if (!data) return res.status(404).json({ message: 'Project not found' });
+
   const teamContext = await getManagedTeam(data.team_id, req.user._id);
   const orgMembership = await getOrgMembership(data.organisation_id, req.user._id);
   const canAccess = data.owner_id === req.user._id || teamContext.canAccess || Boolean(orgMembership);
   if (!canAccess) {
     return res.status(403).json({ message: 'You do not have access to this project' });
   }
+
+  // Build task hierarchy
+  if (data.tasks && data.tasks.length > 0) {
+    const taskMap = {};
+    const rootTasks = [];
+
+    // First pass: create mapping and initialize subTasks array
+    data.tasks.forEach(task => {
+      taskMap[task.id] = { ...task, subTasks: [] };
+    });
+
+    // Second pass: associate child tasks with parents
+    data.tasks.forEach(task => {
+      const mappedTask = taskMap[task.id];
+      if (mappedTask) {
+        if (task.parent_id && taskMap[task.parent_id]) {
+          taskMap[task.parent_id].subTasks.push(mappedTask);
+        } else {
+          rootTasks.push(mappedTask);
+        }
+      }
+    });
+
+    data.tasks = rootTasks;
+  } else {
+    data.tasks = [];
+  }
+
   res.json(data);
 });
 
@@ -206,7 +241,36 @@ const createProjectWithAI = asyncHandler(async (req, res) => {
     return res.status(503).json({ message: 'AI Project Creation is currently unavailable (Missing API Key)' });
   }
 
-  const chatCompletion = await groq.chat.completions.create({ messages: [{ role: 'user', content: `Generate JSON tasks for project: ${goal}` }], model: 'openai/gpt-oss-120b', response_format: { type: 'json_object' } });
+  const chatCompletion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: 'user',
+        content: `Generate a JSON object representing a project plan for: "${goal}".
+The JSON object MUST contain a "tasks" array. Each task should have:
+- name: string (short name)
+- description: string
+- duration: number (in days)
+- priority: string ("Low", "Medium", or "High")
+- subtasks: array of task objects (optional)
+
+Example format:
+{
+  "tasks": [
+    {
+      "name": "Initial Setup",
+      "description": "Setup project files",
+      "duration": 2,
+      "priority": "High",
+      "subtasks": []
+    }
+  ]
+}`
+      }
+    ],
+    model: 'openai/gpt-oss-120b',
+    response_format: { type: 'json_object' }
+  });
+
   const roadmap = JSON.parse(chatCompletion.choices[0]?.message?.content || '{}');
   const project = await supabase.from('projects').insert({
     name,
@@ -216,7 +280,45 @@ const createProjectWithAI = asyncHandler(async (req, res) => {
     organisation_id: context.organisationId,
     owner_id: req.user._id,
   }).select('*').single();
+
   if (project.error) throw project.error;
+
+  const taskData = roadmap.tasks || [];
+
+  // Helper to recursively insert tasks in Supabase
+  const insertTasks = async (tasksList, projectId, teamId, ownerId, parentId = null) => {
+    for (const task of tasksList) {
+      const { data: createdTask, error: insertError } = await supabase
+        .from('tasks')
+        .insert({
+          name: task.name || 'Unnamed Task',
+          description: task.description || '',
+          duration: task.duration || 1,
+          status: 'pending',
+          priority: task.priority || 'Medium',
+          project_id: projectId,
+          team_id: teamId || null,
+          parent_id: parentId,
+          owner_id: ownerId,
+        })
+        .select('*')
+        .single();
+
+      if (insertError) {
+        console.error('Error inserting AI task:', insertError);
+        continue;
+      }
+
+      if (task.subtasks && task.subtasks.length > 0) {
+        await insertTasks(task.subtasks, projectId, teamId, ownerId, createdTask.id);
+      }
+    }
+  };
+
+  if (Array.isArray(taskData) && taskData.length > 0) {
+    await insertTasks(taskData, project.data.id, context.teamId, req.user._id);
+  }
+
   res.status(201).json({ ...project.data, roadmap, techStack });
 });
 
