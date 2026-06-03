@@ -323,3 +323,11 @@
 .sidebar-closed .sidebar-user-rating {
   display: none;
 }
+
+.app-layout.public-layout .app-body {
+  width: 100%;
+}
+
+.app-layout.public-layout .app-main {
+  margin-left: 0;
+}

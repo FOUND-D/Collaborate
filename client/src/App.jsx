@@ -29,7 +29,6 @@ import LeaderboardScreen from './screens/LeaderboardScreen';
 import ChatDocked from './components/ChatDocked';
 import TopHeader from './components/TopHeader';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
-import { FaBars } from 'react-icons/fa';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { fetchMembershipStatus, logout } from './actions/userActions'; // Import logout
 import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
@@ -162,10 +161,11 @@ const AppContent = () => {
   }, [dispatch, userInfo?.token]);
 
   const mainContentClass = `app-main ${isChatOpen ? 'chat-open' : ''}`;
-  const contentMargin = isMobile ? '0px' : (sidebarCollapsed ? '64px' : '280px');
+  const contentMargin = isPublicRoute || isMobile ? '0px' : (sidebarCollapsed ? '64px' : '280px');
+  const layoutClass = `app-layout ${isPublicRoute ? 'public-layout' : ''}`;
 
   return (
-    <div className="app-layout">
+    <div className={layoutClass}>
         {!isPublicRoute && isMobile && !sidebarCollapsed && (
           <div 
             style={{ 
