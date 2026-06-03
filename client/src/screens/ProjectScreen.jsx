@@ -11,6 +11,50 @@ import GoalModal from '../components/GoalModal'; // Import GoalModal
 import { FaEdit, FaCalendarAlt, FaUser, FaUsers, FaPlus, FaCheck, FaMinus, FaChevronLeft, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
 import '../styles/workspace.css';
 
+const splitGoal = (goal) => {
+  if (!goal) return { challenge: '', solution: '' };
+
+  const lowerGoal = goal.toLowerCase();
+  const solutionIndex = lowerGoal.indexOf('solution:');
+  const challengeIndex = lowerGoal.indexOf('challenge:');
+
+  if (solutionIndex !== -1) {
+    let challenge = goal.substring(0, solutionIndex).trim();
+    if (challengeIndex !== -1) {
+      challenge = challenge.substring(challengeIndex + 10).trim();
+    }
+    const solution = goal.substring(solutionIndex + 9).trim();
+    return { challenge, solution };
+  }
+
+  const middle = Math.floor(goal.length / 2);
+  const sentenceBoundaries = [...goal.matchAll(/[.!?]\s+/g)].map(m => m.index);
+
+  if (sentenceBoundaries.length > 0) {
+    const closest = sentenceBoundaries.reduce((prev, curr) =>
+      Math.abs(curr - middle) < Math.abs(prev - middle) ? curr : prev
+    );
+    const challenge = goal.substring(0, closest + 1).trim();
+    const solution = goal.substring(closest + 1).trim();
+    return { challenge, solution };
+  }
+
+  const spaces = [...goal.matchAll(/\s+/g)].map(m => m.index);
+  if (spaces.length > 0) {
+    const closest = spaces.reduce((prev, curr) =>
+      Math.abs(curr - middle) < Math.abs(prev - middle) ? curr : prev
+    );
+    const challenge = goal.substring(0, closest).trim();
+    const solution = goal.substring(closest).trim();
+    return { challenge, solution };
+  }
+
+  return {
+    challenge: goal.substring(0, middle),
+    solution: goal.substring(middle)
+  };
+};
+
 const calculateProgress = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
   const completedTasks = tasks.filter(task => task.status === 'Completed').length;
@@ -201,22 +245,21 @@ const ProjectScreen = () => {
                 )}
               </h1>
 
-              {project.goal && (
-                <div className="project-description-container">
-                  <div className="project-description-column workspace-surface">
-                    <h3>The Challenge</h3>
-                    <p className="project-description-text">
-                      {project.goal.substring(0, project.goal.length / 2)}
-                    </p>
+              {project.goal && (() => {
+                const { challenge, solution } = splitGoal(project.goal);
+                return (
+                  <div className="project-description-container">
+                    <div className="project-description-column workspace-surface">
+                      <h3>The Challenge</h3>
+                      <p className="project-description-text">{challenge}</p>
+                    </div>
+                    <div className="project-description-column workspace-surface">
+                      <h3>The Solution</h3>
+                      <p className="project-description-text">{solution}</p>
+                    </div>
                   </div>
-                  <div className="project-description-column workspace-surface">
-                    <h3>The Solution</h3>
-                    <p className="project-description-text">
-                      {project.goal.substring(project.goal.length / 2)}
-                    </p>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               <div className="project-meta-footer">
                 {project.dueDate && (
