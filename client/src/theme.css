@@ -78,6 +78,7 @@ html[data-theme='light'] {
   --surface-panel-backdrop: var(--color-bg-card);
   --surface-panel-header: var(--color-bg-card);
   --surface-panel-footer: var(--color-bg-card);
+  --surface-panel-bg: var(--color-bg-card);
   --surface-panel-muted: rgba(20, 184, 166, 0.05);
 
   --sidebar-bg: var(--color-bg-secondary);
@@ -236,6 +237,7 @@ html[data-theme='dark'] {
   --surface-panel-backdrop: rgba(15, 58, 58, 0.18);
   --surface-panel-header: rgba(15, 58, 58, 0.72);
   --surface-panel-footer: rgba(15, 58, 58, 0.92);
+  --surface-panel-bg: var(--color-bg-card);
   --surface-panel-muted: rgba(255, 255, 255, 0.04);
 
   --sidebar-bg: var(--color-bg-secondary);

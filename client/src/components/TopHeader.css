@@ -24,22 +24,29 @@
 }
 
 .header-icon-btn {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: transparent;
-    color: var(--sidebar-text-muted);
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--text-secondary) !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    font-size: 18px !important;
 }
 
 .header-icon-btn.ghost:hover {
-    background: var(--sidebar-hover);
-    color: var(--sidebar-text);
+    background: var(--sidebar-hover) !important;
+    background-color: var(--sidebar-hover) !important;
+    color: var(--text-primary) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .header-divider {
@@ -61,7 +68,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--sidebar-text-muted);
+    color: var(--text-secondary);
 }
 
 .breadcrumb-icon {
@@ -70,12 +77,12 @@
 
 .breadcrumb-chevron {
     font-size: 10px;
-    color: var(--sidebar-text-muted);
-    opacity: 0.5;
+    color: var(--text-muted);
+    opacity: 0.7;
 }
 
 .breadcrumb-current {
-    color: var(--sidebar-text-strong);
+    color: var(--text-primary);
 }
 
 .credits-badge {

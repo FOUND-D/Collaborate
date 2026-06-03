@@ -10,6 +10,7 @@ body.light-theme {
   --background-tertiary-inputs: #f1eadf;
   --text-primary: #1f2a24;
   --text-secondary: #66736a;
+  --surface-panel-bg: #ffffff;
   --accent-color: #2f6f4e;
   --accent-color-rgb: 47, 111, 78;
   --accent-gradient: linear-gradient(135deg, #2f6f4e, #5b8f6c);

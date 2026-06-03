@@ -34,14 +34,14 @@ body {
 }
 
 .project-create-gate-link {
-  color: rgba(241, 245, 249, 0.62);
+  color: var(--text-secondary);
   font-size: 0.95rem;
   font-weight: 600;
   text-decoration: none;
 }
 
 .project-create-gate-link:hover {
-  color: #93c5fd;
+  color: var(--accent-color);
 }
 
 .app-layout {
