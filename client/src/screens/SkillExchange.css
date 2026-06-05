@@ -241,7 +241,10 @@
 .phase2-skill-input-wrap,
 .phase2-field {
   position: relative;
+  text-transform: none;
+  letter-spacing: normal;
 }
+
 
 .phase2-autocomplete-dropdown {
   position: absolute;
