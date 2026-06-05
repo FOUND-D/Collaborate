@@ -140,8 +140,8 @@ const TeamScreen = () => {
     }
   };
 
-  const teamsWithPendingRequests = teams && teams.filter(team =>
-    userInfo && team.owner && team.owner._id === userInfo._id && team.pendingJoinRequests && team.pendingJoinRequests.length > 0
+  const teamsWithPendingRequests = (teams || []).filter(team =>
+    userInfo && team.owner && (team.owner._id === userInfo._id || team.owner === userInfo._id) && team.pendingJoinRequests && team.pendingJoinRequests.length > 0
   );
 
   return (
@@ -244,12 +244,12 @@ const TeamScreen = () => {
         <Message variant='danger'>{error}</Message>
       ) : (
         <div className="modern-team-list">
-          {teams.length === 0 ? (
+          {(teams || []).length === 0 ? (
             <div className="empty-state-container">
                 <Message variant='info'>No teams found. Create or join one!</Message>
             </div>
           ) : (
-            teams.map((team) => (
+            (teams || []).map((team) => (
               <div
                 key={team._id}
                 className="team-card"

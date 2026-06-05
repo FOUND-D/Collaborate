@@ -24,7 +24,7 @@ const OngoingProjectsScreen = () => {
   const hasOrg = useSelector(selectHasOrg);
 
   const projectList = useSelector(state => state.projectList);
-  const { loading, error, projects } = projectList;
+  const { loading, error, projects = [] } = projectList;
 
   const projectDelete = useSelector(state => state.projectDelete);
   const { loading: loadingDelete, error: errorDelete, success: successDelete } = projectDelete;
