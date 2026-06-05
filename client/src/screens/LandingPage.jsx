@@ -19,30 +19,77 @@ const statConfig = [
   { label: 'Team Velocity', value: 12, prefix: '+', suffix: '%' },
 ];
 
+const AIPlanningIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+  </svg>
+);
+
+const TeamMgmtIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const TaskExecIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 11 12 14 22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+);
+
+const RealtimeChatIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const MeetingsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m22 8-6 4 6 4V8Z" />
+    <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+  </svg>
+);
+
+const OrgComplianceIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
 const featureCards = [
   {
     title: 'AI Project Planning',
     description: 'Turn a rough brief into a structured roadmap with tasks, milestones, and delivery momentum in minutes.',
+    icon: AIPlanningIcon,
   },
   {
     title: 'Team Management',
     description: 'Create organisations, manage teams, assign roles, and keep collaboration structured as the workspace grows.',
+    icon: TeamMgmtIcon,
   },
   {
     title: 'Task Execution',
     description: 'Move from planning to shipping with task ownership, progress visibility, and live execution context in one view.',
+    icon: TaskExecIcon,
   },
   {
     title: 'Realtime Chat',
     description: 'Discuss work where it happens instead of scattering decisions across disconnected communication tools.',
+    icon: RealtimeChatIcon,
   },
   {
     title: 'Meetings & Presence',
     description: 'Run browser-based team meetings with live room presence so standups and reviews stay inside the product.',
+    icon: MeetingsIcon,
   },
   {
     title: 'Org Compliance',
     description: 'Add member onboarding, role controls, and compliance rules for teams that need more than a lightweight task app.',
+    icon: OrgComplianceIcon,
   },
 ];
 
@@ -303,6 +350,101 @@ const renderDashboardMockup = (activeStep) => {
   }
 };
 
+const renderPlanGraphic = () => (
+  <div className="lp-capability-graphic plan-graphic animate-fade-in">
+    <div className="lp-graphic-window-header">
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-title-small">AI Planner Panel</span>
+    </div>
+    <div className="lp-graphic-window-body">
+      <div className="lp-graphic-ai-prompt">
+        <span className="sparkle">✨</span>
+        <p>Goal: Build authentication and user profiles in 1 week</p>
+      </div>
+      <div className="lp-graphic-roadmap-bars">
+        <div className="roadmap-bar-item">
+          <span className="bar-label">Signaling Setup</span>
+          <div className="bar-track done"><span style={{ width: '100%' }} /></div>
+        </div>
+        <div className="roadmap-bar-item">
+          <span className="bar-label">User Schema Design</span>
+          <div className="bar-track active"><span style={{ width: '60%' }} /></div>
+        </div>
+        <div className="roadmap-bar-item">
+          <span className="bar-label">JWT Token Routing</span>
+          <div className="bar-track pending"><span style={{ width: '0%' }} /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const renderOperateGraphic = () => (
+  <div className="lp-capability-graphic operate-graphic animate-fade-in">
+    <div className="lp-graphic-window-header">
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-title-small">Join Requests</span>
+    </div>
+    <div className="lp-graphic-window-body">
+      <div className="lp-graphic-request-card">
+        <div className="request-user-info">
+          <span className="user-avatar">AL</span>
+          <div className="user-meta">
+            <strong>Alex Lee</strong>
+            <span>Role: Frontend Developer</span>
+          </div>
+        </div>
+        <div className="request-actions">
+          <button type="button" className="approve-btn">Approve</button>
+          <button type="button" className="reject-btn">Reject</button>
+        </div>
+      </div>
+      <div className="lp-graphic-team-members">
+        <div className="member-avatar-row">
+          <span className="avatar-chip">RS</span>
+          <span className="avatar-chip">PN</span>
+          <span className="avatar-chip text">+3</span>
+        </div>
+        <span className="member-total">5 Active Members</span>
+      </div>
+    </div>
+  </div>
+);
+
+const renderShipGraphic = () => (
+  <div className="lp-capability-graphic ship-graphic animate-fade-in">
+    <div className="lp-graphic-window-header">
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-dot" />
+      <span className="lp-window-title-small">Live Sync Room #engineering</span>
+    </div>
+    <div className="lp-graphic-window-body">
+      <div className="lp-meeting-grid">
+        <div className="video-card active-speaker">
+          <span className="video-avatar">RS</span>
+          <span className="video-name">Ryan (Speaking)</span>
+          <span className="voice-indicator"><span></span><span></span><span></span></span>
+        </div>
+        <div className="video-card">
+          <span className="video-avatar">PN</span>
+          <span className="video-name">Patel</span>
+        </div>
+      </div>
+      <div className="lp-meeting-controls">
+        <span className="control-icon mic-on">🎤</span>
+        <span className="control-icon cam-on">📹</span>
+        <span className="control-icon share-active">🖥️</span>
+        <span className="control-icon end-call">❌</span>
+      </div>
+    </div>
+  </div>
+);
+
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const stats = useMemo(() => statConfig, []);
@@ -424,10 +566,15 @@ const LandingPage = () => {
       <main className="lp-main">
       <section className="lp-hero" id="product">
         <div className="lp-hero-backdrop" />
-        <div className="lp-container lp-hero-layout">
-          <section className="lp-hero-copy">
-            <div className="lp-eyebrow lp-fade-up" style={{ '--delay': '100ms' }}>
-              Built for Modern Teams
+        <div className="lp-radial-glow glow-hero" />
+        <div className="lp-container lp-hero-layout-grid">
+          
+          <section className="lp-hero-copy-left">
+            <div className="lp-section-kicker-wrap">
+              <span className="lp-gold-accent-line" />
+              <div className="lp-eyebrow lp-fade-up" style={{ '--delay': '100ms' }}>
+                Built for Modern Teams
+              </div>
             </div>
 
             <h1 className="lp-hero-title lp-fade-up" style={{ '--delay': '250ms' }}>
@@ -435,20 +582,20 @@ const LandingPage = () => {
             </h1>
 
             <p className="lp-hero-subtitle lp-fade-up" style={{ '--delay': '400ms' }}>
-              Collaborate brings your projects, tasks, and team communication into one unified workspace. Less chaos. More done.
+              Collaborate brings projects, tasks, communication, and team momentum into one focused operating system so modern teams move faster without adding more tools.
             </p>
 
-            <div className="lp-hero-ctas lp-fade-up" style={{ '--delay': '550ms' }}>
-              <Link to="/register" className="lp-cta-free">
+            <div className="lp-hero-ctas-left lp-fade-up" style={{ '--delay': '550ms' }}>
+              <Link to="/register" className="lp-cta-primary-btn big">
                 Start for free
               </Link>
-              <button type="button" className="lp-cta-demo" onClick={scrollToMockup}>
+              <button type="button" className="lp-cta-secondary-btn big" onClick={scrollToMockup}>
                 <span className="lp-play-icon" />
                 <span>Watch demo</span>
               </button>
             </div>
 
-            <div className="lp-social-proof lp-fade-up" style={{ '--delay': '650ms' }} id="customers">
+            <div className="lp-social-proof-left lp-fade-up" style={{ '--delay': '650ms' }} id="customers">
               <div className="lp-avatar-stack" aria-hidden="true">
                 {avatars.map((avatar) => (
                   <span key={avatar} className="lp-avatar-circle">{avatar}</span>
@@ -460,9 +607,8 @@ const LandingPage = () => {
               </div>
             </div>
           </section>
-        </div>
-        <section className="lp-hero-visual lp-fade-up" style={{ '--delay': '800ms' }} id="hero-dashboard">
-          <div className="lp-container">
+
+          <section className="lp-hero-visual-right lp-fade-up" style={{ '--delay': '800ms' }} id="hero-dashboard">
             <div className="lp-dashboard-window">
               <div className="lp-window-topbar">
                 <div className="lp-window-controls">
@@ -549,13 +695,18 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+            <div className="lp-preview-window-glow" />
+          </section>
+
+        </div>
       </section>
 
-      <section className="lp-section lp-logo-strip">
-        <div className="lp-container lp-logo-strip-inner">
-          <span className="lp-strip-label">Powering modern delivery teams</span>
+      <section className="lp-section lp-logo-strip-redesign">
+        <div className="lp-container lp-logo-strip-card">
+          <div className="lp-section-kicker-wrap centered">
+            <span className="lp-gold-accent-line" />
+            <span className="lp-strip-label">Powering modern delivery teams</span>
+          </div>
           <div className="lp-logo-row">
             <span>Acme</span>
             <span>Vertex</span>
@@ -567,47 +718,67 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="lp-section" id="capabilities">
+      <section className="lp-section lp-capabilities-section" id="capabilities">
+        <div className="lp-radial-glow glow-capabilities" />
         <div className="lp-container">
           <div className="lp-section-intro">
-            <div className="lp-section-kicker">Everything in one place</div>
-            <h2 className="lp-section-title">A full product page for what the platform actually offers</h2>
+            <div className="lp-section-kicker-wrap centered">
+              <span className="lp-gold-accent-line" />
+              <div className="lp-section-kicker">Everything in one place</div>
+            </div>
+            <h2 className="lp-section-title">A full workspace built for what the platform offers</h2>
             <p className="lp-section-copy">
               Collaborate is not just a hero with a dashboard. It is a full team workspace that spans planning, project delivery, communication, meetings, and organisation operations.
             </p>
           </div>
 
           <div className="lp-feature-grid">
-            {featureCards.map((feature) => (
-              <article key={feature.title} className="lp-feature-card">
-                <div className="lp-feature-glow" />
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-              </article>
-            ))}
+            {featureCards.map((feature) => {
+              const IconComponent = feature.icon;
+              return (
+                <article key={feature.title} className="lp-feature-card-redesign">
+                  <div className="lp-feature-card-glow" />
+                  <div className="lp-feature-card-icon">
+                    <IconComponent />
+                  </div>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.description}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="lp-section lp-section-alt">
+      <section className="lp-section lp-capability-stack-redesign">
         <div className="lp-container lp-capability-stack">
-          {capabilityRows.map((row) => (
-            <article key={row.title} className="lp-capability-row">
-              <div className="lp-capability-copy">
-                <div className="lp-section-kicker">{row.eyebrow}</div>
-                <h3>{row.title}</h3>
-                <p>{row.body}</p>
-              </div>
-              <div className="lp-capability-list">
-                {row.bullets.map((bullet) => (
-                  <div key={bullet} className="lp-capability-pill">
-                    <span className="lp-pill-dot" />
-                    <span>{bullet}</span>
+          {capabilityRows.map((row, index) => {
+            const isEven = index % 2 === 0;
+            const Graphic = index === 0 ? renderPlanGraphic() : index === 1 ? renderOperateGraphic() : renderShipGraphic();
+            return (
+              <article key={row.title} className={`lp-capability-row-redesign ${isEven ? 'row-normal' : 'row-reverse'}`}>
+                <div className="lp-capability-copy">
+                  <div className="lp-section-kicker-wrap">
+                    <span className="lp-gold-accent-line" />
+                    <div className="lp-section-kicker">{row.eyebrow}</div>
                   </div>
-                ))}
-              </div>
-            </article>
-          ))}
+                  <h3>{row.title}</h3>
+                  <p>{row.body}</p>
+                  <div className="lp-capability-list">
+                    {row.bullets.map((bullet) => (
+                      <div key={bullet} className="lp-capability-pill">
+                        <span className="lp-pill-dot" />
+                        <span>{bullet}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="lp-capability-visual">
+                  {Graphic}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
