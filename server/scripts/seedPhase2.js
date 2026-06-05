@@ -279,7 +279,7 @@ async function replaceSeedListings(userMap, skillMap) {
   const existingIds = (existing || []).map((row) => row.id);
   if (existingIds.length) {
     const { error: deleteSessionsError } = await supabase
-      .from('sessions')
+      .from('booking_sessions')
       .delete()
       .in('listing_id', existingIds);
     failIfError(deleteSessionsError, 'deleting prior seeded sessions');
@@ -335,12 +335,11 @@ async function replaceSeedSessionsAndRatings(userMap, skillMap, listings) {
       credits_transacted: item.credits_transacted,
       agenda: item.agenda,
       ai_summary: `${SEED_PREFIX} Completed seed session for Phase 2 UI validation.`,
-      meeting_id: null,
     };
   });
 
   const { data: insertedSessions, error: sessionError } = await supabase
-    .from('sessions')
+    .from('booking_sessions')
     .insert(sessionRows)
     .select('id,teacher_id,learner_id');
   failIfError(sessionError, 'inserting completed sessions');
