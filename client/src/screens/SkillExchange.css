@@ -54,7 +54,7 @@
 .phase2-detail-side,
 .phase2-empty,
 .phase2-session-card {
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
 }
 
 .phase2-hero-stat {
@@ -82,7 +82,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 8px 12px;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
@@ -105,12 +105,12 @@
   justify-content: center;
   gap: 10px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 12px 18px;
-  font-weight: 700;
+  font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .phase2-button:hover {
@@ -130,14 +130,14 @@
 }
 
 .phase2-button-danger {
-  background: #ef4444;
+  background: var(--accent-danger);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .phase2-button-danger:hover {
-  background: #dc2626;
+  filter: brightness(1.08);
 }
+
 
 .phase2-split-grid,
 .phase2-detail-grid,

@@ -71,8 +71,55 @@ const getOrgContext = async (orgId, userId) => {
   }
 
   if (!memberRow) {
-    console.warn(`[getOrgContext] No membership found for user:${userId} in org:${orgId}`);
-    return null;
+    const { data: organisation, error: orgError } = await supabase
+      .from('organisations')
+      .select('id,owner_id')
+      .eq('id', orgId)
+      .maybeSingle();
+
+    if (orgError) {
+      console.error(`[getOrgContext] Owner fallback lookup failed:`, orgError);
+      throw orgError;
+    }
+
+    if (organisation?.owner_id !== userId) {
+      console.warn(`[getOrgContext] No membership found for user:${userId} in org:${orgId}`);
+      return null;
+    }
+
+    const orgRole = {
+      id: null,
+      org_id: orgId,
+      ...ownerRolePermissions(),
+    };
+
+    const ownerContext = {
+      member: {
+        organisationId: orgId,
+        userId,
+        orgRoleId: null,
+        role: 'owner',
+        status: 'active',
+        isProvisioned: false,
+        tempPasswordUsed: true,
+        invitedBy: null,
+        joinedAt: null,
+        orgRole: toPublicOrgRole(orgRole),
+      },
+      orgRole: toPublicOrgRole(orgRole),
+      rawMember: {
+        organisation_id: orgId,
+        user_id: userId,
+        org_role_id: null,
+        role: 'owner',
+        status: 'active',
+        is_provisioned: false,
+        temp_password_used: true,
+      },
+    };
+
+    console.log(`[getOrgContext] Owner fallback authorized for user:${userId} org:${orgId}`);
+    return ownerContext;
   }
 
   const isOrganisationOwner = memberRow.organisations?.owner_id === userId;

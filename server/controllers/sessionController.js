@@ -14,6 +14,10 @@ const isParticipant = (session, userId) => session && (session.teacher_id === us
 const createBookingSession = asyncHandler(async (req, res) => {
   const { skill_id, team_id, scheduled_at, duration_min, agenda, status } = req.body;
 
+  if (!skill_id) return res.status(400).json({ message: 'skill_id is required' });
+  if (!team_id) return res.status(400).json({ message: 'team_id is required' });
+  if (!scheduled_at) return res.status(400).json({ message: 'scheduled_at is required' });
+
   const { data, error } = await supabase.from('booking_sessions').insert({
     skill_id,
     team_id,
@@ -27,7 +31,8 @@ const createBookingSession = asyncHandler(async (req, res) => {
   if (error) throw error;
 
   const publicData = toPublicSession(data);
-  req.io.to(team_id).emit('sessionBooked', publicData);
+  if (team_id) req.io.to(team_id).emit('sessionBooked', publicData);
+  req.io.to(req.user._id).emit('sessionCreated', publicData);
   res.status(201).json(publicData);
 });
 
@@ -115,6 +120,10 @@ const cancelBookingSession = asyncHandler(async (req, res) => {
 const createSession = asyncHandler(async (req, res) => {
   const listingId = req.body.listingId || req.body.listing_id;
   const scheduledAt = req.body.scheduledAt || req.body.scheduled_at;
+
+  if (!listingId && (req.body.skill_id || req.body.team_id)) {
+    return createBookingSession(req, res);
+  }
 
   if (!listingId) return res.status(400).json({ message: 'listingId is required' });
   if (!scheduledAt) return res.status(400).json({ message: 'scheduledAt is required' });

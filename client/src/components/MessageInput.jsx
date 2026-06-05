@@ -105,16 +105,18 @@ const MessageInput = ({ selectedChat }) => {
         >
           <FaBolt />
         </button>
-        <input
-          type="text"
-          placeholder="Type a message..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="message-input-field"
-        />
-        <button type="submit" className="message-input-send-btn">
-          <FaPaperPlane />
-        </button>
+        <div className="message-input-container">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="message-input-field"
+          />
+          <button type="submit" className="message-input-send-btn">
+            <FaPaperPlane />
+          </button>
+        </div>
       </form>
 
       <AnimatePresence>

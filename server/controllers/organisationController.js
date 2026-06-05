@@ -61,15 +61,25 @@ const createOrganisation = asyncHandler(async (req, res) => {
 });
 
 const getMyOrganisations = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase
-    .from('organisation_members')
-    .select('role, org_role_id, organisations!inner(*), org_roles(slug)')
-    .eq('user_id', req.user._id)
-    .order('joined_at', { ascending: true });
+  const [memberResult, ownerResult] = await Promise.all([
+    supabase
+      .from('organisation_members')
+      .select('role, org_role_id, organisations!inner(*), org_roles(slug)')
+      .eq('user_id', req.user._id)
+      .order('joined_at', { ascending: true }),
+    supabase
+      .from('organisations')
+      .select('*')
+      .eq('owner_id', req.user._id)
+      .order('created_at', { ascending: true }),
+  ]);
 
-  if (error) throw error;
+  if (memberResult.error) throw memberResult.error;
+  if (ownerResult.error) throw ownerResult.error;
 
-  const orgs = (data || [])
+  const orgsById = new Map();
+
+  (memberResult.data || [])
     .map((membership) => {
       const organisation = membership.organisations;
       if (!organisation) return null;
@@ -82,9 +92,19 @@ const getMyOrganisations = asyncHandler(async (req, res) => {
         role: memberRole,
       };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .forEach((organisation) => orgsById.set(organisation._id, organisation));
 
-  res.json(orgs);
+  (ownerResult.data || []).forEach((organisation) => {
+    if (!orgsById.has(organisation.id)) {
+      orgsById.set(organisation.id, {
+        ...toPublicOrganisation(organisation),
+        role: 'owner',
+      });
+    }
+  });
+
+  res.json(Array.from(orgsById.values()));
 });
 
 const getOrganisationById = asyncHandler(async (req, res) => {
@@ -97,7 +117,15 @@ const getOrganisationById = asyncHandler(async (req, res) => {
     .eq('user_id', req.user._id)
     .maybeSingle();
   const memberRole = memberRow?.org_roles?.slug || memberRow?.role || null;
-  const permissions = memberRow?.org_roles ? {
+  const isOwner = data.owner_id === req.user._id;
+  const permissions = isOwner ? {
+    canManageMembers: true,
+    canManageRoles: true,
+    canManageSettings: true,
+    canManageTeams: true,
+    canInviteMembers: true,
+    canViewReports: true,
+  } : memberRow?.org_roles ? {
     canManageMembers: Boolean(memberRow.org_roles.can_manage_members),
     canManageRoles: Boolean(memberRow.org_roles.can_manage_roles),
     canManageSettings: Boolean(memberRow.org_roles.can_manage_settings),
@@ -105,7 +133,7 @@ const getOrganisationById = asyncHandler(async (req, res) => {
     canInviteMembers: Boolean(memberRow.org_roles.can_invite_members),
     canViewReports: Boolean(memberRow.org_roles.can_view_reports),
   } : null;
-  res.json({ ...toPublicOrganisation(data), currentUserRole: memberRole, permissions });
+  res.json({ ...toPublicOrganisation(data), currentUserRole: isOwner ? 'owner' : memberRole, permissions });
 });
 
 const updateOrganisation = asyncHandler(async (req, res) => {

@@ -16,6 +16,8 @@ const levelWeight = {
 
 const normalizeLevel = (value) => (typeof value === 'string' ? value.toLowerCase() : null);
 
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
 const formatAvgRating = (value) => {
   if (value === null || value === undefined || value === '') return null;
   const numeric = Number(value);
@@ -394,16 +396,19 @@ const getUserById = async (id) => {
 };
 
 const getUserByEmail = async (email) => {
-  const { data, error } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return null;
+  const { data, error } = await supabase.from('users').select('*').ilike('email', normalizedEmail).limit(10);
   if (error) throw error;
-  return data ? toPublicUser(data) : null;
+  const user = (data || []).find((row) => normalizeEmail(row.email) === normalizedEmail);
+  return user ? toPublicUser(user) : null;
 };
 
 const createUser = async ({ name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage }) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const { data, error } = await supabase.from('users').insert({
     name,
-    email,
+    email: normalizeEmail(email),
     password_hash: passwordHash,
     role: role || 'undergrad',
     department: department || null,
@@ -422,16 +427,20 @@ const createUser = async ({ name, email, password, role, department, yearOfStudy
 };
 
 const verifyUserPassword = async (email, password) => {
-  const { data, error } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
-  if (error || !data) return null;
-  const ok = await bcrypt.compare(password, data.password_hash);
-  return ok ? toPublicUser(data) : null;
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail || !password) return null;
+  const { data, error } = await supabase.from('users').select('*').ilike('email', normalizedEmail).limit(10);
+  if (error) return null;
+  const user = (data || []).find((row) => normalizeEmail(row.email) === normalizedEmail);
+  if (!user) return null;
+  const ok = await bcrypt.compare(password, user.password_hash);
+  return ok ? toPublicUser(user) : null;
 };
 
 const updateUser = async (id, patch) => {
   const updates = {};
   if (patch.name !== undefined) updates.name = patch.name;
-  if (patch.email !== undefined) updates.email = patch.email;
+  if (patch.email !== undefined) updates.email = normalizeEmail(patch.email);
   if (patch.role !== undefined) updates.role = patch.role;
   if (patch.department !== undefined) updates.department = patch.department;
   if (patch.yearOfStudy !== undefined) updates.year_of_study = patch.yearOfStudy;
