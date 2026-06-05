@@ -210,6 +210,7 @@ const toPublicListing = (listing) => listing && ({
 
 const toPublicSession = (session) => session && ({
   _id: session.id,
+  id: session.id,
   listingId: session.listing_id || null,
   listing_id: session.listing_id || null,
   teacherId: session.teacher_id,
@@ -232,6 +233,11 @@ const toPublicSession = (session) => session && ({
   teacher: session.teacher ? toPublicCompactUser(session.teacher) : undefined,
   learner: session.learner ? toPublicCompactUser(session.learner) : undefined,
   meeting: session.meeting ? toPublicMeeting(session.meeting) : undefined,
+  teamId: session.team_id || null,
+  team_id: session.team_id || null,
+  team: session.team || undefined,
+  skill: session.skill ? toPublicSkill(session.skill) : undefined,
+  rated: Boolean(session.rated),
 });
 
 const toPublicRating = (rating) => rating && ({
@@ -352,11 +358,16 @@ const enrichSessions = async (sessions) => {
   const hydratedListingMap = buildMap(enrichedListings);
   const userMap = await fetchUsersMap(rows.flatMap((row) => [row.teacher_id, row.learner_id]));
 
+  const sessionIds = rows.map((row) => row.id);
+  const { data: ratingsData } = await supabase.from('ratings').select('session_id').in('session_id', sessionIds);
+  const ratedSessionIds = new Set((ratingsData || []).map((r) => r.session_id));
+
   return rows.map((row) => ({
     ...row,
     listing: hydratedListingMap[row.listing_id] || null,
     teacher: userMap[row.teacher_id] || null,
     learner: userMap[row.learner_id] || null,
+    rated: ratedSessionIds.has(row.id),
   }));
 };
 

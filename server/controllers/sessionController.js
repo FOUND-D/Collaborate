@@ -26,8 +26,9 @@ const createBookingSession = asyncHandler(async (req, res) => {
 
   if (error) throw error;
 
-  req.io.to(team_id).emit('sessionBooked', data);
-  res.status(201).json(data);
+  const publicData = toPublicSession(data);
+  req.io.to(team_id).emit('sessionBooked', publicData);
+  res.status(201).json(publicData);
 });
 
 const getBookingSessions = asyncHandler(async (req, res) => {
@@ -37,29 +38,31 @@ const getBookingSessions = asyncHandler(async (req, res) => {
   if (team_id) {
     query = query.eq('team_id', team_id);
   } else {
-    // If no team_id is provided, get sessions where user is teacher or the session belongs to a team the user is in.
+    // If no team_id is provided, get sessions where user is teacher, learner, or the session belongs to a team the user is in.
     const { data: memberships } = await supabase.from('team_members').select('team_id').eq('user_id', req.user._id);
     const teamIds = (memberships || []).map(m => m.team_id);
     if (teamIds.length > 0) {
-      query = query.or(`teacher_id.eq.${req.user._id},team_id.in.(${teamIds.join(',')})`);
+      query = query.or(`teacher_id.eq.${req.user._id},learner_id.eq.${req.user._id},team_id.in.(${teamIds.join(',')})`);
     } else {
-      query = query.eq('teacher_id', req.user._id);
+      query = query.or(`teacher_id.eq.${req.user._id},learner_id.eq.${req.user._id}`);
     }
   }
 
   const { data, error } = await query.order('scheduled_at', { ascending: true });
   if (error) throw error;
   
+  const sessions = (data || []).map(toPublicSession);
+
   if (team_id) {
-    return res.json(data || []);
+    return res.json(sessions);
   }
 
   const now = new Date();
   const upcoming = [];
   const past = [];
 
-  (data || []).forEach(session => {
-    const scheduled = new Date(session.scheduled_at);
+  sessions.forEach(session => {
+    const scheduled = new Date(session.scheduledAt);
     const isPast = session.status === 'completed' || session.status === 'cancelled' || scheduled < now;
     if (isPast) {
       past.push(session);
@@ -72,9 +75,41 @@ const getBookingSessions = asyncHandler(async (req, res) => {
 });
 
 const cancelBookingSession = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.from('booking_sessions').update({ status: 'cancelled' }).eq('id', req.params.id).select('*').single();
+  const session = await getSessionRecordById(req.params.id);
+  if (!session) return res.status(404).json({ message: 'Session not found' });
+
+  // Check if user is teacher or learner
+  const isUserParticipant = isParticipant(session, req.user._id);
+
+  // Check if session belongs to a team the user is in
+  let isTeamMember = false;
+  if (session.team_id) {
+    const { data: membership } = await supabase
+      .from('team_members')
+      .select('team_id')
+      .eq('team_id', session.team_id)
+      .eq('user_id', req.user._id)
+      .maybeSingle();
+    if (membership) isTeamMember = true;
+  }
+
+  if (!isUserParticipant && !isTeamMember) {
+    return res.status(403).json({ message: 'Not authorized to cancel this session' });
+  }
+
+  if (session.status === 'completed') {
+    return res.status(400).json({ message: 'Completed sessions cannot be cancelled' });
+  }
+
+  const { data, error } = await supabase
+    .from('booking_sessions')
+    .update({ status: 'cancelled' })
+    .eq('id', req.params.id)
+    .select('*')
+    .single();
+
   if (error) throw error;
-  res.json(data);
+  res.json(toPublicSession(data));
 });
 
 const createSession = asyncHandler(async (req, res) => {

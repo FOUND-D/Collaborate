@@ -19,7 +19,13 @@ router.use((req, res, next) => {
     return protect(req, res, () => {
       if (req.path === '/' && req.method === 'POST') return createBookingSession(req, res, next);
       if (req.path === '/' && req.method === 'GET') return getBookingSessions(req, res, next);
-      if (req.path.match(/^\/[^/]+\/cancel$/) && req.method === 'PATCH') return cancelBookingSession(req, res, next);
+      
+      const match = req.path.match(/^\/([^/]+)\/cancel$/);
+      if (match && req.method === 'PATCH') {
+        req.params = req.params || {};
+        req.params.id = match[1];
+        return cancelBookingSession(req, res, next);
+      }
       next();
     });
   }
