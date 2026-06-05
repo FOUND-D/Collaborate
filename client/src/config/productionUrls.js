@@ -1,5 +1,5 @@
 export const PRODUCTION_URLS = Object.freeze({
-  api: 'https://collaborate-arin.onrender.com',
-  socket: 'https://collaborate-arin.onrender.com',
-  mcpGateway: 'https://collaborate-arin.onrender.com',
+  api: 'https://collaborate-1.onrender.com',
+  socket: 'https://collaborate-1.onrender.com',
+  mcpGateway: 'https://collaborate-1.onrender.com',
 });
