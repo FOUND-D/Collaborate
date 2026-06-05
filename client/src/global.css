@@ -179,7 +179,21 @@ a:hover {
 }
 
 /* 2. Buttons */
-button, .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost {
+/* Safe global button defaults (does not enforce dimensions or display on icon/custom buttons) */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Standard Button Classes */
+.btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost, .auth-submit-btn, .auth-google-btn {
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
@@ -197,32 +211,33 @@ button, .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost {
 }
 
 /* Primary Button */
-.btn-primary {
+.btn-primary, .auth-submit-btn {
   background-color: var(--accent-primary) !important;
   color: #0f0e0d !important;
+  border: none !important;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .auth-submit-btn:hover {
   filter: brightness(1.08) !important;
 }
 
-.btn-primary:active {
+.btn-primary:active, .auth-submit-btn:active {
   transform: scale(0.98) !important;
 }
 
 /* Secondary Button */
-.btn-secondary, button:not(.btn-primary):not(.btn-danger):not(.btn-ghost):not(.sidebar-logout-btn):not(.sidebar-collapse-toggle):not(.header-icon-btn):not(.theme-toggle-simple) {
+.btn-secondary, .auth-google-btn {
   background-color: transparent !important;
   border: 1px solid var(--border-default) !important;
   color: var(--text-primary) !important;
 }
 
-.btn-secondary:hover, button:not(.btn-primary):not(.btn-danger):not(.btn-ghost):not(.sidebar-logout-btn):not(.sidebar-collapse-toggle):not(.header-icon-btn):not(.theme-toggle-simple):hover {
+.btn-secondary:hover, .auth-google-btn:hover {
   background-color: var(--bg-overlay) !important;
   border-color: var(--border-default) !important;
 }
 
-.btn-secondary:active, button:not(.btn-primary):not(.btn-danger):not(.btn-ghost):not(.sidebar-logout-btn):not(.sidebar-collapse-toggle):not(.header-icon-btn):not(.theme-toggle-simple):active {
+.btn-secondary:active, .auth-google-btn:active {
   transform: scale(0.98) !important;
 }
 
@@ -252,16 +267,78 @@ button, .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost {
   color: var(--text-primary) !important;
 }
 
+.btn-ghost:active {
+  transform: scale(0.98) !important;
+}
+
+/* Tertiary, Gradient, Outline and Danger Outline buttons */
+.btn-tertiary {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--accent-primary) !important;
+}
+
+.btn-tertiary:hover {
+  background-color: rgba(212, 168, 83, 0.08) !important;
+}
+
+.btn-tertiary:active {
+  transform: scale(0.98) !important;
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: #0f0e0d !important;
+  border: none !important;
+}
+
+.btn-gradient:hover {
+  filter: brightness(1.08) !important;
+}
+
+.btn-gradient:active {
+  transform: scale(0.98) !important;
+}
+
+.btn-outline-secondary {
+  background-color: transparent !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--bg-overlay) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+.btn-outline-secondary:active {
+  transform: scale(0.98) !important;
+}
+
+.btn-danger-outline {
+  background-color: transparent !important;
+  border: 1px solid var(--accent-danger) !important;
+  color: var(--accent-danger) !important;
+}
+
+.btn-danger-outline:hover {
+  background-color: rgba(192, 82, 74, 0.08) !important;
+}
+
+.btn-danger-outline:active {
+  transform: scale(0.98) !important;
+}
+
 /* 3. Form Inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="date"],
 input[type="number"],
-select,
-textarea,
 .form-input,
-.form-control {
+.form-control,
+.field-input {
   font-family: var(--font-sans);
   font-size: 14px;
   height: 38px;
@@ -275,18 +352,32 @@ textarea,
   box-sizing: border-box;
 }
 
+select {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  height: 38px;
+  background-color: var(--bg-base) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  padding: 0 12px;
+  transition: all 150ms ease;
+  box-sizing: border-box;
+}
+
 input:focus,
 select:focus,
 textarea:focus,
 .form-input:focus,
-.form-control:focus {
+.form-control:focus,
+.field-input:focus {
   border-color: var(--accent-primary) !important;
   box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.15) !important;
   outline: none !important;
 }
 
 /* Labels */
-label, .form-group label, .form-label {
+label, .form-group label, .form-label, .field-label {
   display: block;
   font-family: var(--font-sans);
   font-size: 12px;
@@ -295,6 +386,18 @@ label, .form-group label, .form-label {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 6px;
+}
+
+label.checkbox-label,
+label.radio-label,
+label.checkbox-container,
+.checkbox label,
+.radio label,
+.form-check label {
+  display: inline-block;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-bottom: 0;
 }
 
 /* Placeholders */
@@ -307,11 +410,21 @@ select::placeholder {
 
 /* Textarea override */
 textarea, .form-textarea {
-  min-height: 96px;
-  height: auto;
-  resize: vertical;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background-color: var(--bg-base) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
   padding: 12px;
+  transition: all 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 96px;
+  height: auto !important; /* Overrides 38px height of text inputs */
+  resize: vertical;
 }
+
 
 /* 4. Modals */
 .modal-backdrop, .modal-overlay {
