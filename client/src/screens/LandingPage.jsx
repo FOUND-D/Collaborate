@@ -70,18 +70,18 @@ const capabilityRows = [
 const workflowSteps = [
   {
     number: '01',
-    title: 'Create the workspace',
-    description: 'Start with an organisation, spin up teams, and give the right people access from day one.',
+    title: 'Workspace Setup',
+    description: 'Start with an organisation, spin up teams, and manage members with role permissions.',
   },
   {
     number: '02',
-    title: 'Generate or create projects',
-    description: 'Use AI to draft a roadmap or create a project manually, then connect it to the team responsible for delivery.',
+    title: 'AI Generated Roadmap',
+    description: 'Describe your goals in natural language and let AI compile a structured project roadmap.',
   },
   {
     number: '03',
-    title: 'Execute in one system',
-    description: 'Manage tasks, communicate in context, meet live, and keep the full delivery loop visible without tool sprawl.',
+    title: 'Live Execution',
+    description: 'Manage tasks, chat in-context, meet live, and track delivery velocity in one loop.',
   },
 ];
 
@@ -143,10 +143,213 @@ const CountUpStat = ({ label, value, prefix = '', suffix = '' }) => {
   );
 };
 
+const WorkspaceIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="9" rx="1" />
+    <rect x="14" y="3" width="7" height="5" rx="1" />
+    <rect x="14" y="12" width="7" height="9" rx="1" />
+    <rect x="3" y="16" width="7" height="5" rx="1" />
+  </svg>
+);
+
+const RoadmapIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    <path d="M5 3v4M3 5h4M19 17v4M17 19h4" opacity="0.6" />
+  </svg>
+);
+
+const DeliveryIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" />
+  </svg>
+);
+
+const renderDashboardMockup = (activeStep) => {
+  switch (activeStep) {
+    case 0: // Workspace Setup
+      return (
+        <div className="lp-interactive-mockup mockup-workspace animate-fade-in">
+          <div className="lp-mockup-header-row">
+            <span className="lp-mockup-tag">Workspace Settings</span>
+            <span className="lp-mockup-badge">Owner: Ryan (Lead)</span>
+          </div>
+          <div className="lp-mockup-workspace-content">
+            <div className="lp-mockup-team-section">
+              <h4>Active Members</h4>
+              <div className="lp-mockup-avatar-list">
+                <div className="lp-mockup-avatar-item">
+                  <span className="lp-mockup-avatar-circle gold">RS</span>
+                  <div className="lp-mockup-avatar-info">
+                    <strong>Ryan Smith</strong>
+                    <span>Product Lead</span>
+                  </div>
+                </div>
+                <div className="lp-mockup-avatar-item">
+                  <span className="lp-mockup-avatar-circle">PN</span>
+                  <div className="lp-mockup-avatar-info">
+                    <strong>Patel Nitin</strong>
+                    <span>Lead Designer</span>
+                  </div>
+                </div>
+                <div className="lp-mockup-avatar-item">
+                  <span className="lp-mockup-avatar-circle">AL</span>
+                  <div className="lp-mockup-avatar-info">
+                    <strong>Alex Lee</strong>
+                    <span>Frontend Dev</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lp-mockup-channels-section">
+              <h4>Team Channels</h4>
+              <ul className="lp-mockup-channel-list">
+                <li className="active"># announcements</li>
+                <li># engineering</li>
+                <li># design-sync</li>
+                <li># general</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      );
+    case 1: // AI Generated Roadmap
+      return (
+        <div className="lp-interactive-mockup mockup-roadmap animate-fade-in">
+          <div className="lp-mockup-ai-bar">
+            <span className="lp-mockup-sparkle">✨</span>
+            <div className="lp-mockup-prompt-text">
+              <span>Goal:</span> "Create a WebRTC meeting app with live room presence in 3 weeks"
+            </div>
+          </div>
+          <div className="lp-mockup-roadmap-content">
+            <div className="lp-roadmap-timeline-header">
+              <span>Roadmap Timeline</span>
+              <span className="lp-roadmap-time">June 2026</span>
+            </div>
+            <div className="lp-roadmap-item done">
+              <div className="lp-roadmap-item-meta">
+                <span className="lp-roadmap-dot done" />
+                <strong>Phase 1: Signaling Setup</strong>
+              </div>
+              <div className="lp-roadmap-bar"><span style={{ width: '100%' }} /></div>
+            </div>
+            <div className="lp-roadmap-item active">
+              <div className="lp-roadmap-item-meta">
+                <span className="lp-roadmap-dot active" />
+                <strong>Phase 2: WebRTC Signaling & Rooms</strong>
+              </div>
+              <div className="lp-roadmap-bar"><span style={{ width: '75%' }} /></div>
+            </div>
+            <div className="lp-roadmap-item pending">
+              <div className="lp-roadmap-item-meta">
+                <span className="lp-roadmap-dot pending" />
+                <strong>Phase 3: Screen Share & Chat</strong>
+              </div>
+              <div className="lp-roadmap-bar"><span style={{ width: '20%' }} /></div>
+            </div>
+          </div>
+        </div>
+      );
+    case 2: // Live Delivery
+    default:
+      return (
+        <div className="lp-interactive-mockup mockup-delivery animate-fade-in">
+          <div className="lp-mockup-split-layout">
+            <div className="lp-mockup-tasks">
+              <h4>Priority Queue</h4>
+              <div className="lp-mockup-task-item">
+                <span className="lp-mockup-task-check done" />
+                <div className="lp-mockup-task-details">
+                  <strong>Finalize onboarding flow</strong>
+                  <span>Due Today • Product</span>
+                </div>
+                <span className="lp-mockup-task-pill in-review">In review</span>
+              </div>
+              <div className="lp-mockup-task-item">
+                <span className="lp-mockup-task-check" />
+                <div className="lp-mockup-task-details">
+                  <strong>Verify WebRTC ICE candidates</strong>
+                  <span>Due Tomorrow • Dev</span>
+                </div>
+                <span className="lp-mockup-task-pill ready">Ready</span>
+              </div>
+            </div>
+            
+            <div className="lp-mockup-chat-bubble">
+              <div className="lp-chat-header">
+                <span className="lp-chat-title"># engineering</span>
+              </div>
+              <div className="lp-chat-messages">
+                <div className="lp-chat-msg">
+                  <span className="lp-msg-avatar">AL</span>
+                  <div className="lp-msg-content">
+                    <strong>Alex Lee</strong>
+                    <p>ICE candidate gathering works on iOS/Safari now!</p>
+                  </div>
+                </div>
+                <div className="lp-chat-msg ai">
+                  <span className="lp-msg-avatar ai">✨</span>
+                  <div className="lp-msg-content">
+                    <strong>AI Copilot</strong>
+                    <p>Task "Verify WebRTC ICE candidates" updated to Ready.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+  }
+};
+
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const stats = useMemo(() => statConfig, []);
   const { theme, toggleTheme } = useTheme();
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [mouseCoords, setMouseCoords] = useState({ x: -200, y: -200 });
+  const [cursorVisible, setCursorVisible] = useState(false);
+  const [workflowVisible, setWorkflowVisible] = useState(false);
+  const workflowRef = useRef(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMouseCoords({ x: e.clientX, y: e.clientY });
+      if (!cursorVisible) setCursorVisible(true);
+    };
+    const handleMouseLeave = () => {
+      setCursorVisible(false);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [cursorVisible]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setWorkflowVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    const currentRef = workflowRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
 
   const scrollToMockup = () => {
     document.getElementById('hero-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -408,38 +611,161 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="lp-section">
-        <div className="lp-container">
-          <div className="lp-section-intro">
-            <div className="lp-section-kicker">How it works</div>
-            <h2 className="lp-section-title">A cleaner flow from setup to shipping</h2>
-          </div>
+      {cursorVisible && (
+        <div 
+          className="lp-cursor-glow" 
+          style={{ 
+            left: `${mouseCoords.x}px`, 
+            top: `${mouseCoords.y}px` 
+          }} 
+        />
+      )}
 
-          <div className="lp-workflow-grid">
-            {workflowSteps.map((step) => (
-              <article key={step.number} className="lp-workflow-card">
-                <div className="lp-workflow-number">{step.number}</div>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-              </article>
-            ))}
+      <section 
+        className="lp-section lp-how-it-works-redesign" 
+        id="how-it-works"
+        ref={workflowRef}
+      >
+        <div className="lp-radial-glow glow-how-it-works" />
+        <div className="lp-container">
+          <div className="lp-split-works-layout">
+            <div className="lp-works-left">
+              <div className="lp-section-kicker-wrap">
+                <span className="lp-gold-accent-line" />
+                <div className="lp-section-kicker">How it works</div>
+              </div>
+              <h2 className="lp-section-title lp-works-headline">
+                A cleaner flow from <span className="lp-highlight-gold">setup to shipping</span>
+              </h2>
+              <p className="lp-section-copy lp-works-copy">
+                Collaborate integrates your teams, plans, and conversations into a single, cohesive operating layer. Say goodbye to tool sprawl and fragmented context.
+              </p>
+
+              <div className={`lp-workflow-timeline-wrapper ${workflowVisible ? 'lp-revealed' : ''}`}>
+                <div className="lp-workflow-timeline-cards">
+                  {workflowSteps.map((step, index) => {
+                    const IconComponent = index === 0 ? WorkspaceIcon : index === 1 ? RoadmapIcon : DeliveryIcon;
+                    return (
+                      <div key={step.number} className="lp-timeline-card-container">
+                        <article 
+                          className={`lp-workflow-card-redesign ${activeStep === index ? 'active' : ''}`}
+                          onMouseEnter={() => setActiveStep(index)}
+                          onClick={() => setActiveStep(index)}
+                        >
+                          <div className="lp-workflow-card-glow" />
+                          <div className="lp-workflow-card-bg-number">{step.number}</div>
+                          <div className="lp-workflow-card-icon">
+                            <IconComponent />
+                          </div>
+                          <h3>{step.title}</h3>
+                          <p>{step.description}</p>
+                        </article>
+                        
+                        {index < 2 && (
+                          <div className="lp-timeline-connection">
+                            <svg className="lp-connection-line-svg" viewBox="0 0 100 10" preserveAspectRatio="none">
+                              <path 
+                                d="M 0 5 H 100" 
+                                fill="none" 
+                                stroke="url(#goldGradient)" 
+                                strokeWidth="2" 
+                                strokeDasharray="6,4" 
+                                className="lp-animated-dash"
+                              />
+                              <defs>
+                                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.3" />
+                                  <stop offset="50%" stopColor="var(--accent-primary)" stopOpacity="1" />
+                                  <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.3" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="lp-works-right">
+              <div className="lp-dashboard-product-preview-container">
+                <div className="lp-preview-window">
+                  <div className="lp-preview-window-topbar">
+                    <div className="lp-preview-window-controls">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                    <div className="lp-preview-window-title">
+                      {activeStep === 0 ? 'Workspace Setup' : activeStep === 1 ? 'AI Planning' : 'Live Execution'}
+                    </div>
+                  </div>
+                  <div className="lp-preview-window-body">
+                    {renderDashboardMockup(activeStep)}
+                  </div>
+                </div>
+                <div className="lp-preview-window-glow" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="lp-section">
+      <section className="lp-section lp-cta-section-redesign">
+        <div className="lp-radial-glow glow-cta" />
         <div className="lp-container">
-          <div className="lp-cta-panel">
-            <div className="lp-section-kicker">Ready to start</div>
-            <h2 className="lp-section-title">Bring planning, execution, chat, and meetings into one workspace</h2>
-            <p className="lp-section-copy">
-              Start with teams and projects, then scale into a structured organisation workflow without changing products.
-            </p>
-            <div className="lp-cta-panel-actions">
-              <Link to="/register" className="lp-signup-btn">Start free</Link>
-              <Link to="/login" className="lp-login-btn">Log In</Link>
+          
+          <div className="lp-trust-indicators">
+            <span className="lp-trust-label">Trusted by teams building faster</span>
+            
+            <div className="lp-trust-logos-row">
+              <span className="lp-trust-logo">Acme</span>
+              <span className="lp-trust-logo">Vertex</span>
+              <span className="lp-trust-logo">NovaCo</span>
+              <span className="lp-trust-logo">Fable</span>
+              <span className="lp-trust-logo">Orbis</span>
+            </div>
+
+            <div className="lp-trust-stats-grid">
+              <div className="lp-trust-stat">
+                <span className="lp-trust-stat-number">50k+</span>
+                <span className="lp-trust-stat-label">Active Users</span>
+              </div>
+              <div className="lp-trust-stat-divider" />
+              <div className="lp-trust-stat">
+                <span className="lp-trust-stat-number">12k+</span>
+                <span className="lp-trust-stat-label">Projects Completed</span>
+              </div>
+              <div className="lp-trust-stat-divider" />
+              <div className="lp-trust-stat">
+                <span className="lp-trust-stat-number">99.9%</span>
+                <span className="lp-trust-stat-label">Platform Uptime</span>
+              </div>
             </div>
           </div>
+
+          <div className="lp-cta-premium-card">
+            <div className="lp-cta-card-bg-glow" />
+            <div className="lp-cta-card-content">
+              <div className="lp-section-kicker-wrap centered">
+                <span className="lp-gold-accent-line" />
+                <div className="lp-section-kicker">Start shipping today</div>
+              </div>
+              <h2 className="lp-cta-card-title">
+                Bring planning, execution, chat and meetings into one workspace
+              </h2>
+              <p className="lp-cta-card-desc">
+                Unify your workflow and accelerate your delivery loops. Experience Collaborate free today. No credit card required.
+              </p>
+              <div className="lp-cta-card-buttons">
+                <Link to="/register" className="lp-cta-primary-btn">Start Free</Link>
+                <Link to="/login" className="lp-cta-secondary-btn">Book Demo</Link>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
       </main>

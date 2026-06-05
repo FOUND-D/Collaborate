@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Collaborate</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
 
     :root {
-      --bg: #0a0a0a;
-      --accent: #3B82F6;
-      --text: #ffffff;
-      --success: #22C55E;
-      --surface: rgba(255, 255, 255, 0.04);
-      --surface-strong: rgba(255, 255, 255, 0.06);
-      --border: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.15);
-      --muted: rgba(255, 255, 255, 0.72);
-      --soft: rgba(255, 255, 255, 0.56);
-      --hairline: rgba(255, 255, 255, 0.03);
+      --bg: #0f0e0d;
+      --accent: #d4a853;
+      --text: #f0ece4;
+      --success: #4aad82;
+      --surface: rgba(26, 25, 23, 0.45);
+      --surface-strong: rgba(26, 25, 23, 0.75);
+      --border: rgba(212, 168, 83, 0.12);
+      --border-strong: rgba(212, 168, 83, 0.22);
+      --muted: #9c9690;
+      --soft: #605d58;
+      --hairline: rgba(212, 168, 83, 0.03);
       --spacing-1: 8px;
       --spacing-2: 16px;
       --spacing-3: 24px;
@@ -35,6 +35,11 @@
       --radius-md: 18px;
       --radius-lg: 24px;
       --container: 1240px;
+      --font-display: 'Fraunces', serif;
+      --font-sans: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --glass-bg: rgba(26, 25, 23, 0.65);
+      --glass-backdrop: blur(16px) saturate(140%);
     }
 
     * {
@@ -105,8 +110,8 @@
       pointer-events: none;
       z-index: -1;
       background:
-        radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.12), transparent 48%),
-        radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08), transparent 32%);
+        radial-gradient(circle at 50% 10%, rgba(212, 168, 83, 0.12), transparent 48%),
+        radial-gradient(circle at 50% 0%, rgba(212, 168, 83, 0.08), transparent 32%);
     }
 
     .container {
@@ -142,10 +147,10 @@
 
     @keyframes pulseGlow {
       0%, 100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2), 0 0 22px rgba(59, 130, 246, 0.22);
+        box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.2), 0 0 22px rgba(212, 168, 83, 0.22);
       }
       50% {
-        box-shadow: 0 0 0 7px rgba(59, 130, 246, 0.02), 0 0 28px rgba(59, 130, 246, 0.34);
+        box-shadow: 0 0 0 7px rgba(212, 168, 83, 0.02), 0 0 28px rgba(212, 168, 83, 0.34);
       }
     }
 
@@ -252,7 +257,7 @@
     .login-btn:hover {
       border-color: var(--accent);
       background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.18);
+      box-shadow: 0 0 0 1px rgba(212, 168, 83, 0.18);
     }
 
     .signup-btn {
@@ -260,15 +265,15 @@
       padding: 0 18px;
       border-radius: 999px;
       background: var(--accent);
-      color: var(--text);
+      color: #0f0e0d !important;
       font-weight: 700;
-      box-shadow: 0 12px 28px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 12px 28px rgba(212, 168, 83, 0.2);
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
 
     .signup-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 18px 34px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 18px 34px rgba(212, 168, 83, 0.3);
     }
 
     .menu-toggle {
@@ -329,35 +334,36 @@
       padding: 10px 16px 10px 14px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(255, 255, 255, 0.03);
-      border-left: 1px solid rgba(59, 130, 246, 0.9);
+      border-left: 1px solid rgba(212, 168, 83, 0.9);
       border-radius: 999px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 0.18em;
       color: rgba(255, 255, 255, 0.84);
-      box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.08), 0 0 24px rgba(59, 130, 246, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(212, 168, 83, 0.08), 0 0 24px rgba(212, 168, 83, 0.08);
     }
 
     .headline {
       margin: 24px auto 0;
       max-width: 780px;
-      font-family: 'Bricolage Grotesque', sans-serif;
+      font-family: var(--font-display), serif;
+      font-style: italic;
       font-size: clamp(3.25rem, 7vw, 5rem);
-      line-height: 0.96;
-      letter-spacing: -0.04em;
-      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      font-weight: 500;
       text-wrap: balance;
     }
 
     .headline .shimmer {
       background:
         linear-gradient(90deg,
-          rgba(59, 130, 246, 0.72) 0%,
+          rgba(212, 168, 83, 0.72) 0%,
           rgba(255, 255, 255, 0.98) 22%,
-          rgba(59, 130, 246, 1) 40%,
+          rgba(212, 168, 83, 1) 40%,
           rgba(255, 255, 255, 0.98) 58%,
-          rgba(59, 130, 246, 0.72) 100%);
+          rgba(212, 168, 83, 0.72) 100%);
       background-size: 220% 100%;
       -webkit-background-clip: text;
       background-clip: text;
@@ -423,7 +429,7 @@
 
     .watch-btn:hover {
       transform: translateY(-1px);
-      border-color: rgba(59, 130, 246, 0.5);
+      border-color: rgba(212, 168, 83, 0.5);
       background: rgba(255, 255, 255, 0.07);
     }
 
@@ -512,7 +518,7 @@
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025));
       box-shadow:
-        0 0 0 1px rgba(59, 130, 246, 0.3),
+        0 0 0 1px rgba(212, 168, 83, 0.3),
         0 32px 80px rgba(0, 0, 0, 0.6);
       overflow: hidden;
       opacity: 0;
@@ -573,14 +579,14 @@
       position: absolute;
       inset: 0 0 auto;
       height: 1px;
-      background: rgba(59, 130, 246, 0.95);
-      box-shadow: 0 0 14px rgba(59, 130, 246, 0.75);
+      background: rgba(212, 168, 83, 0.95);
+      box-shadow: 0 0 14px rgba(212, 168, 83, 0.75);
     }
 
     .stat-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(59, 130, 246, 0.22);
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(59, 130, 246, 0.18);
+      border-color: rgba(212, 168, 83, 0.22);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(212, 168, 83, 0.18);
     }
 
     .stat-label {
@@ -622,7 +628,7 @@
     .chip {
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(59, 130, 246, 0.12);
+      background: rgba(212, 168, 83, 0.12);
       color: rgba(255, 255, 255, 0.88);
       font-size: 0.75rem;
     }
@@ -653,8 +659,8 @@
       position: absolute;
       inset: 0 auto 0 0;
       border-radius: inherit;
-      background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 1));
-      box-shadow: 0 0 18px rgba(59, 130, 246, 0.3);
+      background: linear-gradient(90deg, rgba(212, 168, 83, 0.6), rgba(212, 168, 83, 1));
+      box-shadow: 0 0 18px rgba(212, 168, 83, 0.3);
     }
 
     .task-list {
@@ -676,8 +682,8 @@
       width: 18px;
       height: 18px;
       border-radius: 999px;
-      border: 1px solid rgba(59, 130, 246, 0.7);
-      box-shadow: inset 0 0 0 3px rgba(59, 130, 246, 0.14);
+      border: 1px solid rgba(212, 168, 83, 0.7);
+      box-shadow: inset 0 0 0 3px rgba(212, 168, 83, 0.14);
     }
 
     .task-copy {
@@ -818,6 +824,1082 @@
 
       .timeline-row {
         grid-template-columns: 92px 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       REDESIGNED SECTIONS STYLE (How It Works & CTA Redesigns)
+       ========================================================================== */
+    .lp-how-it-works-redesign,
+    .lp-cta-section-redesign {
+      padding: 120px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lp-radial-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(212, 168, 83, 0.05) 0%, transparent 70%);
+      filter: blur(150px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .glow-how-it-works {
+      top: 10%;
+      right: -10%;
+    }
+
+    .glow-cta {
+      bottom: -10%;
+      left: 5%;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(212, 168, 83, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .cursor-glow {
+        display: none;
+      }
+    }
+
+    .lp-section-kicker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .lp-section-kicker-wrap.centered {
+      justify-content: center;
+    }
+
+    .lp-gold-accent-line {
+      display: inline-block;
+      width: 36px;
+      height: 1.5px;
+      background-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .lp-works-headline {
+      font-family: var(--font-display), serif;
+      font-style: italic;
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 1.05;
+      font-weight: 500;
+      max-width: 600px;
+      letter-spacing: -0.03em;
+      margin: 0 0 24px 0;
+      text-align: left;
+    }
+
+    .lp-highlight-gold {
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(212, 168, 83, 0.15);
+    }
+
+    .lp-works-copy {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 0 64px 0;
+      text-align: left;
+    }
+
+    .lp-split-works-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 64px;
+      align-items: center;
+      max-width: var(--container);
+      margin: 0 auto;
+      z-index: 2;
+      position: relative;
+    }
+
+    .lp-works-left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lp-works-right {
+      display: flex;
+      justify-content: center;
+    }
+
+    .lp-workflow-timeline-wrapper {
+      width: 100%;
+    }
+
+    .lp-workflow-timeline-cards {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .lp-timeline-card-container {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .lp-workflow-card-redesign {
+      flex: 1;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 300ms ease,
+                  box-shadow 300ms ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      text-align: left;
+    }
+
+    .lp-workflow-card-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 50% 0%, rgba(212, 168, 83, 0.12) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 300ms ease;
+      pointer-events: none;
+    }
+
+    .lp-workflow-card-redesign.active {
+      border-color: rgba(212, 168, 83, 0.45);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 
+                  0 0 20px rgba(212, 168, 83, 0.15),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .lp-workflow-card-redesign.active .lp-workflow-card-glow {
+      opacity: 1;
+    }
+
+    .lp-workflow-card-redesign:hover {
+      transform: translateY(-8px);
+      border-color: rgba(212, 168, 83, 0.35);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 
+                  0 0 24px rgba(212, 168, 83, 0.12);
+    }
+
+    .lp-workflow-card-bg-number {
+      position: absolute;
+      top: 8px;
+      right: 16px;
+      font-family: var(--font-sans), sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      color: rgba(212, 168, 83, 0.03);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .lp-workflow-card-redesign.active .lp-workflow-card-bg-number {
+      color: rgba(212, 168, 83, 0.06);
+    }
+
+    .lp-workflow-card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      background: rgba(212, 168, 83, 0.08);
+      border: 1px solid rgba(212, 168, 83, 0.15);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 300ms ease;
+    }
+
+    .lp-workflow-card-redesign:hover .lp-workflow-card-icon {
+      transform: scale(1.08) rotate(2deg);
+    }
+
+    .lp-workflow-card-redesign h3 {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .lp-workflow-card-redesign p {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .lp-workflow-timeline-wrapper .lp-timeline-card-container {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lp-workflow-timeline-wrapper.lp-revealed .lp-timeline-card-container:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 100ms;
+    }
+
+    .lp-workflow-timeline-wrapper.lp-revealed .lp-timeline-card-container:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 300ms;
+    }
+
+    .lp-workflow-timeline-wrapper.lp-revealed .lp-timeline-card-container:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 500ms;
+    }
+
+    .lp-timeline-connection {
+      width: 40px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .lp-connection-line-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .lp-animated-dash {
+      stroke-dasharray: 6, 4;
+      animation: lp-dash-flow 25s linear infinite;
+    }
+
+    @keyframes lp-dash-flow {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+
+    .lp-dashboard-product-preview-container {
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .lp-preview-window {
+      width: 100%;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6), 
+                  0 24px 72px rgba(0, 0, 0, 0.6),
+                  0 0 0 1px rgba(212, 168, 83, 0.05);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      animation: lp-float 6s ease-in-out infinite;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .lp-preview-window-glow {
+      position: absolute;
+      inset: -10px;
+      border-radius: 26px;
+      background: radial-gradient(circle at 50% 50%, rgba(212, 168, 83, 0.12) 0%, transparent 60%);
+      filter: blur(20px);
+      z-index: 1;
+      pointer-events: none;
+      animation: lp-float-glow 6s ease-in-out infinite;
+    }
+
+    @keyframes lp-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes lp-float-glow {
+      0%, 100% { transform: translateY(0) scale(0.98); opacity: 0.8; }
+      50% { transform: translateY(-8px) scale(1.02); opacity: 1; }
+    }
+
+    .lp-preview-window-topbar {
+      height: 38px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .lp-preview-window-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lp-preview-window-controls span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--border-strong);
+    }
+
+    .lp-preview-window-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .lp-preview-window-body {
+      padding: 20px;
+      background: #11100f;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .lp-interactive-mockup {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .lp-interactive-mockup.active {
+      display: flex;
+      animation: mockup-fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes mockup-fade-in {
+      from { opacity: 0; transform: scale(0.97) translateY(4px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .lp-mockup-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .lp-mockup-tag {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .lp-mockup-badge {
+      font-size: 11px;
+      color: var(--accent);
+      background: rgba(212, 168, 83, 0.08);
+      border: 1px solid rgba(212, 168, 83, 0.2);
+      padding: 3px 8px;
+      border-radius: 99px;
+      font-family: var(--font-sans), sans-serif;
+    }
+
+    .lp-mockup-workspace-content {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    .lp-mockup-team-section h4,
+    .lp-mockup-channels-section h4,
+    .lp-mockup-tasks h4 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+    }
+
+    .lp-mockup-avatar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lp-mockup-avatar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lp-mockup-avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .lp-mockup-avatar-circle.gold {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(212, 168, 83, 0.08);
+    }
+
+    .lp-mockup-avatar-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lp-mockup-avatar-info strong {
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .lp-mockup-avatar-info span {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .lp-mockup-channel-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .lp-mockup-channel-list li {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .lp-mockup-channel-list li.active {
+      color: var(--accent);
+      background: rgba(212, 168, 83, 0.05);
+    }
+
+    .lp-mockup-ai-bar {
+      background: rgba(212, 168, 83, 0.04);
+      border: 1px solid rgba(212, 168, 83, 0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lp-mockup-sparkle {
+      color: var(--accent);
+      filter: drop-shadow(0 0 4px var(--accent));
+      font-size: 14px;
+    }
+
+    .lp-mockup-prompt-text {
+      font-size: 11px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .lp-mockup-prompt-text span {
+      color: var(--accent);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .lp-mockup-roadmap-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lp-roadmap-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .lp-roadmap-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lp-roadmap-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+
+    .lp-roadmap-dot.done {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .lp-roadmap-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .lp-roadmap-item-meta strong {
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .lp-roadmap-bar {
+      height: 6px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .lp-roadmap-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .lp-roadmap-item.done .lp-roadmap-bar span {
+      background: var(--success);
+    }
+
+    .lp-mockup-split-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 12px;
+    }
+
+    .lp-mockup-task-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .lp-mockup-task-check {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      flex-shrink: 0;
+    }
+
+    .lp-mockup-task-check.done {
+      border-color: var(--accent);
+      background: rgba(212, 168, 83, 0.15);
+      position: relative;
+    }
+
+    .lp-mockup-task-check.done::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .lp-mockup-task-details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .lp-mockup-task-details strong {
+      font-size: 10px;
+      color: var(--text);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lp-mockup-task-details span {
+      font-size: 8px;
+      color: var(--muted);
+    }
+
+    .lp-mockup-task-pill {
+      font-size: 8px;
+      padding: 2px 6px;
+      border-radius: 99px;
+      font-weight: 500;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .lp-mockup-task-pill.in-review {
+      background: rgba(124, 111, 224, 0.08);
+      color: #7c6fe0;
+      border-color: rgba(124, 111, 224, 0.2);
+    }
+
+    .lp-mockup-task-pill.ready {
+      background: rgba(74, 173, 130, 0.08);
+      color: var(--success);
+      border-color: rgba(74, 173, 130, 0.2);
+    }
+
+    .lp-mockup-chat-bubble {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lp-chat-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lp-chat-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .lp-chat-messages {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lp-chat-msg {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lp-msg-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7px;
+      font-weight: 700;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .lp-msg-avatar.ai {
+      background: rgba(212, 168, 83, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(212, 168, 83, 0.2);
+    }
+
+    .lp-msg-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lp-msg-content strong {
+      font-size: 8px;
+      color: var(--text);
+    }
+
+    .lp-msg-content p {
+      font-size: 8px;
+      color: var(--muted);
+      margin: 1px 0 0 0;
+      line-height: 1.3;
+    }
+
+    /* Trust Indicators styling */
+    .lp-trust-indicators {
+      max-width: 900px;
+      margin: 0 auto 64px auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lp-trust-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 24px;
+      display: inline-block;
+      opacity: 0.85;
+    }
+
+    .lp-trust-logos-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .lp-trust-logo {
+      font-family: var(--font-display), serif;
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--muted);
+      opacity: 0.45;
+      transition: opacity 300ms ease, color 300ms ease;
+      cursor: default;
+    }
+
+    .lp-trust-logo:hover {
+      opacity: 0.9;
+      color: var(--accent);
+    }
+
+    .lp-trust-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      width: 100%;
+      max-width: 680px;
+      background: rgba(26, 25, 23, 0.2);
+      border: 1px solid var(--border);
+      padding: 20px 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .lp-trust-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+    }
+
+    .lp-trust-stat-number {
+      font-family: var(--font-display), serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      transition: color 300ms ease;
+    }
+
+    .lp-trust-stat-number::after {
+      content: '';
+      display: block;
+      width: 0%;
+      height: 1.5px;
+      background: var(--accent);
+      transition: width 300ms ease;
+      margin: 2px auto 0 auto;
+    }
+
+    .lp-trust-stat:hover .lp-trust-stat-number::after {
+      width: 100%;
+    }
+
+    .lp-trust-stat:hover .lp-trust-stat-number {
+      color: var(--accent);
+    }
+
+    .lp-trust-stat-label {
+      font-size: 11px;
+      font-family: var(--font-sans), sans-serif;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .lp-trust-stat-divider {
+      width: 1px;
+      height: 32px;
+      background-color: var(--border);
+    }
+
+    /* Premium CTA block */
+    .lp-cta-premium-card {
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 24px;
+      border: 1px solid rgba(212, 168, 83, 0.15);
+      background: linear-gradient(180deg, rgba(26, 25, 23, 0.6) 0%, rgba(15, 14, 13, 0.8) 100%);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      padding: 64px 48px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6), 
+                  0 24px 64px rgba(0, 0, 0, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .lp-cta-card-bg-glow {
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(212, 168, 83, 0.08) 0%, transparent 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .lp-cta-card-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .lp-cta-card-title {
+      font-family: var(--font-display), serif;
+      font-style: italic;
+      font-size: clamp(32px, 4.5vw, 46px);
+      line-height: 1.1;
+      font-weight: 500;
+      color: var(--text);
+      margin: 0 0 20px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .lp-cta-card-desc {
+      font-family: var(--font-sans), sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0 0 40px 0;
+    }
+
+    .lp-cta-card-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .lp-cta-primary-btn {
+      font-family: var(--font-sans), sans-serif;
+      height: 48px;
+      padding: 0 32px;
+      border-radius: 10px;
+      background-color: var(--accent);
+      color: #0f0e0d !important;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(212, 168, 83, 0.25);
+      transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+    }
+
+    .lp-cta-primary-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(212, 168, 83, 0.35);
+    }
+
+    .lp-cta-secondary-btn {
+      font-family: var(--font-sans), sans-serif;
+      height: 48px;
+      padding: 0 32px;
+      border-radius: 10px;
+      background-color: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 200ms ease;
+    }
+
+    .lp-cta-secondary-btn:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+      border-color: rgba(212, 168, 83, 0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Footer Redesign */
+    .lp-footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      background-color: var(--bg);
+      margin-top: 120px;
+    }
+
+    .lp-footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-sans), sans-serif;
+      font-size: 13px;
+      color: var(--soft);
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .lp-footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .lp-footer-link {
+      color: var(--soft);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .lp-footer-link:hover {
+      color: var(--muted);
+    }
+
+    /* Responsive Adaptation for root HTML */
+    @media (max-width: 1024px) {
+      .lp-split-works-layout {
+        grid-template-columns: 1fr;
+        gap: 64px;
+      }
+      .lp-works-headline, 
+      .lp-works-copy {
+        text-align: center;
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .lp-section-kicker-wrap {
+        justify-content: center;
+      }
+      .lp-workflow-timeline-wrapper {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .lp-how-it-works-redesign,
+      .lp-cta-section-redesign {
+        padding: 80px 16px;
+      }
+      .lp-workflow-timeline-cards {
+        flex-direction: column;
+        gap: 32px;
+      }
+      .lp-timeline-card-container {
+        flex-direction: column;
+        width: 100%;
+      }
+      .lp-timeline-connection {
+        width: 20px;
+        height: 32px;
+        transform: rotate(90deg);
+        margin: 8px 0;
+      }
+      .lp-workflow-card-redesign {
+        width: 100%;
+        transform: none !important;
+      }
+      .lp-trust-logos-row {
+        gap: 24px;
+      }
+      .lp-trust-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 24px;
+      }
+      .lp-trust-stat-divider {
+        width: 80%;
+        height: 1px;
+        margin: 0 auto;
+      }
+      .lp-cta-premium-card {
+        padding: 40px 24px;
+      }
+      .lp-cta-card-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .lp-cta-primary-btn, 
+      .lp-cta-secondary-btn {
+        width: 100%;
+      }
+      .lp-footer-inner {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
       }
     }
   </style>
@@ -991,6 +2073,316 @@
         </aside>
       </div>
     </main>
+
+    <!-- Cursor Glow effect -->
+    <div class="cursor-glow" id="cursor-glow"></div>
+
+    <!-- How It Works Section Redesign -->
+    <section class="lp-how-it-works-redesign" id="how-it-works">
+      <div class="lp-radial-glow glow-how-it-works"></div>
+      <div class="container">
+        <div class="lp-split-works-layout">
+          
+          <div class="lp-works-left">
+            <div class="lp-section-kicker-wrap">
+              <span class="lp-gold-accent-line"></span>
+              <span class="eyebrow" style="border:none; background:none; padding:0; box-shadow:none;">How it works</span>
+            </div>
+            <h2 class="lp-works-headline">
+              A cleaner flow from <span class="lp-highlight-gold">setup to shipping</span>
+            </h2>
+            <p class="lp-works-copy">
+              Collaborate integrates your teams, plans, and conversations into a single, cohesive operating layer. Say goodbye to tool sprawl and fragmented context.
+            </p>
+
+            <div class="lp-workflow-timeline-wrapper">
+              <div class="lp-workflow-timeline-cards">
+                
+                <div class="lp-timeline-card-container">
+                  <article class="lp-workflow-card-redesign active" data-step="0">
+                    <div class="lp-workflow-card-glow"></div>
+                    <div class="lp-workflow-card-bg-number">01</div>
+                    <div class="lp-workflow-card-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg>
+                    </div>
+                    <h3>Workspace Setup</h3>
+                    <p>Start with an organisation, spin up teams, and manage members with role permissions.</p>
+                  </article>
+                  
+                  <div class="lp-timeline-connection">
+                    <svg class="lp-connection-line-svg" viewBox="0 0 100 10" preserveAspectRatio="none">
+                      <path d="M 0 5 H 100" fill="none" stroke="url(#goldGradient2)" stroke-width="2" class="lp-animated-dash" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="lp-timeline-card-container">
+                  <article class="lp-workflow-card-redesign" data-step="1">
+                    <div class="lp-workflow-card-glow"></div>
+                    <div class="lp-workflow-card-bg-number">02</div>
+                    <div class="lp-workflow-card-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4M3 5h4M19 17v4M17 19h4" opacity="0.6" /></svg>
+                    </div>
+                    <h3>AI Generated Roadmap</h3>
+                    <p>Describe your goals in natural language and let AI compile a structured roadmap.</p>
+                  </article>
+
+                  <div class="lp-timeline-connection">
+                    <svg class="lp-connection-line-svg" viewBox="0 0 100 10" preserveAspectRatio="none">
+                      <path d="M 0 5 H 100" fill="none" stroke="url(#goldGradient2)" stroke-width="2" class="lp-animated-dash" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="lp-timeline-card-container">
+                  <article class="lp-workflow-card-redesign" data-step="2">
+                    <div class="lp-workflow-card-glow"></div>
+                    <div class="lp-workflow-card-bg-number">03</div>
+                    <div class="lp-workflow-card-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></svg>
+                    </div>
+                    <h3>Live Execution</h3>
+                    <p>Manage tasks, chat in-context, meet live, and track delivery velocity in one loop.</p>
+                  </article>
+                </div>
+
+                <svg style="position: absolute; width: 0; height: 0;">
+                  <defs>
+                    <linearGradient id="goldGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3" />
+                      <stop offset="50%" stop-color="var(--accent)" stop-opacity="1" />
+                      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.3" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="lp-works-right">
+            <div class="lp-dashboard-product-preview-container">
+              <div class="lp-preview-window">
+                <div class="lp-preview-window-topbar">
+                  <div class="lp-preview-window-controls">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <div class="lp-preview-window-title" id="preview-window-title">Workspace Setup</div>
+                </div>
+                <div class="lp-preview-window-body">
+                  
+                  <!-- Tab 1 Mockup (Workspace) -->
+                  <div class="lp-interactive-mockup mockup-workspace active" id="mockup-tab-0">
+                    <div class="lp-mockup-header-row">
+                      <span class="lp-mockup-tag">Workspace Settings</span>
+                      <span class="lp-mockup-badge">Owner: Ryan (Lead)</span>
+                    </div>
+                    <div class="lp-mockup-workspace-content">
+                      <div class="lp-mockup-team-section">
+                        <h4>Active Members</h4>
+                        <div class="lp-mockup-avatar-list">
+                          <div class="lp-mockup-avatar-item">
+                            <span class="lp-mockup-avatar-circle gold">RS</span>
+                            <div class="lp-mockup-avatar-info">
+                              <strong>Ryan Smith</strong>
+                              <span>Product Lead</span>
+                            </div>
+                          </div>
+                          <div class="lp-mockup-avatar-item">
+                            <span class="lp-mockup-avatar-circle">PN</span>
+                            <div class="lp-mockup-avatar-info">
+                              <strong>Patel Nitin</strong>
+                              <span>Lead Designer</span>
+                            </div>
+                          </div>
+                          <div class="lp-mockup-avatar-item">
+                            <span class="lp-mockup-avatar-circle">AL</span>
+                            <div class="lp-mockup-avatar-info">
+                              <strong>Alex Lee</strong>
+                              <span>Frontend Dev</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="lp-mockup-channels-section">
+                        <h4>Team Channels</h4>
+                        <ul class="lp-mockup-channel-list">
+                          <li class="active"># announcements</li>
+                          <li># engineering</li>
+                          <li># design-sync</li>
+                          <li># general</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 2 Mockup (Roadmap) -->
+                  <div class="lp-interactive-mockup mockup-roadmap" id="mockup-tab-1">
+                    <div class="lp-mockup-ai-bar">
+                      <span class="lp-mockup-sparkle">✨</span>
+                      <div class="lp-mockup-prompt-text">
+                        <span>Goal:</span> "Create a WebRTC meeting app with live room presence in 3 weeks"
+                      </div>
+                    </div>
+                    <div class="lp-mockup-roadmap-content">
+                      <div class="lp-roadmap-timeline-header">
+                        <span>Roadmap Timeline</span>
+                        <span class="lp-roadmap-time">June 2026</span>
+                      </div>
+                      <div class="lp-roadmap-item done">
+                        <div class="lp-roadmap-item-meta">
+                          <span class="lp-roadmap-dot done"></span>
+                          <strong>Phase 1: Signaling Setup</strong>
+                        </div>
+                        <div class="lp-roadmap-bar"><span style="width: 100%"></span></div>
+                      </div>
+                      <div class="lp-roadmap-item active">
+                        <div class="lp-roadmap-item-meta">
+                          <span class="lp-roadmap-dot active"></span>
+                          <strong>Phase 2: WebRTC Signaling & Rooms</strong>
+                        </div>
+                        <div class="lp-roadmap-bar"><span style="width: 75%"></span></div>
+                      </div>
+                      <div class="lp-roadmap-item pending">
+                        <div class="lp-roadmap-item-meta">
+                          <span class="lp-roadmap-dot pending"></span>
+                          <strong>Phase 3: Screen Share & Chat</strong>
+                        </div>
+                        <div class="lp-roadmap-bar"><span style="width: 20%"></span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 3 Mockup (Delivery) -->
+                  <div class="lp-interactive-mockup mockup-delivery" id="mockup-tab-2">
+                    <div class="lp-mockup-split-layout">
+                      <div class="lp-mockup-tasks">
+                        <h4>Priority Queue</h4>
+                        <div class="lp-mockup-task-item">
+                          <span class="lp-mockup-task-check done"></span>
+                          <div class="lp-mockup-task-details">
+                            <strong>Finalize onboarding flow</strong>
+                            <span>Due Today • Product</span>
+                          </div>
+                          <span class="lp-mockup-task-pill in-review">In review</span>
+                        </div>
+                        <div class="lp-mockup-task-item">
+                          <span class="lp-mockup-task-check"></span>
+                          <div class="lp-mockup-task-details">
+                            <strong>Verify WebRTC ICE candidates</strong>
+                            <span>Due Tomorrow • Dev</span>
+                          </div>
+                          <span class="lp-mockup-task-pill ready">Ready</span>
+                        </div>
+                      </div>
+                      
+                      <div class="lp-mockup-chat-bubble">
+                        <div class="lp-chat-header">
+                          <span class="lp-chat-title"># engineering</span>
+                        </div>
+                        <div class="lp-chat-messages">
+                          <div class="lp-chat-msg">
+                            <span class="lp-msg-avatar">AL</span>
+                            <div class="lp-msg-content">
+                              <strong>Alex Lee</strong>
+                              <p>ICE candidate gathering works on iOS/Safari now!</p>
+                            </div>
+                          </div>
+                          <div class="lp-chat-msg ai">
+                            <span class="lp-msg-avatar ai">✨</span>
+                            <div class="lp-msg-content">
+                              <strong>AI Copilot</strong>
+                              <p>Task "Verify WebRTC ICE candidates" updated to Ready.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="lp-preview-window-glow"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA & Trust Section Redesign -->
+    <section class="lp-cta-section-redesign">
+      <div class="lp-radial-glow glow-cta"></div>
+      <div class="container">
+        
+        <!-- Trust Indicators block -->
+        <div class="lp-trust-indicators">
+          <span class="lp-trust-label">Trusted by teams building faster</span>
+          
+          <div class="lp-trust-logos-row">
+            <span class="lp-trust-logo">Acme</span>
+            <span class="lp-trust-logo">Vertex</span>
+            <span class="lp-trust-logo">NovaCo</span>
+            <span class="lp-trust-logo">Fable</span>
+            <span class="lp-trust-logo">Orbis</span>
+          </div>
+
+          <div class="lp-trust-stats-grid">
+            <div class="lp-trust-stat">
+              <span class="lp-trust-stat-number">50k+</span>
+              <span class="lp-trust-stat-label">Active Users</span>
+            </div>
+            <div class="lp-trust-stat-divider"></div>
+            <div class="lp-trust-stat">
+              <span class="lp-trust-stat-number">12k+</span>
+              <span class="lp-trust-stat-label">Projects Completed</span>
+            </div>
+            <div class="lp-trust-stat-divider"></div>
+            <div class="lp-trust-stat">
+              <span class="lp-trust-stat-number">99.9%</span>
+              <span class="lp-trust-stat-label">Platform Uptime</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium Glassmorphic CTA Card -->
+        <div class="lp-cta-premium-card">
+          <div class="lp-cta-card-bg-glow"></div>
+          <div class="lp-cta-card-content">
+            <div class="lp-section-kicker-wrap centered">
+              <span class="lp-gold-accent-line"></span>
+              <span class="eyebrow" style="border:none; background:none; padding:0; box-shadow:none;">Start shipping today</span>
+            </div>
+            <h2 class="lp-cta-card-title">
+              Bring planning, execution, chat and meetings into one workspace
+            </h2>
+            <p class="lp-cta-card-desc">
+              Unify your workflow and accelerate your delivery loops. Experience Collaborate free today. No credit card required.
+            </p>
+            <div class="lp-cta-card-buttons">
+              <a href="#signup" class="lp-cta-primary-btn">Start Free</a>
+              <a href="#login" class="lp-cta-secondary-btn">Book Demo</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer redesign -->
+    <footer class="lp-footer">
+      <div class="lp-footer-inner">
+        <span>© 2026 Collaborate Inc. All rights reserved.</span>
+        <div class="lp-footer-links">
+          <a href="#" class="lp-footer-link">Terms</a>
+          <a href="#" class="lp-footer-link">Privacy</a>
+          <a href="#" class="lp-footer-link">Security</a>
+        </div>
+      </div>
+    </footer>
+
   </div>
 
   <script>
@@ -1004,6 +2396,52 @@
       });
     }
 
+    // Animated Cursor Glow coordination
+    const cursorGlow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', (e) => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+      cursorGlow.style.opacity = '1';
+    });
+    document.addEventListener('mouseleave', () => {
+      cursorGlow.style.opacity = '0';
+    });
+
+    // How It Works Interactive Tabs Logic
+    const steps = document.querySelectorAll('.lp-workflow-card-redesign');
+    const mockups = document.querySelectorAll('.lp-interactive-mockup');
+    const windowTitle = document.getElementById('preview-window-title');
+    const tabTitles = ["Workspace Setup", "AI Planning", "Live Execution"];
+
+    steps.forEach((step, idx) => {
+      const activate = () => {
+        steps.forEach(s => s.classList.remove('active'));
+        mockups.forEach(m => m.classList.remove('active'));
+        
+        step.classList.add('active');
+        const mockup = document.getElementById(`mockup-tab-${idx}`);
+        if (mockup) mockup.classList.add('active');
+        if (windowTitle) windowTitle.textContent = tabTitles[idx];
+      };
+
+      step.addEventListener('mouseenter', activate);
+      step.addEventListener('click', activate);
+    });
+
+    // Staggered Scroll Reveal Observer
+    const workflowWrapper = document.querySelector('.lp-workflow-timeline-wrapper');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('lp-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    
+    if (workflowWrapper) revealObserver.observe(workflowWrapper);
+
+    // Number counters animation
     const counters = document.querySelectorAll('[data-counter]');
     const counterObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
