@@ -9,7 +9,16 @@ import { listRatings } from '../actions/ratingActions';
 import { BACKEND_URL } from '../config/runtime';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
-import { FaStar, FaRegStar } from 'react-icons/fa';
+import api from '../utils/api';
+import {
+  FaStar,
+  FaRegStar,
+  FaMedal,
+  FaAward,
+  FaCertificate,
+  FaCheckCircle,
+  FaBookOpen,
+} from 'react-icons/fa';
 import './ProfileScreen.css'; // Import the new CSS file
 
 const yearOptions = [
@@ -23,6 +32,8 @@ const yearOptions = [
 ];
 
 const ProfileScreen = () => {
+  const [badges, setBadges] = useState([]);
+  const [loadingBadges, setLoadingBadges] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
@@ -50,6 +61,40 @@ const ProfileScreen = () => {
   const { ratings = [] } = ratingList;
 
   const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      if (userInfo?._id) {
+        setLoadingBadges(true);
+        try {
+          const { data } = await api.get(`/api/badges/user/${userInfo._id}`);
+          setBadges(data.badges || []);
+        } catch (err) {
+          console.error('Error fetching badges:', err);
+        } finally {
+          setLoadingBadges(false);
+        }
+      }
+    };
+    fetchBadges();
+  }, [userInfo?._id]);
+
+  const getBadgeIcon = (type) => {
+    switch (type) {
+      case 'bronze_teacher': return <FaMedal style={{ color: '#cd7f32' }} />;
+      case 'silver_mentor': return <FaMedal style={{ color: '#c0c0c0' }} />;
+      case 'gold_expert': return <FaMedal style={{ color: '#ffd700' }} />;
+      case 'faculty_verified': return <FaCheckCircle style={{ color: '#14b8a6' }} />;
+      case 'first_session': return <FaStar style={{ color: '#fbbf24' }} />;
+      case 'resource_sharer': return <FaBookOpen style={{ color: '#3b82f6' }} />;
+      case 'top_contributor': return <FaAward style={{ color: '#8b5cf6' }} />;
+      default: return <FaCertificate />;
+    }
+  };
+
+  const getBadgeLabel = (type) => {
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -184,6 +229,25 @@ const ProfileScreen = () => {
         >
           <strong>Credits:</strong> <span>{userInfo?.credits ?? 50}</span>
         </div>
+
+        <div className="profile-badges-section">
+          <h3>Badges</h3>
+          {loadingBadges ? <Loader /> : (
+            <div className="badges-grid">
+              {badges.length > 0 ? (
+                badges.map(badge => (
+                  <div key={badge.id} className="badge-chip" title={`Awarded on ${new Date(badge.awardedAt).toLocaleDateString()}`}>
+                    {getBadgeIcon(badge.type)}
+                    <span>{getBadgeLabel(badge.type)}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="no-badges-text">Complete sessions and share resources to earn badges</p>
+              )}
+            </div>
+          )}
+        </div>
+
         <img
           src={
             image && image.startsWith('data:image')

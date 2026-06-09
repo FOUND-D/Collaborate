@@ -25,6 +25,49 @@
     border-color: rgba(255, 255, 255, 0.15);
 }
 
+.profile-badges-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.profile-badges-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+}
+
+.badges-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.badge-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  transition: transform 0.2s;
+}
+
+.badge-chip:hover {
+  transform: scale(1.05);
+}
+
+.no-badges-text {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
 .profile-image {
     width: 150px;
     height: 150px;

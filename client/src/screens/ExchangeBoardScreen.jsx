@@ -112,7 +112,12 @@ const ExchangeBoardScreen = () => {
                     <h3>{listing.skill?.name || 'Skill listing'}</h3>
                     <p>{listing.description || 'No additional details supplied for this exchange.'}</p>
                     <div className="phase2-card-meta">
-                      <span>{listing.user?.name || 'Anonymous'}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {listing.user?.name || 'Anonymous'}
+                        {listing.user?.role === 'faculty' && (
+                          <FaCheckCircle style={{ color: '#14b8a6', fontSize: '0.85rem' }} title="Faculty Verified" />
+                        )}
+                      </span>
                       <span>{listing.user?.department || 'Open department'}</span>
                       <span className="listing-rating-badge">
                         <FaStar style={{ color: '#fbbf24', marginRight: '4px' }} />
