@@ -27,10 +27,15 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const payload = { name };
+    if (selectedTeam) payload.teamId = selectedTeam;
     if (isAiMode) {
-      dispatch(createProjectWithAI({ name, goal, dueDate, teamId: selectedTeam }));
+      if (goal) payload.goal = goal;
+      if (dueDate) payload.dueDate = dueDate;
+      // Use AI endpoint when requested (keeps existing behaviour)
+      dispatch(createProjectWithAI(payload));
     } else {
-      dispatch(createProject({ name }));
+      dispatch(createProject(payload));
     }
     onClose();
   };
@@ -84,7 +89,25 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
             />
             <label htmlFor="projectName">Project Name*</label>
           </div>
-          {isAiMode && (
+
+                  <div className="form-group floating-label">
+                    <select
+                      id="selectedTeam"
+                      value={selectedTeam}
+                      onChange={(e) => setSelectedTeam(e.target.value)}
+                      className="form-input"
+                    >
+                      <option value="">No Assigned Team</option>
+                      {teams.map((team) => (
+                        <option key={team._id} value={team._id}>
+                          {team.name}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="selectedTeam">Assign Team</label>
+                  </div>
+
+                  {isAiMode && (
             <>
               <div className="form-group floating-label">
                 <textarea
@@ -99,7 +122,7 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                 <label htmlFor="projectGoal">Project Goal*</label>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
                 <div className="form-group floating-label">
                   <input
                     type="date"
@@ -110,22 +133,6 @@ const ProjectCreateModal = ({ isOpen, onClose }) => {
                     onChange={(e) => setDueDate(e.target.value)}
                   />
                   <label htmlFor="dueDate">Due Date</label>
-                </div>
-                <div className="form-group floating-label">
-                  <select
-                    id="selectedTeam"
-                    value={selectedTeam}
-                    onChange={(e) => setSelectedTeam(e.target.value)}
-                    className="form-input"
-                  >
-                    <option value="">No Assigned Team</option>
-                    {teams.map((team) => (
-                      <option key={team._id} value={team._id}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
-                  <label htmlFor="selectedTeam">Assign Team</label>
                 </div>
               </div>
             </>

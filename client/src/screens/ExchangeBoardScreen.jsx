@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaBolt, FaFilter, FaPlus, FaSearch, FaStar } from 'react-icons/fa';
+import { FaBolt, FaFilter, FaPlus, FaSearch, FaStar, FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { listListings } from '../actions/listingActions';
