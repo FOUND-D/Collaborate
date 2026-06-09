@@ -172,7 +172,19 @@ const completeSessionBooking = asyncHandler(async (req, res) => {
   if (!session) return res.status(404).json({ message: 'Session not found' });
   if (!isParticipant(session, req.user._id)) return res.status(403).json({ message: 'Not authorized for this session' });
 
-  res.json(await completeSession({ sessionId: req.params.id }));
+  const completedSession = await completeSession({ sessionId: req.params.id });
+
+  // Award badge if earned
+  try {
+    const { awardBadgeIfEarned } = require('../services/badgeService');
+    if (session.teacher_id) {
+      await awardBadgeIfEarned(session.teacher_id, 'session_complete');
+    }
+  } catch (err) {
+    console.error('Error awarding badge:', err);
+  }
+
+  res.json(completedSession);
 });
 
 module.exports = {
