@@ -9,7 +9,11 @@ import {
   FiVideo, 
   FiChevronRight, 
   FiActivity, 
-  FiPlus 
+  FiPlus,
+  FiAward,
+  FiBook,
+  FiStar,
+  FiZap
 } from 'react-icons/fi';
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
@@ -19,6 +23,7 @@ import { listMyOrganisations } from '../actions/organisationActions';
 import { listSkillMatches } from '../actions/skillActions';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
+import NoticeBoardWidget from '../components/NoticeBoardWidget';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -42,6 +47,8 @@ const HomeScreen = () => {
   const orgList = useSelector((state) => state.orgList);
   const currentOrg = orgCurrent.organisation || orgList.organisations?.[0];
   const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
     if (userInfo) {
@@ -54,6 +61,12 @@ const HomeScreen = () => {
       api.get('/api/users/profile')
         .then(({ data }) => setProfile(data))
         .catch(() => setProfile(null));
+      
+      setLoadingStats(true);
+      api.get('/api/users/me/stats')
+        .then(({ data }) => setStats(data))
+        .catch(() => setStats(null))
+        .finally(() => setLoadingStats(false));
     }
   }, [dispatch, userInfo]);
 
@@ -151,6 +164,42 @@ const HomeScreen = () => {
             <p className="dashboard-subtitle">
               Here's an overview of your workspace today.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Section */}
+      <div className="home-progress-section">
+        <h2 className="column-title">Your Progress</h2>
+        <div className="stats-grid">
+          <div className="stat-mini-card teal">
+            <div className="mini-card-icon"><FiZap /></div>
+            <div className="mini-card-info">
+              <span className="mini-card-val">{stats?.sessionsTaught ?? '—'}</span>
+              <span className="mini-card-lbl">Sessions Taught</span>
+              <span className="mini-card-sub">{stats?.sessionsThisMonth ?? 0} this month</span>
+            </div>
+          </div>
+          <div className="stat-mini-card blue">
+            <div className="mini-card-icon"><FiVideo /></div>
+            <div className="mini-card-info">
+              <span className="mini-card-val">{stats?.sessionsAttended ?? '—'}</span>
+              <span className="mini-card-lbl">Sessions Attended</span>
+            </div>
+          </div>
+          <div className="stat-mini-card green">
+            <div className="mini-card-icon"><FiAward /></div>
+            <div className="mini-card-info">
+              <span className="mini-card-val">{stats?.skillCount ?? '—'}</span>
+              <span className="mini-card-lbl">Skills Mastered</span>
+            </div>
+          </div>
+          <div className="stat-mini-card yellow">
+            <div className="mini-card-icon"><FiStar /></div>
+            <div className="mini-card-info">
+              <span className="mini-card-val">{stats?.avgRating ? stats.avgRating.toFixed(1) : '—'}</span>
+              <span className="mini-card-lbl">Average Rating</span>
+            </div>
           </div>
         </div>
       </div>
@@ -266,6 +315,8 @@ const HomeScreen = () => {
           ))}
         </div>
       </div>
+
+      <NoticeBoardWidget />
 
     </div>
   );
