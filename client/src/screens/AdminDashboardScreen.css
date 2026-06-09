@@ -1,0 +1,138 @@
+.admin-dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.admin-header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 1rem;
+}
+
+.admin-tabs button {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.admin-tabs button:hover {
+  color: var(--color-text-primary);
+}
+
+.admin-tabs button.active {
+  color: #14b8a6;
+  border-bottom-color: #14b8a6;
+}
+
+.admin-stat-card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.admin-stat-card .stat-icon {
+  font-size: 2rem;
+  color: #14b8a6;
+  opacity: 0.8;
+}
+
+.stat-info h3 {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.table-controls {
+  margin-bottom: 1.5rem;
+}
+
+.admin-table-wrapper {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background-color: var(--color-bg-secondary);
+  padding: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.role-select {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.delete-btn {
+  background: none;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .admin-table-wrapper {
+    overflow-x: auto;
+  }
+}
