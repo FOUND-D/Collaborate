@@ -292,7 +292,7 @@ const SkillProfileScreen = () => {
                         <div className="phase2-chip-meta">
                           <span>{item.level || 'unspecified'}</span>
                           {item.endorsedBy && (
-                            <span className="phase2-endorsement-pill"><FaCheckCircle /> Faculty endorsed</span>
+                                                      <span className="phase2-endorsement-pill">{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Faculty endorsed</span>
                           )}
                         </div>
                       </div>

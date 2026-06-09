@@ -72,7 +72,7 @@ const SessionDetailScreen = () => {
 
             <div className="phase2-detail-actions">
               <button type="button" className="phase2-button phase2-button-primary" onClick={() => dispatch(confirmSession(session._id))}>
-                <FaCheckCircle /> Confirm
+                {(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="16" height="16" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Confirm
               </button>
               <button type="button" className="phase2-button phase2-button-secondary" onClick={() => dispatch(cancelSession(session._id))}>
                 <FaTimesCircle /> Cancel

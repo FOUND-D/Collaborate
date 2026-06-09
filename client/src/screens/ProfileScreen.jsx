@@ -84,7 +84,7 @@ const ProfileScreen = () => {
       case 'bronze_teacher': return <FaMedal style={{ color: '#cd7f32' }} />;
       case 'silver_mentor': return <FaMedal style={{ color: '#c0c0c0' }} />;
       case 'gold_expert': return <FaMedal style={{ color: '#ffd700' }} />;
-      case 'faculty_verified': return <FaCheckCircle style={{ color: '#14b8a6' }} />;
+      case 'faculty_verified': return (typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle style={{ color: '#14b8a6' }} /> : <svg width="16" height="16" viewBox="0 0 24 24" style={{ color: '#14b8a6', width: '1rem', height: '1rem' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>;
       case 'first_session': return <FaStar style={{ color: '#fbbf24' }} />;
       case 'resource_sharer': return <FaBookOpen style={{ color: '#3b82f6' }} />;
       case 'top_contributor': return <FaAward style={{ color: '#8b5cf6' }} />;

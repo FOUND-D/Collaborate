@@ -106,10 +106,10 @@ const UserGuideModal = ({ isOpen, onClose }) => {
           <div className="guide-tips">
             <h4>Quick toggle guide</h4>
             <ul>
-              <li><FaCheckCircle /> Click <strong>Chat</strong> in the sidebar to open the docked chat panel.</li>
-              <li><FaCheckCircle /> Use the <strong>Expand</strong> icon in chat to open the full-screen chat view.</li>
-              <li><FaCheckCircle /> On mobile, use the sidebar menu button to show or hide the workspace navigation.</li>
-              <li><FaCheckCircle /> Open a team to start a meeting, then use the meeting controls for camera, mic, and screen share.</li>
+              <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Click <strong>Chat</strong> in the sidebar to open the docked chat panel.</li>
+                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Use the <strong>Expand</strong> icon in chat to open the full-screen chat view.</li>
+                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} On mobile, use the sidebar menu button to show or hide the workspace navigation.</li>
+                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Open a team to start a meeting, then use the meeting controls for camera, mic, and screen share.</li>
             </ul>
           </div>
         </div>
