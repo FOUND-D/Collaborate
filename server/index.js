@@ -20,6 +20,10 @@ const skillRoutes = require('./routes/skillRoutes');
 const listingRoutes = require('./routes/listingRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
+const badgeRoutes = require('./routes/badgeRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -249,6 +253,10 @@ app.use('/api/orgs', orgRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/badges', badgeRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

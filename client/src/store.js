@@ -75,6 +75,14 @@ import {
   ratingCreateReducer,
   ratingListReducer,
 } from './reducers/ratingReducers';
+import {
+  resourceListReducer,
+  resourceCreateReducer,
+} from './reducers/resourceReducers';
+import {
+  announcementListReducer,
+  announcementCreateReducer,
+} from './reducers/announcementReducers';
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -136,6 +144,10 @@ const rootReducer = combineReducers({
   sessionStatus: sessionStatusReducer,
   ratingCreate: ratingCreateReducer,
   ratingList: ratingListReducer,
+  resourceList: resourceListReducer,
+  resourceCreate: resourceCreateReducer,
+  announcementList: announcementListReducer,
+  announcementCreate: announcementCreateReducer,
 });
 
 // 4. Wrap your root reducer with the persist function

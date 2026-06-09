@@ -2,27 +2,14 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const supabase = require('./supabase');
 
-const SESSION_REQUEST_PREFIX = '__session_request__:';
+const SESSION_REQUEST_PREFIX = 'SESSION_REQUEST:';
 
-const unique = (values) => [...new Set((values || []).filter(Boolean))];
-
-const buildMap = (rows, key = 'id') => Object.fromEntries((rows || []).map((row) => [row[key], row]));
-
-const levelWeight = {
-  beginner: 1,
-  intermediate: 2,
-  advanced: 3,
+const formatAvgRating = (val) => {
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
 };
 
-const normalizeLevel = (value) => (typeof value === 'string' ? value.toLowerCase() : null);
-
-const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
-
-const formatAvgRating = (value) => {
-  if (value === null || value === undefined || value === '') return null;
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? Number(numeric.toFixed(2)) : null;
-};
+const unique = (arr) => [...new Set(arr)];
 
 const toPublicCompactUser = (user) => {
   if (!user) return null;
@@ -52,18 +39,15 @@ const toPublicUser = (u) => {
     year_of_study: u.year_of_study ?? null,
     studentId: u.student_id || '',
     student_id: u.student_id || '',
+    techStack: u.tech_stack || [],
+    tech_stack: u.tech_stack || [],
+    reputationScore: u.reputation_score ?? 0,
+    reputation_score: u.reputation_score ?? 0,
+    profileImage: u.profile_image || '',
+    profile_image: u.profile_image || '',
     credits: u.credits ?? 50,
     avgRating: formatAvgRating(u.avg_rating),
     avg_rating: formatAvgRating(u.avg_rating),
-    portfolioSlug: u.portfolio_slug || '',
-    portfolio_slug: u.portfolio_slug || '',
-    profileImage: u.profile_image || '',
-    mobileNumber: u.mobile_number || '',
-    bio: u.bio || '',
-    designation: u.designation || '',
-    customFields: u.custom_fields || {},
-    techStack: u.tech_stack || [],
-    reputationScore: u.reputation_score || 0,
     createdAt: u.created_at,
     updatedAt: u.updated_at,
   };
@@ -99,8 +83,9 @@ const toPublicOrgRole = (role) => {
     canManageRoles: role.can_manage_roles,
     canManageSettings: role.can_manage_settings,
     canManageTeams: role.can_manage_teams,
-    canInviteMembers: role.can_invite_members,
-    canViewReports: role.can_view_reports,
+    canManageTasks: role.can_manage_tasks,
+    canManageProjects: role.can_manage_projects,
+    canModerateExchange: role.can_moderate_exchange,
     createdAt: role.created_at,
     updatedAt: role.updated_at,
   };
@@ -206,6 +191,7 @@ const toPublicListing = (listing) => listing && ({
   description: listing.description || '',
   status: listing.status,
   createdAt: listing.created_at,
+  updatedAt: listing.updated_at,
   user: listing.user ? toPublicCompactUser(listing.user) : undefined,
   skill: listing.skill ? toPublicSkill(listing.skill) : undefined,
 });
@@ -221,16 +207,14 @@ const toPublicSession = (session) => session && ({
   learner_id: session.learner_id || null,
   scheduledAt: session.scheduled_at,
   scheduled_at: session.scheduled_at,
-  durationMin: session.duration_min ?? 60,
-  duration_min: session.duration_min ?? 60,
-  status: session.status,
-  creditsTransacted: session.credits_transacted ?? null,
-  credits_transacted: session.credits_transacted ?? null,
+  durationMin: session.duration_min,
+  duration_min: session.duration_min,
   agenda: session.agenda || '',
-  aiSummary: session.ai_summary || '',
-  ai_summary: session.ai_summary || '',
+  status: session.status,
   meetingId: session.meeting_id || null,
   meeting_id: session.meeting_id || null,
+  createdAt: session.created_at,
+  updatedAt: session.updated_at,
   listing: session.listing ? toPublicListing(session.listing) : undefined,
   teacher: session.teacher ? toPublicCompactUser(session.teacher) : undefined,
   learner: session.learner ? toPublicCompactUser(session.learner) : undefined,
@@ -258,6 +242,28 @@ const toPublicRating = (rating) => rating && ({
   session: rating.session ? toPublicSession(rating.session) : undefined,
 });
 
+const toPublicResource = (resource) => {
+  if (!resource) return null;
+  return {
+    id: resource.id,
+    _id: resource.id,
+    title: resource.title,
+    description: resource.description,
+    fileUrl: resource.file_url,
+    fileType: resource.file_type,
+    tags: resource.tags || [],
+    aiSummary: resource.ai_summary,
+    viewCount: resource.view_count || 0,
+    downloadCount: resource.download_count || 0,
+    isPinned: resource.is_pinned || false,
+    uploaderId: resource.uploader_id,
+    uploaderName: resource.users?.name || (resource.uploader ? resource.uploader.name : undefined),
+    uploader: resource.users ? toPublicCompactUser(resource.users) : (resource.uploader ? toPublicCompactUser(resource.uploader) : undefined),
+    teamId: resource.team_id,
+    createdAt: resource.created_at,
+  };
+};
+
 const decodeMessageContent = (rawContent) => {
   if (typeof rawContent !== 'string' || !rawContent.startsWith(SESSION_REQUEST_PREFIX)) {
     return { type: 'text', content: rawContent || '', sessionRequest: null };
@@ -267,26 +273,17 @@ const decodeMessageContent = (rawContent) => {
     const decoded = JSON.parse(rawContent.slice(SESSION_REQUEST_PREFIX.length));
     return {
       type: 'session_request',
-      content: decoded.content || '',
-      sessionRequest: decoded.payload || null,
+      content: decoded.message || 'I would like to book a session.',
+      sessionRequest: {
+        listingId: decoded.listingId,
+        scheduledAt: decoded.scheduledAt,
+        durationMin: decoded.durationMin,
+        agenda: decoded.agenda,
+      }
     };
-  } catch (error) {
+  } catch (err) {
     return { type: 'text', content: rawContent, sessionRequest: null };
   }
-};
-
-const buildSessionRequestContent = (payload) => {
-  const skill = payload?.skill || 'Skill exchange';
-  const proposedTime = payload?.proposed_time || 'TBD';
-  return `Session request: ${skill} at ${proposedTime}`;
-};
-
-const encodeMessageContent = ({ content, messageType, sessionRequest }) => {
-  if (messageType !== 'session_request') return content || '';
-  return `${SESSION_REQUEST_PREFIX}${JSON.stringify({
-    content: content || buildSessionRequestContent(sessionRequest),
-    payload: sessionRequest || null,
-  })}`;
 };
 
 const toPublicMessage = (message) => {
@@ -310,84 +307,7 @@ const toPublicMessage = (message) => {
   };
 };
 
-const fetchUsersMap = async (userIds) => {
-  const ids = unique(userIds);
-  if (!ids.length) return {};
-  const { data, error } = await supabase
-    .from('users')
-    .select('id,name,email,role,department,avg_rating,profile_image,credits')
-    .in('id', ids);
-  if (error) throw error;
-  return buildMap(data || []);
-};
-
-const fetchSkillsMap = async (skillIds) => {
-  const ids = unique(skillIds);
-  if (!ids.length) return {};
-  const { data, error } = await supabase.from('skills').select('*').in('id', ids);
-  if (error) throw error;
-  return buildMap(data || []);
-};
-
-const fetchListingsMap = async (listingIds) => {
-  const ids = unique(listingIds);
-  if (!ids.length) return {};
-  const { data, error } = await supabase.from('exchange_listings').select('*').in('id', ids);
-  if (error) throw error;
-  return buildMap(data || []);
-};
-
-const enrichListings = async (listings) => {
-  const rows = listings || [];
-  if (!rows.length) return [];
-
-  const userMap = await fetchUsersMap(rows.map((row) => row.user_id));
-  const skillMap = await fetchSkillsMap(rows.map((row) => row.skill_id));
-
-  return rows.map((row) => ({
-    ...row,
-    user: userMap[row.user_id] || null,
-    skill: skillMap[row.skill_id] || null,
-  }));
-};
-
-const enrichSessions = async (sessions) => {
-  const rows = sessions || [];
-  if (!rows.length) return [];
-
-  const listingMap = await fetchListingsMap(rows.map((row) => row.listing_id));
-  const enrichedListings = await enrichListings(Object.values(listingMap));
-  const hydratedListingMap = buildMap(enrichedListings);
-  const userMap = await fetchUsersMap(rows.flatMap((row) => [row.teacher_id, row.learner_id]));
-
-  const sessionIds = rows.map((row) => row.id);
-  const { data: ratingsData } = await supabase.from('ratings').select('session_id').in('session_id', sessionIds);
-  const ratedSessionIds = new Set((ratingsData || []).map((r) => r.session_id));
-
-  return rows.map((row) => ({
-    ...row,
-    listing: hydratedListingMap[row.listing_id] || null,
-    teacher: userMap[row.teacher_id] || null,
-    learner: userMap[row.learner_id] || null,
-    rated: ratedSessionIds.has(row.id),
-  }));
-};
-
-const enrichRatings = async (ratings) => {
-  const rows = ratings || [];
-  if (!rows.length) return [];
-
-  const sessionRows = await getSessionsByIds(rows.map((row) => row.session_id));
-  const sessionMap = buildMap(sessionRows);
-  const userMap = await fetchUsersMap(rows.flatMap((row) => [row.rater_id, row.ratee_id]));
-
-  return rows.map((row) => ({
-    ...row,
-    session: sessionMap[row.session_id] || null,
-    rater: userMap[row.rater_id] || null,
-    ratee: userMap[row.ratee_id] || null,
-  }));
-};
+const normalizeEmail = (email) => email ? email.trim().toLowerCase() : '';
 
 const getUserById = async (id) => {
   const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
@@ -412,15 +332,11 @@ const createUser = async ({ name, email, password, role, department, yearOfStudy
     password_hash: passwordHash,
     role: role || 'undergrad',
     department: department || null,
-    year_of_study: yearOfStudy ?? null,
+    year_of_study: yearOfStudy || null,
     student_id: studentId || null,
-    credits: 50,
     tech_stack: techStack || [],
-    profile_image: profileImage || '',
-    mobile_number: '',
-    bio: '',
-    designation: '',
-    custom_fields: {},
+    profile_image: profileImage || null,
+    credits: 50,
   }).select('*').single();
   if (error) throw error;
   return toPublicUser(data);
@@ -445,20 +361,18 @@ const updateUser = async (id, patch) => {
   if (patch.department !== undefined) updates.department = patch.department;
   if (patch.yearOfStudy !== undefined) updates.year_of_study = patch.yearOfStudy;
   if (patch.year_of_study !== undefined) updates.year_of_study = patch.year_of_study;
-  if (patch.studentId !== undefined) updates.student_id = patch.studentId || null;
-  if (patch.student_id !== undefined) updates.student_id = patch.student_id || null;
-  if (patch.credits !== undefined) updates.credits = patch.credits;
-  if (patch.avgRating !== undefined) updates.avg_rating = patch.avgRating;
-  if (patch.avg_rating !== undefined) updates.avg_rating = patch.avg_rating;
-  if (patch.portfolioSlug !== undefined) updates.portfolio_slug = patch.portfolioSlug;
-  if (patch.portfolio_slug !== undefined) updates.portfolio_slug = patch.portfolio_slug;
-  if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
-  if (patch.mobileNumber !== undefined) updates.mobile_number = patch.mobileNumber;
-  if (patch.bio !== undefined) updates.bio = patch.bio;
-  if (patch.designation !== undefined) updates.designation = patch.designation;
-  if (patch.customFields !== undefined) updates.custom_fields = patch.customFields;
+  if (patch.studentId !== undefined) updates.student_id = patch.studentId;
+  if (patch.student_id !== undefined) updates.student_id = patch.student_id;
   if (patch.techStack !== undefined) updates.tech_stack = patch.techStack;
-  if (patch.password !== undefined) updates.password_hash = await bcrypt.hash(patch.password, 10);
+  if (patch.tech_stack !== undefined) updates.tech_stack = patch.tech_stack;
+  if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
+  if (patch.profile_image !== undefined) updates.profile_image = patch.profile_image;
+  if (patch.credits !== undefined) updates.credits = patch.credits;
+  if (patch.avg_rating !== undefined) updates.avg_rating = patch.avg_rating;
+  if (patch.password !== undefined) {
+    updates.password_hash = await bcrypt.hash(patch.password, 10);
+  }
+
   const { data, error } = await supabase.from('users').update(updates).eq('id', id).select('*').single();
   if (error) throw error;
   return toPublicUser(data);
@@ -482,40 +396,28 @@ const getSkillRecordByName = async (name) => {
   return data || null;
 };
 
-const ensureSkillRecord = async ({ skillId, name, category }) => {
-  if (skillId) {
-    const skill = await getSkillRecordById(skillId);
-    if (!skill) throw new Error('Skill not found');
-    return skill;
+const addUserSkill = async ({ userId, skillId, name, type, level }) => {
+  let finalSkillId = skillId;
+  if (!finalSkillId && name) {
+    const existing = await getSkillRecordByName(name);
+    if (existing) {
+      finalSkillId = existing.id;
+    } else {
+      const { data: newSkill, error: insertError } = await supabase.from('skills').insert({ name, category: 'General' }).select().single();
+      if (insertError) throw insertError;
+      finalSkillId = newSkill.id;
+    }
   }
 
-  if (!name) throw new Error('Skill name is required');
+  const { data, error } = await supabase.from('user_skills').upsert({
+    user_id: userId,
+    skill_id: finalSkillId,
+    type,
+    level: level || null,
+  }, { onConflict: 'user_id,skill_id,type' }).select('*').single();
 
-  const existing = await getSkillRecordByName(name.trim());
-  if (existing) return existing;
-
-  const { data, error } = await supabase
-    .from('skills')
-    .insert({ name: name.trim(), category: category || null })
-    .select('*')
-    .single();
   if (error) throw error;
-  return data;
-};
-
-const addUserSkill = async ({ userId, skillId, name, category, type, level }) => {
-  const skill = await ensureSkillRecord({ skillId, name, category });
-  const { data, error } = await supabase
-    .from('user_skills')
-    .upsert({
-      user_id: userId,
-      skill_id: skill.id,
-      type,
-      level: level || null,
-    }, { onConflict: 'user_id,skill_id,type' })
-    .select('*')
-    .single();
-  if (error) throw error;
+  const skill = await getSkillRecordById(finalSkillId);
   return toPublicUserSkill({ ...data, skill });
 };
 
@@ -528,15 +430,20 @@ const removeUserSkill = async ({ userId, skillId, type }) => {
 };
 
 const getUserSkills = async (userId) => {
-  const { data, error } = await supabase
-    .from('user_skills')
-    .select('*')
-    .eq('user_id', userId)
-    .order('type', { ascending: true });
+  const { data, error } = await supabase.from('user_skills').select('*').eq('user_id', userId);
   if (error) throw error;
+  if (!data?.length) return [];
 
-  const skillMap = await fetchSkillsMap((data || []).map((row) => row.skill_id));
-  const endorsedMap = await fetchUsersMap((data || []).map((row) => row.endorsed_by));
+  const skillIds = unique(data.map((r) => r.skill_id));
+  const endorserIds = unique(data.map((r) => r.endorsed_by).filter(Boolean));
+
+  const [skills, endorsers] = await Promise.all([
+    supabase.from('skills').select('*').in('id', skillIds),
+    supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', endorserIds),
+  ]);
+
+  const skillMap = Object.fromEntries((skills.data || []).map((s) => [s.id, toPublicSkill(s)]));
+  const endorsedMap = Object.fromEntries((endorsers.data || []).map((u) => [u.id, toPublicCompactUser(u)]));
 
   return (data || []).map((row) => toPublicUserSkill({
     ...row,
@@ -551,89 +458,52 @@ const getPeerMatches = async (userId, limit = 5) => {
     .select('id,department,avg_rating')
     .eq('id', userId)
     .single();
+
   if (meError) throw meError;
 
-  const { data: mySkills, error: mySkillsError } = await supabase
-    .from('user_skills')
-    .select('*')
-    .eq('user_id', userId);
-  if (mySkillsError) throw mySkillsError;
+  const mySkills = await getUserSkills(userId);
+  const wantsToLearnIds = mySkills.filter(s => s.type === 'wants_to_learn').map(s => s.skillId);
+  const canTeachIds = mySkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
 
-  const wantsToLearn = (mySkills || []).filter((row) => row.type === 'wants_to_learn');
-  if (!wantsToLearn.length) return [];
+  if (!wantsToLearnIds.length && !canTeachIds.length) return [];
 
-  const canTeachIds = unique(wantsToLearn.map((row) => row.skill_id));
-  const { data: candidateTeachRows, error: candidateTeachError } = await supabase
-    .from('user_skills')
-    .select('*')
-    .eq('type', 'can_teach')
-    .in('skill_id', canTeachIds)
-    .neq('user_id', userId);
-  if (candidateTeachError) throw candidateTeachError;
+  const { data: others, error: othersError } = await supabase
+    .from('users')
+    .select('id,name,email,role,department,avg_rating,profile_image')
+    .neq('id', userId)
+    .limit(50);
 
-  const myTeachIds = unique((mySkills || []).filter((row) => row.type === 'can_teach').map((row) => row.skill_id));
-  let candidateLearnRows = [];
-  if (myTeachIds.length) {
-    const { data, error } = await supabase
-      .from('user_skills')
-      .select('*')
-      .eq('type', 'wants_to_learn')
-      .in('skill_id', myTeachIds)
-      .neq('user_id', userId);
-    if (error) throw error;
-    candidateLearnRows = data || [];
-  }
+  if (othersError) throw othersError;
 
-  const userMap = await fetchUsersMap(unique((candidateTeachRows || []).map((row) => row.user_id).concat((candidateLearnRows || []).map((row) => row.user_id))));
-  const skillMap = await fetchSkillsMap(unique(canTeachIds.concat(myTeachIds)));
-  const wantedMap = Object.fromEntries(wantsToLearn.map((row) => [row.skill_id, row]));
-  const reciprocalByUser = {};
+  const matches = [];
 
-  for (const row of candidateLearnRows) {
-    if (!reciprocalByUser[row.user_id]) reciprocalByUser[row.user_id] = [];
-    reciprocalByUser[row.user_id].push(row);
-  }
+  for (const user of others) {
+    const userSkills = await getUserSkills(user.id);
+    const userCanTeachIds = userSkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
+    const userWantsToLearnIds = userSkills.filter(s => s.type === 'wants_to_learn').map(s => s.skillId);
 
-  const scores = {};
-  for (const row of candidateTeachRows || []) {
-    const wanted = wantedMap[row.skill_id];
-    const candidate = userMap[row.user_id];
-    if (!wanted || !candidate) continue;
+    const matchedSkills = userCanTeachIds.filter(id => wantsToLearnIds.includes(id));
+    const reciprocalSkills = userWantsToLearnIds.filter(id => canTeachIds.includes(id));
 
-    const wantedLevel = levelWeight[normalizeLevel(wanted.level)] || 1;
-    const candidateLevel = levelWeight[normalizeLevel(row.level)] || 1;
-    const fitBonus = Math.max(0, 18 - Math.abs(candidateLevel - wantedLevel) * 6);
-    const departmentBonus = me.department && candidate.department && me.department === candidate.department ? 10 : 0;
-    const ratingBonus = (formatAvgRating(candidate.avg_rating) || 0) * 4;
-    const reciprocalMatches = reciprocalByUser[row.user_id] || [];
-    const reciprocalBonus = reciprocalMatches.length ? Math.min(20, reciprocalMatches.length * 10) : 0;
+    if (matchedSkills.length > 0) {
+      let score = matchedSkills.length * 10;
+      score += reciprocalSkills.length * 5;
+      if (user.department === me.department) score += 2;
+      score += (user.avg_rating || 0);
 
-    if (!scores[row.user_id]) {
-      scores[row.user_id] = {
-        user: candidate,
-        score: 0,
-        matchedSkills: [],
-        reciprocalSkills: reciprocalMatches.map((entry) => ({
-          skillId: entry.skill_id,
-          skillName: skillMap[entry.skill_id]?.name || '',
-          level: entry.level || null,
-        })),
-      };
+      matches.push({
+        user,
+        score,
+        matchedSkills: matchedSkills.map(id => ({ skillId: id, skillName: userSkills.find(s => s.skillId === id)?.skill?.name })),
+        reciprocalSkills: reciprocalSkills.map(id => ({ skillId: id, skillName: userSkills.find(s => s.skillId === id)?.skill?.name })),
+      });
     }
-
-    scores[row.user_id].score += 50 + (candidateLevel * 8) + fitBonus + departmentBonus + ratingBonus + reciprocalBonus;
-    scores[row.user_id].matchedSkills.push({
-      skillId: row.skill_id,
-      skillName: skillMap[row.skill_id]?.name || '',
-      candidateLevel: row.level || null,
-      requestedLevel: wanted.level || null,
-    });
   }
 
-  return Object.values(scores)
+  return matches
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map((entry) => ({
+    .map(entry => ({
       user: toPublicCompactUser(entry.user),
       matchScore: Number(entry.score.toFixed(2)),
       matchedSkills: entry.matchedSkills,
@@ -646,18 +516,37 @@ const normalizeListingPayload = (payload) => ({
   listing_type: payload.listingType || payload.listing_type,
   level: payload.level || null,
   credit_rate: payload.creditRate ?? payload.credit_rate ?? 0,
-  format: payload.format || null,
+  format: payload.format || 'one_on_one',
   max_group_size: payload.maxGroupSize ?? payload.max_group_size ?? null,
   description: payload.description || '',
   status: payload.status || 'active',
 });
 
-const createListing = async (userId, payload) => {
-  const insertPayload = {
-    user_id: userId,
+const enrichListings = async (listings) => {
+  if (!listings.length) return [];
+  const userIds = unique(listings.map((l) => l.user_id));
+  const skillIds = unique(listings.map((l) => l.skill_id));
+
+  const [users, skills] = await Promise.all([
+    supabase.from('users').select('id,name,email,role,department,avg_rating,profile_image').in('id', userIds),
+    supabase.from('skills').select('*').in('id', skillIds),
+  ]);
+
+  const userMap = Object.fromEntries((users.data || []).map((u) => [u.id, u]));
+  const skillMap = Object.fromEntries((skills.data || []).map((s) => [s.id, s]));
+
+  return listings.map((l) => ({
+    ...l,
+    user: userMap[l.user_id],
+    skill: skillMap[l.skill_id],
+  }));
+};
+
+const createListing = async ({ userId, payload }) => {
+  const { data, error } = await supabase.from('exchange_listings').insert({
     ...normalizeListingPayload(payload),
-  };
-  const { data, error } = await supabase.from('exchange_listings').insert(insertPayload).select('*').single();
+    user_id: userId,
+  }).select('*').single();
   if (error) throw error;
   return toPublicListing((await enrichListings([data]))[0]);
 };
@@ -674,20 +563,16 @@ const listListings = async (filters = {}) => {
     query = query.eq('status', 'active');
   }
 
-  if (filters.department) {
-    const { data: departmentUsers, error: departmentError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('department', filters.department);
-    if (departmentError) throw departmentError;
-    const userIds = (departmentUsers || []).map((row) => row.id);
-    if (!userIds.length) return [];
-    query = query.in('user_id', userIds);
-  }
-
   const { data, error } = await query;
   if (error) throw error;
-  return (await enrichListings(data || [])).map(toPublicListing);
+  
+  let listings = await enrichListings(data || []);
+  
+  if (filters.department) {
+    listings = listings.filter(l => l.user?.department === filters.department);
+  }
+
+  return (listings || []).map(toPublicListing);
 };
 
 const getListingRecordById = async (listingId) => {
@@ -721,28 +606,63 @@ const deleteListing = async ({ listingId, userId }) => {
   return true;
 };
 
+const enrichSessions = async (sessions) => {
+  if (!sessions.length) return [];
+  const listingIds = unique(sessions.map((s) => s.listing_id).filter(Boolean));
+  const teacherIds = unique(sessions.map((s) => s.teacher_id));
+  const learnerIds = unique(sessions.map((s) => s.learner_id).filter(Boolean));
+  const teamIds = unique(sessions.map((s) => s.team_id).filter(Boolean));
+  const skillIds = unique(sessions.map((s) => s.skill_id).filter(Boolean));
+  const meetingIds = unique(sessions.map((s) => s.meeting_id).filter(Boolean));
+
+  const [listings, teachers, learners, teams, skills, meetings, ratings] = await Promise.all([
+    listingIds.length ? supabase.from('exchange_listings').select('*').in('id', listingIds) : { data: [] },
+    supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', teacherIds),
+    learnerIds.length ? supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', learnerIds) : { data: [] },
+    teamIds.length ? supabase.from('teams').select('*').in('id', teamIds) : { data: [] },
+    skillIds.length ? supabase.from('skills').select('*').in('id', skillIds) : { data: [] },
+    meetingIds.length ? supabase.from('sessions').select('*').in('id', meetingIds) : { data: [] },
+    supabase.from('ratings').select('session_id').in('session_id', sessions.map(s => s.id))
+  ]);
+
+  const listingMap = Object.fromEntries((listings.data || []).map((l) => [l.id, l]));
+  const teacherMap = Object.fromEntries((teachers.data || []).map((u) => [u.id, u]));
+  const learnerMap = Object.fromEntries((learners.data || []).map((u) => [u.id, u]));
+  const teamMap = Object.fromEntries((teams.data || []).map((t) => [t.id, t]));
+  const skillMap = Object.fromEntries((skills.data || []).map((s) => [s.id, s]));
+  const meetingMap = Object.fromEntries((meetings.data || []).map((m) => [m.id, m]));
+  const ratedSet = new Set((ratings.data || []).map(r => r.session_id));
+
+  const enrichedListings = await enrichListings(listings.data || []);
+  const enrichedListingMap = Object.fromEntries(enrichedListings.map(l => [l.id, l]));
+
+  return sessions.map((s) => ({
+    ...s,
+    listing: enrichedListingMap[s.listing_id],
+    teacher: teacherMap[s.teacher_id],
+    learner: learnerMap[s.learner_id],
+    team: teamMap[s.team_id],
+    skill: skillMap[s.skill_id],
+    meeting: meetingMap[s.meeting_id],
+    rated: ratedSet.has(s.id)
+  }));
+};
+
 const createSessionBooking = async ({ listingId, actorId, scheduledAt, durationMin, agenda }) => {
   const listing = await getListingRecordById(listingId);
   if (!listing) throw new Error('Listing not found');
-  if (listing.status !== 'active') throw new Error('Listing is not active');
-  if (listing.user_id === actorId) throw new Error('You cannot book your own listing');
 
-  const teacherId = listing.listing_type === 'offer' ? listing.user_id : actorId;
-  const learnerId = listing.listing_type === 'offer' ? actorId : listing.user_id;
+  const { data, error } = await supabase.from('booking_sessions').insert({
+    listing_id: listingId,
+    teacher_id: listing.user_id,
+    learner_id: actorId,
+    skill_id: listing.skill_id,
+    scheduled_at: scheduledAt,
+    duration_min: durationMin || 60,
+    agenda: agenda || '',
+    status: 'pending',
+  }).select('*').single();
 
-  const { data, error } = await supabase
-    .from('booking_sessions')
-    .insert({
-      listing_id: listing.id,
-      teacher_id: teacherId,
-      learner_id: learnerId,
-      scheduled_at: scheduledAt,
-      duration_min: durationMin ?? 60,
-      status: 'pending',
-      agenda: agenda || null,
-    })
-    .select('*')
-    .single();
   if (error) throw error;
   return toPublicSession((await enrichSessions([data]))[0]);
 };
@@ -800,6 +720,7 @@ const updateSessionStatus = async ({ sessionId, updates }) => {
     .eq('id', sessionId)
     .select('*')
     .single();
+
   if (error) throw error;
   return toPublicSession((await enrichSessions([data]))[0]);
 };
@@ -813,42 +734,57 @@ const completeSession = async ({ sessionId }) => {
   const listing = session.listing_id ? await getListingRecordById(session.listing_id) : null;
   const creditRate = listing?.credit_rate ?? 0;
 
-  if (creditRate > 0 && session.learner_id && session.teacher_id) {
-    const { data: users, error: usersError } = await supabase
-      .from('users')
-      .select('id,credits')
-      .in('id', [session.teacher_id, session.learner_id]);
-    if (usersError) throw usersError;
-
-    const userMap = buildMap(users || []);
-    const learner = userMap[session.learner_id];
-    const teacher = userMap[session.teacher_id];
-    if (!learner || !teacher) throw new Error('Session participants could not be loaded');
-    if ((learner.credits ?? 0) < creditRate) throw new Error('Learner does not have enough credits');
-
-    const { error: learnerError } = await supabase
-      .from('users')
-      .update({ credits: (learner.credits ?? 0) - creditRate })
-      .eq('id', learner.id);
-    if (learnerError) throw learnerError;
-
-    const { error: teacherError } = await supabase
-      .from('users')
-      .update({ credits: (teacher.credits ?? 0) + creditRate })
-      .eq('id', teacher.id);
-    if (teacherError) throw teacherError;
-  }
-
-  return updateSessionStatus({
-    sessionId,
-    updates: {
-      status: 'completed',
-      credits_transacted: creditRate,
-    },
+  // Transfer credits
+  const { error: txError } = await supabase.rpc('transfer_credits', {
+    from_user: session.learner_id,
+    to_user: session.teacher_id,
+    amount: creditRate,
   });
+
+  if (txError) throw txError;
+
+  const { data, error } = await supabase
+    .from('booking_sessions')
+    .update({ status: 'completed' })
+    .eq('id', sessionId)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  return toPublicSession((await enrichSessions([data]))[0]);
 };
 
-const createRating = async ({ sessionId, raterId, rateeId, stars, review, isFlagged }) => {
+const enrichRatings = async (ratings) => {
+  if (!ratings.length) return [];
+  const raterIds = unique(ratings.map(r => r.rater_id));
+  const rateeIds = unique(ratings.map(r => r.ratee_id));
+  const sessionIds = unique(ratings.map(r => r.session_id));
+
+  const [raters, ratees, sessions] = await Promise.all([
+    supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', raterIds),
+    supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', rateeIds),
+    supabase.from('booking_sessions').select('*').in('id', sessionIds),
+  ]);
+
+  const raterMap = Object.fromEntries((raters.data || []).map(u => [u.id, u]));
+  const rateeMap = Object.fromEntries((ratees.data || []).map(u => [u.id, u]));
+  const enrichedSessions = await enrichSessions(sessions.data || []);
+  const sessionMap = Object.fromEntries(enrichedSessions.map(s => [s.id, s]));
+
+  return ratings.map(r => ({
+    ...r,
+    rater: raterMap[r.rater_id],
+    ratee: rateeMap[r.ratee_id],
+    session: sessionMap[r.session_id],
+  }));
+};
+
+const createRating = async ({ sessionId, raterId, stars, review }) => {
+  const session = await getSessionRecordById(sessionId);
+  if (!session) throw new Error('Session not found');
+
+  const rateeId = raterId === session.teacher_id ? session.learner_id : session.teacher_id;
+
   const { data, error } = await supabase
     .from('ratings')
     .insert({
@@ -857,13 +793,14 @@ const createRating = async ({ sessionId, raterId, rateeId, stars, review, isFlag
       ratee_id: rateeId,
       stars,
       review: review || '',
-      is_flagged: Boolean(isFlagged),
     })
     .select('*')
     .single();
+
   if (error) throw error;
 
   await recalculateUserAverageRating(rateeId);
+
   return toPublicRating((await enrichRatings([data]))[0]);
 };
 
@@ -886,67 +823,31 @@ const recalculateUserAverageRating = async (userId) => {
     .eq('ratee_id', userId);
   if (error) throw error;
 
-  const stars = (data || []).map((row) => Number(row.stars)).filter((value) => Number.isFinite(value));
-  const avgRating = stars.length ? Number((stars.reduce((sum, value) => sum + value, 0) / stars.length).toFixed(2)) : null;
+  if (!data?.length) return 0;
+  const sum = data.reduce((acc, r) => acc + r.stars, 0);
+  const avg = sum / data.length;
 
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ avg_rating: avgRating })
-    .eq('id', userId);
-  if (updateError) throw updateError;
-
-  return avgRating;
+  await supabase.from('users').update({ avg_rating: avg }).eq('id', userId);
+  return avg;
 };
 
-const findOrCreateConversation = async ({ senderId, recipientId, conversationId }) => {
-  if (conversationId) return conversationId;
-  if (!recipientId) return null;
-
-  let { data, error } = await supabase
-    .from('conversations')
+const createMessage = async ({ senderId, teamId, conversationId, content }) => {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      sender_id: senderId,
+      team_id: teamId || null,
+      conversation_id: conversationId || null,
+      content,
+    })
     .select('*')
-    .eq('participant_a', senderId)
-    .eq('participant_b', recipientId)
-    .maybeSingle();
+    .single();
+
   if (error) throw error;
 
-  if (!data) {
-    const reverse = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('participant_a', recipientId)
-      .eq('participant_b', senderId)
-      .maybeSingle();
-    if (reverse.error) throw reverse.error;
-    data = reverse.data;
-  }
+  const senders = await supabase.from('users').select('id,name,email,role,profile_image,avg_rating').eq('id', senderId);
+  const senderMap = Object.fromEntries((senders.data || []).map(u => [u.id, u]));
 
-  if (!data) {
-    const created = await supabase
-      .from('conversations')
-      .insert({ participant_a: senderId, participant_b: recipientId })
-      .select('*')
-      .single();
-    if (created.error) throw created.error;
-    data = created.data;
-  }
-
-  return data.id;
-};
-
-const createMessage = async ({ senderId, content, teamId, conversationId, recipientId, messageType, sessionRequest }) => {
-  const resolvedConversationId = await findOrCreateConversation({ senderId, recipientId, conversationId });
-  const payload = {
-    sender_id: senderId,
-    content: encodeMessageContent({ content, messageType, sessionRequest }),
-    team_id: teamId || null,
-    conversation_id: resolvedConversationId,
-  };
-
-  const { data, error } = await supabase.from('messages').insert(payload).select('*').single();
-  if (error) throw error;
-
-  const senderMap = await fetchUsersMap([senderId]);
   return toPublicMessage({ ...data, sender: senderMap[senderId] || null });
 };
 
@@ -958,7 +859,10 @@ const listTeamMessages = async (teamId) => {
     .order('created_at', { ascending: true });
   if (error) throw error;
 
-  const senderMap = await fetchUsersMap((data || []).map((row) => row.sender_id));
+  const senderIds = unique(data.map(m => m.sender_id));
+  const senders = await supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', senderIds);
+  const senderMap = Object.fromEntries((senders.data || []).map(u => [u.id, u]));
+
   return (data || []).map((row) => toPublicMessage({ ...row, sender: senderMap[row.sender_id] || null }));
 };
 
@@ -970,7 +874,10 @@ const listConversationMessages = async (conversationId) => {
     .order('created_at', { ascending: true });
   if (error) throw error;
 
-  const senderMap = await fetchUsersMap((data || []).map((row) => row.sender_id));
+  const senderIds = unique(data.map(m => m.sender_id));
+  const senders = await supabase.from('users').select('id,name,email,role,profile_image,avg_rating').in('id', senderIds);
+  const senderMap = Object.fromEntries((senders.data || []).map(u => [u.id, u]));
+
   return (data || []).map((row) => toPublicMessage({ ...row, sender: senderMap[row.sender_id] || null }));
 };
 
@@ -982,19 +889,13 @@ const markMessagesRead = async ({ userId, messageIds }) => {
   return true;
 };
 
-const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-const uniqueSlug = async (name, excludeId) => {
-  const base = slugify(name);
-  let slug = base;
-  let i = 2;
+const uniqueSlug = async (table, baseSlug) => {
+  let slug = baseSlug;
+  let counter = 1;
   while (true) {
-    let q = supabase.from('organisations').select('id').eq('slug', slug);
-    if (excludeId) q = q.neq('id', excludeId);
-    const { data, error } = await q.limit(1);
-    if (error) throw error;
-    if (!data.length) return slug;
-    slug = `${base}-${i++}`;
+    const { data } = await supabase.from(table).select('id').eq('slug', slug).maybeSingle();
+    if (!data) return slug;
+    slug = `${baseSlug}-${counter++}`;
   }
 };
 
@@ -1016,6 +917,7 @@ module.exports = {
   toPublicSession,
   toPublicRating,
   toPublicMessage,
+  toPublicResource,
   getUserById,
   getUserByEmail,
   createUser,
