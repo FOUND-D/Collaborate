@@ -93,10 +93,24 @@ const getSkillMatches = asyncHandler(async (req, res) => {
   res.json(await getPeerMatches(req.user._id, 5));
 });
 
+// @desc    Delete a skill (Admin only)
+// @route   DELETE /api/skills/:id
+// @access  Private/Admin
+const deleteSkill = asyncHandler(async (req, res) => {
+  const { error } = await supabase
+    .from('skills')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) throw error;
+  res.json({ message: 'Skill deleted' });
+});
+
 module.exports = {
   getSkills,
   createUserSkill,
   deleteUserSkill,
   getSkillsForUser,
   getSkillMatches,
+  deleteSkill,
 };
