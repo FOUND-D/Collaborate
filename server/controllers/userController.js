@@ -95,4 +95,161 @@ const searchUsers = asyncHandler(async (req, res) => {
   res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack })));
 });
 
-module.exports = { registerUser, loginUser, searchUsers, getUsers, getUserProfile, updateUserProfile, updateUserProfileImage };
+// @desc    Get user stats for dashboard
+// @route   GET /api/users/me/stats
+// @access  Private
+const getUserStats = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  // 1. Sessions taught
+  const { count: sessionsTaught } = await supabase
+    .from('booking_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('teacher_id', userId)
+    .eq('status', 'completed');
+
+  // 2. Sessions attended
+  const { count: sessionsAttended } = await supabase
+    .from('booking_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('learner_id', userId)
+    .eq('status', 'completed');
+
+  // 3. User details (credits, avgRating)
+  const { data: userDetails } = await supabase
+    .from('users')
+    .select('credits, avg_rating')
+    .eq('id', userId)
+    .maybeSingle();
+
+  // 4. Skill count
+  const { count: skillCount } = await supabase
+    .from('user_skills')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  // 5. Badges count
+  const { count: badgesCount } = await supabase
+    .from('badges')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  // 6. Resources uploaded
+  const { count: resourcesUploaded } = await supabase
+    .from('resources')
+    .select('*', { count: 'exact', head: true })
+    .eq('uploader_id', userId);
+
+  // 7. Sessions this month
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { count: sessionsThisMonth } = await supabase
+    .from('booking_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'completed')
+    .or(`teacher_id.eq.${userId},learner_id.eq.${userId}`)
+    .gte('scheduled_at', startOfMonth.toISOString());
+
+  res.json({
+    sessionsTaught: sessionsTaught || 0,
+    sessionsAttended: sessionsAttended || 0,
+    creditsBalance: userDetails?.credits ?? 0,
+    avgRating: userDetails?.avg_rating ?? null,
+    skillCount: skillCount || 0,
+    badgesCount: badgesCount || 0,
+    resourcesUploaded: resourcesUploaded || 0,
+    sessionsThisMonth: sessionsThisMonth || 0,
+  });
+});
+
+// --- ADMIN ENDPOINTS ---
+
+// @desc    Get all users (Admin only)
+// @route   GET /api/admin/users
+// @access  Private/Admin
+const adminGetUsers = asyncHandler(async (req, res) => {
+  const { search, role } = req.query;
+  let query = supabase.from('users').select('*').order('created_at', { ascending: false });
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+  if (role) {
+    query = query.eq('role', role);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  res.json((data || []).map(u => ({
+    _id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    department: u.department,
+    credits: u.credits,
+    avgRating: u.avg_rating,
+    createdAt: u.created_at,
+  })));
+});
+
+// @desc    Update user role (Admin only)
+// @route   PATCH /api/admin/users/:id/role
+// @access  Private/Admin
+const adminUpdateUserRole = asyncHandler(async (req, res) => {
+  const { role } = req.body;
+  const { data, error } = await supabase
+    .from('users')
+    .update({ role })
+    .eq('id', req.params.id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+  res.json({
+    _id: data.id,
+    name: data.name,
+    email: data.email,
+    role: data.role,
+  });
+});
+
+// @desc    Get platform stats (Admin only)
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+const adminGetStats = asyncHandler(async (req, res) => {
+  const { count: totalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true });
+  const { count: activeListings } = await supabase.from('exchange_listings').select('*', { count: 'exact', head: true }).eq('status', 'active');
+  const { count: totalResources } = await supabase.from('resources').select('*', { count: 'exact', head: true });
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const { count: sessionsThisWeek } = await supabase.from('booking_sessions').select('*', { count: 'exact', head: true }).gte('created_at', oneWeekAgo.toISOString());
+
+  // Top skills (harder to do with just Supabase without complex grouping, let's do a simple one)
+  const { data: topSkills } = await supabase.rpc('get_top_skills'); // Assuming we add this RPC or just return empty for now
+
+  res.json({
+    total_users: totalUsers || 0,
+    active_listings: activeListings || 0,
+    sessions_this_week: sessionsThisWeek || 0,
+    total_resources: totalResources || 0,
+    top_skills: topSkills || [],
+  });
+});
+
+module.exports = {
+  registerUser,
+  loginUser,
+  searchUsers,
+  getUsers,
+  getUserProfile,
+  updateUserProfile,
+  updateUserProfileImage,
+  getUserStats,
+  adminGetUsers,
+  adminUpdateUserRole,
+  adminGetStats,
+};
