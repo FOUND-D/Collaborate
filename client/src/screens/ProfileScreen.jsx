@@ -119,6 +119,7 @@ const ProfileScreen = () => {
     };
 
     if (targetId) {
+      setProfileUser(null); // Reset profile user while fetching new one
       fetchData();
       // Reset external data when user changes
       setGithubData(null);
@@ -202,13 +203,16 @@ const ProfileScreen = () => {
   }, [leetcodeData]);
 
   useEffect(() => {
+    // Only fetch if profileUser is loaded and matches the targetId
+    if (profileUser?._id !== targetId) return;
+
     if (activeTab === 'github' && profileUser?.githubUsername && !githubData && !loadingGithub && !githubError) {
       fetchGithub();
     }
     if (activeTab === 'leetcode' && profileUser?.leetcodeUsername && !leetcodeData && !loadingLeetcode && !leetcodeError) {
       fetchLeetcode();
     }
-  }, [activeTab, profileUser, githubData, leetcodeData, loadingGithub, loadingLeetcode, githubError, leetcodeError]);
+  }, [activeTab, profileUser, githubData, leetcodeData, loadingGithub, loadingLeetcode, githubError, leetcodeError, targetId]);
 
   const totalStars = useMemo(() => {
     return githubRepos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
@@ -800,8 +804,6 @@ const ProfileScreen = () => {
 
 // Sub-components for cleaner JSX
 const SocialLink = ({ icon, label, value, href, isOwn, onAdd }) => {
-  if (!value && !isOwn) return null;
-  
   return (
     <a 
       href={value ? href : '#'} 
@@ -811,14 +813,16 @@ const SocialLink = ({ icon, label, value, href, isOwn, onAdd }) => {
       onClick={(e) => {
         if (!value) {
           e.preventDefault();
-          onAdd();
+          if (isOwn) onAdd();
         }
       }}
+      style={!value && !isOwn ? { cursor: 'default', opacity: 0.7 } : {}}
     >
       <div className="link-btn-content">
         {icon} {label}
       </div>
       {!value && isOwn && <span className="add-label">+ Add</span>}
+      {!value && !isOwn && <span className="add-label" style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>Not Connected</span>}
       {value && <FaExternalLinkAlt size={10} style={{ opacity: 0.5 }} />}
     </a>
   );
