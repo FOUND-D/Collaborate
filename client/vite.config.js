@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           ws: true,
         },
         '/leetcode-proxy': {
-          target: 'https://leetcode-stats-api.herokuapp.com',
+          target: 'https://leetcode-api-faisalshohag.vercel.app',
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/leetcode-proxy/, ''),

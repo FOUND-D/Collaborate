@@ -11,6 +11,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: max-content;
 }
 
 .profile-right-column {
@@ -26,7 +27,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 16px;
+  gap: 20px; /* Unified space-y-5 distribution */
+  min-height: 100%;
 }
 
 .avatar-wrapper {
@@ -184,8 +186,7 @@
 }
 
 .link-btn.unset {
-  opacity: 0.5;
-  border-style: dashed;
+  /* removed opacity and dashed border to standardize styling */
 }
 
 .link-btn-content {
@@ -323,12 +324,14 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .github-repos-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  width: 100%;
 }
 
 .repo-card {
@@ -340,6 +343,7 @@
   flex-direction: column;
   gap: 8px;
   height: 100%;
+  width: 100%;
 }
 
 .repo-name {
@@ -372,6 +376,32 @@
   height: 8px;
   border-radius: 50%;
   display: inline-block;
+}
+
+.github-calendar-container {
+  width: 100%;
+  background-color: rgba(10, 10, 10, 0.4);
+  border: 1px solid rgba(38, 38, 38, 0.6);
+  border-radius: 12px;
+  padding: 16px 24px; /* Reduced vertical padding */
+  margin-top: 24px;
+}
+
+.github-calendar-scroll {
+  width: 100%;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center; /* Center horizontally on large screens */
+  padding-bottom: 8px;
+}
+
+/* Custom scrollbar for horizontal calendar wrapper */
+.github-calendar-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.github-calendar-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
 }
 
 /* LeetCode Display */
@@ -447,6 +477,30 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.skill-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.skill-placeholder-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  border: 1px dashed var(--border-subtle);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
 }
 
 /* Project Cards */

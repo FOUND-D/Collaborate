@@ -15,7 +15,7 @@
   "rewrites": [
     {
       "source": "/leetcode-proxy/(.*)",
-      "destination": "https://leetcode-stats-api.herokuapp.com/$1"
+      "destination": "https://leetcode-api-faisalshohag.vercel.app/$1"
     },
     {
       "source": "/(.*)",

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { GitHubCalendar } from 'react-github-calendar';
+import * as ActivityCalendarNS from 'react-activity-calendar';
 import {
   FaGithub,
   FaLinkedin,
@@ -31,6 +33,7 @@ import { BACKEND_URL } from '../config/runtime';
 import './ProfileScreen.css';
 
 const ProfileScreen = () => {
+  const ActivityCalendar = ActivityCalendarNS.ActivityCalendar;
   const { userId: paramUserId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -73,6 +76,7 @@ const ProfileScreen = () => {
     department: '',
     yearOfStudy: '',
     githubUsername: '',
+    githubShowPrivate: false,
     linkedinUrl: '',
     leetcodeUsername: '',
     portfolioUrl: '',
@@ -95,6 +99,7 @@ const ProfileScreen = () => {
           department: user.department || '',
           yearOfStudy: user.yearOfStudy ? String(user.yearOfStudy) : '',
           githubUsername: user.githubUsername || '',
+          githubShowPrivate: user.githubShowPrivate || false,
           linkedinUrl: user.linkedinUrl || '',
           leetcodeUsername: user.leetcodeUsername || '',
           portfolioUrl: user.portfolioUrl || '',
@@ -134,12 +139,9 @@ const ProfileScreen = () => {
     setLoadingGithub(true);
     setGithubError(null);
     try {
-      const [userRes, reposRes] = await Promise.all([
-        axios.get(`https://api.github.com/users/${username}`),
-        axios.get(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`)
-      ]);
-      setGithubData(userRes.data);
-      setGithubRepos(reposRes.data);
+      const { data } = await api.get(`/api/users/github/${username}?showPrivate=${profileUser?.githubShowPrivate || false}`);
+      setGithubData(data.user);
+      setGithubRepos(data.repos);
     } catch (err) {
       console.error('GitHub API failed', err);
       setGithubError('Could not load GitHub data. Try again later.');
@@ -163,10 +165,11 @@ const ProfileScreen = () => {
     try {
       console.log(`Fetching LeetCode stats for: ${username}`);
       const res = await axios.get(`/leetcode-proxy/${username}`);
-      if (res.data.status === 'success') {
+      // The new API (faisalshohag) returns the data directly or in a specific format
+      if (res.data && res.data.totalSolved !== undefined) {
         setLeetcodeData(res.data);
       } else {
-        setLeetcodeError(res.data.message || 'LeetCode user not found or API error.');
+        setLeetcodeError('LeetCode user not found or data unavailable.');
       }
     } catch (err) {
       console.error('LeetCode API failed', err);
@@ -180,14 +183,32 @@ const ProfileScreen = () => {
     setActiveTab(tab);
   };
 
+  const leetcodeCalendarData = useMemo(() => {
+    if (!leetcodeData?.submissionCalendar) return [];
+    try {
+      const calendar = JSON.parse(leetcodeData.submissionCalendar);
+      return Object.entries(calendar).map(([timestamp, count]) => {
+        const date = new Date(parseInt(timestamp) * 1000).toISOString().split('T')[0];
+        let level = 0;
+        if (count > 0) level = 1;
+        if (count > 2) level = 2;
+        if (count > 5) level = 3;
+        if (count > 10) level = 4;
+        return { date, count, level };
+      });
+    } catch (e) {
+      return [];
+    }
+  }, [leetcodeData]);
+
   useEffect(() => {
-    if (activeTab === 'github' && profileUser?.githubUsername && !githubData && !loadingGithub) {
+    if (activeTab === 'github' && profileUser?.githubUsername && !githubData && !loadingGithub && !githubError) {
       fetchGithub();
     }
-    if (activeTab === 'leetcode' && profileUser?.leetcodeUsername && !leetcodeData && !loadingLeetcode) {
+    if (activeTab === 'leetcode' && profileUser?.leetcodeUsername && !leetcodeData && !loadingLeetcode && !leetcodeError) {
       fetchLeetcode();
     }
-  }, [activeTab, profileUser, githubData, leetcodeData, loadingGithub, loadingLeetcode]);
+  }, [activeTab, profileUser, githubData, leetcodeData, loadingGithub, loadingLeetcode, githubError, leetcodeError]);
 
   const totalStars = useMemo(() => {
     return githubRepos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
@@ -371,20 +392,22 @@ const ProfileScreen = () => {
                 )}
               </div>
 
-              {isOwnProfile ? (
-                <button className="phase2-button phase2-button-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => setIsEditModalOpen(true)}>
-                  <FaEdit /> Edit Profile
-                </button>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }}>
-                  <Link to={`/exchange?user_id=${profileUser._id}`} className="phase2-button phase2-button-primary">
-                    Book Session
-                  </Link>
-                  <Link to={`/chat/${profileUser._id}`} className="phase2-button phase2-button-secondary">
-                    Send Message
-                  </Link>
-                </div>
-              )}
+              <div style={{ marginTop: 'auto', paddingTop: '16px', width: '100%' }}>
+                {isOwnProfile ? (
+                  <button className="phase2-button phase2-button-secondary" style={{ width: '100%' }} onClick={() => setIsEditModalOpen(true)}>
+                    <FaEdit /> Edit Profile
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                    <Link to={`/exchange?user_id=${profileUser._id}`} className="phase2-button phase2-button-primary">
+                      Book Session
+                    </Link>
+                    <Link to={`/chat/${profileUser._id}`} className="phase2-button phase2-button-secondary">
+                      Send Message
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </aside>
 
@@ -402,18 +425,18 @@ const ProfileScreen = () => {
                   <div className="skill-group-label">Can Teach</div>
                   <div className="skill-chips">
                     {canTeachSkills.length > 0 ? canTeachSkills.slice(0, 6).map(s => (
-                      <span key={s.skillId} className="phase2-pill offer">{s.skill?.name}</span>
-                    )) : <p className="github-stat-lbl">No skills listed</p>}
-                    {canTeachSkills.length > 6 && <span className="phase2-pill subtle">+{canTeachSkills.length - 6} more</span>}
+                      <span key={s.skillId} className="skill-tech-pill">{s.skill?.name}</span>
+                    )) : <span className="skill-placeholder-pill">No skills listed</span>}
+                    {canTeachSkills.length > 6 && <span className="skill-placeholder-pill">+{canTeachSkills.length - 6} more</span>}
                   </div>
                 </div>
                 <div>
                   <div className="skill-group-label">Wants to Learn</div>
                   <div className="skill-chips">
                     {wantsToLearnSkills.length > 0 ? wantsToLearnSkills.slice(0, 6).map(s => (
-                      <span key={s.skillId} className="phase2-pill request">{s.skill?.name}</span>
-                    )) : <p className="github-stat-lbl">No skills listed</p>}
-                    {wantsToLearnSkills.length > 6 && <span className="phase2-pill subtle">+{wantsToLearnSkills.length - 6} more</span>}
+                      <span key={s.skillId} className="skill-tech-pill">{s.skill?.name}</span>
+                    )) : <span className="skill-placeholder-pill">No skills listed</span>}
+                    {wantsToLearnSkills.length > 6 && <span className="skill-placeholder-pill">+{wantsToLearnSkills.length - 6} more</span>}
                   </div>
                 </div>
               </div>
@@ -472,8 +495,9 @@ const ProfileScreen = () => {
                 )}
 
                 {activeTab === 'github' && (
-                  <section className="profile-section phase2-glass phase2-panel">
-                    {!profileUser.githubUsername ? (
+                  <>
+                    <section className="profile-section phase2-glass phase2-panel">
+                      {!profileUser.githubUsername ? (
                       <EmptyExternal 
                         icon={<FaGithub size={48} />} 
                         title={isOwnProfile ? "Connect your GitHub" : "GitHub not connected"} 
@@ -519,11 +543,34 @@ const ProfileScreen = () => {
                       </>
                     )}
                   </section>
+                  
+                  {/* GitHub Calendar (Separate Section) */}
+                  {profileUser.githubUsername && !loadingGithub && !githubError && githubData && (
+                    <section className="profile-section phase2-glass phase2-panel" style={{ marginTop: '24px' }}>
+                      <div className="section-header">
+                        <h2 className="section-title"><FaGithub /> Contribution Graph</h2>
+                      </div>
+                      <div className="github-calendar-scroll">
+                        <GitHubCalendar 
+                          username={profileUser.githubUsername} 
+                          colorScheme="dark"
+                          theme={{
+                            dark: ['#161616', '#0d9488', '#14b8a6', '#2dd4bf', '#99f6e4']
+                          }}
+                          blockSize={12}
+                          blockMargin={4}
+                          fontSize={12}
+                        />
+                      </div>
+                    </section>
+                  )}
+                </>
                 )}
 
                 {activeTab === 'leetcode' && (
-                  <section className="profile-section phase2-glass phase2-panel">
-                    {!profileUser.leetcodeUsername ? (
+                  <>
+                    <section className="profile-section phase2-glass phase2-panel">
+                      {!profileUser.leetcodeUsername ? (
                       <EmptyExternal 
                         icon={<FaCode size={48} />} 
                         title={isOwnProfile ? "Connect your LeetCode" : "LeetCode not connected"} 
@@ -556,7 +603,60 @@ const ProfileScreen = () => {
                             <span className="tab-stat-label">Hard</span>
                           </div>
                         </div>
-                        <div className="lc-progress-container">
+                      </div>
+                    )}
+                  </section>
+                  
+                  {/* LeetCode Progress (Separate Section) */}
+                  {profileUser.leetcodeUsername && !loadingLeetcode && !leetcodeError && leetcodeData && (
+                    <>
+                      <section className="profile-section phase2-glass phase2-panel" style={{ marginTop: '24px' }}>
+                        <div className="section-header">
+                          <h2 className="section-title"><FaCode /> Recent Submissions</h2>
+                        </div>
+                        <div className="github-repos-grid">
+                          {(leetcodeData.recentSubmissions || []).slice(0, 3).map((sub, idx) => (
+                            <div key={idx} className="repo-card">
+                              <div style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{sub.title}</div>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                {sub.lang.toUpperCase()} • {sub.statusDisplay}
+                              </div>
+                              <div className="repo-meta">
+                                <span>{new Date(sub.timestamp * 1000).toLocaleDateString()}</span>
+                                <span className={`phase2-pill ${sub.statusDisplay === 'Accepted' ? 'offer' : 'subtle'}`} style={{ fontSize: '0.65rem', padding: '2px 8px' }}>
+                                  {sub.statusDisplay}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="profile-section phase2-glass phase2-panel" style={{ marginTop: '24px' }}>
+                        <div className="section-header">
+                          <h2 className="section-title"><FaCode /> LeetCode Activity</h2>
+                        </div>
+                        <div className="github-calendar-scroll">
+                           {leetcodeCalendarData.length > 0 ? (
+                             <ActivityCalendar 
+                               data={leetcodeCalendarData} 
+                               theme={{
+                                 dark: ['#161616', '#0d9488', '#14b8a6', '#2dd4bf', '#99f6e4']
+                               }}
+                               labels={{
+                                 totalCount: '{{count}} submissions in the last year',
+                               }}
+                             />
+                           ) : (
+                             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                               No recent activity data found
+                             </div>
+                           )}
+                        </div>
+                      </section>
+
+                      <section className="profile-section phase2-glass phase2-panel" style={{ marginTop: '24px' }}>
+                        <div className="lc-progress-container" style={{ marginTop: 0 }}>
                           <div className="section-header" style={{ marginBottom: '8px' }}>
                             <span className="github-stat-lbl">Overall Progress</span>
                             <span className="github-stat-val">
@@ -576,9 +676,10 @@ const ProfileScreen = () => {
                             ></div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </section>
+                      </section>
+                    </>
+                  )}
+                </>
                 )}
               </div>
             </div>
@@ -638,6 +739,15 @@ const ProfileScreen = () => {
                         setEditForm({...editForm, githubUsername: val});
                       }} 
                     />
+                  </label>
+                  <label className="phase2-field" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', gridColumn: '1 / -1' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={editForm.githubShowPrivate} 
+                      onChange={e => setEditForm({...editForm, githubShowPrivate: e.target.checked})} 
+                      style={{ width: 'auto', margin: 0 }}
+                    />
+                    <span style={{ margin: 0 }}>Show private GitHub activity (Requires backend configuration)</span>
                   </label>
                   <label className="phase2-field">
                     <span>LinkedIn URL</span>
