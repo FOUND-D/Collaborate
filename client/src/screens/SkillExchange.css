@@ -757,6 +757,16 @@
   }
 }
 
+.phase2-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.phase2-link:hover {
+  text-decoration: underline;
+}
+
 .profile-signal-rating {
   margin-top: 12px;
   padding-top: 12px;

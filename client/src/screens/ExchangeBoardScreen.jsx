@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaBolt, FaFilter, FaPlus, FaSearch, FaStar, FaCheckCircle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { listListings } from '../actions/listingActions';
 import { LISTING_CREATE_RESET } from '../constants/listingConstants';
@@ -11,6 +11,10 @@ import './SkillExchange.css';
 
 const ExchangeBoardScreen = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const userIdParam = queryParams.get('user_id');
+
   const { listings = [], loading } = useSelector((state) => state.listingList);
   const { matches = [] } = useSelector((state) => state.skillMatchList);
   const { skills = [] } = useSelector((state) => state.skillList);
@@ -21,6 +25,7 @@ const ExchangeBoardScreen = () => {
     department: '',
     format: '',
     listing_type: '',
+    user_id: userIdParam || '',
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -113,7 +118,9 @@ const ExchangeBoardScreen = () => {
                     <p>{listing.description || 'No additional details supplied for this exchange.'}</p>
                     <div className="phase2-card-meta">
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {listing.user?.name || 'Anonymous'}
+                        <Link to={`/profile/${listing.user?._id}`} className="phase2-link">
+                          {listing.user?.name || 'Anonymous'}
+                        </Link>
                         {listing.user?.role === 'faculty' && (
                                                   (typeof FaCheckCircle !== 'undefined') ? (
                                                     <FaCheckCircle style={{ color: '#14b8a6', fontSize: '0.85rem' }} title="Faculty Verified" />
@@ -156,9 +163,11 @@ const ExchangeBoardScreen = () => {
                   matches.map((match) => (
                     <div key={match.user?._id} className="phase2-match-card">
                       <div className="phase2-match-header">
-                        <div className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</div>
+                        <Link to={`/profile/${match.user?._id}`} className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</Link>
                         <div>
-                          <strong>{match.user?.name}</strong>
+                          <Link to={`/profile/${match.user?._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <strong>{match.user?.name}</strong>
+                          </Link>
                           <p>{match.user?.department || 'Open department'}</p>
                         </div>
                         <span className="phase2-match-score">{Math.round(match.matchScore)}</span>

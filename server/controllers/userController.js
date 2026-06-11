@@ -95,6 +95,44 @@ const searchUsers = asyncHandler(async (req, res) => {
   res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack })));
 });
 
+// @desc    Get public profile by ID
+// @route   GET /api/users/:id
+// @access  Private
+const getUserPublicProfile = asyncHandler(async (req, res) => {
+  const user = await getUserById(req.params.id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Filter out private fields for other users
+  const isOwnProfile = req.user._id === user._id;
+  
+  const publicProfile = {
+    _id: user._id,
+    name: user.name,
+    role: user.role,
+    department: user.department,
+    yearOfStudy: user.yearOfStudy,
+    profileImage: user.profileImage,
+    avgRating: user.avgRating,
+    githubUsername: user.githubUsername,
+    linkedinUrl: user.linkedinUrl,
+    leetcodeUsername: user.leetcodeUsername,
+    portfolioUrl: user.portfolioUrl,
+    showcasedProjectIds: user.showcasedProjectIds,
+    bio: user.bio,
+    createdAt: user.createdAt,
+  };
+
+  if (isOwnProfile) {
+    publicProfile.email = user.email;
+    publicProfile.studentId = user.studentId;
+    publicProfile.credits = user.credits;
+  }
+
+  res.json(publicProfile);
+});
+
 // @desc    Get user stats for dashboard
 // @route   GET /api/users/me/stats
 // @access  Private
@@ -249,6 +287,7 @@ module.exports = {
   updateUserProfile,
   updateUserProfileImage,
   getUserStats,
+  getUserPublicProfile,
   adminGetUsers,
   adminUpdateUserRole,
   adminGetStats,

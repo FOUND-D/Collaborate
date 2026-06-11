@@ -48,6 +48,12 @@ const toPublicUser = (u) => {
     credits: u.credits ?? 50,
     avgRating: formatAvgRating(u.avg_rating),
     avg_rating: formatAvgRating(u.avg_rating),
+    githubUsername: u.github_username || '',
+    linkedinUrl: u.linkedin_url || '',
+    leetcodeUsername: u.leetcode_username || '',
+    portfolioUrl: u.portfolio_url || '',
+    showcasedProjectIds: u.showcased_project_ids || [],
+    bio: u.bio || '',
     createdAt: u.created_at,
     updatedAt: u.updated_at,
   };
@@ -367,6 +373,17 @@ const updateUser = async (id, patch) => {
   if (patch.tech_stack !== undefined) updates.tech_stack = patch.tech_stack;
   if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
   if (patch.profile_image !== undefined) updates.profile_image = patch.profile_image;
+  if (patch.github_username !== undefined) updates.github_username = patch.github_username;
+  if (patch.githubUsername !== undefined) updates.github_username = patch.githubUsername;
+  if (patch.linkedin_url !== undefined) updates.linkedin_url = patch.linkedin_url;
+  if (patch.linkedinUrl !== undefined) updates.linkedin_url = patch.linkedinUrl;
+  if (patch.leetcode_username !== undefined) updates.leetcode_username = patch.leetcode_username;
+  if (patch.leetcodeUsername !== undefined) updates.leetcode_username = patch.leetcodeUsername;
+  if (patch.portfolio_url !== undefined) updates.portfolio_url = patch.portfolio_url;
+  if (patch.portfolioUrl !== undefined) updates.portfolio_url = patch.portfolioUrl;
+  if (patch.showcased_project_ids !== undefined) updates.showcased_project_ids = patch.showcased_project_ids;
+  if (patch.showcasedProjectIds !== undefined) updates.showcased_project_ids = patch.showcasedProjectIds;
+  if (patch.bio !== undefined) updates.bio = patch.bio;
   if (patch.credits !== undefined) updates.credits = patch.credits;
   if (patch.avg_rating !== undefined) updates.avg_rating = patch.avg_rating;
   if (patch.password !== undefined) {
@@ -557,6 +574,8 @@ const listListings = async (filters = {}) => {
   if (filters.skill_id) query = query.eq('skill_id', filters.skill_id);
   if (filters.format) query = query.eq('format', filters.format);
   if (filters.listing_type) query = query.eq('listing_type', filters.listing_type);
+  if (filters.user_id) query = query.eq('user_id', filters.user_id);
+  if (filters.userId) query = query.eq('user_id', filters.userId);
   if (filters.status) {
     query = query.eq('status', filters.status);
   } else {

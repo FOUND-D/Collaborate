@@ -93,8 +93,12 @@ const ListingDetailScreen = () => {
           <aside className="phase2-detail-side phase2-glass">
             <span className="phase2-badge">Poster profile</span>
             <div className="phase2-profile-card">
-              <div className="phase2-avatar large">{listing.user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
-              <h3>{listing.user?.name || 'Unknown user'}</h3>
+              <Link to={`/profile/${listing.user?._id}`} className="phase2-avatar large">
+                {listing.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </Link>
+              <Link to={`/profile/${listing.user?._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <h3>{listing.user?.name || 'Unknown user'}</h3>
+              </Link>
               <p>{listing.user?.department || 'Cross-functional'}</p>
               <div className="phase2-rating-line">
                 <FaStar /> {listing.user?.avgRating ?? 'New profile'}

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import './TaskScreen.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiCalendar, FiActivity } from 'react-icons/fi';
+import { FiPlus, FiCalendar, FiActivity, FiArrowUp, FiArrowDown, FiMinus, FiAlertCircle } from 'react-icons/fi';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -10,6 +10,26 @@ import TaskSideDrawer from '../components/TaskSideDrawer';
 
 import { listTasks, updateTask } from '../actions/taskActions';
 import { TASK_DELETE_SUCCESS } from '../constants/taskConstants';
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'To Do': return 'var(--text-tertiary)';
+    case 'In Progress': return '#3b82f6'; // Blue
+    case 'Blocked': return '#ef4444'; // Red
+    case 'Completed': return '#10b981'; // Green
+    default: return 'var(--text-tertiary)';
+  }
+};
+
+const PriorityIcon = ({ priority }) => {
+  switch (priority?.toLowerCase()) {
+    case 'urgent': return <FiAlertCircle size={14} color="var(--accent-danger)" title="Urgent Priority" />;
+    case 'high': return <FiArrowUp size={14} color="var(--accent-warning)" title="High Priority" />;
+    case 'low': return <FiArrowDown size={14} color="var(--accent-success)" title="Low Priority" />;
+    case 'medium':
+    default: return <FiMinus size={14} color="var(--text-tertiary)" title="Medium Priority" />;
+  }
+};
 
 const TaskScreen = () => {
   const dispatch = useDispatch();
@@ -164,59 +184,75 @@ const TaskScreen = () => {
         </div>
       ) : (
         /* Kanban Board rendering */
-        <div className="task-board">
-          {Object.keys(boardColumns).map((columnName) => {
-            const columnTasks = boardColumns[columnName];
-            return (
-              <div 
-                key={columnName} 
-                className="task-column"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, columnName)}
-              >
-                <div className="task-column-header">
-                  <span className="task-column-title">{columnName}</span>
-                  <span className="task-column-count">{columnTasks.length}</span>
-                </div>
-
-                {columnTasks.map((task) => (
-                  <div 
-                    key={task._id || task.id} 
-                    className={`task-card-item priority-${(task.priority || 'medium').toLowerCase()}`}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, task._id || task.id)}
-                    onClick={() => openEditDrawer(task._id || task.id)}
-                  >
-                    <span className={`task-card-title ${task.status === 'Completed' ? 'completed' : ''}`}>
-                      {task.name}
-                    </span>
-
-                    {task.category && (
-                      <div className="task-card-tags">
-                        <span className="task-card-tag">{task.category.replace(/_/g, ' ')}</span>
-                      </div>
-                    )}
-
-                    <div className="task-card-footer">
-                      <div className="task-card-assignee">
-                        <div className="task-card-avatar" title={task.assignee?.name || 'Unassigned'}>
-                          {task.assignee?.name ? task.assignee.name.charAt(0).toUpperCase() : '?'}
-                        </div>
-                        <span className="task-card-name">{task.assignee?.name ? task.assignee.name.split(' ')[0] : 'Unassigned'}</span>
-                      </div>
-
-                      {task.dueDate && (
-                        <span className="task-card-due" title="Due Date">
-                          <FiCalendar size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                          {new Date(task.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                        </span>
-                      )}
+        <div className="task-board-scroll-wrapper">
+          <div className="task-board">
+            {Object.keys(boardColumns).map((columnName) => {
+              const columnTasks = boardColumns[columnName];
+              return (
+                <div 
+                  key={columnName} 
+                  className="task-column"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, columnName)}
+                >
+                  <div className="task-column-header">
+                    <div className="task-column-title-group">
+                      <span className="status-dot" style={{ backgroundColor: getStatusColor(columnName) }}></span>
+                      <span className="task-column-title">{columnName}</span>
                     </div>
+                    <span className="task-column-count">{columnTasks.length}</span>
                   </div>
-                ))}
-              </div>
-            );
-          })}
+
+                  <div className="task-column-content">
+                    {columnTasks.length === 0 ? (
+                      <div className="task-column-empty-dropzone">
+                        Drop tasks here
+                      </div>
+                    ) : (
+                      columnTasks.map((task) => (
+                        <div 
+                          key={task._id || task.id} 
+                          className="task-card-item"
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, task._id || task.id)}
+                          onClick={() => openEditDrawer(task._id || task.id)}
+                        >
+                          <div className="task-card-header">
+                            <span className={`task-card-title ${task.status === 'Completed' ? 'completed' : ''}`}>
+                              {task.name}
+                            </span>
+                            <PriorityIcon priority={task.priority} />
+                          </div>
+
+                          {task.category && (
+                            <div className="task-card-tags">
+                              <span className="task-card-tag">{task.category.replace(/_/g, ' ')}</span>
+                            </div>
+                          )}
+
+                          <div className="task-card-footer">
+                            <div className="task-card-assignee">
+                              <div className="task-card-avatar" title={task.assignee?.name || 'Unassigned'}>
+                                {task.assignee?.name ? task.assignee.name.charAt(0).toUpperCase() : '?'}
+                              </div>
+                              <span className="task-card-name">{task.assignee?.name ? task.assignee.name.split(' ')[0] : 'Unassigned'}</span>
+                            </div>
+
+                            {task.dueDate && (
+                              <span className="task-card-due" title="Due Date">
+                                <FiCalendar size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                                {new Date(task.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

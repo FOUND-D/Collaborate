@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => {
           secure: false,
           ws: true,
         },
+        '/leetcode-proxy': {
+          target: 'https://leetcode-stats-api.herokuapp.com',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/leetcode-proxy/, ''),
+        },
       },
     },
   };

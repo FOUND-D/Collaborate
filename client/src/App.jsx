@@ -236,6 +236,7 @@ const AppContent = () => {
                 <Route path="/project/:id" element={<ProjectScreen />} />
                 <Route path="/projects/ongoing" element={<OngoingProjectsScreen />} />
                 <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
                 <Route path="/settings" element={<SettingsScreen />} />
                 <Route path="/chat" element={<ChatScreen />} />
                 <Route path="/chat/:id" element={<ChatScreen />} />
