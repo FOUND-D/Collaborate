@@ -6,7 +6,7 @@ import { FaTrash, FaPlus, FaCalendarAlt, FaUser } from 'react-icons/fa';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listProjects, deleteProject } from '../actions/projectActions';
-import { getUserDetails } from '../actions/userActions';
+import { getUserProfile } from '../actions/userActions';
 import { PROJECT_DELETE_SUCCESS } from '../constants/projectConstants';
 import ProjectCreateModal from '../components/ProjectCreateModal';
 
@@ -36,8 +36,8 @@ const OngoingProjectsScreen = () => {
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
     } else {
-      if (!userInfo.name) {
-        dispatch(getUserDetails('profile'));
+      if (!userInfo.name || !userInfo.hasOrg) {
+        dispatch(getUserProfile());
       }
 
       // Reload projects if a delete or create action was successful
