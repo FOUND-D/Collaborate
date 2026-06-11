@@ -39,3 +39,10 @@ Here's a summary of the changes implemented:
     *   Added extensive new CSS rules for `.project-hero-header`, `.project-metadata-badges`, `.metadata-badge`, `.project-progress-bar`, `.add-task-btn`, `.modern-task-list`, `.task-list-item`, `.task-checkbox`, `.task-name`, `.task-status-pill` (with dynamic status classes), and hover effects.
 
 These changes significantly enhance the visual appeal and usability of the Project Task List screen, aligning it with modern SaaS design principles.
+
+**Update 2026-06-11:**
+*   **LeetCode Integration Overhaul:** Switched to a more reliable LeetCode API (`faisalshohag`) and implemented a new LeetCode contribution calendar using `react-activity-calendar`. Added recent submissions and improved the visual layout of the LeetCode tab.
+*   **API Fixes:** Resolved a 500 Internal Server Error on the `/api/users/profile` endpoint caused by route shadowing (swapped order of `/:id` and `/profile` in `userRoutes.js`).
+*   **Robustness Improvements:** Updated `getUserProfile` to handle potential array returns from Supabase joins and improved response mapping.
+*   **Project Visibility & State Management:** Refactored `OngoingProjectsScreen.jsx` to use `getUserProfile()` for consistent state updates and added logging to `getProjects` to ensure correct visibility across all team and organisation members.
+*   **Ownership Logic:** Fixed a bug where the delete button on project cards was not showing for owners due to missing `userInfo` prop.
