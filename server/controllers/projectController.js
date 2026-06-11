@@ -90,26 +90,43 @@ const resolveProjectContext = async (req) => {
 };
 
 const getProjects = asyncHandler(async (req, res) => {
-  // Get teams user is member of
+  console.log(`[getProjects] Fetching projects for user: ${req.user._id}`);
+  
+  // Get teams and organisations user is member of
   const [{ data: teamMembers, error: teamError }, { data: orgMembers, error: orgError }] = await Promise.all([
     supabase.from('team_members').select('team_id').eq('user_id', req.user._id),
     supabase.from('organisation_members').select('organisation_id').eq('user_id', req.user._id),
   ]);
 
-  if (teamError) throw teamError;
-  if (orgError) throw orgError;
+  if (teamError) {
+    console.error('[getProjects] team_members error:', teamError);
+    throw teamError;
+  }
+  if (orgError) {
+    console.error('[getProjects] organisation_members error:', orgError);
+    throw orgError;
+  }
 
   const teamIds = (teamMembers || []).map((tm) => tm.team_id).filter(Boolean);
   const orgIds = (orgMembers || []).map((member) => member.organisation_id).filter(Boolean);
+  
+  console.log(`[getProjects] User is in ${teamIds.length} teams and ${orgIds.length} organisations`);
 
   const filters = [`owner_id.eq.${req.user._id}`];
   if (teamIds.length > 0) filters.push(`team_id.in.(${teamIds.join(',')})`);
   if (orgIds.length > 0) filters.push(`organisation_id.in.(${orgIds.join(',')})`);
 
-  let query = supabase.from('projects').select('*').or(filters.join(','));
+  const filterString = filters.join(',');
+  console.log(`[getProjects] Applying OR filters: ${filterString}`);
 
-  const { data, error } = await query;
-  if (error) throw error;
+  const { data, error } = await supabase.from('projects').select('*').or(filterString);
+  
+  if (error) {
+    console.error('[getProjects] projects query error:', error);
+    throw error;
+  }
+  
+  console.log(`[getProjects] Found ${data?.length || 0} projects`);
   res.json((data || []).map(toPublicProject));
 });
 
