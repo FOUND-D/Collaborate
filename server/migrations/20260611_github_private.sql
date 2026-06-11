@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN IF NOT EXISTS github_show_private BOOLEAN DEFAULT false;

@@ -1,3 +1,4 @@
+const axios = require('axios');
 const asyncHandler = require('../middleware/asyncHandler');
 const generateToken = require('../utils/generateToken');
 const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = require('../lib/repo');
@@ -27,15 +28,18 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 
   const user = req.user;
-  
+  console.log(`[getUserProfile] Fetching profile for user: ${user._id} (${user.email})`);
+
   try {
     const { data: teams, error: teamsError } = await supabase
       .from('team_members')
       .select('team_id, teams:teams(*)')
       .eq('user_id', user._id);
-    
+
     if (teamsError) {
-      console.error('Error fetching user teams:', teamsError);
+      console.error('[getUserProfile] Error fetching user teams:', teamsError);
+    } else {
+      console.log(`[getUserProfile] Found ${teams?.length || 0} teams`);
     }
 
     const { data: pendingInvites, error: invitesError } = await supabase
@@ -45,12 +49,17 @@ const getUserProfile = asyncHandler(async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (invitesError) {
-      console.error('Error fetching pending invites:', invitesError);
+      console.error('[getUserProfile] Error fetching pending invites:', invitesError);
+    } else {
+      console.log(`[getUserProfile] Found ${pendingInvites?.length || 0} pending invites`);
     }
-    
-    res.json({
+
+    const responseData = {
       ...user,
-      teams: (teams || []).map((r) => r.teams).filter(Boolean).map(t => ({ ...t, _id: t.id })),
+      teams: (teams || []).map((r) => {
+        const teamObj = Array.isArray(r.teams) ? r.teams[0] : r.teams;
+        return teamObj ? { ...teamObj, _id: teamObj.id } : null;
+      }).filter(Boolean),
       pendingInvites: (pendingInvites || []).map((invite) => ({
         _id: invite.id,
         email: invite.email,
@@ -59,16 +68,19 @@ const getUserProfile = asyncHandler(async (req, res) => {
         expiresAt: invite.expires_at,
         createdAt: invite.created_at,
         organisation: invite.organisation ? {
-          _id: invite.organisation.id,
-          name: invite.organisation.name,
-          slug: invite.organisation.slug,
-          logo: invite.organisation.logo,
+          _id: (Array.isArray(invite.organisation) ? invite.organisation[0]?.id : invite.organisation.id),
+          name: (Array.isArray(invite.organisation) ? invite.organisation[0]?.name : invite.organisation.name),
+          slug: (Array.isArray(invite.organisation) ? invite.organisation[0]?.slug : invite.organisation.slug),
+          logo: (Array.isArray(invite.organisation) ? invite.organisation[0]?.logo : invite.organisation.logo),
         } : null,
       })),
-    });
+    };
+
+    console.log('[getUserProfile] Sending successful response');
+    res.json(responseData);
   } catch (err) {
-    console.error('Unexpected error in getUserProfile:', err);
-    res.status(500).json({ message: 'Internal Server Error', details: err.message });
+    console.error('[getUserProfile] Unexpected error:', err);
+    res.status(500).json({ message: 'Internal Server Error', details: err.message, stack: err.stack });
   }
 });
 
@@ -116,6 +128,7 @@ const getUserPublicProfile = asyncHandler(async (req, res) => {
     profileImage: user.profileImage,
     avgRating: user.avgRating,
     githubUsername: user.githubUsername,
+    githubShowPrivate: user.githubShowPrivate,
     linkedinUrl: user.linkedinUrl,
     leetcodeUsername: user.leetcodeUsername,
     portfolioUrl: user.portfolioUrl,
@@ -278,6 +291,42 @@ const adminGetStats = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Proxy GitHub API securely using backend PAT
+// @route   GET /api/users/github/:username
+// @access  Private
+const getGithubStats = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  const showPrivate = req.query.showPrivate === 'true';
+  
+  const headers = {};
+  let reposUrl = `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`;
+
+  if (showPrivate && process.env.GITHUB_PAT) {
+    headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
+    // /users/:username/repos only returns public repos even with a PAT.
+    // To get private repos, we must use /user/repos which gets all repos for the authenticated PAT.
+    reposUrl = `https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator`;
+  }
+
+  try {
+    const [userRes, reposRes] = await Promise.all([
+      axios.get(`https://api.github.com/users/${username}`, { headers }),
+      axios.get(reposUrl, { headers })
+    ]);
+    
+    let repos = reposRes.data;
+    if (showPrivate && process.env.GITHUB_PAT) {
+      // Filter the authenticated user's repos to ensure they belong to the requested username
+      repos = repos.filter(repo => repo.owner.login.toLowerCase() === username.toLowerCase());
+    }
+
+    res.json({ user: userRes.data, repos });
+  } catch (error) {
+    console.error('GitHub proxy error:', error.message);
+    res.status(500).json({ message: 'Error fetching GitHub data' });
+  }
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -288,6 +337,7 @@ module.exports = {
   updateUserProfileImage,
   getUserStats,
   getUserPublicProfile,
+  getGithubStats,
   adminGetUsers,
   adminUpdateUserRole,
   adminGetStats,

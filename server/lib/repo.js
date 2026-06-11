@@ -49,6 +49,7 @@ const toPublicUser = (u) => {
     avgRating: formatAvgRating(u.avg_rating),
     avg_rating: formatAvgRating(u.avg_rating),
     githubUsername: u.github_username || '',
+    githubShowPrivate: u.github_show_private || false,
     linkedinUrl: u.linkedin_url || '',
     leetcodeUsername: u.leetcode_username || '',
     portfolioUrl: u.portfolio_url || '',
@@ -375,6 +376,7 @@ const updateUser = async (id, patch) => {
   if (patch.profile_image !== undefined) updates.profile_image = patch.profile_image;
   if (patch.github_username !== undefined) updates.github_username = patch.github_username;
   if (patch.githubUsername !== undefined) updates.github_username = patch.githubUsername;
+  if (patch.githubShowPrivate !== undefined) updates.github_show_private = patch.githubShowPrivate;
   if (patch.linkedin_url !== undefined) updates.linkedin_url = patch.linkedin_url;
   if (patch.linkedinUrl !== undefined) updates.linkedin_url = patch.linkedinUrl;
   if (patch.leetcode_username !== undefined) updates.leetcode_username = patch.leetcode_username;
