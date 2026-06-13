@@ -83,36 +83,6 @@ const MeetingScreen = () => {
     userInfoRef.current = userInfo;
   }, [userInfo]);
 
-  useEffect(() => {
-    // Force dark mode on mount
-    const html = document.documentElement;
-    const body = document.body;
-    const originalTheme = html.dataset.theme || 'dark';
-
-    html.dataset.theme = 'dark';
-    html.classList.remove('light-theme');
-    html.classList.add('dark-theme');
-    body.classList.remove('light-theme');
-    body.classList.add('dark-theme');
-
-    return () => {
-      // Restore theme on unmount
-      html.dataset.theme = originalTheme;
-      if (originalTheme === 'light') {
-        html.classList.remove('dark-theme');
-        html.classList.add('light-theme');
-        body.classList.remove('dark-theme');
-        body.classList.add('light-theme');
-      } else {
-        html.classList.remove('light-theme');
-        html.classList.add('dark-theme');
-        body.classList.remove('light-theme');
-        body.classList.add('dark-theme');
-      }
-    };
-  }, []);
-
-
   const closePeerConnection = useCallback((userId) => {
     const peerConnection = peerConnectionsRef.current[userId];
     if (peerConnection) {
@@ -657,11 +627,6 @@ const MeetingScreen = () => {
       <div className="meeting-header workspace-surface">
         <h1 className="workspace-page-title">{meeting ? `Session: ${meeting.roomId}` : 'Connecting to session...'}</h1>
         <p className="workspace-page-subtitle">{participants.length} Active Participants</p>
-        {meeting?.agenda && (
-          <div className="meeting-agenda-badge">
-            <span className="agenda-label">Agenda:</span> <span className="agenda-text">{meeting.agenda}</span>
-          </div>
-        )}
       </div>
 
       <div className={`video-grid-container ${mainScreenUserId ? 'has-main-screen' : ''}`}>
@@ -717,7 +682,12 @@ const MeetingScreen = () => {
         )}
       </div>
 
-      <div className="meeting-controls">
+      <div className="meeting-controls workspace-surface">
+        {meeting?.agenda && (
+          <div style={{ width: '100%', color: 'rgba(241,245,249,0.82)', marginBottom: '12px' }}>
+            <strong style={{ color: '#f8fafc' }}>Session Agenda:</strong> {meeting.agenda}
+          </div>
+        )}
         <button className={`btn workspace-btn ${isCameraOn ? 'workspace-btn-secondary' : 'btn-danger workspace-btn-danger'}`} onClick={toggleCamera} type="button">
           {isCameraOn ? <><FaVideo /> Stop Video</> : <><FaVideoSlash /> Start Video</>}
         </button>

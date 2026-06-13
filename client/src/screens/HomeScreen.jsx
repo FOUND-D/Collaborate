@@ -2,25 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './HomeScreen.css';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  FiFolder, 
-  FiCheckSquare, 
-  FiUsers, 
-  FiVideo, 
-  FiChevronRight, 
-  FiActivity, 
-  FiPlus,
-  FiAward,
-  FiBook,
-  FiStar,
-  FiZap
-} from 'react-icons/fi';
+import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock, FaStar, FaRegStar } from 'react-icons/fa';
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
-import { listTeams } from '../actions/teamActions';
-import { listSessions } from '../actions/sessionActions';
 import { listMyOrganisations } from '../actions/organisationActions';
 import { listSkillMatches } from '../actions/skillActions';
+import { FaBuilding, FaPlus, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
 import NoticeBoardWidget from '../components/NoticeBoardWidget';
@@ -32,16 +19,12 @@ const HomeScreen = () => {
   const hasTeam = useSelector(selectHasTeam);
 
   const projectList = useSelector((state) => state.projectList);
-  const { projects = [] } = projectList;
+  const { projects } = projectList;
 
   const taskList = useSelector((state) => state.taskList);
-  const { tasks = [] } = taskList;
+  const { tasks } = taskList;
 
-  const teamList = useSelector((state) => state.teamList);
-  const { teams = [] } = teamList;
-
-  const sessionList = useSelector((state) => state.sessionList);
-  const { sessions = { upcoming: [], past: [] } } = sessionList;
+  const { matches = [] } = useSelector((state) => state.skillMatchList);
 
   const orgCurrent = useSelector((state) => state.orgCurrent);
   const orgList = useSelector((state) => state.orgList);
@@ -54,13 +37,9 @@ const HomeScreen = () => {
     if (userInfo) {
       dispatch(listProjects());
       dispatch(listTasks());
-      dispatch(listTeams());
-      dispatch(listSessions());
       dispatch(listMyOrganisations());
       dispatch(listSkillMatches());
-      api.get('/api/users/profile')
-        .then(({ data }) => setProfile(data))
-        .catch(() => setProfile(null));
+      api.get('/api/users/profile').then(({ data }) => setProfile(data)).catch(() => setProfile(null));
       
       setLoadingStats(true);
       api.get('/api/users/me/stats')
@@ -70,110 +49,104 @@ const HomeScreen = () => {
     }
   }, [dispatch, userInfo]);
 
-  const metricStats = useMemo(() => {
-    return {
-      projectsCount: Array.isArray(projects) ? projects.length : 0,
-      tasksCount: Array.isArray(tasks) ? tasks.filter(t => t.status !== 'Completed').length : 0,
-      teamsCount: Array.isArray(teams) ? teams.length : 0,
-      sessionsCount: (Array.isArray(sessions?.upcoming) ? sessions.upcoming.length : 0) + 
-                     (Array.isArray(sessions?.past) ? sessions.past.length : 0),
-    };
-  }, [projects, tasks, teams, sessions]);
-
-  // Construct dynamic activity feed using task data
-  const activities = useMemo(() => {
+  const dashboardStats = useMemo(() => {
+    const projectCount = Array.isArray(projects) ? projects.length : 0;
     const taskItems = Array.isArray(tasks) ? tasks : [];
-    if (taskItems.length === 0) {
-      return [
-        { id: '1', user: 'System', text: 'Welcome to your new workspace!', time: 'Recently', initial: 'S' },
-        { id: '2', user: 'AI Assistant', text: 'Add skills to matching profile to connect with peers.', time: 'Recently', initial: 'AI' }
-      ];
-    }
-    return taskItems.slice(0, 4).map(task => {
-      let action = 'updated';
-      if (task.status === 'Completed') action = 'completed';
-      else if (task.status === 'In Progress') action = 'started working on';
-      else if (task.status === 'Blocked') action = 'flagged as blocked';
-      else action = 'created';
+    const completedTasks = taskItems.filter((task) => task.status === 'Completed').length;
+    const completionRate = taskItems.length > 0 ? Math.round((completedTasks / taskItems.length) * 100) : 0;
 
-      const date = task.updatedAt ? new Date(task.updatedAt) : new Date();
-      const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      return {
-        id: task._id,
-        user: task.assignee?.name || 'A team member',
-        text: `${action} task "${task.title}"`,
-        time: timeString,
-        initial: (task.assignee?.name || 'Member').charAt(0).toUpperCase()
-      };
-    });
-  }, [tasks]);
+    return {
+      projectCount,
+      taskCount: taskItems.filter((task) => task.status !== 'Completed').length,
+      completionRate,
+    };
+  }, [projects, tasks]);
+
 
   return (
     <div className="dashboard-page">
-      
-      {/* Onboarding Banner if no current org */}
       {!currentOrg && (
         <div className="onboarding-banner">
           <div className="onboarding-banner-left">
-            <div className="onboarding-banner-icon"><FiPlus /></div>
+            <div className="onboarding-banner-icon"><FaBuilding /></div>
             <div className="onboarding-banner-text">
               <h3 className="onboarding-banner-title">You're not part of any organisation yet</h3>
               <p className="onboarding-banner-sub">Create or join one to unlock team collaboration, projects, and more.</p>
             </div>
           </div>
-          <Link to="/organisations/create" className="btn-primary" style={{ textDecoration: 'none', height: '32px', display: 'flex', alignItems: 'center' }}>
-            <FiPlus /> Create Organisation
-          </Link>
+          <Link to="/organisations/create" className="onboarding-banner-btn"><FaPlus /> Create Organisation</Link>
         </div>
       )}
-
-      {/* Invites Banner */}
       {profile?.pendingInvites?.length > 0 && (
         <div className="onboarding-banner">
           <div className="onboarding-banner-left">
-            <div className="onboarding-banner-icon"><FiPlus /></div>
+            <div className="onboarding-banner-icon"><FaBuilding /></div>
             <div className="onboarding-banner-text">
-              <h3 className="onboarding-banner-title">You have pending invites</h3>
-              <p className="onboarding-banner-sub">Accept an invite to join the organisation and start collaborating.</p>
+              <h3 className="onboarding-banner-title">You have organisation invites</h3>
+              <p className="onboarding-banner-sub">Open an invite to join the organisation and start collaborating.</p>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {profile.pendingInvites.slice(0, 2).map((invite) => (
+          <div className="onboarding-banner-list">
+            {profile.pendingInvites.slice(0, 3).map((invite) => (
               <Link
                 key={invite._id}
                 to={`/invite/accept?token=${invite.token}&org=${invite.organisation?._id || ''}`}
-                className="btn-primary"
-                style={{ textDecoration: 'none', height: '32px', display: 'flex', alignItems: 'center' }}
+                className="onboarding-banner-btn"
               >
-                Accept {invite.organisation?.name || 'Invite'}
+                <FaPlus /> {invite.organisation?.name || invite.email}
               </Link>
             ))}
           </div>
         </div>
       )}
-
-      {/* Title block */}
       <div className="dashboard-greeting">
         <div className="dashboard-greeting-top">
           <div className="greeting-text">
             <h1 className="dashboard-title">
-              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'},
               <span className="name-accent"> {userInfo ? userInfo.name.split(' ')[0] : 'Guest'}</span>
             </h1>
             <p className="dashboard-subtitle">
-              Here's an overview of your workspace today.
+              Here's what's happening in your workspace today.
             </p>
+          </div>
+          
+          <div className="dashboard-summary-cards">
+             <div className="dashboard-summary-card credits-gradient">
+                <div className="summary-label">Credits</div>
+                <div className="summary-value">{userInfo?.credits ?? 0}</div>
+                <div className="summary-sublabel">Available</div>
+             </div>
+             
+             <div className="dashboard-summary-card rating-gradient">
+                <div className="summary-label">Rating</div>
+                <div className="summary-value">{userInfo?.avg_rating ? userInfo.avg_rating.toFixed(1) : "—"}</div>
+                <div className="summary-stars">
+                    {[1, 2, 3, 4, 5].map((index) => {
+                        const rating = userInfo?.avg_rating || 0;
+                        const roundedRating = Math.round(rating);
+                        if (index <= roundedRating) {
+                            return <FaStar key={index} className="star-icon filled" />;
+                        } else {
+                            return <FaRegStar key={index} className="star-icon" />;
+                        }
+                    })}
+                </div>
+             </div>
           </div>
         </div>
       </div>
+      <div className="dashboard-divider" />
 
-      {/* Progress Section */}
-      <div className="home-progress-section">
-        <h2 className="column-title">Your Progress</h2>
+      {/* New Progress Section Re-integrated */}
+      <div className="home-progress-section" style={{ marginBottom: '32px' }}>
+        <div className="section-header-row" style={{ marginBottom: '16px' }}>
+            <div className="section-header-bar" />
+            <div className="section-header-title">Your Progress</div>
+        </div>
         <div className="stats-grid">
           <div className="stat-mini-card teal">
-            <div className="mini-card-icon"><FiZap /></div>
+            <div className="mini-card-icon">🚀</div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.sessionsTaught ?? '—'}</span>
               <span className="mini-card-lbl">Sessions Taught</span>
@@ -181,21 +154,21 @@ const HomeScreen = () => {
             </div>
           </div>
           <div className="stat-mini-card blue">
-            <div className="mini-card-icon"><FiVideo /></div>
+            <div className="mini-card-icon">📽️</div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.sessionsAttended ?? '—'}</span>
               <span className="mini-card-lbl">Sessions Attended</span>
             </div>
           </div>
           <div className="stat-mini-card green">
-            <div className="mini-card-icon"><FiAward /></div>
+            <div className="mini-card-icon">🏆</div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.skillCount ?? '—'}</span>
               <span className="mini-card-lbl">Skills Mastered</span>
             </div>
           </div>
           <div className="stat-mini-card yellow">
-            <div className="mini-card-icon"><FiStar /></div>
+            <div className="mini-card-icon">⭐</div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.avgRating ? stats.avgRating.toFixed(1) : '—'}</span>
               <span className="mini-card-lbl">Average Rating</span>
@@ -204,120 +177,113 @@ const HomeScreen = () => {
         </div>
       </div>
 
-      {/* 4-card metric row */}
       <div className="stat-cards-row">
         <div className="stat-card">
-          <div className="stat-value">{metricStats.projectsCount}</div>
-          <span className="stat-label">Active Projects</span>
-          <FiFolder className="stat-icon" />
+          <div className="stat-icon-box blue">
+            <FaProjectDiagram />
+          </div>
+          <div>
+            <div className="stat-value">{dashboardStats.projectCount}</div>
+            <div className="stat-label">Active Projects</div>
+          </div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{metricStats.tasksCount}</div>
-          <span className="stat-label">Pending Tasks</span>
-          <FiCheckSquare className="stat-icon" />
+          <div className="stat-icon-box purple">
+            <FaClipboardList />
+          </div>
+          <div>
+            <div className="stat-value">{dashboardStats.taskCount}</div>
+            <div className="stat-label">Pending Tasks</div>
+          </div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{metricStats.teamsCount}</div>
-          <span className="stat-label">Total Teams</span>
-          <FiUsers className="stat-icon" />
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{metricStats.sessionsCount}</div>
-          <span className="stat-label">Booked Sessions</span>
-          <FiVideo className="stat-icon" />
+          <div className="stat-icon-box green">
+            <FaCheckCircle />
+          </div>
+          <div>
+            <div className="stat-value">{dashboardStats.completionRate}%</div>
+            <div className="stat-label">Completion Rate</div>
+          </div>
         </div>
       </div>
 
-      {/* 2-column details block */}
-      <div className="dashboard-grid-layout">
-        
-        {/* Left Column: Recent Projects */}
-        <div className="dashboard-column">
-          <h2 className="column-title">Recent Projects</h2>
-          <div className="list-container">
-            {projects && projects.length > 0 ? (
-              projects.slice(0, 3).map(project => (
-                <Link key={project._id} to={`/project/${project._id}`} className="list-item">
-                  <div className="list-item-left">
-                    <span className="list-item-title">{project.name}</span>
-                    <span className="list-item-meta">
-                      {project.status || 'Active'} • {project.tasks?.length || 0} tasks
-                    </span>
-                  </div>
-                  <div className="list-item-right">
-                    <FiChevronRight size={16} style={{ color: 'var(--text-tertiary)' }} />
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="card" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                No active projects found.
-                {hasTeam && (
-                  <Link to="/project/create" className="btn-primary" style={{ margin: '12px auto 0 auto', textDecoration: 'none' }}>
-                    Create Project
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Upcoming Sessions */}
-        <div className="dashboard-column">
-          <h2 className="column-title">Upcoming Sessions</h2>
-          <div className="list-container">
-            {sessions?.upcoming && sessions.upcoming.length > 0 ? (
-              sessions.upcoming.slice(0, 3).map(session => (
-                <Link key={session._id} to={`/sessions/${session._id}`} className="list-item">
-                  <div className="list-item-left">
-                    <span className="list-item-title">{session.listing?.title || 'Skill Exchange Session'}</span>
-                    <span className="list-item-meta">
-                      {new Date(session.date).toLocaleDateString()} at {session.timeSlot}
-                    </span>
-                  </div>
-                  <div className="list-item-right">
-                    <span className="badge badge-pending">Upcoming</span>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="card" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                No upcoming sessions booked.
-                <Link to="/exchange" className="btn-secondary" style={{ margin: '12px auto 0 auto', textDecoration: 'none' }}>
-                  Explore Exchange Board
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-
+      <div className="section-header-row">
+        <div className="section-header-bar" />
+        <div className="section-header-title">Quick Actions</div>
       </div>
 
-      {/* Activity Feed Section at Bottom */}
-      <div className="activity-feed-section">
-        <h2 className="column-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <FiActivity size={18} style={{ color: 'var(--accent-primary)' }} />
-          Recent Activity
-        </h2>
-        <div className="activity-feed-list">
-          {activities.map((act) => (
-            <div key={act.id} className="activity-item">
-              <div className="activity-avatar-dot">
-                {act.initial}
+      <div className="quick-actions-grid">
+        <Link to="/projects/ongoing" className="quick-card">
+          <div className="quick-card-icon-wrap blue"><FaProjectDiagram /></div>
+          <h3 className="quick-card-title">View Ongoing Projects</h3>
+          <p className="quick-card-desc">Jump back into your projects and see what's new.</p>
+          <span className="quick-card-link blue">Go to Projects <FaArrowRight /></span>
+        </Link>
+        <Link to="/teams" className="quick-card">
+          <div className="quick-card-icon-wrap purple"><FaUsers /></div>
+          <h3 className="quick-card-title">Manage Your Teams</h3>
+          <p className="quick-card-desc">Collaborate with your team members and manage roles.</p>
+          <span className="quick-card-link purple">Go to Teams <FaArrowRight /></span>
+        </Link>
+        {userInfo && (hasTeam ? (
+          <Link to="/project/create" className="quick-card">
+            <div className="quick-card-icon-wrap blue"><FaMagic /></div>
+            <h3 className="quick-card-title">Create Project with AI</h3>
+            <p className="quick-card-desc">Let our AI assistant build a project plan for you.</p>
+            <span className="quick-card-link blue">Start Now <FaArrowRight /></span>
+          </Link>
+        ) : (
+          <Link to="/teams" className="quick-card">
+            <div className="quick-card-icon-wrap blue"><FaMagic /></div>
+            <h3 className="quick-card-title">Create Project with AI</h3>
+            <p className="quick-card-desc">Let our AI assistant build a project plan for you.</p>
+            <span className="quick-card-link muted">Join or create a team first to unlock projects</span>
+          </Link>
+        ))}
+      </div>
+
+      <div className="section-header-row">
+        <div className="section-header-bar" />
+        <div className="section-header-title">Matched for you</div>
+      </div>
+
+      <div className="quick-actions-grid">
+        {matches.length === 0 ? (
+          <div className="quick-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+            <p className="quick-card-desc">Add skills to your profile to see peer recommendations</p>
+            <Link to="/skills" className="quick-card-link blue" style={{ justifyContent: 'center' }}>
+              Update Profile <FaArrowRight />
+            </Link>
+          </div>
+        ) : (
+          matches.slice(0, 5).map((match) => (
+            <div key={match.user?._id} className="quick-card">
+              <div className="phase2-match-header" style={{ marginBottom: '12px' }}>
+                <div className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</div>
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <h3 className="quick-card-title" style={{ margin: 0, fontSize: '1rem' }}>{match.user?.name}</h3>
+                  <p className="quick-card-desc" style={{ margin: 0, fontSize: '0.85rem' }}>{match.user?.department || 'Open department'}</p>
+                </div>
+                <div className="phase2-match-score" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
+                  {Math.round(match.matchScore)}%
+                </div>
               </div>
-              <div className="activity-item-content">
-                <strong>{act.user}</strong> {act.text}
+              <div className="phase2-match-skills" style={{ marginBottom: '16px' }}>
+                {match.matchedSkills?.slice(0, 3).map((ms) => (
+                  <span key={ms.skillId} className="phase2-pill subtle" style={{ fontSize: '0.7rem', padding: '4px 8px' }}>
+                    {ms.skillName}
+                  </span>
+                ))}
               </div>
-              <div className="activity-timestamp">
-                {act.time}
-              </div>
+              <Link to={`/exchange?skill_id=${match.matchedSkills?.[0]?.skillId || ''}`} className="quick-card-link blue">
+                View Matches <FaArrowRight />
+              </Link>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
 
       <NoticeBoardWidget />
-
     </div>
   );
 };

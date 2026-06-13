@@ -11,8 +11,9 @@ import { listTeams } from '../actions/teamActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import BookSessionModal from '../components/BookSessionModal';
 import api from '../utils/api';
-import { SOCKET_URL } from '../config/runtime';
 import './SkillExchange.css';
+
+const SOCKET_URL = window.location.hostname === 'localhost' ? 'http://localhost:3002' : '/';
 
 const SessionsScreen = () => {
   const dispatch = useDispatch();

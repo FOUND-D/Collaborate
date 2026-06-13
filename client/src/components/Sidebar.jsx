@@ -3,27 +3,10 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { 
-  FiGrid, 
-  FiFolder, 
-  FiUsers, 
-  FiCheckSquare, 
-  FiRepeat, 
-  FiVideo, 
-  FiAward, 
-  FiBookOpen, 
-  FiTrendingUp, 
-  FiMessageSquare, 
-  FiHelpCircle, 
-  FiLayers, 
-  FiSettings, 
-  FiShield, 
-  FiLogOut, 
-  FiChevronLeft, 
-  FiChevronRight 
-} from 'react-icons/fi';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain, FaStar } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
+import ThemeToggle from './ThemeToggle';
 import { BACKEND_URL } from '../config/runtime';
 
 const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
@@ -41,7 +24,13 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
   const getNavLinkClass = ({ isActive }) => (isActive ? 'nav-item active' : 'nav-item');
   
   const sidebarStyle = {
-    width: isMobile ? '220px' : (isCollapsed ? '56px' : '220px'),
+    width: isMobile ? '280px' : (isCollapsed ? '64px' : '280px'),
+    transition: 'width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+    overflow: 'hidden',
+    position: 'fixed',
+    left: 0,
+    top: 0,
+    zIndex: isMobile ? 50 : 100,
     transform: (isMobile && isCollapsed) ? 'translateX(-100%)' : 'translateX(0)'
   };
 
@@ -49,95 +38,107 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
     opacity: isCollapsed && !isMobile ? 0 : 1,
     width: isCollapsed && !isMobile ? 0 : 'auto',
     overflow: 'hidden',
-    transition: 'opacity 150ms ease, width 150ms ease',
+    transition: 'opacity 200ms ease, width 200ms ease',
     whiteSpace: 'nowrap',
     display: 'inline-block'
+  };
+
+  const navItemStyle = {
+    justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start',
+    gap: isCollapsed && !isMobile ? '0px' : '12px'
   };
 
   return (
     <>
       <UserGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
       <div className={`sidebar ${!isCollapsed ? 'sidebar-open' : 'sidebar-closed'}`} style={sidebarStyle}>
-        
-        {/* Logo area */}
-        <div className="sidebar-header">
+        <div className="sidebar-header" style={{ padding: isCollapsed && !isMobile ? '0' : '0 16px', justifyContent: isCollapsed && !isMobile ? 'center' : 'space-between' }}>
           <div className="sidebar-brand-block">
-            <div className="sidebar-logo-row">
-              {/* Refined Monogram SVG */}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="var(--accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="var(--accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="var(--accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {!isCollapsed && <span className="sidebar-logo-text">Collaborate</span>}
+            <div className="sidebar-logo-row" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start' }}>
+              <div className="sidebar-logo-icon"><FaBuilding color="#fff" size={12} /></div>
+              <span className="sidebar-logo-text" style={labelStyle}>Collaborate</span>
             </div>
-            {!isCollapsed && <div className="sidebar-logo-meta">Workspace</div>}
+            <div className="sidebar-logo-meta" style={labelStyle}>Workspace</div>
           </div>
         </div>
 
-        {/* Scrollable Nav list */}
+        <OrgSwitcher collapsed={isCollapsed && !isMobile} />
+
+        <div className="sidebar-section-label" style={labelStyle}>Workspace</div>
         <nav className="sidebar-nav">
-          <div className="sidebar-section-label" style={labelStyle}>Workspace</div>
-          
-          <NavLink to="/dashboard" end className={getNavLinkClass}>
-            <FiGrid className="nav-item-icon" />
+          <NavLink to="/dashboard" end className={getNavLinkClass} style={navItemStyle}>
+            <FaTachometerAlt className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Dashboard</span>
           </NavLink>
-          <NavLink to="/projects" className={getNavLinkClass}>
-            <FiFolder className="nav-item-icon" />
+          <NavLink to="/projects" className={getNavLinkClass} style={navItemStyle}>
+            <FaFolder className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Projects</span>
           </NavLink>
-          <NavLink to="/teams" className={getNavLinkClass}>
-            <FiUsers className="nav-item-icon" />
+          <NavLink to="/teams" className={getNavLinkClass} style={navItemStyle}>
+            <FaUsers className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Teams</span>
           </NavLink>
-          <NavLink to="/tasks" className={getNavLinkClass}>
-            <FiCheckSquare className="nav-item-icon" />
+          <NavLink to="/tasks" className={getNavLinkClass} style={navItemStyle}>
+            <FaTasks className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Tasks</span>
           </NavLink>
-          <NavLink to="/exchange" className={getNavLinkClass}>
-            <FiRepeat className="nav-item-icon" />
+          <NavLink to="/exchange" className={getNavLinkClass} style={navItemStyle}>
+            <FaExchangeAlt className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Exchange Board</span>
           </NavLink>
-          <NavLink to="/sessions" className={getNavLinkClass}>
-            <FiVideo className="nav-item-icon" />
+          <NavLink to="/sessions" className={getNavLinkClass} style={navItemStyle}>
+            <FaVideo className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>My Sessions</span>
           </NavLink>
-          <NavLink to="/skills" className={getNavLinkClass}>
-            <FiAward className="nav-item-icon" />
+          <NavLink to="/skills" className={getNavLinkClass} style={navItemStyle}>
+            <FaBrain className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Skill Profile</span>
           </NavLink>
-
-          <div className="sidebar-section-divider" />
-          <div className="sidebar-section-label" style={labelStyle}>Resources</div>
-
-          <NavLink to="/resources" className={getNavLinkClass}>
-            <FiBookOpen className="nav-item-icon" />
+          <NavLink to="/resources" className={getNavLinkClass} style={navItemStyle}>
+            <FaFolderOpen className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Resources</span>
           </NavLink>
-          <NavLink to="/leaderboard" className={getNavLinkClass}>
-            <FiTrendingUp className="nav-item-icon" />
+          <NavLink to="/leaderboard" className={getNavLinkClass} style={navItemStyle}>
+            <FaMedal className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Leaderboard</span>
           </NavLink>
-          <button className="nav-item" onClick={toggleChat}>
-            <FiMessageSquare className="nav-item-icon" />
+          <button className="nav-item" onClick={toggleChat} style={navItemStyle}>
+            <FaComments className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Chat</span>
           </button>
-          <button type="button" className="nav-item" onClick={() => setIsGuideOpen(true)}>
-            <FiHelpCircle className="nav-item-icon" />
+          <button
+            type="button"
+            className="nav-item sidebar-guide-btn"
+            onClick={() => setIsGuideOpen(true)}
+            style={navItemStyle}
+          >
+            <FaBook className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>User Guide</span>
           </button>
         </nav>
 
-        {/* Bottom actions, org switcher, collapse toggle */}
-        <div className="sidebar-bottom">
-          
-          {/* Org Switcher at bottom */}
-          <OrgSwitcher collapsed={isCollapsed && !isMobile} />
+        <div className="sidebar-section-label" style={labelStyle}>Account</div>
+        <NavLink to="/organisations" className={getNavLinkClass} style={navItemStyle}>
+          <FaBuilding className="nav-item-icon" />
+          <span className="nav-item-label" style={labelStyle}>Organisations</span>
+        </NavLink>
+        <NavLink to="/settings" className={getNavLinkClass} style={navItemStyle}>
+          <FaCog className="nav-item-icon" />
+          <span className="nav-item-label" style={labelStyle}>Settings</span>
+        </NavLink>
+        {userInfo?.role === 'admin' && (
+          <NavLink to="/admin" className={getNavLinkClass} style={navItemStyle}>
+            <FaShieldAlt className="nav-item-icon" />
+            <span className="nav-item-label" style={labelStyle}>Admin</span>
+          </NavLink>
+        )}
 
-          {/* User profile row */}
+        <div className="sidebar-bottom">
+          <div className="sidebar-footer-links" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start' }}>
+            <ThemeToggle collapsed={isCollapsed && !isMobile} />
+          </div>
           {userInfo && (
-            <NavLink to="/profile" className="sidebar-user-row">
+            <NavLink to="/profile" className="sidebar-user-row" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', padding: isCollapsed && !isMobile ? '6px 0' : '6px 10px' }}>
               <div className="sidebar-user-avatar">
                 {userInfo.profileImage ? (
                   <img
@@ -151,42 +152,28 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
               <div className="sidebar-user-copy" style={labelStyle}>
                 <span className="sidebar-user-name">{userInfo.name}</span>
                 <span className="sidebar-user-role">{userInfo.role || 'member'}</span>
+                <div className="sidebar-user-rating">
+                  {userInfo.avg_rating ? (
+                    <>
+                      <div className="sidebar-stars">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <FaStar key={i} className={i <= Math.round(userInfo.avg_rating) ? 'star-filled' : 'star-empty'} />
+                        ))}
+                      </div>
+                      <span className="rating-value">{userInfo.avg_rating.toFixed(1)} ★</span>
+                    </>
+                  ) : (
+                    <span className="no-rating">No ratings yet</span>
+                  )}
+                </div>
               </div>
             </NavLink>
           )}
-
-          {/* Settings & Account */}
-          <NavLink to="/settings" className={getNavLinkClass}>
-            <FiSettings className="nav-item-icon" />
-            <span className="nav-item-label" style={labelStyle}>Settings</span>
-          </NavLink>
-
-          {userInfo?.role === 'admin' && (
-            <NavLink to="/admin" className={getNavLinkClass}>
-              <FiShield className="nav-item-icon" />
-              <span className="nav-item-label" style={labelStyle}>Admin</span>
-            </NavLink>
-          )}
-
-          {/* Logout */}
-          <button className="sidebar-logout-btn" onClick={logoutHandler} type="button">
-            <FiLogOut className="nav-item-icon" />
+          <button className="sidebar-logout-btn" onClick={logoutHandler} type="button" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', padding: isCollapsed && !isMobile ? '10px 0' : '10px 16px' }}>
+            <FaSignOutAlt className="nav-item-icon" />
             <span className="sidebar-logout-label" style={labelStyle}>Logout</span>
           </button>
-
-          {/* Collapse toggle (aligned bottom-right corner of sidebar) */}
-          {!isMobile && (
-            <button 
-              className="sidebar-collapse-toggle" 
-              onClick={toggleSidebar}
-              aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isCollapsed ? <FiChevronRight size={14} /> : <FiChevronLeft size={14} />}
-            </button>
-          )}
         </div>
-
       </div>
     </>
   );

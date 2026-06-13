@@ -162,7 +162,7 @@ const AppContent = () => {
   }, [dispatch, userInfo?.token]);
 
   const mainContentClass = `app-main ${isChatOpen ? 'chat-open' : ''}`;
-  const contentMargin = isPublicRoute || isMobile ? '0px' : (sidebarCollapsed ? '56px' : '220px');
+  const contentMargin = isPublicRoute || isMobile ? '0px' : (sidebarCollapsed ? '64px' : '280px');
   const layoutClass = `app-layout ${isPublicRoute ? 'public-layout' : ''}`;
 
   return (
@@ -192,7 +192,7 @@ const AppContent = () => {
             className={mainContentClass}
             style={{ 
               marginLeft: contentMargin, 
-              transition: 'margin-left 200ms ease',
+              transition: 'margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               width: isMobile ? '100vw' : `calc(100vw - ${contentMargin})`
             }}
           >
@@ -247,7 +247,7 @@ const AppContent = () => {
                 <Route path="/organisations/:id/settings/members" element={<ProtectedRoute><MembersPage /></ProtectedRoute>} />
                 <Route path="/organisations/:id/settings/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
                 <Route path="/organisations/:id/settings/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
-                <Route path="/organisations/:id/settings/custom-fields" element={<ProtectedRoute><CustomFieldsPage /></ProtectedRoute>} />
+                <Route path="/organisations/:id/settings/custom-fields" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
                 <Route path="/organisations/:id/settings/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
                 <Route path="/organisations/:id/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
                 <Route path="/invite/accept" element={<AcceptInviteScreen />} />
