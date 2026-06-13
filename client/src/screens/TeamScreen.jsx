@@ -7,7 +7,7 @@ import { FaPlus, FaUsers, FaEdit, FaTrash, FaCheck, FaTimes, FaUser, FaArrowRigh
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listTeams, createTeam, joinTeam, deleteTeam, updateTeamJoinRequest } from '../actions/teamActions';
-import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_SUCCESS } from '../constants/teamConstants';
+import { TEAM_CREATE_RESET, TEAM_JOIN_RESET, TEAM_DELETE_RESET, TEAM_UPDATE_JOIN_REQUEST_RESET } from '../constants/teamConstants';
 import { selectHasOrg } from '../selectors/membershipSelectors';
 
 
@@ -80,11 +80,12 @@ const TeamScreen = () => {
     }
 
     if (successDelete) {
-      dispatch({ type: TEAM_DELETE_SUCCESS });
+      dispatch({ type: TEAM_DELETE_RESET });
       dispatch(listTeams());
     }
 
     if (successUpdateJoinRequest) {
+      dispatch({ type: TEAM_UPDATE_JOIN_REQUEST_RESET });
       dispatch(listTeams());
     }
   }, [dispatch, navigate, userInfo, successDelete, successUpdateJoinRequest]);

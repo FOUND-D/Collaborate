@@ -13,9 +13,11 @@ import {
   TEAM_DELETE_REQUEST,
   TEAM_DELETE_SUCCESS,
   TEAM_DELETE_FAIL,
+  TEAM_DELETE_RESET,
   TEAM_UPDATE_JOIN_REQUEST_REQUEST,
   TEAM_UPDATE_JOIN_REQUEST_SUCCESS,
   TEAM_UPDATE_JOIN_REQUEST_FAIL,
+  TEAM_UPDATE_JOIN_REQUEST_RESET,
   TEAM_DETAILS_REQUEST,
   TEAM_DETAILS_SUCCESS,
   TEAM_DETAILS_FAIL,
@@ -88,6 +90,8 @@ export const teamDeleteReducer = (state = {}, action) => {
       return { loading: false, success: true };
     case TEAM_DELETE_FAIL:
       return { loading: false, error: action.payload };
+    case TEAM_DELETE_RESET:
+      return {};
     default:
       return state;
   }
@@ -101,6 +105,8 @@ export const teamUpdateJoinRequestReducer = (state = {}, action) => {
       return { loading: false, success: true, message: action.payload };
     case TEAM_UPDATE_JOIN_REQUEST_FAIL:
       return { loading: false, error: action.payload };
+    case TEAM_UPDATE_JOIN_REQUEST_RESET:
+      return {};
     default:
       return state;
   }
