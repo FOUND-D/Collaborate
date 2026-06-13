@@ -12,6 +12,7 @@ import {
   PROJECT_DELETE_REQUEST,
   PROJECT_DELETE_SUCCESS,
   PROJECT_DELETE_FAIL,
+  PROJECT_DELETE_RESET,
   PROJECT_CREATE_REQUEST,
   PROJECT_CREATE_SUCCESS,
   PROJECT_CREATE_FAIL,
@@ -71,6 +72,8 @@ export const projectDeleteReducer = (state = {}, action) => {
       return { loading: false, success: true };
     case PROJECT_DELETE_FAIL:
       return { loading: false, error: action.payload };
+    case PROJECT_DELETE_RESET:
+      return {};
     default:
       return state;
   }
