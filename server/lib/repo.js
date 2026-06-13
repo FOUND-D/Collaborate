@@ -48,6 +48,12 @@ const toPublicUser = (u) => {
     credits: u.credits ?? 50,
     avgRating: formatAvgRating(u.avg_rating),
     avg_rating: formatAvgRating(u.avg_rating),
+    phone: u.phone || '',
+    location: u.location || '',
+    timezone: u.timezone || 'UTC',
+    language: u.language || 'English',
+    dateFormat: u.date_format || 'MM/DD/YYYY',
+    university: u.university || '',
     githubUsername: u.github_username || '',
     githubShowPrivate: u.github_show_private || false,
     linkedinUrl: u.linkedin_url || '',
@@ -374,6 +380,12 @@ const updateUser = async (id, patch) => {
   if (patch.tech_stack !== undefined) updates.tech_stack = patch.tech_stack;
   if (patch.profileImage !== undefined) updates.profile_image = patch.profileImage;
   if (patch.profile_image !== undefined) updates.profile_image = patch.profile_image;
+  if (patch.phone !== undefined) updates.phone = patch.phone;
+  if (patch.location !== undefined) updates.location = patch.location;
+  if (patch.timezone !== undefined) updates.timezone = patch.timezone;
+  if (patch.language !== undefined) updates.language = patch.language;
+  if (patch.dateFormat !== undefined) updates.date_format = patch.dateFormat;
+  if (patch.university !== undefined) updates.university = patch.university;
   if (patch.github_username !== undefined) updates.github_username = patch.github_username;
   if (patch.githubUsername !== undefined) updates.github_username = patch.githubUsername;
   if (patch.githubShowPrivate !== undefined) updates.github_show_private = patch.githubShowPrivate;
