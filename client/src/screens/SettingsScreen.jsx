@@ -15,6 +15,8 @@ import {
     FaSave
 } from 'react-icons/fa';
 import { updateUserProfile } from '../actions/userActions';
+import { BACKEND_URL } from '../config/runtime';
+import CropModal from '../components/CropModal';
 import './SettingsScreen.css';
 
 const SettingsScreen = () => {
@@ -35,11 +37,19 @@ const SettingsScreen = () => {
     const [bio, setBio] = useState('');
     const [location, setLocation] = useState('');
     const [timezone, setTimezone] = useState('UTC');
+    const [language, setLanguage] = useState('English');
+    const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
     
     const [department, setDepartment] = useState('');
     const [yearOfStudy, setYearOfStudy] = useState('');
     const [university, setUniversity] = useState('');
     const [studentId, setStudentId] = useState('');
+    const [profileImage, setProfileImage] = useState('');
+    const [uploading, setUploading] = useState(false);
+
+    // Crop States
+    const [imageToCrop, setImageToCrop] = useState(null);
+    const [showCropModal, setShowCropModal] = useState(false);
 
     // Password State
     const [currentPassword, setCurrentPassword] = useState('');
@@ -52,9 +62,17 @@ const SettingsScreen = () => {
             setFirstName(names[0] || '');
             setLastName(names.slice(1).join(' ') || '');
             setEmail(userInfo.email || '');
+            setPhone(userInfo.phone || '');
+            setBio(userInfo.bio || '');
+            setLocation(userInfo.location || '');
+            setTimezone(userInfo.timezone || 'UTC');
+            setLanguage(userInfo.language || 'English');
+            setDateFormat(userInfo.dateFormat || 'MM/DD/YYYY');
             setDepartment(userInfo.department || '');
             setYearOfStudy(userInfo.yearOfStudy ? String(userInfo.yearOfStudy) : '');
+            setUniversity(userInfo.university || '');
             setStudentId(userInfo.studentId || '');
+            setProfileImage(userInfo.profileImage || '');
         }
     }, [userInfo]);
 
@@ -67,8 +85,15 @@ const SettingsScreen = () => {
             id: userInfo._id,
             name: `${firstName} ${lastName}`.trim(),
             email,
+            phone,
+            bio,
+            location,
+            timezone,
+            language,
+            dateFormat,
             department,
             yearOfStudy: yearOfStudy ? Number(yearOfStudy) : null,
+            university,
             studentId,
         };
 
@@ -80,6 +105,63 @@ const SettingsScreen = () => {
             .catch((err) => {
                 setErrorMsg(err.message || 'Update failed');
             });
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            setErrorMsg('File size must be less than 2MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+            setImageToCrop(reader.result);
+            setShowCropModal(true);
+        };
+    };
+
+    const handleCropComplete = (croppedImage) => {
+        setShowCropModal(false);
+        setUploading(true);
+        
+        import('../utils/api').then(({ default: api }) => {
+            api.patch('/api/users/profile/image', { image: croppedImage })
+                .then(({ data }) => {
+                    setProfileImage(data.profileImage);
+                    setSuccessMsg('Photo updated successfully');
+                    setTimeout(() => setSuccessMsg(''), 3000);
+                })
+                .catch((err) => {
+                    setErrorMsg('Photo upload failed');
+                })
+                .finally(() => {
+                    setUploading(false);
+                    setImageToCrop(null);
+                });
+        });
+    };
+
+    const handleFetchLocation = () => {
+        if (!navigator.geolocation) {
+            setErrorMsg('Geolocation is not supported by your browser');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+                setSuccessMsg('Coordinates fetched. In a production app, we would reverse-geocode this to an address.');
+                setTimeout(() => setSuccessMsg(''), 3000);
+            },
+            (err) => {
+                setErrorMsg('Could not fetch location: ' + err.message);
+            }
+        );
     };
 
     const handlePasswordUpdate = (e) => {
@@ -115,10 +197,31 @@ const SettingsScreen = () => {
                             <h3 className="section-title">Profile Photo</h3>
                             <div className="profile-photo-upload">
                                 <div className="avatar-circle">
-                                    {userInfo?.name?.charAt(0).toUpperCase()}
+                                    {profileImage ? (
+                                        <img 
+                                            src={profileImage.startsWith('data:image') ? profileImage : `${BACKEND_URL}${profileImage}`} 
+                                            alt="Profile" 
+                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                                        />
+                                    ) : (
+                                        userInfo?.name?.charAt(0).toUpperCase()
+                                    )}
                                 </div>
                                 <div className="upload-controls">
-                                    <button className="btn-upload"><FaCamera /> Upload Photo</button>
+                                    <input 
+                                        type="file" 
+                                        id="photo-upload" 
+                                        hidden 
+                                        accept="image/*" 
+                                        onChange={handleFileChange} 
+                                    />
+                                    <button 
+                                        className="btn-upload" 
+                                        onClick={() => document.getElementById('photo-upload').click()}
+                                        disabled={uploading}
+                                    >
+                                        <FaCamera /> {uploading ? 'Uploading...' : 'Upload Photo'}
+                                    </button>
                                     <p className="help-text">JPG, PNG or GIF. Max size 2MB.</p>
                                 </div>
                             </div>
@@ -150,7 +253,17 @@ const SettingsScreen = () => {
                                     </div>
                                     <div className="form-group">
                                         <label>Location</label>
-                                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, Country" />
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, Country" style={{ flex: 1 }} />
+                                            <button 
+                                                type="button" 
+                                                className="btn-secondary" 
+                                                style={{ padding: '0 12px', fontSize: '11px' }}
+                                                onClick={handleFetchLocation}
+                                            >
+                                                Fetch
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="form-group">
                                         <label>Timezone</label>
@@ -254,27 +367,34 @@ const SettingsScreen = () => {
 
                         <div className="settings-section card mt-6">
                             <h3 className="section-title">Language & Regional</h3>
-                            <div className="form-grid mt-4">
-                                <div className="form-group">
-                                    <label><FaGlobe /> Language</label>
-                                    <select>
-                                        <option>English</option>
-                                        <option>Spanish</option>
-                                        <option>French</option>
-                                    </select>
+                            <form onSubmit={handleProfileUpdate}>
+                                <div className="form-grid mt-4">
+                                    <div className="form-group">
+                                        <label><FaGlobe /> Language</label>
+                                        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                            <option value="English">English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="Hindi">Hindi</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FaCalendarAlt /> Date Format</label>
+                                        <select value={dateFormat} onChange={(e) => setDateFormat(e.target.value)}>
+                                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label><FaCalendarAlt /> Date Format</label>
-                                    <select>
-                                        <option>MM/DD/YYYY</option>
-                                        <option>DD/MM/YYYY</option>
-                                        <option>YYYY-MM-DD</option>
-                                    </select>
+                                <div className="form-actions mt-4" style={{ justifyContent: 'flex-start' }}>
+                                    <button type="submit" className="btn-save"><FaSave /> Save Preferences</button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 );
+
 
             case 'notifications':
                 return (
@@ -301,6 +421,14 @@ const SettingsScreen = () => {
 
             {successMsg && <div className="toast success">{successMsg}</div>}
             {errorMsg && <div className="toast error">{errorMsg}</div>}
+
+            {showCropModal && (
+                <CropModal 
+                    image={imageToCrop} 
+                    onCropComplete={handleCropComplete} 
+                    onCancel={() => setShowCropModal(false)} 
+                />
+            )}
 
             <div className="settings-container">
                 <div className="settings-tabs">
