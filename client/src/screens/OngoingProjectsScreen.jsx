@@ -7,7 +7,7 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listProjects, deleteProject } from '../actions/projectActions';
 import { getUserProfile } from '../actions/userActions';
-import { PROJECT_DELETE_SUCCESS } from '../constants/projectConstants';
+import { PROJECT_DELETE_RESET, PROJECT_CREATE_RESET } from '../constants/projectConstants';
 import ProjectCreateModal from '../components/ProjectCreateModal';
 
 import ProjectListItem from '../components/ProjectListItem';
@@ -32,22 +32,30 @@ const OngoingProjectsScreen = () => {
   const projectCreate = useSelector(state => state.projectCreate);
   const { success: successCreate } = projectCreate;
 
+  // Initial fetch on mount
+  useEffect(() => {
+    if (userInfo?.token) {
+      dispatch(listProjects());
+    }
+  }, [dispatch, userInfo?.token]);
+
   useEffect(() => {
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
     } else {
-      if (!userInfo.name || !userInfo.hasOrg) {
+      // Fetch profile if name is missing (ensures we have basic data)
+      if (!userInfo.name) {
         dispatch(getUserProfile());
       }
 
-      // Reload projects if a delete or create action was successful
-      if (successDelete) {
-        dispatch({ type: PROJECT_DELETE_SUCCESS }); // Reset success state
+      // If a project was deleted or created, list projects again and reset success states
+      if (successDelete || successCreate) {
+        if (successDelete) dispatch({ type: PROJECT_DELETE_RESET });
+        if (successCreate) dispatch({ type: PROJECT_CREATE_RESET });
+        dispatch(listProjects());
       }
-
-      dispatch(listProjects());
     }
-  }, [dispatch, navigate, userInfo, successDelete, successCreate]);
+  }, [dispatch, navigate, userInfo, successDelete, successCreate, hasOrg]);
 
   // The Handler passed down to the child component
   const deleteHandler = (id) => {

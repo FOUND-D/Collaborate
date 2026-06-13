@@ -4,6 +4,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProjectDetails, updateProject } from '../actions/projectActions';
 import { updateTask } from '../actions/taskActions';
+import { TASK_UPDATE_RESET } from '../constants/taskConstants';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import TaskSideDrawer from '../components/TaskSideDrawer';
@@ -149,7 +150,12 @@ const ProjectScreen = () => {
     if (!userInfo || !userInfo.token || userInfo.token.trim() === '') {
       navigate('/login');
     } else {
-      dispatch(getProjectDetails(projectId));
+      if (successUpdate) {
+        dispatch({ type: TASK_UPDATE_RESET });
+        dispatch(getProjectDetails(projectId));
+      } else if (!project && !loading) {
+        dispatch(getProjectDetails(projectId));
+      }
     }
   }, [dispatch, projectId, userInfo, navigate, successUpdate]);
 
