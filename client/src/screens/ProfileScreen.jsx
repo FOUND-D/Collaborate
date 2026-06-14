@@ -59,6 +59,7 @@ const ProfileScreen = () => {
   // External Data State
   const [githubData, setGithubData] = useState(null);
   const [githubRepos, setGithubRepos] = useState([]);
+  const [pinnedRepos, setPinnedRepos] = useState([]);
   const [loadingGithub, setLoadingGithub] = useState(false);
   const [githubError, setGithubError] = useState(null);
 
@@ -124,6 +125,7 @@ const ProfileScreen = () => {
       // Reset external data when user changes
       setGithubData(null);
       setGithubRepos([]);
+      setPinnedRepos([]);
       setLeetcodeData(null);
       setActiveTab('github');
     }
@@ -143,6 +145,7 @@ const ProfileScreen = () => {
       const { data } = await api.get(`/api/users/github/${username}?showPrivate=${profileUser?.githubShowPrivate || false}`);
       setGithubData(data.user);
       setGithubRepos(data.repos);
+      setPinnedRepos(data.pinnedRepoNames || []);
     } catch (err) {
       console.error('GitHub API failed', err);
       setGithubError('Could not load GitHub data. Try again later.');
@@ -206,23 +209,33 @@ const ProfileScreen = () => {
     // Only fetch if profileUser is loaded and matches the targetId
     if (profileUser?._id !== targetId) return;
 
-    if (activeTab === 'github' && profileUser?.githubUsername && !githubData && !loadingGithub && !githubError) {
+    if (activeTab === 'github' && profileUser?.githubUsername && !githubData && !loadingGithub) {
       fetchGithub();
     }
-    if (activeTab === 'leetcode' && profileUser?.leetcodeUsername && !leetcodeData && !loadingLeetcode && !leetcodeError) {
+    if (activeTab === 'leetcode' && profileUser?.leetcodeUsername && !leetcodeData && !loadingLeetcode) {
       fetchLeetcode();
     }
-  }, [activeTab, profileUser, githubData, leetcodeData, loadingGithub, loadingLeetcode, githubError, leetcodeError, targetId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, profileUser?._id, profileUser?.githubUsername, profileUser?.leetcodeUsername, targetId]);
 
   const totalStars = useMemo(() => {
     return githubRepos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
   }, [githubRepos]);
 
   const topRepos = useMemo(() => {
+    if (pinnedRepos && pinnedRepos.length > 0) {
+      const pinned = githubRepos.filter(repo => pinnedRepos.includes(repo.name.toLowerCase()));
+      if (pinned.length > 0) return pinned;
+    }
     return [...githubRepos]
-      .sort((a, b) => b.stargazers_count - a.stargazers_count)
-      .slice(0, 3);
-  }, [githubRepos]);
+      .sort((a, b) => {
+        if (b.stargazers_count !== a.stargazers_count) {
+          return b.stargazers_count - a.stargazers_count;
+        }
+        return new Date(b.updated_at) - new Date(a.updated_at);
+      })
+      .slice(0, 6);
+  }, [githubRepos, pinnedRepos]);
 
   const canTeachSkills = userSkills.filter(s => s.type === 'can_teach');
   const wantsToLearnSkills = userSkills.filter(s => s.type === 'wants_to_learn');
@@ -516,13 +529,13 @@ const ProfileScreen = () => {
                     ) : (
                       <>
                         <div className="github-stats-grid">
-                          <StatCard value={githubData?.public_repos} label="Public Repos" />
+                          <StatCard value={githubRepos.length || githubData?.public_repos} label={profileUser?.githubShowPrivate ? "Total Repos" : "Public Repos"} />
                           <StatCard value={githubData?.followers} label="Followers" />
                           <StatCard value={githubData?.following} label="Following" />
                           <StatCard value={githubData ? new Date(githubData.created_at).getFullYear() : '—'} label="Member Since" />
                         </div>
                         <div style={{ marginBottom: '16px', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-                          Showing public activity only
+                          {profileUser?.githubShowPrivate ? 'Showing public and private activity' : 'Showing public activity only'}
                         </div>
                         <div className="github-repos-grid">
                           {topRepos.map(repo => (
@@ -539,7 +552,9 @@ const ProfileScreen = () => {
                                   <span>⭐ {repo.stargazers_count}</span>
                                   <span>🍴 {repo.forks_count}</span>
                                 </div>
-                                <span className="phase2-pill subtle" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>Public</span>
+                                <span className={`phase2-pill ${repo.private ? 'subtle' : 'offer'}`} style={{ fontSize: '0.65rem', padding: '2px 8px', background: repo.private ? 'rgba(239, 68, 68, 0.1)' : undefined, color: repo.private ? '#ef4444' : undefined }}>
+                                  {repo.private ? 'Private' : 'Public'}
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -650,35 +665,15 @@ const ProfileScreen = () => {
                                labels={{
                                  totalCount: '{{count}} submissions in the last year',
                                }}
+                               blockSize={15}
+                               blockMargin={5}
+                               fontSize={14}
                              />
                            ) : (
                              <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                                No recent activity data found
                              </div>
                            )}
-                        </div>
-                      </section>
-
-                      <section className="profile-section phase2-glass phase2-panel" style={{ marginTop: '24px' }}>
-                        <div className="lc-progress-container" style={{ marginTop: 0 }}>
-                          <div className="section-header" style={{ marginBottom: '8px' }}>
-                            <span className="github-stat-lbl">Overall Progress</span>
-                            <span className="github-stat-val">
-                              {leetcodeData?.totalQuestions > 0 
-                                ? ((leetcodeData.totalSolved / leetcodeData.totalQuestions) * 100).toFixed(1) 
-                                : '0.0'}%
-                            </span>
-                          </div>
-                          <div className="lc-progress-bar">
-                            <div 
-                              className="lc-progress-fill" 
-                              style={{ 
-                                width: `${leetcodeData?.totalQuestions > 0 
-                                  ? (leetcodeData.totalSolved / leetcodeData.totalQuestions) * 100 
-                                  : 0}%` 
-                              }}
-                            ></div>
-                          </div>
                         </div>
                       </section>
                     </>

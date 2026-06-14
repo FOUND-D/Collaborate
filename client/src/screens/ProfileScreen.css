@@ -8,13 +8,13 @@
 /* Phase 2 Common Layout Styles */
 .phase2-page {
   min-height: 100vh;
-  padding: 32px 24px 64px;
+  padding: 32px 44px 64px;
   background: var(--surface-panel-gradient);
 }
 
 .phase2-shell {
-  max-width: 1240px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 .phase2-glass {

@@ -335,9 +335,40 @@ const getGithubStats = asyncHandler(async (req, res) => {
       repos = repos.filter(repo => repo.owner.login.toLowerCase() === username.toLowerCase());
     }
 
-    res.json({ user: userRes.data, repos });
+    let pinnedRepoNames = [];
+    if (process.env.GITHUB_PAT) {
+      try {
+        const q = `
+          query {
+            user(login: "${username}") {
+              pinnedItems(first: 6, types: REPOSITORY) {
+                nodes {
+                  ... on Repository {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const graphqlRes = await axios.post('https://api.github.com/graphql', { query: q }, { headers: { 'Authorization': `Bearer ${process.env.GITHUB_PAT}` } });
+        if (graphqlRes.data?.data?.user?.pinnedItems?.nodes) {
+          pinnedRepoNames = graphqlRes.data.data.user.pinnedItems.nodes.map(node => node.name.toLowerCase());
+        }
+      } catch (err) {
+        console.error('GraphQL pinned repos error:', err.message);
+      }
+    }
+
+    res.json({ user: userRes.data, repos, pinnedRepoNames });
   } catch (error) {
     console.error('GitHub proxy error:', error.message);
+    if (error.response && error.response.status === 403 && error.response.data?.message?.includes('rate limit')) {
+      return res.status(429).json({ message: 'GitHub API rate limit exceeded. Please try again later or add a Personal Access Token.' });
+    }
+    if (error.response && error.response.status === 404) {
+      return res.status(404).json({ message: 'GitHub user not found' });
+    }
     res.status(500).json({ message: 'Error fetching GitHub data' });
   }
 });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { 
   FaBook, FaPlus, FaSearch, FaFilePdf, FaFileWord, FaVideo, FaLink, 
   FaFileAlt, FaRobot, FaThumbtack, FaTrash, FaUser, FaCalendarAlt, FaDownload, FaEye 
@@ -28,6 +29,8 @@ const ResourcesScreen = () => {
   const [fileType, setFileType] = useState('PDF');
   const [tags, setTags] = useState('');
   const [teamId, setTeamId] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [fileName, setFileName] = useState('');
 
   const dispatch = useDispatch();
 
@@ -56,10 +59,38 @@ const ResourcesScreen = () => {
       setFileType('PDF');
       setTags('');
       setTeamId('');
+      setFileName('');
       dispatch({ type: RESOURCE_CREATE_RESET });
       dispatch(listResources());
     }
   }, [successCreate, dispatch]);
+
+  const handleFileUploadChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    setFileName(file.name);
+    
+    // Auto-detect type
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (['pdf'].includes(ext)) setFileType('PDF');
+    else if (['doc', 'docx'].includes(ext)) setFileType('DOC');
+    else if (['mp4', 'mov', 'avi'].includes(ext)) setFileType('VIDEO');
+    else setFileType('OTHER');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFileUrl(reader.result);
+      setUploadingFile(false);
+    };
+    reader.onerror = () => {
+      setUploadingFile(false);
+      alert('Failed to read file');
+    };
+    reader.readAsDataURL(file);
+  };
+
 
   const handleUploadSubmit = (e) => {
     e.preventDefault();
@@ -180,6 +211,13 @@ const ResourcesScreen = () => {
               <div className="card-header">
                 {getFileIcon(resource.fileType)}
                 <span className="file-type-badge">{resource.fileType}</span>
+                <button 
+                  className={`ai-summary-btn ${activeSummaryId === resource.id ? 'active' : ''}`}
+                  onClick={() => handleSummarise(resource.id)}
+                  style={{ marginLeft: '8px', padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                >
+                  <FaRobot /> AI Summary
+                </button>
                 <div className="card-actions">
                   {userInfo.role === 'faculty' || userInfo.role === 'admin' ? (
                     <button 
@@ -213,7 +251,14 @@ const ResourcesScreen = () => {
 
               <div className="resource-meta">
                 <div className="meta-item">
-                  <FaUser /> {resource.uploaderName || 'Anonymous'}
+                  <FaUser /> 
+                  {resource.uploaderId ? (
+                    <Link to={`/profile/${resource.uploaderId}`} className="uploader-link" style={{ color: 'var(--teal-accent)', textDecoration: 'none' }}>
+                      {resource.uploaderName || 'Anonymous'}
+                    </Link>
+                  ) : (
+                    <span>{resource.uploaderName || 'Anonymous'}</span>
+                  )}
                 </div>
                 <div className="meta-item">
                   <FaCalendarAlt /> {new Date(resource.createdAt).toLocaleDateString()}
@@ -221,19 +266,25 @@ const ResourcesScreen = () => {
               </div>
 
               <div className="card-footer">
-                <div className="footer-stats">
-                  <span><FaEye /> {resource.viewCount}</span>
-                  <span><FaDownload /> {resource.downloadCount}</span>
-                </div>
-                <div className="footer-actions">
-                  <button 
-                    className={`ai-summary-btn ${activeSummaryId === resource.id ? 'active' : ''}`}
-                    onClick={() => handleSummarise(resource.id)}
+                <div className="footer-actions" style={{ width: '100%', display: 'flex', gap: '12px', marginTop: 'auto' }}>
+                  <a 
+                    href={resource.fileUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="download-link"
+                    style={{ flex: 1, justifyContent: 'center', background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <FaRobot /> AI Summary
-                  </button>
-                  <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="download-link">
-                    Open <FaLink />
+                    <FaEye /> View
+                  </a>
+                  <a 
+                    href={resource.fileUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="download-link"
+                    style={{ flex: 1, justifyContent: 'center' }}
+                    download={resource.title || 'resource'}
+                  >
+                    <FaDownload /> Download
                   </a>
                 </div>
               </div>
@@ -281,17 +332,52 @@ const ResourcesScreen = () => {
                 />
               </div>
               <div className="form-row">
-                <div className="form-group">
-                  <label>File URL *</label>
-                  <input 
-                    type="url" 
-                    value={fileUrl} 
-                    onChange={(e) => setFileUrl(e.target.value)} 
-                    required 
-                    placeholder="https://docs.google.com/..."
-                  />
+                <div className="form-group" style={{ flex: 2 }}>
+                  <label>Resource File *</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input 
+                      type="url" 
+                      value={fileUrl} 
+                      onChange={(e) => {
+                        setFileUrl(e.target.value);
+                        setFileName('');
+                      }} 
+                      required={!fileName} 
+                      placeholder="https://docs.google.com/..."
+                      disabled={!!fileName}
+                      style={{ flex: 1 }}
+                    />
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>OR</span>
+                    <input 
+                      type="file" 
+                      id="resource-device-upload" 
+                      hidden 
+                      onChange={handleFileUploadChange} 
+                    />
+                    <button 
+                      type="button" 
+                      className="secondary-btn" 
+                      onClick={() => document.getElementById('resource-device-upload').click()}
+                      disabled={uploadingFile}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {uploadingFile ? 'Reading...' : (fileName ? 'File Selected' : 'From Device')}
+                    </button>
+                  </div>
+                  {fileName && (
+                    <div style={{ fontSize: '12px', color: 'var(--teal-accent)', marginTop: '4px' }}>
+                      Selected: {fileName}
+                      <button 
+                        type="button" 
+                        onClick={() => { setFileName(''); setFileUrl(''); }}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginLeft: '8px', cursor: 'pointer' }}
+                      >
+                        (Clear)
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ flex: 1 }}>
                   <label>Type</label>
                   <select value={fileType} onChange={(e) => setFileType(e.target.value)}>
                     <option value="PDF">PDF</option>

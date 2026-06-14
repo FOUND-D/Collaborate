@@ -93,7 +93,7 @@ const createResource = asyncHandler(async (req, res) => {
       file_type,
       tags: tags || [],
       team_id: team_id || null,
-      uploader_id: req.user.id,
+      uploader_id: req.user._id || req.user.id,
     })
     .select('*, users(id, name, profile_image)')
     .single();
@@ -103,7 +103,7 @@ const createResource = asyncHandler(async (req, res) => {
   // Award badge if earned (resource_sharer)
   try {
     const { awardBadgeIfEarned } = require('../services/badgeService');
-    await awardBadgeIfEarned(req.user.id, 'resource_upload');
+    await awardBadgeIfEarned(req.user._id || req.user.id, 'resource_upload');
   } catch (err) {
     console.error('Error awarding badge:', err);
   }
