@@ -26,6 +26,7 @@ const SettingsScreen = () => {
     const { userInfo } = userLogin;
 
     const [activeTab, setActiveTab] = useState('profile');
+    const [activeSubTab, setActiveSubTab] = useState('general');
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -193,129 +194,154 @@ const SettingsScreen = () => {
             case 'profile':
                 return (
                     <div className="tab-content animate-fade-in">
-                        <div className="settings-section">
-                            <h3 className="section-title">Profile Photo</h3>
-                            <div className="profile-photo-upload">
-                                <div className="avatar-circle">
-                                    {profileImage ? (
-                                        <img 
-                                            src={profileImage.startsWith('data:image') ? profileImage : `${BACKEND_URL}${profileImage}`} 
-                                            alt="Profile" 
-                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
-                                        />
-                                    ) : (
-                                        userInfo?.name?.charAt(0).toUpperCase()
-                                    )}
-                                </div>
-                                <div className="upload-controls">
-                                    <input 
-                                        type="file" 
-                                        id="photo-upload" 
-                                        hidden 
-                                        accept="image/*" 
-                                        onChange={handleFileChange} 
-                                    />
-                                    <button 
-                                        className="btn-upload" 
-                                        onClick={() => document.getElementById('photo-upload').click()}
-                                        disabled={uploading}
-                                    >
-                                        <FaCamera /> {uploading ? 'Uploading...' : 'Upload Photo'}
-                                    </button>
-                                    <p className="help-text">JPG, PNG or GIF. Max size 2MB.</p>
-                                </div>
-                            </div>
+                        <div className="sub-tab-bar">
+                            <button 
+                                className={`sub-tab-item ${activeSubTab === 'general' ? 'active' : ''}`}
+                                onClick={() => setActiveSubTab('general')}
+                            >
+                                General Info
+                            </button>
+                            <button 
+                                className={`sub-tab-item ${activeSubTab === 'professional' ? 'active' : ''}`}
+                                onClick={() => setActiveSubTab('professional')}
+                            >
+                                Professional Details
+                            </button>
                         </div>
 
-                        <form onSubmit={handleProfileUpdate}>
-                            <div className="settings-section">
-                                <h3 className="section-title">Personal Information</h3>
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label>First Name</label>
-                                        <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Last Name</label>
-                                        <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Email Address</label>
-                                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Phone Number</label>
-                                        <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (555) 000-0000" />
-                                    </div>
-                                    <div className="form-group full-width">
-                                        <label>Bio</label>
-                                        <textarea rows="4" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Write a short bio..."></textarea>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Location</label>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, Country" style={{ flex: 1 }} />
+                        {activeSubTab === 'general' ? (
+                            <div className="sub-tab-panel animate-fade-in profile-grid-layout">
+                                <div className="settings-section card">
+                                    <h3 className="section-title">Profile Photo</h3>
+                                    <div className="profile-photo-upload">
+                                        <div className="avatar-circle">
+                                            {profileImage ? (
+                                                <img 
+                                                    src={profileImage.startsWith('data:image') ? profileImage : `${BACKEND_URL}${profileImage}`} 
+                                                    alt="Profile" 
+                                                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                                                />
+                                            ) : (
+                                                userInfo?.name?.charAt(0).toUpperCase()
+                                            )}
+                                        </div>
+                                        <div className="upload-controls">
+                                            <input 
+                                                type="file" 
+                                                id="photo-upload" 
+                                                hidden 
+                                                accept="image/*" 
+                                                onChange={handleFileChange} 
+                                            />
                                             <button 
-                                                type="button" 
-                                                className="btn-secondary" 
-                                                style={{ padding: '0 12px', fontSize: '11px' }}
-                                                onClick={handleFetchLocation}
+                                                className="btn-upload" 
+                                                onClick={() => document.getElementById('photo-upload').click()}
+                                                disabled={uploading}
                                             >
-                                                Fetch
+                                                <FaCamera /> {uploading ? 'Uploading...' : 'Upload Photo'}
                                             </button>
+                                            <p className="help-text">JPG, PNG or GIF. Max size 2MB.</p>
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Timezone</label>
-                                        <select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
-                                            <option value="UTC">UTC</option>
-                                            <option value="EST">EST</option>
-                                            <option value="PST">PST</option>
-                                            <option value="IST">IST</option>
-                                        </select>
-                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="settings-section">
-                                <h3 className="section-title">Professional Details</h3>
-                                <div className="form-grid">
-                                    <div className="form-group">
-                                        <label>Department</label>
-                                        <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Year of Study</label>
-                                        <input type="text" value={yearOfStudy} onChange={(e) => setYearOfStudy(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Role</label>
-                                        <div className="readonly-input">
-                                            <input type="text" value={userInfo?.role || ''} readOnly />
-                                            <FaLock className="lock-icon" />
+                                <form onSubmit={handleProfileUpdate} className="full-width-form">
+                                    <div className="settings-section card">
+                                        <h3 className="section-title">Personal Information</h3>
+                                        <div className="form-grid">
+                                            <div className="form-group">
+                                                <label>First Name</label>
+                                                <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Last Name</label>
+                                                <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Email Address</label>
+                                                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Phone Number</label>
+                                                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (555) 000-0000" />
+                                            </div>
+                                            <div className="form-group full-width">
+                                                <label>Bio</label>
+                                                <textarea rows="4" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Write a short bio..."></textarea>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Location</label>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, Country" style={{ flex: 1 }} />
+                                                    <button 
+                                                        type="button" 
+                                                        className="btn-secondary" 
+                                                        style={{ padding: '0 12px', fontSize: '11px' }}
+                                                        onClick={handleFetchLocation}
+                                                    >
+                                                        Fetch
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Timezone</label>
+                                                <select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+                                                    <option value="UTC">UTC</option>
+                                                    <option value="EST">EST</option>
+                                                    <option value="PST">PST</option>
+                                                    <option value="IST">IST</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="form-actions">
+                                            <button type="submit" className="btn-save"><FaSave /> Save Changes</button>
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>University</label>
-                                        <input type="text" value={university} onChange={(e) => setUniversity(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Student ID</label>
-                                        <input type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
-                                    </div>
-                                </div>
+                                </form>
                             </div>
-
-                            <div className="form-actions">
-                                <button type="submit" className="btn-save"><FaSave /> Save Changes</button>
+                        ) : (
+                            <div className="sub-tab-panel animate-fade-in">
+                                <form onSubmit={handleProfileUpdate}>
+                                    <div className="settings-section card">
+                                        <h3 className="section-title">Professional Details</h3>
+                                        <div className="form-grid">
+                                            <div className="form-group">
+                                                <label>Department</label>
+                                                <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Year of Study</label>
+                                                <input type="text" value={yearOfStudy} onChange={(e) => setYearOfStudy(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Role</label>
+                                                <div className="readonly-input">
+                                                    <input type="text" value={userInfo?.role || ''} readOnly />
+                                                    <FaLock className="lock-icon" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>University</label>
+                                                <input type="text" value={university} onChange={(e) => setUniversity(e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Student ID</label>
+                                                <input type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
+                                            </div>
+                                        </div>
+                                        <div className="form-actions">
+                                            <button type="submit" className="btn-save"><FaSave /> Save Changes</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        )}
                     </div>
                 );
 
             case 'account':
                 return (
-                    <div className="tab-content animate-fade-in">
+                    <div className="tab-content animate-fade-in account-grid-layout">
                         <form onSubmit={handlePasswordUpdate}>
                             <div className="settings-section card">
                                 <h3 className="section-title">Password Settings</h3>
@@ -346,7 +372,7 @@ const SettingsScreen = () => {
 
             case 'preferences':
                 return (
-                    <div className="tab-content animate-fade-in">
+                    <div className="tab-content animate-fade-in preferences-grid-layout">
                         <div className="settings-section card">
                             <h3 className="section-title">Appearance</h3>
                             <p className="section-desc mb-4">Customize how Collaborate looks on your device.</p>
@@ -365,7 +391,7 @@ const SettingsScreen = () => {
                             </div>
                         </div>
 
-                        <div className="settings-section card mt-6">
+                        <div className="settings-section card">
                             <h3 className="section-title">Language & Regional</h3>
                             <form onSubmit={handleProfileUpdate}>
                                 <div className="form-grid mt-4">
@@ -394,7 +420,6 @@ const SettingsScreen = () => {
                         </div>
                     </div>
                 );
-
 
             case 'notifications':
                 return (

@@ -5,7 +5,8 @@ const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = re
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage } = req.body;
-  const existing = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+  const normalizedEmail = email ? email.trim().toLowerCase() : '';
+  const existing = await supabase.from('users').select('id').eq('email', normalizedEmail).maybeSingle();
   if (existing.data) return res.status(400).json({ message: 'User already exists' });
   const user = await createUser({ name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage });
   res.status(201).json({ ...user, token: generateToken(user._id) });
@@ -85,6 +86,20 @@ const getUserProfile = asyncHandler(async (req, res) => {
 });
 
 const updateUserProfile = asyncHandler(async (req, res) => {
+  if (req.body.email) {
+    const email = req.body.email.trim().toLowerCase();
+    const existing = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .neq('id', req.user._id)
+      .maybeSingle();
+    
+    if (existing.data) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+  }
+
   const updated = await updateUser(req.user._id, req.body);
   res.json({ ...updated, token: generateToken(updated._id) });
 });

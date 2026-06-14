@@ -1,7 +1,7 @@
 .settings-page {
-    padding: 32px 44px;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 32px 20px;
+    max-width: 100%;
+    margin: 0;
     color: var(--text-primary);
 }
 
@@ -28,6 +28,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .settings-tabs {
@@ -64,14 +65,37 @@
 .settings-main {
     padding: 32px;
     min-height: 500px;
+    width: 100%;
+}
+
+.tab-content {
+    width: 100%;
+}
+
+/* Grid Layouts for Side-by-Side Cards */
+.profile-grid-layout, 
+.account-grid-layout, 
+.preferences-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.full-width-form {
+    grid-column: span 1;
+}
+
+@media (max-width: 900px) {
+    .profile-grid-layout, 
+    .account-grid-layout, 
+    .preferences-grid-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .settings-section {
-    margin-bottom: 40px;
-}
-
-.settings-section:last-child {
-    margin-bottom: 0;
+    margin-bottom: 0; /* Reset for grid gap */
 }
 
 .section-title {
@@ -202,8 +226,16 @@
 .settings-section.card {
     background: var(--surface-panel-bg);
     border: 1px solid var(--surface-border);
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    height: 100%; /* Ensure equal height in grid */
+}
+
+.settings-section.card:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .danger-zone {
@@ -258,6 +290,46 @@
     font-size: 48px;
     color: var(--text-muted);
     margin-bottom: 24px;
+}
+
+/* Sub-Tab Bar */
+.sub-tab-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 4px;
+    background: var(--surface-panel-muted);
+    border-radius: 12px;
+    width: fit-content;
+    border: 1px solid var(--surface-border);
+    grid-column: 1 / -1; /* Full width above grid */
+}
+
+.sub-tab-item {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sub-tab-item:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sub-tab-item.active {
+    background: var(--surface-panel-bg);
+    color: #14b8a6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sub-tab-panel {
+    display: contents; /* Allows grid items to participate in parent grid */
 }
 
 /* Toasts */

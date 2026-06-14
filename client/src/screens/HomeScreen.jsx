@@ -200,11 +200,20 @@ const HomeScreen = () => {
           <div className="stat-icon-box green">
             <FaCheckCircle />
           </div>
-          <div>
+          <div className="stat-content">
             <div className="stat-value">{dashboardStats.completionRate}%</div>
             <div className="stat-label">Completion Rate</div>
+            <div className="stat-card-progress-wrapper">
+              <div className="stat-progress-track">
+                <div 
+                  className="stat-progress-fill green" 
+                  style={{ width: `${dashboardStats.completionRate}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
 
       <div className="section-header-row">

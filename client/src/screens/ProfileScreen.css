@@ -5,6 +5,30 @@
   align-items: start;
 }
 
+/* Phase 2 Common Layout Styles */
+.phase2-page {
+  min-height: 100vh;
+  padding: 32px 24px 64px;
+  background: var(--surface-panel-gradient);
+}
+
+.phase2-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.phase2-glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.phase2-panel {
+  border-radius: 24px;
+  padding: 24px;
+}
+
 .profile-left-column {
   position: sticky;
   top: 32px;
@@ -558,6 +582,116 @@
 
 .modal-body {
   padding: 24px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--bg-elevated);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.close-modal {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.close-modal:hover {
+  color: var(--text-primary);
+}
+
+/* Phase 2 Form Styles for Profile Modal */
+.phase2-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.phase2-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase2-field-full {
+  grid-column: span 2;
+}
+
+.phase2-field span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.phase2-field input:not([type="checkbox"]),
+.phase2-field select,
+.phase2-field textarea {
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.phase2-field input:not([type="checkbox"]):focus,
+.phase2-field select:focus,
+.phase2-field textarea:focus {
+  border-color: var(--teal-accent);
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.1);
+}
+
+.phase2-field input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Specific button styles for profile */
+.phase2-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.phase2-button:hover {
+  transform: translateY(-1px);
+}
+
+.phase2-button-primary {
+  background: var(--teal-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);
+}
+
+.phase2-button-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.phase2-button-secondary:hover {
+  background: var(--bg-overlay);
 }
 
 /* Responsive */
