@@ -86,7 +86,8 @@ const RegisterScreen = () => {
     }
 
     setMessage(null);
-    dispatch(register(name, email, password, image, department, role, Number(yearOfStudy), studentId));
+    const finalYear = role === 'faculty' ? 7 : Number(yearOfStudy);
+    dispatch(register(name, email, password, image, department, role, finalYear, studentId));
   };
 
   return (
@@ -148,6 +149,31 @@ const RegisterScreen = () => {
 
           <form className="auth-form" onSubmit={submitHandler}>
             <div className="field-group">
+              <label className="field-label">I am a</label>
+              <div className="role-toggle-group">
+                <button 
+                  type="button" 
+                  className={`role-toggle-btn ${role !== 'faculty' ? 'active' : ''}`}
+                  onClick={() => setRole('undergrad')}
+                >
+                  🎓 Student
+                </button>
+                <button 
+                  type="button" 
+                  className={`role-toggle-btn ${role === 'faculty' ? 'active' : ''}`}
+                  onClick={() => setRole('faculty')}
+                >
+                  👨‍🏫 Faculty
+                </button>
+              </div>
+              {role === 'faculty' && (
+                <p className="role-info-note">
+                  Faculty accounts require prior approval. Your email must be registered by your administrator.
+                </p>
+              )}
+            </div>
+
+            <div className="field-group">
               <label className="field-label" htmlFor="name">Full name</label>
               <input
                 id="name"
@@ -197,19 +223,20 @@ const RegisterScreen = () => {
               </select>
             </div>
 
-            <div className="field-group">
-              <label className="field-label" htmlFor="role">Role</label>
-              <select
-                id="role"
-                className="field-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                {roleOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </div>
+            {role !== 'faculty' && (
+              <div className="field-group">
+                <label className="field-label" htmlFor="role">Student Level</label>
+                <select
+                  id="role"
+                  className="field-input"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="undergrad">Undergrad</option>
+                  <option value="postgrad">Postgrad</option>
+                </select>
+              </div>
+            )}
 
             <div className="field-group">
               <label className="field-label" htmlFor="studentId">

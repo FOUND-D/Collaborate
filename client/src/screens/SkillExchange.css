@@ -435,6 +435,17 @@
   font-size: 0.78rem;
 }
 
+.faculty-badge-tiny {
+  background: rgba(20, 184, 166, 0.12);
+  color: #14b8a6;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  border: 1px solid rgba(20, 184, 166, 0.2);
+}
+
 .phase2-pill.offer {
   background: var(--phase2-offer-bg);
   color: var(--phase2-offer-text);

@@ -82,6 +82,26 @@
   color: var(--teal-accent);
 }
 
+.role-faculty {
+  background: rgba(20, 184, 166, 0.15) !important;
+  color: #14b8a6 !important;
+  border: 1px solid rgba(20, 184, 166, 0.3) !important;
+}
+
+.faculty-verified-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  color: #14b8a6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
 .profile-name {
   font-size: 1.5rem;
   font-weight: 700;

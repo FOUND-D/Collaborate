@@ -19,6 +19,7 @@ import {
   FaTimes,
   FaExternalLinkAlt,
   FaAward,
+  FaCheckCircle,
 } from 'react-icons/fa';
 import {
   updateUserProfile,
@@ -309,8 +310,14 @@ const ProfileScreen = () => {
               </div>
               <div className="profile-name">{profileUser.name}</div>
               <span className={`role-badge ${getRoleBadgeClass(profileUser.role)}`}>
-                {profileUser.role}
+                {profileUser.role === 'faculty' ? '🎓 Faculty' : profileUser.role}
               </span>
+              {profileUser.role === 'faculty' && (
+                <div className="faculty-verified-chip">
+                  <FaCheckCircle style={{ color: 'var(--accent-primary)' }} />
+                  <span>Faculty Verified</span>
+                </div>
+              )}
 
               <div className="identity-info">
                 {isOwnProfile && (

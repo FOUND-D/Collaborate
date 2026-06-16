@@ -6,9 +6,38 @@ const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = re
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage } = req.body;
   const normalizedEmail = email ? email.trim().toLowerCase() : '';
+
+  // FACULTY WHITELIST CHECK
+  if (role === 'faculty') {
+    const { data: whitelistEntry, error: whitelistError } = await supabase
+      .from('faculty_whitelist')
+      .select('id')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+    
+    if (whitelistError) throw whitelistError;
+    if (!whitelistEntry) {
+      return res.status(403).json({ message: 'Your email is not registered as faculty. Contact your administrator.' });
+    }
+  }
+
   const existing = await supabase.from('users').select('id').eq('email', normalizedEmail).maybeSingle();
   if (existing.data) return res.status(400).json({ message: 'User already exists' });
-  const user = await createUser({ name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage });
+
+  const finalRole = role === 'faculty' ? 'faculty' : 'student';
+
+  const user = await createUser({
+    name,
+    email: normalizedEmail,
+    password,
+    role: finalRole,
+    department,
+    yearOfStudy,
+    studentId,
+    techStack,
+    profileImage,
+  });
+
   res.status(201).json({ ...user, token: generateToken(user._id) });
 });
 
