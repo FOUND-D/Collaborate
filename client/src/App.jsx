@@ -23,6 +23,7 @@ import CreateOrganisationScreen from './screens/CreateOrganisationScreen';
 import OrganisationDetailScreen from './screens/OrganisationDetailScreen';
 import { MembersPage, RolesPage, CompliancePage, CustomFieldsPage, AuditLogPage, CompleteProfilePage } from './screens/OrgManagementPages';
 import AcceptInviteScreen from './screens/AcceptInviteScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
 import ResourcesScreen from './screens/ResourcesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';

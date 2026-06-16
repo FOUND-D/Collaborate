@@ -249,17 +249,22 @@
   margin: 0;
   line-height: 1.5;
 }
-.auth-form-header p a,
-.auth-switch-text a,
-.field-forgot {
+.field-forgot,
+.field-forgot-btn {
   color: #3b82f6;
   text-decoration: none;
   font-weight: 500;
+  font-size: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
 }
-.auth-form-header p a:hover,
-.auth-switch-text a:hover,
-.field-forgot:hover {
+.field-forgot:hover,
+.field-forgot-btn:hover {
   text-decoration: underline;
+  color: #60a5fa;
 }
 .auth-form {
   display: flex;
@@ -514,9 +519,48 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.auth-terms a:hover { color: rgba(241,245,249,0.60); }
+.auth-terms a:hover { color: rgba(241, 245, 249, 0.60); }
+
+.role-toggle-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.role-toggle-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: #0f1114;
+  color: rgba(241,245,249,0.55);
+  font-size: 14px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.role-toggle-btn:hover {
+  background: #16191e;
+  border-color: rgba(255,255,255,0.15);
+}
+.role-toggle-btn.active {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+.role-info-note {
+  font-size: 11px;
+  color: rgba(241, 245, 249, 0.4);
+  line-height: 1.4;
+  margin: 4px 0 0;
+  font-style: italic;
+}
 
 @media (max-width: 860px) {
+
   .auth-right {
     padding-top: 72px;
   }
