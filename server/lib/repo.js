@@ -24,6 +24,7 @@ const toPublicCompactUser = (user) => {
     avg_rating: formatAvgRating(user.avg_rating),
     profileImage: user.profile_image || '',
     credits: user.credits ?? 0,
+    badges: user.badges || [],
   };
 };
 
@@ -63,6 +64,7 @@ const toPublicUser = (u) => {
     portfolioUrl: u.portfolio_url || '',
     showcasedProjectIds: u.showcased_project_ids || [],
     bio: u.bio || '',
+    badges: u.badges || [],
     createdAt: u.created_at,
     updatedAt: u.updated_at,
   };
@@ -209,6 +211,7 @@ const toPublicListing = (listing) => listing && ({
   status: listing.status,
   createdAt: listing.created_at,
   updatedAt: listing.updated_at,
+  posterBadges: listing.user?.badges || [],
   user: listing.user ? toPublicCompactUser(listing.user) : undefined,
   skill: listing.skill ? toPublicSkill(listing.skill) : undefined,
 });
@@ -342,7 +345,12 @@ const slugify = (value) => {
 const getUserById = async (id) => {
   const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data ? toPublicUser(data) : null;
+  if (!data) return null;
+
+  const { data: badges } = await supabase.from('badges').select('type').eq('user_id', id);
+  data.badges = badges || [];
+
+  return toPublicUser(data);
 };
 
 const getUserByEmail = async (email) => {
@@ -523,9 +531,22 @@ const getPeerMatches = async (userId, limit = 5) => {
 
   if (othersError) throw othersError;
 
+  const othersIds = others.map(u => u.id);
+  const { data: othersBadges } = await supabase
+    .from('badges')
+    .select('user_id,type')
+    .in('user_id', othersIds);
+    
+  const badgeMap = {};
+  (othersBadges || []).forEach(b => {
+    if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
+    badgeMap[b.user_id].push({ type: b.type });
+  });
+
   const matches = [];
 
   for (const user of others) {
+    user.badges = badgeMap[user.id] || [];
     const userSkills = await getUserSkills(user.id);
     const userCanTeachIds = userSkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
     const userWantsToLearnIds = userSkills.filter(s => s.type === 'wants_to_learn').map(s => s.skillId);
@@ -575,12 +596,19 @@ const enrichListings = async (listings) => {
   const userIds = unique(listings.map((l) => l.user_id));
   const skillIds = unique(listings.map((l) => l.skill_id));
 
-  const [users, skills] = await Promise.all([
+  const [users, skills, badges] = await Promise.all([
     supabase.from('users').select('id,name,email,role,department,avg_rating,profile_image').in('id', userIds),
     supabase.from('skills').select('*').in('id', skillIds),
+    supabase.from('badges').select('user_id,type').in('user_id', userIds),
   ]);
 
-  const userMap = Object.fromEntries((users.data || []).map((u) => [u.id, u]));
+  const badgeMap = {};
+  (badges.data || []).forEach(b => {
+    if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
+    badgeMap[b.user_id].push({ type: b.type });
+  });
+
+  const userMap = Object.fromEntries((users.data || []).map((u) => [u.id, { ...u, badges: badgeMap[u.id] || [] }]));
   const skillMap = Object.fromEntries((skills.data || []).map((s) => [s.id, s]));
 
   return listings.map((l) => ({

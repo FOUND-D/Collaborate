@@ -106,6 +106,31 @@ const deleteSkill = asyncHandler(async (req, res) => {
   res.json({ message: 'Skill deleted' });
 });
 
+const endorseSkill = asyncHandler(async (req, res) => {
+  const { userId, skillId } = req.params;
+  const { type } = req.body;
+
+  const { data, error } = await supabase
+    .from('user_skills')
+    .update({ endorsed_by: req.user._id, endorsed_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('skill_id', skillId)
+    .eq('type', type || 'can_teach')
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  try {
+    const { awardBadgeIfEarned } = require('../services/badgeService');
+    await awardBadgeIfEarned(userId, 'subject_expert');
+  } catch (err) {
+    console.error('Error awarding badge:', err);
+  }
+
+  res.json({ message: 'Skill endorsed', data });
+});
+
 module.exports = {
   getSkills,
   createUserSkill,
@@ -113,4 +138,5 @@ module.exports = {
   getSkillsForUser,
   getSkillMatches,
   deleteSkill,
+  endorseSkill,
 };

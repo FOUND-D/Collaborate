@@ -7,6 +7,7 @@ import { listListings } from '../actions/listingActions';
 import { LISTING_CREATE_RESET } from '../constants/listingConstants';
 import { listSkillMatches, listSkills } from '../actions/skillActions';
 import ListingCreateModal from '../components/ListingCreateModal';
+import AchievementTags from '../components/AchievementTags';
 import './SkillExchange.css';
 
 const ExchangeBoardScreen = () => {
@@ -117,13 +118,14 @@ const ExchangeBoardScreen = () => {
                     <h3>{listing.skill?.name || 'Skill listing'}</h3>
                     <p>{listing.description || 'No additional details supplied for this exchange.'}</p>
                     <div className="phase2-card-meta">
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
                         <Link to={`/profile/${listing.user?._id}`} className="phase2-link">
                           {listing.user?.name || 'Anonymous'}
                         </Link>
                         {listing.user?.role === 'faculty' && (
                           <span className="faculty-badge-tiny">Faculty</span>
                         )}
+                        <AchievementTags badges={listing.posterBadges} size="sm" limit={2} />
                       </span>
                       <span>{listing.user?.department || 'Open department'}</span>
                       <span className="listing-rating-badge">

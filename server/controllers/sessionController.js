@@ -174,12 +174,18 @@ const completeSessionBooking = asyncHandler(async (req, res) => {
 
   const completedSession = await completeSession({ sessionId: req.params.id });
 
-  // Award badge if earned
+  // Award badges
   try {
-    const { awardBadgeIfEarned } = require('../services/badgeService');
+    const { awardBadgeIfEarned, recalculateTopTeachers } = require('../services/badgeService');
     if (session.teacher_id) {
       await awardBadgeIfEarned(session.teacher_id, 'session_complete');
+      await awardBadgeIfEarned(session.teacher_id, 'peer_mentor');
+      await awardBadgeIfEarned(session.teacher_id, 'rising_star');
     }
+    if (session.learner_id) {
+      await awardBadgeIfEarned(session.learner_id, 'rising_star');
+    }
+    await recalculateTopTeachers();
   } catch (err) {
     console.error('Error awarding badge:', err);
   }

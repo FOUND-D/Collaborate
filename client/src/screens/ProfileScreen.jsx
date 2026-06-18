@@ -30,6 +30,7 @@ import { listRatings } from '../actions/ratingActions';
 import api from '../utils/api';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import AchievementTags from '../components/AchievementTags';
 import { BACKEND_URL } from '../config/runtime';
 import './ProfileScreen.css';
 
@@ -312,6 +313,7 @@ const ProfileScreen = () => {
               <span className={`role-badge ${getRoleBadgeClass(profileUser.role)}`}>
                 {profileUser.role === 'faculty' ? '🎓 Faculty' : profileUser.role}
               </span>
+              <AchievementTags badges={profileUser.badges} size="md" />
               {profileUser.role === 'faculty' && (
                 <div className="faculty-verified-chip">
                   <FaCheckCircle style={{ color: 'var(--accent-primary)' }} />

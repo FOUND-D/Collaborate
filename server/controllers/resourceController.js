@@ -100,10 +100,10 @@ const createResource = asyncHandler(async (req, res) => {
 
   if (error) throw error;
 
-  // Award badge if earned (resource_sharer)
+  // Award badge if earned (resource_sharer, active_contributor)
   try {
     const { awardBadgeIfEarned } = require('../services/badgeService');
-    await awardBadgeIfEarned(req.user._id || req.user.id, 'resource_upload');
+    await awardBadgeIfEarned(req.user._id || req.user.id, 'active_contributor');
   } catch (err) {
     console.error('Error awarding badge:', err);
   }

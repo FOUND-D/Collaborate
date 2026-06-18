@@ -162,7 +162,6 @@ const getUserPublicProfile = asyncHandler(async (req, res) => {
 
   // Filter out private fields for other users
   const isOwnProfile = req.user._id === user._id;
-  
   const publicProfile = {
     _id: user._id,
     name: user.name,
@@ -178,6 +177,7 @@ const getUserPublicProfile = asyncHandler(async (req, res) => {
     portfolioUrl: user.portfolioUrl,
     showcasedProjectIds: user.showcasedProjectIds,
     bio: user.bio,
+    badges: user.badges,
     createdAt: user.createdAt,
   };
 

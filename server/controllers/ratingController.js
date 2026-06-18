@@ -35,6 +35,13 @@ const createSessionRating = asyncHandler(async (req, res) => {
     isFlagged: req.body.isFlagged || req.body.is_flagged,
   });
 
+  try {
+    const { awardBadgeIfEarned } = require('../services/badgeService');
+    await awardBadgeIfEarned(rateeId, 'highly_rated');
+  } catch (err) {
+    console.error('Error awarding badge:', err);
+  }
+
   res.status(201).json(rating);
 });
 

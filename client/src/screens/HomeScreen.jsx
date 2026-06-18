@@ -11,6 +11,7 @@ import { FaBuilding, FaPlus, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
 import NoticeBoardWidget from '../components/NoticeBoardWidget';
+import AchievementTags from '../components/AchievementTags';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -272,6 +273,7 @@ const HomeScreen = () => {
                 <div style={{ flex: 1, marginLeft: '12px' }}>
                   <h3 className="quick-card-title" style={{ margin: 0, fontSize: '1rem' }}>{match.user?.name}</h3>
                   <p className="quick-card-desc" style={{ margin: 0, fontSize: '0.85rem' }}>{match.user?.department || 'Open department'}</p>
+                  <AchievementTags badges={match.user?.badges} size="sm" limit={2} />
                 </div>
                 <div className="phase2-match-score" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
                   {Math.round(match.matchScore)}%
