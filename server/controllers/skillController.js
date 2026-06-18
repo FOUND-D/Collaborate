@@ -36,7 +36,7 @@ const createUserSkill = asyncHandler(async (req, res) => {
       // skill doesn't exist — create it
       const { data: newSkill, error: insertError } = await supabase
         .from('skills')
-        .insert({ name: name.trim(), category: 'General' })
+        .insert({ name: name.trim(), category: 'General', added_by: req.user.id })
         .select()
         .single();
       if (insertError) return res.status(400).json({ message: insertError.message });

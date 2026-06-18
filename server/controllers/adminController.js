@@ -248,26 +248,33 @@ const deleteFacultyFromWhitelist = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/skills
 // @access  Private/Admin
 const getAdminSkills = asyncHandler(async (req, res) => {
-  const { data, error } = await supabase.rpc('get_admin_top_skills_v2'); // Reuse same RPC for count
-  
-  if (error) {
-    // Fallback
-    const { data: skills } = await supabase.from('skills').select('*').order('name');
-    const { data: userSkills } = await supabase.from('user_skills').select('skill_id');
-    const counts = (userSkills || []).reduce((acc, curr) => {
-      acc[curr.skill_id] = (acc[curr.skill_id] || 0) + 1;
-      return acc;
-    }, {});
+  // Fetch skills with added_by user info
+  const { data: skills, error } = await supabase
+    .from('skills')
+    .select('*, added_by_user:users!added_by(id, name, email)')
+    .order('created_at', { ascending: false });
 
-    return res.json((skills || []).map(s => ({
-      id: s.id,
-      name: s.name,
-      category: s.category,
-      usage_count: counts[s.id] || 0
-    })));
-  }
+  if (error) throw error;
 
-  res.json(data);
+  // Fetch all user_skills to calculate usage_count
+  const { data: userSkills } = await supabase.from('user_skills').select('skill_id');
+  const counts = (userSkills || []).reduce((acc, curr) => {
+    acc[curr.skill_id] = (acc[curr.skill_id] || 0) + 1;
+    return acc;
+  }, {});
+
+  const result = (skills || []).map(s => ({
+    id: s.id,
+    name: s.name,
+    category: s.category,
+    added_by: s.added_by,
+    added_by_name: s.added_by_user?.name,
+    added_by_email: s.added_by_user?.email,
+    usage_count: counts[s.id] || 0,
+    created_at: s.created_at
+  }));
+
+  res.json(result);
 });
 
 // @desc    Delete skill

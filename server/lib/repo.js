@@ -14,6 +14,7 @@ const unique = (arr) => [...new Set(arr)];
 const toPublicCompactUser = (user) => {
   if (!user) return null;
   return {
+    id: user.id,
     _id: user.id,
     name: user.name,
     email: user.email,
@@ -30,6 +31,7 @@ const toPublicUser = (u) => {
   if (!u) return null;
   console.log(`[toPublicUser] Mapping user: ${u.id}`);
   return {
+    id: u.id,
     _id: u.id,
     name: u.name,
     email: u.email,
@@ -70,6 +72,7 @@ const toPublicOrganisation = (o) => {
   if (!o) return null;
   console.log(`[toPublicOrganisation] Mapping org: ${o.id}`);
   return {
+    id: o.id,
     _id: o.id,
     name: o.name,
     slug: o.slug,
@@ -86,6 +89,7 @@ const toPublicOrgRole = (role) => {
   if (!role) return null;
   console.log(`[toPublicOrgRole] Mapping role: ${role.id} (org: ${role.org_id})`);
   return {
+    id: role.id,
     _id: role.id,
     organisationId: role.org_id,
     name: role.name,
@@ -321,6 +325,19 @@ const toPublicMessage = (message) => {
 };
 
 const normalizeEmail = (email) => email ? email.trim().toLowerCase() : '';
+
+const slugify = (value) => {
+  if (!value) return '';
+  return value
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
 
 const getUserById = async (id) => {
   const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
@@ -922,7 +939,8 @@ const markMessagesRead = async ({ userId, messageIds }) => {
   return true;
 };
 
-const uniqueSlug = async (table, baseSlug) => {
+const uniqueSlug = async (table, baseValue) => {
+  const baseSlug = slugify(baseValue);
   let slug = baseSlug;
   let counter = 1;
   while (true) {
@@ -935,6 +953,7 @@ const uniqueSlug = async (table, baseSlug) => {
 module.exports = {
   supabase,
   crypto,
+  slugify,
   toPublicUser,
   toPublicCompactUser,
   toPublicOrganisation,

@@ -5,7 +5,7 @@ const createOrganisation = asyncHandler(async (req, res) => {
   const { name, description = '', logo = '' } = req.body;
   console.log(`[createOrganisation] Payload: name=${name}, owner_id=${req.user._id}`);
   
-  const slug = await uniqueSlug(name);
+  const slug = await uniqueSlug('organisations', name);
   console.log(`[createOrganisation] Generated unique slug: ${slug}`);
 
   const { data, error } = await supabase.from('organisations').insert({ name, slug, description, logo, owner_id: req.user._id }).select('*').single();

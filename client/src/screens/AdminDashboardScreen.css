@@ -595,6 +595,77 @@
 
 .target-pill svg { cursor: pointer; }
 
+.admin-filter-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-filter-pills button {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-filter-pills button:hover {
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
+}
+
+.admin-filter-pills button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.skill-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.skill-badge.green {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.skill-badge.amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-user-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-user-link:hover {
+  filter: brightness(1.2);
+}
+
+.status-pill.pending { background: rgba(255, 255, 255, 0.1); color: #888; }
+.status-pill.confirmed { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.status-pill.completed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.status-pill.cancelled { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
 @media (max-width: 1024px) {
   .overview-split { grid-template-columns: 1fr; }
 }

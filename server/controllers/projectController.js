@@ -138,7 +138,7 @@ const createProject = asyncHandler(async (req, res) => {
 
   const { data, error } = await supabase.from('projects').insert({
     name: req.body.name,
-    goal: req.body.goal,
+    goal: req.body.goal || '',
     due_date: req.body.dueDate || null,
     team_id: context.teamId,
     organisation_id: context.organisationId,

@@ -33,6 +33,7 @@ const AdminDashboardScreen = () => {
             <AdminTabBtn id="faculty" label="Faculty" icon={<FaUserShield />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="skills" label="Skills" icon={<FaCogs />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="listings" label="Listings" icon={<FaFilter />} active={activeTab} onClick={setActiveTab} />
+            <AdminTabBtn id="sessions" label="Sessions" icon={<FaHistory />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="announcements" label="Announcements" icon={<FaBullhorn />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="credits" label="Credits" icon={<FaCoins />} active={activeTab} onClick={setActiveTab} />
           </div>
@@ -45,6 +46,7 @@ const AdminDashboardScreen = () => {
         {activeTab === 'faculty' && <FacultyTab />}
         {activeTab === 'skills' && <SkillsTab />}
         {activeTab === 'listings' && <ListingsTab />}
+        {activeTab === 'sessions' && <SessionsTab />}
         {activeTab === 'announcements' && <AnnouncementsTab />}
         {activeTab === 'credits' && <CreditsTab />}
       </main>
@@ -279,7 +281,17 @@ const UsersTab = () => {
                 <tr key={user.id} className={user.suspended ? 'suspended-row' : ''}>
                   <td>
                     <div className="user-info-cell">
-                      <strong>{user.name} {user.suspended && <span className="suspended-badge">Suspended</span>}</strong>
+                      <strong>
+                        <a 
+                          href={`/profile/${user.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                        >
+                          {user.name}
+                        </a> 
+                        {user.suspended && <span className="suspended-badge">Suspended</span>}
+                      </strong>
                       <small>{user.email}</small>
                     </div>
                   </td>
@@ -300,7 +312,19 @@ const UsersTab = () => {
                   <td>{user.credits}</td>
                   <td>
                     <div className="action-btns">
-                      <button className="btn-icon" title="Grant Credits" onClick={() => setGrantModal({ userId: user.id, name: user.name })}>
+                      <a 
+                        href={`/profile/${user.id}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-icon" 
+                        title="View Profile"
+                      >
+                        <FaChartBar />
+                      </a>
+                      <button className="btn-icon" title="Message" onClick={() => window.open(`/chat?user=${user.id}`)}>
+                        <FaBullhorn />
+                      </button>
+                      <button className="btn-icon" title="Adjust Credits" onClick={() => setGrantModal({ userId: user.id, name: user.name })}>
                         <FaCoins />
                       </button>
                       <button 
@@ -476,6 +500,7 @@ const SkillsTab = () => {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({ name: '', category: '' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState('all');
 
   const fetchSkills = async () => {
     setLoading(true);
@@ -509,7 +534,40 @@ const SkillsTab = () => {
     } catch (err) { alert('Failed to update'); }
   };
 
-  const filteredSkills = skills.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const handleBlockUser = async (userId) => {
+    if (!window.confirm('Suspend this user?')) return;
+    try {
+      await api.patch(`/api/admin/users/${userId}/suspend`);
+      alert('User suspended');
+    } catch (err) { alert('Failed to suspend user'); }
+  };
+
+  const filteredSkills = useMemo(() => {
+    let result = skills.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    if (filter === 'recent') {
+      // Sort by created_at DESC
+      result = [...result].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    } else if (filter === 'most_used') {
+      result = [...result].sort((a, b) => b.usage_count - a.usage_count);
+    } else if (filter === 'unused') {
+      result = result.filter(s => s.usage_count === 0);
+    }
+    
+    return result;
+  }, [skills, searchTerm, filter]);
+
+  const getNewBadge = (createdAt) => {
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    const diffMs = now - createdDate;
+    const diffHrs = diffMs / (1000 * 60 * 60);
+    const diffDays = diffHrs / 24;
+
+    if (diffHrs <= 24) return <span className="skill-badge amber">Just Added</span>;
+    if (diffDays <= 7) return <span className="skill-badge green">New</span>;
+    return null;
+  };
 
   return (
     <div className="skills-tab fade-in">
@@ -523,6 +581,12 @@ const SkillsTab = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <div className="admin-filter-pills">
+          <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>All Skills</button>
+          <button className={filter === 'recent' ? 'active' : ''} onClick={() => setFilter('recent')}>Recently Added</button>
+          <button className={filter === 'most_used' ? 'active' : ''} onClick={() => setFilter('most_used')}>Most Used</button>
+          <button className={filter === 'unused' ? 'active' : ''} onClick={() => setFilter('unused')}>Unused</button>
+        </div>
       </div>
 
       {loading ? <Loader /> : (
@@ -532,7 +596,10 @@ const SkillsTab = () => {
               <tr>
                 <th>Skill Name</th>
                 <th>Category</th>
-                <th>Usage</th>
+                <th>Added By</th>
+                <th>Email</th>
+                <th>Usage Count</th>
+                <th>Added On</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -547,7 +614,11 @@ const SkillsTab = () => {
                         onChange={e => setEditData({...editData, name: e.target.value})}
                         className="compact-input"
                       />
-                    ) : skill.name}
+                    ) : (
+                      <div className="skill-name-cell">
+                        {skill.name} {getNewBadge(skill.created_at)}
+                      </div>
+                    )}
                   </td>
                   <td>
                     {editingId === skill.id ? (
@@ -559,7 +630,21 @@ const SkillsTab = () => {
                       />
                     ) : <span className="cat-tag">{skill.category || 'General'}</span>}
                   </td>
+                  <td>
+                    {skill.added_by ? (
+                      <a 
+                        href={`/profile/${skill.added_by}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="admin-user-link"
+                      >
+                        {skill.added_by_name || 'Unknown'}
+                      </a>
+                    ) : 'System'}
+                  </td>
+                  <td><small>{skill.added_by_email || '—'}</small></td>
                   <td>{skill.usage_count}</td>
+                  <td>{new Date(skill.created_at).toLocaleDateString()}</td>
                   <td>
                     <div className="action-btns">
                       {editingId === skill.id ? (
@@ -568,6 +653,16 @@ const SkillsTab = () => {
                         <button className="btn-icon" onClick={() => handleEdit(skill)}><FaEdit /></button>
                       )}
                       <button className="btn-icon delete" onClick={() => handleDelete(skill.id)}><FaTrash /></button>
+                      {skill.added_by && (
+                        <>
+                          <button className="btn-icon" title="Message User" onClick={() => window.open(`/chat?user=${skill.added_by}`)}>
+                            <FaBullhorn />
+                          </button>
+                          <button className="btn-icon suspend" title="Block User" onClick={() => handleBlockUser(skill.added_by)}>
+                            <FaUserSlash />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -643,7 +738,12 @@ const ListingsTab = () => {
                   <td>
                     <div className="user-info-cell">
                       <strong>
-                        <a href={`/profile/${l.user?._id || l.userId}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-primary)', textDecoration: 'none' }}>
+                        <a 
+                          href={`/profile/${l.user?._id || l.userId}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          style={{ color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                        >
                           {l.user?.name}
                         </a>
                       </strong>
@@ -665,6 +765,82 @@ const ListingsTab = () => {
                   <td>
                     <button className="btn-icon delete" onClick={() => handleDelete(l._id)}><FaTrash /></button>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SessionsTab = () => {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const fetchSessions = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/api/admin/sessions?status=${statusFilter}`);
+      setSessions(data.sessions || []);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchSessions(); }, [statusFilter]);
+
+  return (
+    <div className="sessions-tab fade-in">
+      <div className="table-controls">
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="admin-select">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      {loading ? <Loader /> : (
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Skill</th>
+                <th>Teacher</th>
+                <th>Learner</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.map(s => (
+                <tr key={s._id}>
+                  <td>{s.skillName}</td>
+                  <td>
+                    <a 
+                      href={`/profile/${s.teacher_id}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {s.teacherName}
+                    </a>
+                  </td>
+                  <td>
+                    <a 
+                      href={`/profile/${s.learner_id}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {s.learnerName}
+                    </a>
+                  </td>
+                  <td>{new Date(s.scheduled_at).toLocaleDateString()}</td>
+                  <td><span className={`status-pill ${s.status}`}>{s.status}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -716,7 +892,17 @@ const AnnouncementsTab = () => {
                 <h3>{a.title}</h3>
                 <p>{a.body?.substring(0, 120)}...</p>
                 <div className="ann-card-meta">
-                  <span>Posted by: {a.authorName}</span>
+                  <span>
+                    Posted by: {' '}
+                    <a 
+                      href={`/profile/${a.author_id}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {a.authorName}
+                    </a>
+                  </span>
                   <span>{new Date(a.created_at).toLocaleDateString()}</span>
                   <span className="rsvp-badge">{a.rsvpCount} RSVPs</span>
                 </div>
