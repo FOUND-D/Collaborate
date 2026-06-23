@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import './HomeScreen.css';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock, FaStar, FaRegStar } from 'react-icons/fa';
+import { FaProjectDiagram, FaUsers, FaMagic, FaArrowRight, FaClipboardList, FaCheckCircle, FaClock, FaStar, FaRegStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
@@ -10,7 +10,6 @@ import { listSkillMatches } from '../actions/skillActions';
 import { FaBuilding, FaPlus, FaSearch } from 'react-icons/fa';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
-import NoticeBoardWidget from '../components/NoticeBoardWidget';
 import AchievementTags from '../components/AchievementTags';
 
 const HomeScreen = () => {
@@ -18,6 +17,20 @@ const HomeScreen = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const hasTeam = useSelector(selectHasTeam);
+
+  const carouselRef = useRef(null);
+
+  const scrollPrev = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+
+  const scrollNext = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
 
   const projectList = useSelector((state) => state.projectList);
   const { projects } = projectList;
@@ -140,7 +153,7 @@ const HomeScreen = () => {
       <div className="dashboard-divider" />
 
       {/* New Progress Section Re-integrated */}
-      <div className="home-progress-section" style={{ marginBottom: '32px' }}>
+      <div className="home-progress-section" style={{ marginBottom: '16px' }}>
         <div className="section-header-row" style={{ marginBottom: '16px' }}>
             <div className="section-header-bar" />
             <div className="section-header-title">Your Progress</div>
@@ -216,6 +229,7 @@ const HomeScreen = () => {
         </div>
 
       </div>
+      <div className="dashboard-divider" />
 
       <div className="section-header-row">
         <div className="section-header-bar" />
@@ -251,50 +265,76 @@ const HomeScreen = () => {
           </Link>
         ))}
       </div>
+      <div className="dashboard-divider" />
 
-      <div className="section-header-row">
-        <div className="section-header-bar" />
-        <div className="section-header-title">Matched for you</div>
+      <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+          <div className="section-header-bar" />
+          <div className="section-header-title">Matched for you</div>
+        </div>
+        {matches.length > 0 && (
+          <div className="carousel-nav-buttons" style={{ display: 'flex', gap: '8px' }}>
+            <button className="carousel-nav-btn" onClick={scrollPrev} aria-label="Previous Matches">
+              <FaChevronLeft />
+            </button>
+            <button className="carousel-nav-btn" onClick={scrollNext} aria-label="Next Matches">
+              <FaChevronRight />
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="quick-actions-grid">
+      <div className="matches-carousel-container">
         {matches.length === 0 ? (
-          <div className="quick-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+          <div className="quick-card" style={{ width: '100%', textAlign: 'center' }}>
             <p className="quick-card-desc">Add skills to your profile to see peer recommendations</p>
             <Link to="/profile" className="quick-card-link blue" style={{ justifyContent: 'center' }}>
               Update Profile <FaArrowRight />
             </Link>
           </div>
         ) : (
-          matches.slice(0, 5).map((match) => (
-            <div key={match.user?._id} className="quick-card">
-              <div className="phase2-match-header" style={{ marginBottom: '12px' }}>
-                <div className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</div>
-                <div style={{ flex: 1, marginLeft: '12px' }}>
-                  <h3 className="quick-card-title" style={{ margin: 0, fontSize: '1rem' }}>{match.user?.name}</h3>
-                  <p className="quick-card-desc" style={{ margin: 0, fontSize: '0.85rem' }}>{match.user?.department || 'Open department'}</p>
-                  <AchievementTags badges={match.user?.badges} size="sm" limit={2} />
+          <div className="matches-carousel-deck" ref={carouselRef}>
+            {matches.slice(0, 10).map((match) => (
+              <div key={match.user?._id} className="premium-carousel-card">
+                <div className="carousel-card-header">
+                  <div className="carousel-card-avatar">
+                    {match.user?.name?.charAt(0)?.toUpperCase() || 'P'}
+                  </div>
+                  <div className="carousel-card-meta">
+                    <h3 className="carousel-card-name">{match.user?.name}</h3>
+                    <p className="carousel-card-dept">{match.user?.department || 'Open department'}</p>
+                    <AchievementTags badges={match.user?.badges} size="sm" limit={1} />
+                  </div>
+                  <div className="carousel-card-score-badge">
+                    <span className="score-val">{Math.round(match.matchScore)}%</span>
+                    <span className="score-lbl">Match</span>
+                  </div>
                 </div>
-                <div className="phase2-match-score" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
-                  {Math.round(match.matchScore)}%
-                </div>
+
+                {match.matchedSkills?.length > 0 && (
+                  <div className="carousel-card-skills">
+                    <span className="skills-lbl">Tears / Teaches:</span>
+                    <div className="skills-pills-row">
+                      {match.matchedSkills.slice(0, 2).map((ms) => (
+                        <span key={ms.skillId} className="premium-skill-pill">
+                          {ms.skillName}
+                        </span>
+                      ))}
+                      {match.matchedSkills.length > 2 && (
+                        <span className="premium-skill-pill more">+{match.matchedSkills.length - 2}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <Link to={`/profile/${match.user?._id}`} className="premium-card-action">
+                  View Profile <FaArrowRight />
+                </Link>
               </div>
-              <div className="phase2-match-skills" style={{ marginBottom: '16px' }}>
-                {match.matchedSkills?.slice(0, 3).map((ms) => (
-                  <span key={ms.skillId} className="phase2-pill subtle" style={{ fontSize: '0.7rem', padding: '4px 8px' }}>
-                    {ms.skillName}
-                  </span>
-                ))}
-              </div>
-              <Link to={`/profile/${match.user?._id}`} className="quick-card-link blue">
-                View Profile <FaArrowRight />
-              </Link>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
-
-      <NoticeBoardWidget />
     </div>
   );
 };

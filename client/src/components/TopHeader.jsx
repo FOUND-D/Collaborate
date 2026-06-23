@@ -15,9 +15,11 @@ import {
     FaBook,
     FaUsers,
     FaTimes,
-    FaSpinner
+    FaSpinner,
+    FaBullhorn
 } from 'react-icons/fa';
 import api from '../utils/api';
+import NoticeBoardWidget from './NoticeBoardWidget';
 import './TopHeader.css';
 
 const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
@@ -33,6 +35,27 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
     const [activeCategory, setActiveCategory] = useState('all');
     const [activeRole, setActiveRole] = useState('all');
     const searchRef = useRef(null);
+
+    // Notice states
+    const [showNoticeDropdown, setShowNoticeDropdown] = useState(false);
+    const noticeDropdownRef = useRef(null);
+    const noticeButtonRef = useRef(null);
+
+    // Handle click outside to close notice dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                noticeDropdownRef.current && 
+                !noticeDropdownRef.current.contains(event.target) &&
+                noticeButtonRef.current &&
+                !noticeButtonRef.current.contains(event.target)
+            ) {
+                setShowNoticeDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const getPageName = () => {
         const path = location.pathname;
@@ -422,6 +445,21 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                     <FaCoins className="credits-icon" />
                     <span>{credits !== undefined && credits !== null ? `${credits} Credits` : '-- Credits'}</span>
                 </div>
+
+                <button 
+                    ref={noticeButtonRef}
+                    className={`header-icon-btn ghost notice-btn ${showNoticeDropdown ? 'active' : ''}`}
+                    onClick={() => setShowNoticeDropdown(!showNoticeDropdown)}
+                    aria-label="Notice Board"
+                >
+                    <FaBullhorn />
+                </button>
+
+                {showNoticeDropdown && (
+                    <div className="header-notice-dropdown-overlay" ref={noticeDropdownRef}>
+                        <NoticeBoardWidget />
+                    </div>
+                )}
 
                 <button className="header-icon-btn ghost notification-btn" aria-label="Notifications">
                     <FaBell />

@@ -456,3 +456,39 @@
 .search-status-in_progress { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 .search-status-pending { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
 .search-status-at_risk { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+
+/* Notice Board Dropdown Overlay */
+.header-notice-dropdown-overlay {
+    position: absolute;
+    top: 52px;
+    right: 80px;
+    width: 420px;
+    max-height: 480px;
+    background: var(--surface-panel-bg);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    animation: slideDown 0.15s ease-out;
+}
+
+/* Make notice widget transparent and fit inside dropdown */
+.header-notice-dropdown-overlay .notice-board-widget {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+    .header-notice-dropdown-overlay {
+        right: 16px;
+        width: calc(100% - 32px);
+    }
+}
+
