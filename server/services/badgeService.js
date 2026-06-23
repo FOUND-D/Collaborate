@@ -91,9 +91,15 @@ const awardBadgeIfEarned = async (userId, trigger) => {
 
     const newlyAwarded = [];
     for (const type of typesToAward) {
-      if (!existingTypes.includes(type)) {
-        const { error: insertError } = await supabase.from('badges').insert({ user_id: userId, type });
-        if (!insertError) newlyAwarded.push(type);
+      const baseType = type.replace('_hidden', '');
+      const hasBadge = existingTypes.some(t => t.replace('_hidden', '') === baseType);
+
+      if (!hasBadge) {
+        const visibleCount = existingTypes.filter(t => !t.endsWith('_hidden')).length + newlyAwarded.filter(t => !t.endsWith('_hidden')).length;
+        const finalType = visibleCount >= 3 ? `${type}_hidden` : type;
+        
+        const { error: insertError } = await supabase.from('badges').insert({ user_id: userId, type: finalType });
+        if (!insertError) newlyAwarded.push(finalType);
       }
     }
 
@@ -131,16 +137,26 @@ const recalculateTopTeachers = async () => {
 
     // Delete top_teacher badges from those not in top 3
     if (sortedTeachers.length > 0) {
-      await supabase.from('badges').delete().eq('type', 'top_teacher').not('user_id', 'in', `(${sortedTeachers.join(',')})`);
+      await supabase.from('badges').delete().in('type', ['top_teacher', 'top_teacher_hidden']).not('user_id', 'in', `(${sortedTeachers.join(',')})`);
     } else {
-      await supabase.from('badges').delete().eq('type', 'top_teacher');
+      await supabase.from('badges').delete().in('type', ['top_teacher', 'top_teacher_hidden']);
     }
 
     // Award to top 3
     for (const teacherId of sortedTeachers) {
-      const { data: existing } = await supabase.from('badges').select('id').eq('user_id', teacherId).eq('type', 'top_teacher').maybeSingle();
+      const { data: existing } = await supabase
+        .from('badges')
+        .select('id, type')
+        .eq('user_id', teacherId)
+        .in('type', ['top_teacher', 'top_teacher_hidden'])
+        .maybeSingle();
+
       if (!existing) {
-        await supabase.from('badges').insert({ user_id: teacherId, type: 'top_teacher' });
+        const { data: userBadges } = await supabase.from('badges').select('type').eq('user_id', teacherId);
+        const visibleCount = (userBadges || []).filter(t => !t.type.endsWith('_hidden')).length;
+        const finalType = visibleCount >= 3 ? 'top_teacher_hidden' : 'top_teacher';
+        
+        await supabase.from('badges').insert({ user_id: teacherId, type: finalType });
       }
     }
   } catch (error) {

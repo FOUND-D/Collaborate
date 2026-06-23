@@ -18,7 +18,6 @@ import {
   FaPencilAlt,
   FaTimes,
   FaExternalLinkAlt,
-  FaAward,
   FaCheckCircle,
 } from 'react-icons/fa';
 import {
@@ -123,6 +122,7 @@ const ProfileScreen = () => {
 
     if (targetId) {
       setProfileUser(null); // Reset profile user while fetching new one
+      setBadges([]);
       fetchData();
       // Reset external data when user changes
       setGithubData(null);
@@ -132,6 +132,18 @@ const ProfileScreen = () => {
       setActiveTab('github');
     }
   }, [targetId, dispatch]);
+
+  const toggleBadgeVisibility = async (badgeId) => {
+    try {
+      const { data } = await api.put(`/api/badges/${badgeId}/visibility`);
+      setBadges(prev => prev.map(b => (b._id === badgeId || b.id === badgeId) ? { ...b, type: data.type } : b));
+      // Re-fetch profile user to update the visible badges count under name immediately
+      const { data: user } = await api.get(`/api/users/${targetId}`);
+      setProfileUser(user);
+    } catch (err) {
+      console.error('Failed to toggle badge visibility', err);
+    }
+  };
 
   const fetchGithub = async () => {
     let username = profileUser?.githubUsername;
@@ -313,7 +325,15 @@ const ProfileScreen = () => {
               <span className={`role-badge ${getRoleBadgeClass(profileUser.role)}`}>
                 {profileUser.role === 'faculty' ? '🎓 Faculty' : profileUser.role}
               </span>
-              <AchievementTags badges={profileUser.badges} size="md" />
+              <AchievementTags 
+                badges={profileUser.badges} 
+                size="md" 
+                limit={2} 
+                showViewMore={true} 
+                allBadges={badges} 
+                isOwn={isOwnProfile} 
+                onToggleBadge={toggleBadgeVisibility} 
+              />
               {profileUser.role === 'faculty' && (
                 <div className="faculty-verified-chip">
                   <FaCheckCircle style={{ color: 'var(--accent-primary)' }} />
@@ -404,18 +424,6 @@ const ProfileScreen = () => {
                   isOwn={isOwnProfile}
                   onAdd={() => setIsEditModalOpen(true)}
                 />
-              </div>
-
-              <div className="profile-badges-compact">
-                {badges.slice(0, 4).map(badge => (
-                  <div key={badge.id} className="badge-chip-small" title={badge.type}>
-                    <FaAward />
-                    <span>{badge.type.split('_')[0]}</span>
-                  </div>
-                ))}
-                {badges.length > 4 && (
-                  <div className="badge-chip-small">+{badges.length - 4} more</div>
-                )}
               </div>
 
               <div style={{ marginTop: 'auto', paddingTop: '16px', width: '100%' }}>

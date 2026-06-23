@@ -348,7 +348,7 @@ const getUserById = async (id) => {
   if (!data) return null;
 
   const { data: badges } = await supabase.from('badges').select('type').eq('user_id', id);
-  data.badges = badges || [];
+  data.badges = (badges || []).filter(b => b.type && !b.type.endsWith('_hidden'));
 
   return toPublicUser(data);
 };
@@ -539,8 +539,10 @@ const getPeerMatches = async (userId, limit = 5) => {
     
   const badgeMap = {};
   (othersBadges || []).forEach(b => {
-    if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
-    badgeMap[b.user_id].push({ type: b.type });
+    if (b.type && !b.type.endsWith('_hidden')) {
+      if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
+      badgeMap[b.user_id].push({ type: b.type });
+    }
   });
 
   const matches = [];
@@ -604,8 +606,10 @@ const enrichListings = async (listings) => {
 
   const badgeMap = {};
   (badges.data || []).forEach(b => {
-    if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
-    badgeMap[b.user_id].push({ type: b.type });
+    if (b.type && !b.type.endsWith('_hidden')) {
+      if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
+      badgeMap[b.user_id].push({ type: b.type });
+    }
   });
 
   const userMap = Object.fromEntries((users.data || []).map((u) => [u.id, { ...u, badges: badgeMap[u.id] || [] }]));
