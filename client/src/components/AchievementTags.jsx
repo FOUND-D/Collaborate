@@ -58,7 +58,7 @@ const AchievementTags = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // If no badges have been earned/awarded at all, render nothing
-  const earnedBadgesCount = isOwn ? allBadges.length : badges.length;
+  const earnedBadgesCount = allBadges.length;
   if (earnedBadgesCount === 0) return null;
 
   const normalizedBadges = badges.map(b => typeof b === 'string' ? b : b.type);
@@ -75,7 +75,7 @@ const AchievementTags = ({
   };
 
   // Determine badges to show in details list
-  const modalListBadges = isOwn ? allBadges : allBadges.filter(b => b.type && !b.type.endsWith('_hidden'));
+  const modalListBadges = allBadges;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: showViewMore ? 'flex-start' : 'center' }}>
@@ -313,7 +313,7 @@ const AchievementTags = ({
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
-                        opacity: isVisible ? 1 : 0.4,
+                        opacity: isOwn ? (isVisible ? 1 : 0.4) : 1,
                         transition: 'opacity 0.2s'
                       }}
                     >
@@ -321,7 +321,7 @@ const AchievementTags = ({
                     </div>
 
                     {/* Content */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', opacity: isVisible ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', opacity: isOwn ? (isVisible ? 1 : 0.5) : 1, transition: 'opacity 0.2s' }}>
                       <span style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>
                         {label}
                       </span>
