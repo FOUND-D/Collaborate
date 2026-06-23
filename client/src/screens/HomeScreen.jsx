@@ -286,8 +286,8 @@ const HomeScreen = () => {
                   </span>
                 ))}
               </div>
-              <Link to={`/exchange?skill_id=${match.matchedSkills?.[0]?.skillId || ''}`} className="quick-card-link blue">
-                View Matches <FaArrowRight />
+              <Link to={`/profile/${match.user?._id}`} className="quick-card-link blue">
+                View Profile <FaArrowRight />
               </Link>
             </div>
           ))
