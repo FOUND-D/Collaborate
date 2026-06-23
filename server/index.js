@@ -25,6 +25,7 @@ const badgeRoutes = require('./routes/badgeRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -259,6 +260,7 @@ app.use('/api/badges', badgeRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/search', searchRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,26 +1,42 @@
-# Global Search Bar & Achievements Modal Update Walkthrough
+# Walkthrough: Skills Architecture Simplification
 
-We updated the global search feature and expanded the achievements showcase:
-1. **Public View of All Earned Badges**:
-   - When users view *another* person's profile, they can now see the "View badge details" link.
-   - Clicking it opens a modal displaying **all** 12 of the user's earned badges (both visible/showcased and hidden ones) in full color/opacity.
-   - Checkboxes are hidden from public views so only the profile owner can select/toggle showcase badges.
-2. **Global Search Bar**:
-   - Added a global search input in the middle of `TopHeader.jsx` that matches query terms case-insensitively.
-   - Searching supports names or student IDs (roll numbers).
-   - Added quick-filters for search categories (`All`, `People`, `Projects`, `Tasks`, `Resources`, `Teams`).
-   - Added sub-filters for user results based on roles (`Student`, `Faculty`, `Admin`).
+We have successfully simplified the skills architecture by deprecating the reciprocal "wants to learn" concept, removing the dedicated Skill Profile screen, and implementing an inline skills editor directly inside the user's Profile page.
 
-## Changes Made
+## Changes Implemented
 
-### Frontend
+### 1. Database Cleanup
+- Executed a script to delete all legacy rows from the `user_skills` database table where `type = 'wants_to_learn'`.
 
-#### [MODIFY] [AchievementTags.jsx](file:///Users/bhavya_agarwal/Desktop/projects/Collaborate/client/src/components/AchievementTags.jsx)
-- Allowed non-owners to click "View badge details" even when no showcase badges are visible, provided they have earned at least 1 badge.
-- Enabled rendering of all badges in the modal details list for public views (`modalListBadges = allBadges`).
-- Set full rendering opacity (`opacity = 1`) on the icons and content cards in the modal when viewed by public visitors, keeping the checkmark toggles visible only for the profile owner.
+### 2. Backend Logic Overhaul
+- **`server/controllers/skillController.js`**:
+  - Restructured `createUserSkill` validation to only accept `type = 'can_teach'`, defaulting to it when type is not provided.
+- **`server/lib/repo.js`**:
+  - Rewrote the `getPeerMatches` algorithm using **Option 1: Department + Expertise recommendations**.
+  - Peers are now recommended and compatibility scores are calculated out of 100 based on:
+    - Same Department Match (40% vs 10% base for different departments).
+    - Average User Rating (up to 30%).
+    - Number of skills taught by the user (up to 30%).
 
-## Verification Results
+### 3. Frontend Routing & Link Cleanup
+- **[DELETE]** `client/src/screens/SkillProfileScreen.jsx`
+- **`client/src/App.jsx`**: Removed lazy import and route for `/skills`.
+- **`client/src/components/Sidebar.jsx`**: Removed the "Skill Profile" NavLink.
+- **`client/src/components/TopHeader.jsx`**: Removed the pathname title check for `/skills`.
+- **`client/src/components/ListingCreateModal.jsx`**: Updated the empty state link from `/skills` to `/profile`.
+- **`client/src/screens/HomeScreen.jsx`**: Updated empty state matching link from `/skills` to `/profile`.
 
-- Verified that the client code compiles successfully with `npm run build`.
-- Confirmed that the dev servers are running on localhost.
+### 4. Inline Skill Management in Profile Screen
+- **`client/src/screens/ProfileScreen.jsx`**:
+  - Imported the necessary skill actions (`listSkills`, `createUserSkill`, `deleteUserSkill`) and the `FaBrain` icon.
+  - Linked the shared autocomplete dropdown stylesheet `SkillExchange.css` to reuse custom dropdown styling.
+  - Refactored the Skills section to render a single, elegant **Skills & Expertise** panel showing all can teach skills, including their proficiency level and endorsement tick mark.
+  - When viewing own profile, a **Manage Skills** button enters edit mode inline.
+  - Inline editing features a search input using general skill taxonomy, keyboard controls (Up/Down/Enter/Escape), autocomplete suggestions, a proficiency level selector, and dynamic adding/removal of skills.
+
+## Verification
+
+### Build & Compilation Checks
+- Verified client compilation succeeds without errors:
+  ```bash
+  npm run build
+  ```

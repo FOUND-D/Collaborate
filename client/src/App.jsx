@@ -35,7 +35,6 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { fetchMembershipStatus, logout } from './actions/userActions'; // Import logout
 import { USER_LOGIN_SUCCESS } from './constants/userConstants'; // Import constant
 
-const SkillProfileScreen = lazy(() => import('./screens/SkillProfileScreen'));
 const ExchangeBoardScreen = lazy(() => import('./screens/ExchangeBoardScreen'));
 const ListingDetailScreen = lazy(() => import('./screens/ListingDetailScreen'));
 const SessionsScreen = lazy(() => import('./screens/SessionsScreen'));
@@ -226,7 +225,6 @@ const AppContent = () => {
                 <Route path="/exchange-board" element={<Navigate to="/exchange" replace />} />
                 <Route path="/sessions" element={<ProtectedRoute><SessionsScreen /></ProtectedRoute>} />
                 <Route path="/sessions/:id" element={<ProtectedRoute><SessionDetailScreen /></ProtectedRoute>} />
-                <Route path="/skills" element={<ProtectedRoute><SkillProfileScreen /></ProtectedRoute>} />
                 <Route path="/resources" element={<ProtectedRoute><ResourcesScreen /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardScreen /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboardScreen /></AdminRoute>} />

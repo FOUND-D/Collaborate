@@ -123,7 +123,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
                 <span>Skill</span>
                 {teachableSkills.length === 0 ? (
                   <div className="phase2-empty" style={{ padding: '12px', textAlign: 'left', borderRadius: '14px', background: 'var(--phase2-secondary-bg)' }}>
-                    Add skills to your <Link to="/skills" onClick={onClose} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Skill Profile</Link> first.
+                    Add skills to your <Link to="/profile" onClick={onClose} style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>Profile</Link> first.
                   </div>
                 ) : (
                   <div className="phase2-autocomplete-wrapper">

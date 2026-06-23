@@ -13,10 +13,10 @@ const getSkills = asyncHandler(async (req, res) => {
 });
 
 const createUserSkill = asyncHandler(async (req, res) => {
-  const { skillId, skill_id, name, type, level } = req.body;
+  const { skillId, skill_id, name, type = 'can_teach', level } = req.body;
 
-  if (!type || !['can_teach', 'wants_to_learn'].includes(type)) {
-    return res.status(400).json({ message: 'type must be can_teach or wants_to_learn' });
+  if (type !== 'can_teach') {
+    return res.status(400).json({ message: 'type must be can_teach' });
   }
 
   let finalSkillId = skillId || skill_id;

@@ -90,10 +90,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
             <FaVideo className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>My Sessions</span>
           </NavLink>
-          <NavLink to="/skills" className={getNavLinkClass} style={navItemStyle}>
-            <FaBrain className="nav-item-icon" />
-            <span className="nav-item-label" style={labelStyle}>Skill Profile</span>
-          </NavLink>
           <NavLink to="/resources" className={getNavLinkClass} style={navItemStyle}>
             <FaFolderOpen className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Resources</span>

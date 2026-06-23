@@ -19,11 +19,12 @@ import {
   FaTimes,
   FaExternalLinkAlt,
   FaCheckCircle,
+  FaBrain,
 } from 'react-icons/fa';
 import {
   updateUserProfile,
 } from '../actions/userActions';
-import { listUserSkills } from '../actions/skillActions';
+import { listUserSkills, listSkills, createUserSkill, deleteUserSkill } from '../actions/skillActions';
 import { listProjects } from '../actions/projectActions';
 import { listRatings } from '../actions/ratingActions';
 import api from '../utils/api';
@@ -32,6 +33,7 @@ import Message from '../components/Message';
 import AchievementTags from '../components/AchievementTags';
 import { BACKEND_URL } from '../config/runtime';
 import './ProfileScreen.css';
+import './SkillExchange.css';
 
 const ProfileScreen = () => {
   const ActivityCalendar = ActivityCalendarNS.ActivityCalendar;
@@ -46,8 +48,19 @@ const ProfileScreen = () => {
   const { success: updateSuccess, loading: updateLoading, error: updateError } = userUpdateProfile;
 
   const { skills: userSkills = [] } = useSelector((state) => state.userSkillList);
+  const { skills: taxonomy = [] } = useSelector((state) => state.skillList);
   const { projects = [] } = useSelector((state) => state.projectList);
   const { ratings = [] } = useSelector((state) => state.ratingList);
+
+  const [isEditingSkills, setIsEditingSkills] = useState(false);
+  const [skillDraft, setSkillDraft] = useState({
+    query: '',
+    level: 'intermediate',
+    selectedSkill: null,
+    showSuggestions: false,
+    activeIndex: -1,
+    inlineError: false
+  });
 
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -252,7 +265,85 @@ const ProfileScreen = () => {
   }, [githubRepos, pinnedRepos]);
 
   const canTeachSkills = userSkills.filter(s => s.type === 'can_teach');
-  const wantsToLearnSkills = userSkills.filter(s => s.type === 'wants_to_learn');
+
+  const filteredSuggestions = useMemo(() => {
+    const q = skillDraft.query.trim().toLowerCase();
+    if (q.length < 1) return [];
+    return taxonomy
+      .filter((skill) => skill.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8);
+  }, [taxonomy, skillDraft.query]);
+
+  const handleSelectSkill = (skill) => {
+    setSkillDraft(prev => ({
+      ...prev,
+      query: '',
+      selectedSkill: skill,
+      showSuggestions: false,
+      activeIndex: -1
+    }));
+  };
+
+  const handleKeyDown = (e) => {
+    const suggestions = filteredSuggestions;
+    const q = skillDraft.query.trim();
+    const hasMatches = suggestions.length > 0;
+    const canAddNew = q.length > 0 && !hasMatches;
+    const maxIndex = hasMatches ? suggestions.length - 1 : (canAddNew ? 0 : -1);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSkillDraft(prev => ({
+        ...prev,
+        activeIndex: maxIndex >= 0 ? (prev.activeIndex + 1) % (maxIndex + 1) : -1
+      }));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSkillDraft(prev => ({
+        ...prev,
+        activeIndex: maxIndex >= 0 ? (prev.activeIndex - 1 + (maxIndex + 1)) % (maxIndex + 1) : -1
+      }));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (hasMatches && skillDraft.activeIndex >= 0 && suggestions[skillDraft.activeIndex]) {
+        handleSelectSkill(suggestions[skillDraft.activeIndex]);
+      } else if (canAddNew && skillDraft.activeIndex === 0) {
+        handleSelectSkill({ id: null, name: q });
+      }
+    } else if (e.key === 'Escape') {
+      setSkillDraft(prev => ({ ...prev, showSuggestions: false, activeIndex: -1 }));
+    }
+  };
+
+  const handleAddSkill = async () => {
+    if (!skillDraft.selectedSkill) return;
+
+    // Check if user already has this skill
+    const alreadyHas = userSkills.some(s => s.skillId === skillDraft.selectedSkill.id || (s.skill?.name?.toLowerCase() === skillDraft.selectedSkill.name?.toLowerCase() && s.type === 'can_teach'));
+    if (alreadyHas) {
+      setSkillDraft(prev => ({ ...prev, inlineError: true }));
+      setTimeout(() => setSkillDraft(prev => ({ ...prev, inlineError: false })), 2000);
+      return;
+    }
+
+    const payload = skillDraft.selectedSkill.id
+      ? { skillId: skillDraft.selectedSkill.id, type: 'can_teach', level: skillDraft.level }
+      : { name: skillDraft.selectedSkill.name, type: 'can_teach', level: skillDraft.level };
+
+    const created = await dispatch(createUserSkill(payload));
+    if (created) {
+      dispatch(listSkills());
+      setSkillDraft({
+        query: '',
+        level: 'intermediate',
+        selectedSkill: null,
+        showSuggestions: false,
+        activeIndex: -1,
+        inlineError: false
+      });
+    }
+  };
 
   const showcasedProjects = useMemo(() => {
     if (!profileUser?.showcasedProjectIds) return [];
@@ -450,30 +541,165 @@ const ProfileScreen = () => {
             
             {/* Skills */}
             <section className="profile-section phase2-glass phase2-panel">
-              <div className="section-header">
-                <h2 className="section-title"><FaChartLine /> Skills</h2>
-                {isOwnProfile && <Link to="/skills" className="phase2-button phase2-button-secondary">Manage Skills</Link>}
+              <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title"><FaBrain style={{ marginRight: '8px', color: 'var(--color-primary)' }} /> Skills &amp; Expertise</h2>
+                {isOwnProfile && (
+                  isEditingSkills ? (
+                    <button 
+                      onClick={() => setIsEditingSkills(false)} 
+                      className="phase2-button phase2-button-secondary"
+                      style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem' }}
+                    >
+                      Done
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        setIsEditingSkills(true);
+                        dispatch(listSkills());
+                      }} 
+                      className="phase2-button phase2-button-secondary"
+                      style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem' }}
+                    >
+                      <FaEdit style={{ marginRight: '6px' }} /> Manage Skills
+                    </button>
+                  )
+                )}
               </div>
-              <div className="skills-container">
+
+              {isEditingSkills ? (
                 <div>
-                  <div className="skill-group-label">Can Teach</div>
-                  <div className="skill-chips">
-                    {canTeachSkills.length > 0 ? canTeachSkills.slice(0, 6).map(s => (
-                      <span key={s.skillId} className="skill-tech-pill">{s.skill?.name}</span>
-                    )) : <span className="skill-placeholder-pill">No skills listed</span>}
-                    {canTeachSkills.length > 6 && <span className="skill-placeholder-pill">+{canTeachSkills.length - 6} more</span>}
+                  {/* Autocomplete & Add section */}
+                  <div className="phase2-skill-entry" style={{ margin: '16px 0 24px 0', gridTemplateColumns: 'minmax(0, 1.5fr) 180px 100px' }}>
+                    <div className="phase2-autocomplete-wrapper" style={{ position: 'relative' }}>
+                      <input
+                        value={skillDraft.query}
+                        onChange={(e) => setSkillDraft(prev => ({
+                          ...prev,
+                          query: e.target.value,
+                          showSuggestions: true,
+                          activeIndex: -1
+                        }))}
+                        onFocus={() => setSkillDraft(prev => ({ ...prev, showSuggestions: true }))}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type to search skills..."
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-overlay)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+                      />
+                      {skillDraft.showSuggestions && (
+                        <div className="phase2-autocomplete-dropdown" style={{ width: '100%', position: 'absolute', top: '100%', left: 0, zIndex: 10 }}>
+                          {filteredSuggestions.map((skill, sIdx) => (
+                            <button
+                              key={skill.id}
+                              type="button"
+                              className={`phase2-autocomplete-item ${skillDraft.activeIndex === sIdx ? 'active' : ''}`}
+                              onClick={() => handleSelectSkill(skill)}
+                            >
+                              <span>{skill.name}</span>
+                              <small>{skill.category || 'General'}</small>
+                            </button>
+                          ))}
+                          {skillDraft.query.trim().length > 0 && filteredSuggestions.length === 0 && (
+                            <button
+                              type="button"
+                              className={`phase2-autocomplete-item ${skillDraft.activeIndex === 0 ? 'active' : ''}`}
+                              style={{ borderStyle: 'dashed', color: '#2dd4bf', fontStyle: 'italic' }}
+                              onClick={() => handleSelectSkill({ id: null, name: skillDraft.query.trim() })}
+                            >
+                              + Add "{skillDraft.query.trim()}" as new skill
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {skillDraft.selectedSkill && (
+                        <div className="phase2-selected-skill-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '8px', background: 'var(--color-primary)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem' }}>
+                          {skillDraft.selectedSkill.name}
+                          <button type="button" onClick={() => setSkillDraft(prev => ({ ...prev, selectedSkill: null }))} style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <FaTimes />
+                          </button>
+                        </div>
+                      )}
+                      {skillDraft.inlineError && (
+                        <div className="phase2-inline-error" style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>Already in your profile</div>
+                      )}
+                    </div>
+
+                    <select
+                      value={skillDraft.level}
+                      onChange={(e) => setSkillDraft(prev => ({ ...prev, level: e.target.value }))}
+                      style={{ padding: '10px', borderRadius: '10px', background: 'var(--bg-overlay)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+
+                    <button 
+                      type="button" 
+                      className="phase2-button phase2-button-primary" 
+                      onClick={handleAddSkill}
+                      disabled={!skillDraft.selectedSkill}
+                      style={{ opacity: skillDraft.selectedSkill ? 1 : 0.5, padding: '10px 14px', borderRadius: '10px', height: '42px', fontSize: '0.85rem' }}
+                    >
+                      <FaPlus style={{ marginRight: '4px' }} /> Add
+                    </button>
+                  </div>
+
+                  {/* Skills listed with removal actions */}
+                  <div className="phase2-skill-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {canTeachSkills.length === 0 ? (
+                      <div className="phase2-empty">No skills added yet.</div>
+                    ) : (
+                      canTeachSkills.map((item) => (
+                        <div
+                          key={item.skillId}
+                          className="phase2-skill-chip"
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-overlay)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '10px 14px' }}
+                        >
+                          <div>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{item.skill?.name || 'Untitled skill'}</strong>
+                            <div className="phase2-chip-meta" style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                              <span style={{ textTransform: 'capitalize' }}>{item.level || 'intermediate'}</span>
+                              {item.endorsedBy && (
+                                <span className="phase2-endorsement-pill" style={{ color: 'var(--accent-primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                  <FaCheckCircle /> Faculty endorsed
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="phase2-chip-remove"
+                            onClick={() => dispatch(deleteUserSkill(item.skillId, 'can_teach'))}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
-                <div>
-                  <div className="skill-group-label">Wants to Learn</div>
-                  <div className="skill-chips">
-                    {wantsToLearnSkills.length > 0 ? wantsToLearnSkills.slice(0, 6).map(s => (
-                      <span key={s.skillId} className="skill-tech-pill">{s.skill?.name}</span>
-                    )) : <span className="skill-placeholder-pill">No skills listed</span>}
-                    {wantsToLearnSkills.length > 6 && <span className="skill-placeholder-pill">+{wantsToLearnSkills.length - 6} more</span>}
+              ) : (
+                <div className="skills-container-single" style={{ marginTop: '16px' }}>
+                  <div className="skill-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {canTeachSkills.length > 0 ? canTeachSkills.map(s => (
+                      <span 
+                        key={s.skillId} 
+                        className="skill-tech-pill" 
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', background: 'var(--bg-overlay)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+                      >
+                        {s.skill?.name}
+                        <span style={{ fontSize: '0.68rem', opacity: 0.6, textTransform: 'capitalize' }}>
+                          ({s.level || 'intermediate'})
+                        </span>
+                        {s.endorsedBy && (
+                          <FaCheckCircle style={{ color: 'var(--accent-primary)', fontSize: '0.75rem' }} title="Faculty Endorsed" />
+                        )}
+                      </span>
+                    )) : <span className="skill-placeholder-pill" style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: '8px', border: '1px dashed var(--border-subtle)', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>No skills listed</span>}
                   </div>
                 </div>
-              </div>
+              )}
             </section>
 
             {/* Tabbed Section */}

@@ -261,7 +261,7 @@ const HomeScreen = () => {
         {matches.length === 0 ? (
           <div className="quick-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
             <p className="quick-card-desc">Add skills to your profile to see peer recommendations</p>
-            <Link to="/skills" className="quick-card-link blue" style={{ justifyContent: 'center' }}>
+            <Link to="/profile" className="quick-card-link blue" style={{ justifyContent: 'center' }}>
               Update Profile <FaArrowRight />
             </Link>
           </div>

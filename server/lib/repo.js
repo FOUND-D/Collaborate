@@ -517,25 +517,44 @@ const getPeerMatches = async (userId, limit = 5) => {
 
   if (meError) throw meError;
 
-  const mySkills = await getUserSkills(userId);
-  const wantsToLearnIds = mySkills.filter(s => s.type === 'wants_to_learn').map(s => s.skillId);
-  const canTeachIds = mySkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
+  // Find all other users who have at least one 'can_teach' skill
+  const { data: userSkillsData, error: skillsError } = await supabase
+    .from('user_skills')
+    .select('user_id, skill_id, level, skills(id, name, category)')
+    .eq('type', 'can_teach')
+    .neq('user_id', userId);
 
-  if (!wantsToLearnIds.length && !canTeachIds.length) return [];
+  if (skillsError) throw skillsError;
 
+  if (!userSkillsData || userSkillsData.length === 0) return [];
+
+  // Group skill info by user_id
+  const userSkillsMap = {};
+  userSkillsData.forEach(us => {
+    if (!userSkillsMap[us.user_id]) userSkillsMap[us.user_id] = [];
+    userSkillsMap[us.user_id].push({
+      skillId: us.skill_id,
+      skillName: us.skills?.name || 'Unknown Skill',
+      category: us.skills?.category || 'General',
+      level: us.level
+    });
+  });
+
+  const uniqueUserIds = Object.keys(userSkillsMap);
+
+  // Fetch user profiles for these users
   const { data: others, error: othersError } = await supabase
     .from('users')
     .select('id,name,email,role,department,avg_rating,profile_image')
-    .neq('id', userId)
-    .limit(50);
+    .in('id', uniqueUserIds);
 
   if (othersError) throw othersError;
 
-  const othersIds = others.map(u => u.id);
+  // Fetch badges for these users
   const { data: othersBadges } = await supabase
     .from('badges')
     .select('user_id,type')
-    .in('user_id', othersIds);
+    .in('user_id', uniqueUserIds);
     
   const badgeMap = {};
   (othersBadges || []).forEach(b => {
@@ -549,34 +568,31 @@ const getPeerMatches = async (userId, limit = 5) => {
 
   for (const user of others) {
     user.badges = badgeMap[user.id] || [];
-    const userSkills = await getUserSkills(user.id);
-    const userCanTeachIds = userSkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
-    const userWantsToLearnIds = userSkills.filter(s => s.type === 'wants_to_learn').map(s => s.skillId);
+    const skills = userSkillsMap[user.id] || [];
 
-    const matchedSkills = userCanTeachIds.filter(id => wantsToLearnIds.includes(id));
-    const reciprocalSkills = userWantsToLearnIds.filter(id => canTeachIds.includes(id));
+    // Calculate score:
+    // - Department match: base 40% (vs 10% for different department)
+    // - User rating: (avg_rating / 5) * 30%
+    // - Skills count: min(skills.length * 10, 30)%
+    let deptScore = (user.department && me.department && user.department.toLowerCase() === me.department.toLowerCase()) ? 40 : 10;
+    let ratingScore = ((user.avg_rating || 4.0) / 5) * 30;
+    let skillCountScore = Math.min(skills.length * 10, 30);
+    const matchScore = deptScore + ratingScore + skillCountScore;
 
-    if (matchedSkills.length > 0) {
-      let score = matchedSkills.length * 10;
-      score += reciprocalSkills.length * 5;
-      if (user.department === me.department) score += 2;
-      score += (user.avg_rating || 0);
-
-      matches.push({
-        user,
-        score,
-        matchedSkills: matchedSkills.map(id => ({ skillId: id, skillName: userSkills.find(s => s.skillId === id)?.skill?.name })),
-        reciprocalSkills: reciprocalSkills.map(id => ({ skillId: id, skillName: userSkills.find(s => s.skillId === id)?.skill?.name })),
-      });
-    }
+    matches.push({
+      user,
+      matchScore,
+      matchedSkills: skills,
+      reciprocalSkills: []
+    });
   }
 
   return matches
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, limit)
     .map(entry => ({
       user: toPublicCompactUser(entry.user),
-      matchScore: Number(entry.score.toFixed(2)),
+      matchScore: Number(entry.matchScore.toFixed(0)),
       matchedSkills: entry.matchedSkills,
       reciprocalSkills: entry.reciprocalSkills,
     }));
