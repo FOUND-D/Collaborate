@@ -517,6 +517,10 @@ const getPeerMatches = async (userId, limit = 5) => {
 
   if (meError) throw meError;
 
+  // Get my own 'can_teach' skill IDs
+  const mySkills = await getUserSkills(userId);
+  const myCanTeachIds = mySkills.filter(s => s.type === 'can_teach').map(s => s.skillId);
+
   // Find all other users who have at least one 'can_teach' skill
   const { data: userSkillsData, error: skillsError } = await supabase
     .from('user_skills')
@@ -570,19 +574,32 @@ const getPeerMatches = async (userId, limit = 5) => {
     user.badges = badgeMap[user.id] || [];
     const skills = userSkillsMap[user.id] || [];
 
-    // Calculate score:
-    // - Department match: base 40% (vs 10% for different department)
-    // - User rating: (avg_rating / 5) * 30%
-    // - Skills count: min(skills.length * 10, 30)%
-    let deptScore = (user.department && me.department && user.department.toLowerCase() === me.department.toLowerCase()) ? 40 : 10;
-    let ratingScore = ((user.avg_rating || 4.0) / 5) * 30;
-    let skillCountScore = Math.min(skills.length * 10, 30);
-    const matchScore = deptScore + ratingScore + skillCountScore;
+    // Find overlapping/shared skills
+    const sharedSkills = skills.filter(s => myCanTeachIds.includes(s.skillId));
+
+    let matchScore = 0;
+    let matchedSkillsList = [];
+
+    if (sharedSkills.length > 0) {
+      // If we share skills, compute a score out of 100 heavily weighted on shared skills
+      let sharedScore = Math.min(sharedSkills.length * 25, 50); // up to 50%
+      let deptScore = (user.department && me.department && user.department.toLowerCase() === me.department.toLowerCase()) ? 25 : 10; // up to 25%
+      let ratingScore = ((user.avg_rating || 4.0) / 5) * 25; // up to 25%
+      matchScore = sharedScore + deptScore + ratingScore;
+      matchedSkillsList = sharedSkills;
+    } else {
+      // If no shared skills, recommend based on department & overall expertise count
+      let deptScore = (user.department && me.department && user.department.toLowerCase() === me.department.toLowerCase()) ? 40 : 15; // up to 40%
+      let ratingScore = ((user.avg_rating || 4.0) / 5) * 30; // up to 30%
+      let skillCountScore = Math.min(skills.length * 10, 30); // up to 30%
+      matchScore = deptScore + ratingScore + skillCountScore;
+      matchedSkillsList = skills; // Show what they can teach
+    }
 
     matches.push({
       user,
       matchScore,
-      matchedSkills: skills,
+      matchedSkills: matchedSkillsList,
       reciprocalSkills: []
     });
   }
