@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FaCalendar, FaClock, FaVideo, FaGraduationCap, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { io } from 'socket.io-client';
+import { createSocketConnection } from '../utils/socket';
 import { RATING_CREATE_RESET } from '../constants/ratingConstants';
 import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { listSessions } from '../actions/sessionActions';
@@ -12,8 +12,6 @@ import RatingPromptModal from '../components/RatingPromptModal';
 import BookSessionModal from '../components/BookSessionModal';
 import api from '../utils/api';
 import './SkillExchange.css';
-
-const SOCKET_URL = window.location.hostname === 'localhost' ? 'http://localhost:3002' : '/';
 
 const SessionsScreen = () => {
   const dispatch = useDispatch();
@@ -32,7 +30,7 @@ const SessionsScreen = () => {
 
   useEffect(() => {
     if (!userInfo?._id) return;
-    const socket = io(SOCKET_URL);
+    const socket = createSocketConnection();
     socket.emit('userJoined', { teamId: 'global', user: userInfo });
     
     socket.on('sessionCreated', () => {
