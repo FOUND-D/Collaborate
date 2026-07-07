@@ -83,6 +83,7 @@ import {
   announcementListReducer,
   announcementCreateReducer,
 } from './reducers/announcementReducers';
+import { notificationListReducer } from './reducers/notificationReducers';
 
 // 3. Define the Persist Configuration
 const persistConfig = {
@@ -148,6 +149,7 @@ const rootReducer = combineReducers({
   resourceCreate: resourceCreateReducer,
   announcementList: announcementListReducer,
   announcementCreate: announcementCreateReducer,
+  notifications: notificationListReducer,
 });
 
 // 4. Wrap your root reducer with the persist function
