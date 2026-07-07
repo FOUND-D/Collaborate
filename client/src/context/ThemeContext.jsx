@@ -1,51 +1,32 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 const STORAGE_KEY = 'collaborate-theme';
-const VALID_THEMES = new Set(['light', 'dark']);
-
-const getInitialTheme = () => {
-  if (typeof window === 'undefined') {
-    return 'light';
-  }
-
-  const storedTheme = window.localStorage.getItem(STORAGE_KEY);
-  return VALID_THEMES.has(storedTheme) ? storedTheme : 'light';
-};
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(getInitialTheme);
-
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
 
-    html.dataset.theme = theme;
-    html.classList.toggle('light-theme', theme === 'light');
-    html.classList.toggle('dark-theme', theme === 'dark');
-    body.classList.toggle('light-theme', theme === 'light');
-    body.classList.toggle('dark-theme', theme === 'dark');
-    window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    html.dataset.theme = 'light';
+    html.classList.remove('dark-theme');
+    html.classList.add('light-theme');
+    body.classList.remove('dark-theme');
+    body.classList.add('light-theme');
+    window.localStorage.setItem(STORAGE_KEY, 'light');
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'));
-  };
-
-  const setSpecificTheme = (nextTheme) => {
-    if (VALID_THEMES.has(nextTheme)) {
-      setTheme(nextTheme);
-    }
-  };
+  const toggleTheme = () => {};
+  const setTheme = () => {};
 
   return (
     <ThemeContext.Provider
       value={{
-        theme,
+        theme: 'light',
         toggleTheme,
-        setTheme: setSpecificTheme,
-        isDark: theme === 'dark',
-        isLight: theme === 'light',
+        setTheme,
+        isDark: false,
+        isLight: true,
       }}
     >
       {children}
@@ -53,7 +34,6 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
@@ -63,3 +43,4 @@ export const useTheme = () => {
 };
 
 export default ThemeContext;
+
