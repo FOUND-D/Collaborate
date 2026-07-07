@@ -26,6 +26,7 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -51,6 +52,28 @@ const groq = new Groq({
 
 const participants = {};
 const socketToTeamMap = {};
+
+const jwt = require('jsonwebtoken');
+const { getUserById, supabase } = require('./lib/repo');
+
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+    if (token) {
+      if (process.env.JWT_SECRET) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await getUserById(decoded.id);
+        if (user) {
+          socket.user = user;
+        }
+      }
+    }
+    next();
+  } catch (err) {
+    console.error('Socket authentication warning:', err.message);
+    next();
+  }
+});
 
 io.on('connection', (socket) => {
   console.log('a user connected');
@@ -210,9 +233,46 @@ io.on('connection', (socket) => {
     io.emit('chat message', msg);
   });
 
-  socket.on('joinConversation', (conversationId) => {
-    socket.join(`conversation:${conversationId}`);
-    console.log(`User joined conversation: ${conversationId}`);
+  socket.on('joinConversation', async (conversationId) => {
+    if (!socket.user) {
+      console.warn(`Unauthenticated socket tried to join conversation: ${conversationId}`);
+      return;
+    }
+    try {
+      const senderId = socket.user.id || socket.user._id;
+      // Check direct conversation membership
+      const { data: conversation } = await supabase
+        .from('conversations')
+        .select('participant_a, participant_b')
+        .eq('id', conversationId)
+        .maybeSingle();
+
+      if (conversation) {
+        if (conversation.participant_a === senderId || conversation.participant_b === senderId) {
+          socket.join(`conversation:${conversationId}`);
+          console.log(`User ${senderId} securely joined conversation: ${conversationId}`);
+        } else {
+          console.warn(`Unauthorized join attempt to conversation ${conversationId} by user ${senderId}`);
+        }
+      } else {
+        // Check team membership (if conversationId is a team_id)
+        const { data: teamMember } = await supabase
+          .from('team_members')
+          .select('team_id')
+          .eq('team_id', conversationId)
+          .eq('user_id', senderId)
+          .maybeSingle();
+
+        if (teamMember) {
+          socket.join(`conversation:${conversationId}`);
+          console.log(`User ${senderId} securely joined team chat: ${conversationId}`);
+        } else {
+          console.warn(`Unauthorized join attempt to room ${conversationId} by user ${senderId}`);
+        }
+      }
+    } catch (err) {
+      console.error('Secure joinConversation error:', err.message);
+    }
   });
 
   socket.on('leaveConversation', (conversationId) => {
@@ -225,6 +285,38 @@ io.on('connection', (socket) => {
     if (conversationId) {
       socket.to(`conversation:${conversationId}`).emit('newMessage', message);
     }
+  });
+
+  socket.on('joinNotificationRoom', (userId) => {
+    if (!socket.user) {
+      console.warn(`Unauthenticated socket tried to join notification room: ${userId}`);
+      return;
+    }
+    const currentUserId = socket.user.id || socket.user._id;
+    if (String(currentUserId) === String(userId)) {
+      socket.join(`notifications:${userId}`);
+      console.log(`User securely joined personal notification room: ${userId}`);
+    } else {
+      console.warn(`Unauthorized join attempt to notifications:${userId} by user ${currentUserId}`);
+    }
+  });
+
+  // Typing Indicators
+  socket.on('typing', ({ conversationId }) => {
+    if (!socket.user) return;
+    socket.to(`conversation:${conversationId}`).emit('typing', {
+      conversationId,
+      userId: socket.user.id || socket.user._id,
+      name: socket.user.name,
+    });
+  });
+
+  socket.on('stopTyping', ({ conversationId }) => {
+    if (!socket.user) return;
+    socket.to(`conversation:${conversationId}`).emit('stopTyping', {
+      conversationId,
+      userId: socket.user.id || socket.user._id,
+    });
   });
 });
 
@@ -261,6 +353,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
