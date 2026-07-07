@@ -143,6 +143,32 @@ create table if not exists public.meetings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users(id) on delete cascade,
+  title text not null,
+  message text not null,
+  type text not null,
+  data jsonb not null default '{}'::jsonb,
+  is_read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.user_conversation_settings (
+  user_id uuid not null references public.users(id) on delete cascade,
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  is_starred boolean not null default false,
+  is_archived boolean not null default false,
+  is_muted boolean not null default false,
+  is_blocked boolean not null default false,
+  primary key (user_id, conversation_id)
+);
+
+create index if not exists idx_user_conversation_settings_user_id on public.user_conversation_settings(user_id);
+
+create index if not exists idx_notifications_user_id on public.notifications(user_id);
+create index if not exists idx_notifications_is_read on public.notifications(is_read) where is_read = false;
+
 create index if not exists idx_projects_owner_id on public.projects(owner_id);
 create index if not exists idx_projects_team_id on public.projects(team_id);
 create index if not exists idx_tasks_project_id on public.tasks(project_id);

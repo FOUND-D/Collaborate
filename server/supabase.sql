@@ -232,3 +232,26 @@ CREATE TABLE public.users (
   custom_fields jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  title text NOT NULL,
+  message text NOT NULL,
+  type text NOT NULL,
+  data jsonb NOT NULL DEFAULT '{}'::jsonb,
+  is_read boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.user_conversation_settings (
+  user_id uuid NOT NULL,
+  conversation_id uuid NOT NULL,
+  is_starred boolean NOT NULL DEFAULT false,
+  is_archived boolean NOT NULL DEFAULT false,
+  is_muted boolean NOT NULL DEFAULT false,
+  is_blocked boolean NOT NULL DEFAULT false,
+  CONSTRAINT user_conversation_settings_pkey PRIMARY KEY (user_id, conversation_id),
+  CONSTRAINT user_conversation_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT user_conversation_settings_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.conversations(id) ON DELETE CASCADE
+);
