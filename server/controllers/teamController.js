@@ -124,6 +124,21 @@ const addMember = asyncHandler(async (req, res) => {
   if (insertError) throw insertError;
 
   await supabase.from('team_join_requests').delete().eq('team_id', team.id).eq('user_id', userId);
+
+  // Trigger Notification to Added Member
+  try {
+    const { sendNotification } = require('../services/notificationService');
+    sendNotification(req.io, {
+      userId: userId,
+      title: 'Added to Team',
+      message: `You have been added to the team: "${team.name}"`,
+      type: 'team_join',
+      data: { teamId: team.id }
+    });
+  } catch (notifErr) {
+    console.error('Failed to trigger team add notification:', notifErr.message);
+  }
+
   res.json(await hydrateTeam(team, req.user._id));
 });
 
@@ -162,6 +177,34 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
       }
     }
     await supabase.from('team_members').insert({ team_id: req.params.id, user_id: userId });
+
+    // Trigger Notification for approval
+    try {
+      const { sendNotification } = require('../services/notificationService');
+      sendNotification(req.io, {
+        userId: userId,
+        title: 'Team Join Request Approved',
+        message: `Your request to join the team "${team.name}" has been approved!`,
+        type: 'team_join',
+        data: { teamId: team.id }
+      });
+    } catch (notifErr) {
+      console.error('Failed to trigger team join approval notification:', notifErr.message);
+    }
+  } else {
+    // Notify about decline
+    try {
+      const { sendNotification } = require('../services/notificationService');
+      sendNotification(req.io, {
+        userId: userId,
+        title: 'Team Join Request Declined',
+        message: `Your request to join the team "${team.name}" was declined.`,
+        type: 'team_join_declined',
+        data: { teamId: team.id }
+      });
+    } catch (notifErr) {
+      console.error('Failed to trigger team join decline notification:', notifErr.message);
+    }
   }
   res.json({ message: `User join request ${action}d` });
 });
