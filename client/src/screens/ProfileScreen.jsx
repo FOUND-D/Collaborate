@@ -815,9 +815,9 @@ const ProfileScreen = () => {
                       <div className="github-calendar-scroll">
                         <GitHubCalendar 
                           username={profileUser.githubUsername} 
-                          colorScheme="dark"
+                          colorScheme="light"
                           theme={{
-                            dark: ['#161616', '#0d9488', '#14b8a6', '#2dd4bf', '#99f6e4']
+                            light: ['#ede9e4', '#99f6e4', '#2dd4bf', '#14b8a6', '#0d9488']
                           }}
                           blockSize={12}
                           blockMargin={4}
@@ -903,7 +903,7 @@ const ProfileScreen = () => {
                              <ActivityCalendar 
                                data={leetcodeCalendarData} 
                                theme={{
-                                 dark: ['#161616', '#0d9488', '#14b8a6', '#2dd4bf', '#99f6e4']
+                                 light: ['#ede9e4', '#99f6e4', '#2dd4bf', '#14b8a6', '#0d9488']
                                }}
                                labels={{
                                  totalCount: '{{count}} submissions in the last year',
