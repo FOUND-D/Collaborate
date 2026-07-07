@@ -86,6 +86,48 @@ const createAnnouncement = asyncHandler(async (req, res) => {
     req.io.emit('newAnnouncement', announcement);
   }
 
+  // Trigger Notifications for Announcement
+  try {
+    const { sendNotification } = require('../services/notificationService');
+    if (data.team_id) {
+      // Notify all team members
+      const { data: members } = await supabase
+        .from('team_members')
+        .select('user_id')
+        .eq('team_id', data.team_id);
+      
+      if (members) {
+        const otherMembers = members.filter(m => m.user_id !== req.user.id);
+        for (const member of otherMembers) {
+          sendNotification(req.io, {
+            userId: member.user_id,
+            title: `New Team Announcement`,
+            message: `New team announcement: "${data.title}"`,
+            type: 'announcement',
+            data: { announcementId: data.id, teamId: data.team_id }
+          });
+        }
+      }
+    } else {
+      // Notify all users (global announcement)
+      const { data: users } = await supabase.from('users').select('id');
+      if (users) {
+        const otherUsers = users.filter(u => u.id !== req.user.id);
+        for (const user of otherUsers) {
+          sendNotification(req.io, {
+            userId: user.id,
+            title: `New Global Announcement`,
+            message: `New global announcement: "${data.title}"`,
+            type: 'announcement',
+            data: { announcementId: data.id }
+          });
+        }
+      }
+    }
+  } catch (notifErr) {
+    console.error('Failed to trigger announcement notifications:', notifErr.message);
+  }
+
   res.status(201).json(announcement);
 });
 
