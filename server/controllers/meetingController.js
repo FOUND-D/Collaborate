@@ -29,6 +29,31 @@ const startMeeting = asyncHandler(async (req, res) => {
   
   // Emit to user's personal room to refresh sessions list
   req.io.to(req.user._id).emit('sessionCreated', session);
+
+  // Trigger Notifications to all other team members
+  try {
+    const { sendNotification } = require('../services/notificationService');
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .eq('team_id', req.params.teamId);
+
+    if (members) {
+      const currentUserId = req.user.id || req.user._id;
+      const otherMembers = members.filter(m => m.user_id !== currentUserId);
+      for (const member of otherMembers) {
+        sendNotification(req.io, {
+          userId: member.user_id,
+          title: 'Collaboration Session Started',
+          message: `${req.user.name || 'A team member'} started an active meeting in your team.`,
+          type: 'meeting_started',
+          data: { teamId: req.params.teamId, meetingId: data.id }
+        });
+      }
+    }
+  } catch (notifErr) {
+    console.error('Failed to trigger meeting start notifications:', notifErr.message);
+  }
   
   res.status(201).json(session);
 });
