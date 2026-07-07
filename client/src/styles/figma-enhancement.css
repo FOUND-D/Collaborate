@@ -1,49 +1,46 @@
 .app-layout {
-  background:
-    radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.08), transparent 22%),
-    radial-gradient(circle at top right, rgba(var(--accent-color-rgb), 0.06), transparent 20%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 24%),
-    var(--bg-base);
+  background: var(--bg-primary);
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .app-body {
   position: relative;
 }
 
-.app-body::before {
-  content: '';
-  position: absolute;
-  inset: 18px 18px 18px 0;
-  pointer-events: none;
-  border-radius: 28px 0 0 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 20%),
-    radial-gradient(circle at top, rgba(var(--accent-color-rgb), 0.08), transparent 38%);
-  opacity: 0.7;
-}
-
 .app-main {
-  padding: 18px 18px 18px 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-primary);
 }
 
 .main-content,
 .main-content-shifted {
-  min-height: calc(100vh - 36px);
-  border: 1px solid var(--glass-border);
-  border-radius: 28px;
-  background: var(--surface-panel-backdrop);
-  box-shadow: var(--surface-panel-shadow);
-  backdrop-filter: var(--glass-backdrop);
-  -webkit-backdrop-filter: var(--glass-backdrop);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   overflow: hidden;
 }
 
 .sidebar {
   width: 264px;
-  background: color-mix(in srgb, var(--sidebar-bg) 88%, transparent);
+  background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .sidebar-open {
@@ -293,21 +290,6 @@
 }
 
 @media (max-width: 768px) {
-  .app-body::before {
-    inset: 10px 10px 10px 0;
-    border-radius: 22px 0 0 22px;
-  }
-
-  .app-main {
-    padding: 10px 10px 10px 0;
-  }
-
-  .main-content,
-  .main-content-shifted {
-    min-height: calc(100vh - 20px);
-    border-radius: 22px;
-  }
-
   .sidebar-open {
     width: min(264px, calc(100vw - 48px));
   }
