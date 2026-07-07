@@ -201,6 +201,15 @@ section {
   text-overflow: ellipsis;
 }
 
+.cs-last-msg {
+  font-size: 0.7rem;
+  color: var(--surface-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
 .cs-empty {
   padding: 12px 8px;
   text-align: center;
@@ -217,3 +226,33 @@ section {
   background: rgba(255, 255, 255, 0.18);
   border-radius: 999px;
 }
+
+/* Active selected chat item */
+.cs-item--active {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+}
+
+.cs-item--active .cs-info h4 {
+  color: var(--accent-color, #3b82f6);
+  font-weight: 700;
+}
+
+/* Profile image avatar */
+.cs-avatar--img {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--surface-border);
+}
+
+/* Team avatar distinct color */
+.cs-avatar--team {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.25);
+  color: #6366f1;
+}
+
