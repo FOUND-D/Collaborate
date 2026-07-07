@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaBolt, FaCalendarAlt, FaCoins, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,7 +6,7 @@ import { listListings } from '../actions/listingActions';
 import { sendMessage } from '../actions/messageActions';
 import './MessageInput.css';
 
-const MessageInput = ({ selectedChat }) => {
+const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
   const [content, setContent] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [sessionDraft, setSessionDraft] = useState({
@@ -18,11 +18,22 @@ const MessageInput = ({ selectedChat }) => {
   const dispatch = useDispatch();
   const { listings = [] } = useSelector((state) => state.listingList);
 
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
+
   useEffect(() => {
     if (isComposerOpen) {
       dispatch(listListings({}));
     }
   }, [dispatch, isComposerOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [selectedChat]);
 
   const availableListings = useMemo(() => {
     if (!selectedChat) return [];
@@ -32,9 +43,37 @@ const MessageInput = ({ selectedChat }) => {
     return listings;
   }, [listings, selectedChat]);
 
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+
+    if (!selectedChat || !socketRef?.current) return;
+
+    if (!isTyping) {
+      setIsTyping(true);
+      socketRef.current.emit('typing', { conversationId: selectedChat.id });
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      socketRef.current.emit('stopTyping', { conversationId: selectedChat.id });
+    }, 2000);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!content.trim() || !selectedChat) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    setIsTyping(false);
+    if (socketRef?.current) {
+      socketRef.current.emit('stopTyping', { conversationId: selectedChat.id });
+    }
 
     const messageData = { content };
     if (selectedChat.type === 'team') {
@@ -46,6 +85,7 @@ const MessageInput = ({ selectedChat }) => {
     const newMessage = await dispatch(sendMessage(messageData));
     if (newMessage) {
       setContent('');
+      if (onMessageSent) onMessageSent();
     }
   };
 
@@ -109,7 +149,7 @@ const MessageInput = ({ selectedChat }) => {
           type="text"
           placeholder="Type a message..."
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           className="message-input-field"
         />
         <button type="submit" className="message-input-send-btn">
