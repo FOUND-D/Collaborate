@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, Link } from 'react-router-dom';
 import { 
     FaChevronRight, 
@@ -20,12 +20,25 @@ import {
 } from 'react-icons/fa';
 import api from '../utils/api';
 import NoticeBoardWidget from './NoticeBoardWidget';
+import { 
+    listNotifications, 
+    markNotificationAsRead, 
+    markAllNotificationsAsRead,
+    addRealtimeNotification 
+} from '../actions/notificationActions';
+import { createSocketConnection } from '../utils/socket';
 import './TopHeader.css';
 
 const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
     const location = useLocation();
+    const dispatch = useDispatch();
+
     const userLogin = useSelector((state) => state.userLogin);
     const { userInfo } = userLogin;
+
+    const notificationList = useSelector((state) => state.notifications);
+    const { notifications, loading: loadingNotifications } = notificationList;
+    const unreadCount = notifications ? notifications.filter(n => !n.is_read).length : 0;
 
     // Search states
     const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +54,23 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
     const noticeDropdownRef = useRef(null);
     const noticeButtonRef = useRef(null);
 
-    // Handle click outside to close notice dropdown
+    // Notification dropdown states
+    const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+    const notificationDropdownRef = useRef(null);
+    const notificationButtonRef = useRef(null);
+
+    // Toast notifications state
+    const [toasts, setToasts] = useState([]);
+
+    const showToast = (title, message) => {
+        const id = Date.now();
+        setToasts((prev) => [...prev, { id, title, message }]);
+        setTimeout(() => {
+            setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, 5000);
+    };
+
+    // Handle click outside to close notice and notification dropdowns
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -52,10 +81,42 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             ) {
                 setShowNoticeDropdown(false);
             }
+
+            if (
+                notificationDropdownRef.current && 
+                !notificationDropdownRef.current.contains(event.target) &&
+                notificationButtonRef.current &&
+                !notificationButtonRef.current.contains(event.target)
+            ) {
+                setShowNotificationDropdown(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Load notification history and set up real-time listener
+    useEffect(() => {
+        if (userInfo) {
+            dispatch(listNotifications());
+
+            const socket = createSocketConnection();
+            
+            // Join personal notification room
+            socket.emit('joinNotificationRoom', userInfo.id || userInfo._id);
+
+            // Listen to real-time notification events
+            socket.on('newNotification', (newNotif) => {
+                console.log('Realtime notification received:', newNotif);
+                dispatch(addRealtimeNotification(newNotif));
+                showToast(newNotif.title, newNotif.message);
+            });
+
+            return () => {
+                socket.disconnect();
+            };
+        }
+    }, [userInfo, dispatch]);
 
     const getPageName = () => {
         const path = location.pathname;
@@ -461,10 +522,56 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                     </div>
                 )}
 
-                <button className="header-icon-btn ghost notification-btn" aria-label="Notifications">
+                <button 
+                    ref={notificationButtonRef}
+                    className={`header-icon-btn ghost notification-btn ${showNotificationDropdown ? 'active' : ''}`}
+                    onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
+                    aria-label="Notifications"
+                >
                     <FaBell />
-                    <div className="notification-dot" />
+                    {unreadCount > 0 && <div className="notification-dot" />}
                 </button>
+
+                {showNotificationDropdown && (
+                    <div className="header-notification-dropdown" ref={notificationDropdownRef}>
+                        <div className="notification-dropdown-header">
+                            <h4>Notifications</h4>
+                            {unreadCount > 0 && (
+                                <button className="mark-all-read-btn" onClick={() => dispatch(markAllNotificationsAsRead())}>
+                                    Mark all as read
+                                </button>
+                            )}
+                        </div>
+                        <div className="notification-dropdown-body">
+                            {loadingNotifications ? (
+                                <div className="notification-loading"><FaSpinner className="spinner" /> Loading...</div>
+                            ) : !notifications || notifications.length === 0 ? (
+                                <div className="notification-empty">No notifications yet</div>
+                            ) : (
+                                notifications.map((notif) => (
+                                    <div 
+                                        key={notif.id} 
+                                        className={`notification-item ${!notif.is_read ? 'unread' : ''}`}
+                                        onClick={() => {
+                                            if (!notif.is_read) {
+                                                dispatch(markNotificationAsRead(notif.id));
+                                            }
+                                        }}
+                                    >
+                                        <div className="notification-item-indicator" />
+                                        <div className="notification-item-content">
+                                            <div className="notification-item-title">{notif.title}</div>
+                                            <div className="notification-item-message">{notif.message}</div>
+                                            <div className="notification-item-time">
+                                                {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {new Date(notif.created_at).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <button 
                     className="header-icon-btn ghost message-btn" 
@@ -473,6 +580,28 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                 >
                     <FaComments />
                 </button>
+            </div>
+
+            {/* Toast Notifications Container */}
+            <div className="toast-notifications-container">
+                {toasts.map((toast) => (
+                    <div key={toast.id} className="toast-notification-item animate-toast-in">
+                        <div className="toast-notification-icon">
+                            <FaBell />
+                        </div>
+                        <div className="toast-notification-content">
+                            <div className="toast-notification-title">{toast.title}</div>
+                            <div className="toast-notification-message">{toast.message}</div>
+                        </div>
+                        <button 
+                            className="toast-notification-close"
+                            onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+                            aria-label="Close Notification"
+                        >
+                            <FaTimes />
+                        </button>
+                    </div>
+                ))}
             </div>
         </header>
     );
