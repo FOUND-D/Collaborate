@@ -8,6 +8,7 @@ const {
   supabase,
   toPublicSession,
 } = require('../lib/repo');
+const { sendNotification } = require('../services/notificationService');
 
 const isParticipant = (session, userId) => session && (session.teacher_id === userId || session.learner_id === userId);
 
@@ -136,6 +137,17 @@ const createSession = asyncHandler(async (req, res) => {
     agenda: req.body.agenda,
   });
 
+  // Trigger Notification to Teacher
+  if (session && session.teacher_id && session.teacher_id !== req.user._id) {
+    sendNotification(req.io, {
+      userId: session.teacher_id,
+      title: 'New Session Requested',
+      message: `${req.user.name || 'A student'} has requested a peer session with you.`,
+      type: 'session_booked',
+      data: { sessionId: session.id }
+    });
+  }
+
   res.status(201).json(session);
 });
 
@@ -149,10 +161,23 @@ const confirmSession = asyncHandler(async (req, res) => {
   if (!isParticipant(session, req.user._id)) return res.status(403).json({ message: 'Not authorized for this session' });
   if (session.status === 'cancelled') return res.status(400).json({ message: 'Cancelled sessions cannot be confirmed' });
 
-  res.json(await updateSessionStatus({
+  const updated = await updateSessionStatus({
     sessionId: req.params.id,
     updates: { status: 'confirmed' },
-  }));
+  });
+
+  // Notify learner that the teacher confirmed
+  if (updated && session.learner_id) {
+    sendNotification(req.io, {
+      userId: session.learner_id,
+      title: 'Session Booking Confirmed',
+      message: `Your session booking request has been accepted/confirmed.`,
+      type: 'session_status_changed',
+      data: { sessionId: session.id, status: 'confirmed' }
+    });
+  }
+
+  res.json(updated);
 });
 
 const cancelSession = asyncHandler(async (req, res) => {
@@ -161,10 +186,24 @@ const cancelSession = asyncHandler(async (req, res) => {
   if (!isParticipant(session, req.user._id)) return res.status(403).json({ message: 'Not authorized for this session' });
   if (session.status === 'completed') return res.status(400).json({ message: 'Completed sessions cannot be cancelled' });
 
-  res.json(await updateSessionStatus({
+  const updated = await updateSessionStatus({
     sessionId: req.params.id,
     updates: { status: 'cancelled' },
-  }));
+  });
+
+  // Notify the other participant about cancellation
+  const otherPartyId = req.user._id === session.teacher_id ? session.learner_id : session.teacher_id;
+  if (updated && otherPartyId) {
+    sendNotification(req.io, {
+      userId: otherPartyId,
+      title: 'Session Cancelled',
+      message: `Your session booking has been cancelled.`,
+      type: 'session_status_changed',
+      data: { sessionId: session.id, status: 'cancelled' }
+    });
+  }
+
+  res.json(updated);
 });
 
 const completeSessionBooking = asyncHandler(async (req, res) => {
@@ -188,6 +227,18 @@ const completeSessionBooking = asyncHandler(async (req, res) => {
     await recalculateTopTeachers();
   } catch (err) {
     console.error('Error awarding badge:', err);
+  }
+
+  // Notify the other participant about completion
+  const otherPartyId = req.user._id === session.teacher_id ? session.learner_id : session.teacher_id;
+  if (completedSession && otherPartyId) {
+    sendNotification(req.io, {
+      userId: otherPartyId,
+      title: 'Session Marked Completed',
+      message: `Your peer session has been marked as completed.`,
+      type: 'session_status_changed',
+      data: { sessionId: session.id, status: 'completed' }
+    });
   }
 
   res.json(completedSession);
