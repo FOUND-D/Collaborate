@@ -981,6 +981,59 @@ const listTeamMessages = async (teamId) => {
   return (data || []).map((row) => toPublicMessage({ ...row, sender: senderMap[row.sender_id] || null }));
 };
 
+const listUserConversations = async (userId) => {
+  // Get all conversations this user participates in
+  const { data: convos, error } = await supabase
+    .from('conversations')
+    .select('id, participant_a, participant_b, created_at, updated_at')
+    .or(`participant_a.eq.${userId},participant_b.eq.${userId}`)
+    .order('updated_at', { ascending: false });
+
+  if (error) throw error;
+  if (!convos || convos.length === 0) return [];
+
+  // Collect all other participant IDs
+  const otherUserIds = convos.map(c => c.participant_a === userId ? c.participant_b : c.participant_a);
+
+  // Fetch other participants' profiles
+  const { data: users, error: usersErr } = await supabase
+    .from('users')
+    .select('id, name, email, profile_image, department, role, avg_rating, credits')
+    .in('id', otherUserIds);
+
+  if (usersErr) console.error('[listUserConversations] users query error:', usersErr.message);
+
+  const userMap = Object.fromEntries((users || []).map(u => [u.id, u]));
+
+  // Fetch last message for each conversation
+  const results = await Promise.all(convos.map(async (c) => {
+    const { data: lastMsgs } = await supabase
+      .from('messages')
+      .select('id, content, sender_id, created_at')
+      .eq('conversation_id', c.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const lastMsg = lastMsgs?.[0] || null;
+    const otherId = c.participant_a === userId ? c.participant_b : c.participant_a;
+    const otherUser = userMap[otherId];
+
+    return {
+      conversationId: c.id,
+      updatedAt: c.updated_at,
+      otherParticipant: otherUser ? toPublicCompactUser(otherUser) : null,
+      lastMessage: lastMsg ? {
+        content: lastMsg.content?.startsWith('SESSION_REQUEST:') ? '📅 Session request' : lastMsg.content,
+        senderId: lastMsg.sender_id,
+        sentAt: lastMsg.created_at,
+      } : null,
+    };
+  }));
+
+  // Only return conversations that have at least one message
+  return results.filter(r => r.lastMessage !== null);
+};
+
 const listConversationMessages = async (conversationId) => {
   const { data, error } = await supabase
     .from('messages')
@@ -1002,6 +1055,101 @@ const markMessagesRead = async ({ userId, messageIds }) => {
   const { error } = await supabase.from('message_reads').upsert(rows, { onConflict: 'message_id,user_id' });
   if (error) throw error;
   return true;
+};
+
+const listUserNotifications = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      if (error.code === 'PGRST205' || String(error.message).includes('notifications')) {
+        console.warn('⚠️ Notifications table not found. Please run the SQL migration in server/migrations/20260707_realtime_notifications.sql');
+        return [];
+      }
+      throw error;
+    }
+    return data || [];
+  } catch (err) {
+    console.error('Error fetching notifications:', err.message);
+    return [];
+  }
+};
+
+const createNotification = async ({ userId, title, message, type, data = {} }) => {
+  try {
+    const { data: record, error } = await supabase
+      .from('notifications')
+      .insert({
+        user_id: userId,
+        title,
+        message,
+        type,
+        data,
+        is_read: false
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST205' || String(error.message).includes('notifications')) {
+        console.warn('⚠️ Notifications table not found. Please run the SQL migration in server/migrations/20260707_realtime_notifications.sql');
+        return null;
+      }
+      throw error;
+    }
+    return record;
+  } catch (err) {
+    console.error('Error creating notification:', err.message);
+    return null;
+  }
+};
+
+const markNotificationRead = async ({ notificationId, userId }) => {
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId)
+      .eq('user_id', userId)
+      .select('*')
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST205' || String(error.message).includes('notifications')) {
+        return null;
+      }
+      throw error;
+    }
+    return data;
+  } catch (err) {
+    console.error('Error marking notification read:', err.message);
+    return null;
+  }
+};
+
+const markAllNotificationsRead = async (userId) => {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
+
+    if (error) {
+      if (error.code === 'PGRST205' || String(error.message).includes('notifications')) {
+        return false;
+      }
+      throw error;
+    }
+    return true;
+  } catch (err) {
+    console.error('Error marking all notifications read:', err.message);
+    return false;
+  }
 };
 
 const uniqueSlug = async (table, baseValue) => {
@@ -1061,8 +1209,13 @@ module.exports = {
   getRatingsForUser,
   recalculateUserAverageRating,
   createMessage,
+  listUserConversations,
   listTeamMessages,
   listConversationMessages,
   markMessagesRead,
+  listUserNotifications,
+  createNotification,
+  markNotificationRead,
+  markAllNotificationsRead,
   uniqueSlug,
 };
