@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '../context/ThemeContext';
 import {
     FaPalette,
     FaUser,
@@ -10,20 +9,21 @@ import {
     FaGlobe,
     FaCalendarAlt,
     FaExclamationTriangle,
-    FaSun,
-    FaMoon,
     FaSave
 } from 'react-icons/fa';
 import { updateUserProfile } from '../actions/userActions';
+import { markNotificationAsRead, markAllNotificationsAsRead } from '../actions/notificationActions';
 import { BACKEND_URL } from '../config/runtime';
 import CropModal from '../components/CropModal';
 import './SettingsScreen.css';
 
 const SettingsScreen = () => {
     const dispatch = useDispatch();
-    const { toggleTheme, isDark } = useTheme();
     const userLogin = useSelector((state) => state.userLogin);
     const { userInfo } = userLogin;
+
+    const notificationList = useSelector((state) => state.notifications);
+    const { notifications } = notificationList;
 
     const [activeTab, setActiveTab] = useState('profile');
     const [activeSubTab, setActiveSubTab] = useState('general');
@@ -374,24 +374,6 @@ const SettingsScreen = () => {
                 return (
                     <div className="tab-content animate-fade-in preferences-grid-layout">
                         <div className="settings-section card">
-                            <h3 className="section-title">Appearance</h3>
-                            <p className="section-desc mb-4">Customize how Collaborate looks on your device.</p>
-                            <div className="setting-row">
-                                <div className="setting-info">
-                                    <h4>Theme Preference</h4>
-                                    <p>Switch between Light and Dark mode.</p>
-                                </div>
-                                <button
-                                    onClick={toggleTheme}
-                                    className="btn-theme-toggle"
-                                >
-                                    {isDark ? <FaSun /> : <FaMoon />}
-                                    {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="settings-section card">
                             <h3 className="section-title">Language & Regional</h3>
                             <form onSubmit={handleProfileUpdate}>
                                 <div className="form-grid mt-4">
@@ -424,10 +406,70 @@ const SettingsScreen = () => {
             case 'notifications':
                 return (
                     <div className="tab-content animate-fade-in">
-                        <div className="settings-section card placeholder-card">
-                            <FaBell className="placeholder-icon" />
-                            <h3>Notifications coming soon</h3>
-                            <p>We're working on a robust notification system to keep you updated.</p>
+                        <div className="settings-section card">
+                            <div className="settings-section-header-inline" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <h3 style={{ margin: 0 }}>Notification History</h3>
+                                {notifications && notifications.some(n => !n.is_read) && (
+                                    <button 
+                                        className="btn-link" 
+                                        style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontWeight: '600' }}
+                                        onClick={() => dispatch(markAllNotificationsAsRead())}
+                                    >
+                                        Mark all as read
+                                    </button>
+                                )}
+                            </div>
+                            
+                            {!notifications || notifications.length === 0 ? (
+                                <div className="empty-notifications" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-secondary)' }}>
+                                    <FaBell style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }} />
+                                    <p>You have no notifications yet.</p>
+                                </div>
+                            ) : (
+                                <div className="notifications-history-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {notifications.map((notif) => (
+                                        <div 
+                                            key={notif.id} 
+                                            className={`notification-history-item ${!notif.is_read ? 'unread' : ''}`}
+                                            style={{
+                                                display: 'flex',
+                                                gap: '16px',
+                                                padding: '16px',
+                                                borderRadius: '8px',
+                                                background: notif.is_read ? 'var(--card-bg)' : 'rgba(20, 184, 166, 0.06)',
+                                                border: '1px solid var(--border-color)',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.15s ease',
+                                                position: 'relative'
+                                            }}
+                                            onClick={() => {
+                                                if (!notif.is_read) {
+                                                    dispatch(markNotificationAsRead(notif.id));
+                                                }
+                                            }}
+                                        >
+                                            {!notif.is_read && (
+                                                <div style={{
+                                                    width: '8px',
+                                                    height: '8px',
+                                                    borderRadius: '50%',
+                                                    background: 'var(--accent-color)',
+                                                    position: 'absolute',
+                                                    top: '20px',
+                                                    left: '8px'
+                                                }} />
+                                            )}
+                                            <div style={{ flex: 1, paddingLeft: !notif.is_read ? '8px' : '0' }}>
+                                                <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text-primary)', marginBottom: '4px' }}>{notif.title}</div>
+                                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{notif.message}</div>
+                                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>
+                                                    {new Date(notif.created_at).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
