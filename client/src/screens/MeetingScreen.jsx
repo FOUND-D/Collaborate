@@ -1,9 +1,8 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import io from 'socket.io-client';
+import { createSocketConnection } from '../utils/socket';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
-import { SOCKET_URL } from '../config/runtime';
 import api from '../utils/api';
 import '../styles/workspace.css';
 
@@ -222,7 +221,7 @@ const MeetingScreen = () => {
     }
 
     let isCancelled = false;
-    const socket = io(SOCKET_URL);
+    const socket = createSocketConnection();
     socketRef.current = socket;
 
     const handleParticipantsUpdated = (updatedParticipants) => {
