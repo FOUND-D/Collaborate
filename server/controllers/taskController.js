@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const { supabase } = require('../lib/repo');
+const { sendNotification } = require('../services/notificationService');
 
 const buildTaskPayload = (body, userId, { includeOwner = false, assignedBy = false } = {}) => {
   const payload = { ...body };
@@ -72,6 +73,19 @@ const createTask = asyncHandler(async (req, res) => {
   if (data.team_id) {
     req.io?.to(data.team_id).emit('taskCreated', publicTask);
   }
+
+  // Trigger Notification to Assignee
+  const currentUserId = req.user.id || req.user._id;
+  if (data.assignee_id && data.assignee_id !== currentUserId) {
+    sendNotification(req.io, {
+      userId: data.assignee_id,
+      title: 'New Task Assigned',
+      message: `You have been assigned the task: "${data.name}"`,
+      type: 'task_assigned',
+      data: { taskId: data.id, projectId: data.project_id, teamId: data.team_id }
+    });
+  }
+
   res.status(201).json(publicTask);
 });
 
@@ -95,6 +109,19 @@ const updateTask = asyncHandler(async (req, res) => {
   if (data.team_id) {
     req.io?.to(data.team_id).emit('taskUpdated', publicTask);
   }
+
+  // Trigger Notification to Assignee on Update
+  const currentUserId = req.user.id || req.user._id;
+  if (data.assignee_id && data.assignee_id !== currentUserId) {
+    sendNotification(req.io, {
+      userId: data.assignee_id,
+      title: 'Task Updated',
+      message: `The task "${data.name}" assigned to you has been updated (Status: ${data.status}).`,
+      type: 'task_updated',
+      data: { taskId: data.id, projectId: data.project_id, teamId: data.team_id }
+    });
+  }
+
   res.json(publicTask);
 });
 
