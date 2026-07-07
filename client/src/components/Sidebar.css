@@ -67,7 +67,7 @@
 .sidebar-org-section { padding: 10px 10px 6px; flex-shrink: 0; position: relative; }
 .org-switcher {
   width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--surface-border);
-  background: var(--glass-bg); cursor: pointer;
+  background: var(--bg-secondary); cursor: pointer;
   display: flex; align-items: center; gap: 9px; position: relative;
   transition: background 0.15s, border-color 0.15s; box-sizing: border-box;
 }

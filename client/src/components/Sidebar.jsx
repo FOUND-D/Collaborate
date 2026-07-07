@@ -6,7 +6,6 @@ import { logout } from '../actions/userActions';
 import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain, FaStar } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
-import ThemeToggle from './ThemeToggle';
 import { BACKEND_URL } from '../config/runtime';
 
 const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
@@ -130,9 +129,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
         )}
 
         <div className="sidebar-bottom">
-          <div className="sidebar-footer-links" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start' }}>
-            <ThemeToggle collapsed={isCollapsed && !isMobile} />
-          </div>
           {userInfo && (
             <NavLink to="/profile" className="sidebar-user-row" style={{ justifyContent: isCollapsed && !isMobile ? 'center' : 'flex-start', padding: isCollapsed && !isMobile ? '6px 0' : '6px 10px' }}>
               <div className="sidebar-user-avatar">
