@@ -87,7 +87,7 @@ body {
   to { opacity: 1; }
 }
 * {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   box-sizing: border-box;
 }
 
@@ -98,12 +98,80 @@ select:focus {
   outline: none;
 }
 
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  border-radius: 7px !important;
-  font-family: 'DM Sans', sans-serif !important;
+/* Card style (apply globally) */
+.card, [class*="card"], [class*="panel"], [class*="glass"] {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--card-radius) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
+.card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Buttons global styling */
+.btn-primary, .phase2-button-primary, [class*="button-primary"] {
+  background: var(--accent-gradient) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  height: 38px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-accent) !important;
+}
+
+.btn-secondary {
+  border-radius: 8px !important;
+}
+
+/* Inputs global styling */
+input, select, textarea {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--input-focus-border) !important;
+  box-shadow: var(--input-focus-shadow) !important;
+}
+
+/* Navigation items styling */
+.nav-item {
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  transition: background 0.15s !important;
+  color: var(--text-secondary) !important;
+}
+.nav-item:hover {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+.nav-item.active {
+  background: rgba(20, 184, 166, 0.1) !important;
+  color: var(--accent-color) !important;
+  font-weight: 500 !important;
+  border-left: 3px solid var(--accent-color) !important;
+}
+
+/* Typography global styling */
+h1 { font-size: 28px !important; font-weight: 600 !important; color: var(--text-primary) !important; }
+h2 { font-size: 22px !important; font-weight: 600 !important; color: var(--text-primary) !important; }
+h3 { font-size: 17px !important; font-weight: 500 !important; color: var(--text-primary) !important; }
+p, body { font-size: 14px !important; color: var(--text-secondary) !important; line-height: 1.6 !important; }
 
 ::-webkit-scrollbar { width: 5px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
