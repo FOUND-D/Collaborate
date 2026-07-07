@@ -62,20 +62,20 @@
   align-items: center;
   gap: 14px;
   width: 100%;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-left: 3px solid var(--accent-color);
-  border-radius: 10px;
+  border-radius: var(--card-radius);
   padding: 14px 16px 14px 13px;
   transition: border-color 0.18s, transform 0.18s, background 0.18s;
-  backdrop-filter: var(--glass-backdrop);
-  -webkit-backdrop-filter: var(--glass-backdrop);
+  box-shadow: var(--shadow-sm);
 }
 
 .task-list-item:hover {
-  background: var(--glass-bg-heavy);
-  border-color: var(--surface-border-strong);
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .task-checkbox-container {
