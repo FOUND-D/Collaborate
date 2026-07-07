@@ -5,8 +5,7 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { listMessages, receiveSocketMessage } from '../actions/messageActions';
 import './ChatPopup.css';
-import io from 'socket.io-client';
-import { SOCKET_URL } from '../config/runtime';
+import { createSocketConnection } from '../utils/socket';
 
 const ChatPopup = ({ team, onClose }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -22,7 +21,7 @@ const ChatPopup = ({ team, onClose }) => {
     dispatch(listMessages(selectedChatType, selectedChatId));
 
     // Setup socket connection
-    socketRef.current = io(SOCKET_URL);
+    socketRef.current = createSocketConnection();
     socketRef.current.emit('joinConversation', selectedChatId);
 
     // Listen for new messages
