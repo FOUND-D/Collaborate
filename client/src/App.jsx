@@ -57,12 +57,10 @@ const RouteFallback = () => (
           width: '52px',
           height: '52px',
           borderRadius: '18px',
-          border: '1px solid var(--glass-border)',
-          background: 'var(--glass-bg)',
-          boxShadow: 'var(--glass-shadow)',
+          border: '1px solid var(--border-color)',
+          background: 'var(--bg-secondary)',
+          boxShadow: 'var(--shadow-sm)',
           position: 'relative',
-          backdropFilter: 'var(--glass-backdrop)',
-          WebkitBackdropFilter: 'var(--glass-backdrop)',
         }}
       >
         <motion.div
