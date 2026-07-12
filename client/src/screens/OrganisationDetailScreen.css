@@ -2,7 +2,7 @@
 .org-detail-loading-page,.org-detail-error-page{display:flex;flex-direction:column;gap:16px}
 .org-detail-loading-page{min-height:100%}
 .org-detail-error-page{min-height:70vh;align-items:center;justify-content:center}
-.org-detail-header-card,.org-detail-list-card,.org-detail-settings-card,.org-detail-team-card,.org-detail-confirm-box,.org-detail-error-card,.org-detail-danger-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);box-shadow:var(--shadow-sm)}
+.org-detail-header-card,.org-detail-list-card,.org-detail-settings-card,.org-detail-team-card,.org-detail-confirm-box,.org-detail-error-card,.org-detail-danger-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;backdrop-filter:var(--glass-backdrop);-webkit-backdrop-filter:var(--glass-backdrop)}
 .org-detail-header-card{display:flex;align-items:flex-start;gap:24px;padding:28px 32px;margin-bottom:20px;border-radius:14px}
 .org-detail-header-main{display:flex;align-items:flex-start;gap:24px;flex:1;min-width:0}
 .org-detail-logo-wrap{flex:0 0 auto}
@@ -17,7 +17,7 @@
 .org-detail-header-actions{display:flex;gap:10px;align-items:flex-start;flex-shrink:0}
 .org-detail-outline-btn,.org-detail-primary-btn,.org-detail-secondary-btn,.org-detail-icon-btn,.org-detail-team-link,.org-detail-revoke-btn{cursor:pointer;transition:all .2s ease}
 .org-detail-outline-btn,.org-detail-secondary-btn,.org-detail-primary-btn,.org-detail-revoke-btn,.org-detail-input,.org-detail-role-select{font:inherit}
-.org-detail-outline-btn,.org-detail-secondary-btn,.org-detail-primary-btn{border-radius:8px;padding:8px 16px;border:1px solid var(--surface-border);background:var(--bg-secondary);color:var(--text-secondary);display:inline-flex;align-items:center;gap:6px}
+.org-detail-outline-btn,.org-detail-secondary-btn,.org-detail-primary-btn{border-radius:8px;padding:8px 16px;border:1px solid var(--surface-border);background:var(--glass-bg);color:var(--text-secondary);display:inline-flex;align-items:center;gap:6px}
 .org-detail-outline-btn:hover,.org-detail-secondary-btn:hover{border-color:var(--accent-border);color:var(--accent-color)}
 .org-detail-primary-btn{background:var(--accent-gradient);border-color:var(--accent-border);color:var(--text-inverse)}
 .org-detail-primary-btn:hover{filter:brightness(1.04)}
@@ -26,13 +26,13 @@
 .org-detail-stat-pill{background:var(--surface-panel-muted);border:1px solid var(--surface-border);border-radius:20px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)}
 .org-detail-pill-icon{font-size:14px}
 .org-detail-pill-icon.members{color:var(--accent-color)}.org-detail-pill-icon.teams{color:var(--text-secondary)}.org-detail-pill-icon.created{color:var(--status-completed-text)}
-.org-detail-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;padding:4px;width:fit-content;max-width:100%;overflow-x:auto}
+.org-detail-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:4px;width:fit-content;max-width:100%;overflow-x:auto;backdrop-filter:var(--glass-backdrop);-webkit-backdrop-filter:var(--glass-backdrop)}
 .org-detail-tab-btn{padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .org-detail-tab-btn:hover{color:var(--text-primary);background:var(--surface-panel-muted)}
 .org-detail-tab-btn.active{background:var(--accent-gradient);color:var(--text-inverse)}
 .org-detail-section{display:flex;flex-direction:column}
 .org-detail-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px}
-.org-detail-inline-form,.org-detail-settings-card{display:flex;flex-direction:column;gap:12px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:10px;padding:16px 20px;margin-bottom:16px}
+.org-detail-inline-form,.org-detail-settings-card{display:flex;flex-direction:column;gap:12px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:16px 20px;margin-bottom:16px}
 .org-detail-inline-form{border-color:var(--accent-border)}
 .org-detail-inline-form-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .org-detail-input,.org-detail-role-select{background:var(--bg-tertiary);border:1px solid var(--surface-border);border-radius:8px;padding:10px 14px;color:var(--text-primary);box-sizing:border-box}
@@ -67,7 +67,7 @@
 .org-detail-empty-subtitle{margin-top:4px}
 .org-detail-team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
 .org-detail-team-card{padding:20px;cursor:pointer;transition:all .2s ease;display:flex;flex-direction:column;min-height:220px}
-.org-detail-settings-grid .org-detail-team-card{appearance:none;text-align:left;width:100%;border:1px solid var(--card-border);background:var(--card-bg)}
+.org-detail-settings-grid .org-detail-team-card{appearance:none;text-align:left;width:100%;border:1px solid var(--glass-border);background:var(--glass-bg)}
 .org-detail-team-card:hover{border-color:var(--accent-border);transform:translateY(-1px);box-shadow:0 4px 20px rgba(var(--accent-color-rgb),.12)}
 .org-detail-management-shell{display:flex;flex-direction:column;gap:16px;margin-bottom:24px}
 .org-detail-inline-tabs{margin-bottom:0}
@@ -119,7 +119,7 @@
 .org-detail-error-icon{font-size:48px;color:var(--status-blocked-text)}
 .org-detail-error-title{margin-top:16px;font-size:18px;font-weight:600;color:var(--text-primary)}
 .org-detail-error-text{margin-top:8px;font-size:14px;color:var(--text-secondary)}
-.org-detail-empty-inline{padding:14px 16px;border:1px solid var(--card-border);border-radius:var(--card-radius);background:var(--card-bg);color:var(--text-secondary);box-shadow:var(--shadow-sm)}
+.org-detail-empty-inline{padding:14px 16px;border:1px solid var(--surface-border);border-radius:10px;background:var(--glass-bg);color:var(--text-secondary);backdrop-filter:var(--glass-backdrop);-webkit-backdrop-filter:var(--glass-backdrop)}
 .org-detail-skeleton{background:linear-gradient(90deg,var(--surface-panel-muted) 25%, var(--surface-panel-backdrop) 50%, var(--surface-panel-muted) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
 .org-detail-skeleton-header{height:120px;border-radius:14px}
 .org-detail-skeleton-row{display:flex;gap:10px;flex-wrap:wrap}
