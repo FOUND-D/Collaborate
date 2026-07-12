@@ -894,18 +894,34 @@ const enrichRatings = async (ratings) => {
   }));
 };
 
-const createRating = async ({ sessionId, raterId, stars, review }) => {
-  const session = await getSessionRecordById(sessionId);
-  if (!session) throw new Error('Session not found');
+const createRating = async ({ sessionId, raterId, rateeId, stars, review }) => {
+  let finalRateeId = rateeId;
+  let finalSessionId = sessionId;
 
-  const rateeId = raterId === session.teacher_id ? session.learner_id : session.teacher_id;
+  if (finalSessionId) {
+    const session = await getSessionRecordById(finalSessionId);
+    if (!session) throw new Error('Session not found');
+    finalRateeId = raterId === session.teacher_id ? session.learner_id : session.teacher_id;
+  } else {
+    // Direct rating from profile requires a dummy session due to NOT NULL constraint in ratings table
+    const { data: dummySession, error: dsError } = await supabase.from('booking_sessions').insert({
+      teacher_id: rateeId,
+      learner_id: raterId,
+      scheduled_at: new Date().toISOString(),
+      status: 'completed',
+      agenda: 'Direct Profile Rating'
+    }).select('*').single();
+    
+    if (dsError) throw dsError;
+    finalSessionId = dummySession.id;
+  }
 
   const { data, error } = await supabase
     .from('ratings')
     .insert({
-      session_id: sessionId,
+      session_id: finalSessionId,
       rater_id: raterId,
-      ratee_id: rateeId,
+      ratee_id: finalRateeId,
       stars,
       review: review || '',
     })
@@ -1163,6 +1179,35 @@ const uniqueSlug = async (table, baseValue) => {
   }
 };
 
+const flagRating = async (ratingId) => {
+  const { error } = await supabase
+    .from('ratings')
+    .update({ is_flagged: true })
+    .eq('id', ratingId);
+  if (error) throw error;
+};
+
+const deleteRating = async (ratingId) => {
+  const { data: rating, error: fetchError } = await supabase
+    .from('ratings')
+    .select('ratee_id')
+    .eq('id', ratingId)
+    .single();
+  
+  if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+  
+  const { error } = await supabase
+    .from('ratings')
+    .delete()
+    .eq('id', ratingId);
+    
+  if (error) throw error;
+  
+  if (rating?.ratee_id) {
+    await recalculateUserAverageRating(rating.ratee_id);
+  }
+};
+
 module.exports = {
   supabase,
   crypto,
@@ -1218,4 +1263,6 @@ module.exports = {
   markNotificationRead,
   markAllNotificationsRead,
   uniqueSlug,
+  flagRating,
+  deleteRating,
 };
