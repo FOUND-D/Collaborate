@@ -27,6 +27,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const complaintRoutes = require('./routes/complaintRoutes');
 
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
@@ -354,6 +355,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/complaints', complaintRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
