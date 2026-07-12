@@ -43,12 +43,14 @@
 }
 
 .detail-section-group {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
   padding: 2.2rem 2.4rem;
   margin-bottom: 2.2rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--glass-shadow);
 }
 
 .detail-section-title {
@@ -127,9 +129,11 @@
 .team-member-management {
   margin-bottom: 1.25rem;
   padding: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--card-radius);
-  background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .team-member-management-copy {
@@ -148,9 +152,9 @@
 .team-member-select {
   flex: 1 1 320px;
   min-height: 44px;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border-strong);
+  background: var(--glass-bg-heavy);
   padding: 0.75rem 0.9rem;
   color: var(--text-primary);
 }
@@ -198,9 +202,9 @@
 }
 
 .project-link-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   padding: 1.2rem 1.4rem;
   margin-bottom: 0.8rem;
   display: flex;
@@ -208,12 +212,14 @@
   align-items: center;
   text-decoration: none;
   transition: 0.25s ease;
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .project-link-card:hover {
-  background: var(--bg-secondary);
+  background: var(--glass-bg-heavy);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-hover);
 }
 
 .project-card-name {
@@ -243,11 +249,13 @@
 }
 
 .team-detail-container .alert {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--card-border) !important;
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
   color: var(--text-primary) !important;
-  border-radius: var(--card-radius);
+  border-radius: 14px;
   padding: 1rem 1.2rem;
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 @media (max-width: 768px) {
