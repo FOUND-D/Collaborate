@@ -27,7 +27,9 @@ import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
 import ResourcesScreen from './screens/ResourcesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
+import MyRatingsScreen from './screens/MyRatingsScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
+import AdminComplaintsScreen from './screens/AdminComplaintsScreen';
 import ChatDocked from './components/ChatDocked';
 import TopHeader from './components/TopHeader';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
@@ -225,7 +227,9 @@ const AppContent = () => {
                 <Route path="/sessions/:id" element={<ProtectedRoute><SessionDetailScreen /></ProtectedRoute>} />
                 <Route path="/resources" element={<ProtectedRoute><ResourcesScreen /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardScreen /></ProtectedRoute>} />
+                <Route path="/my-ratings" element={<ProtectedRoute><MyRatingsScreen /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboardScreen /></AdminRoute>} />
+                <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsScreen /></AdminRoute>} />
                 <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />
                 <Route path="/task/create" element={<TaskEditScreen />} />
                 <Route path="/task/:id/edit" element={<TaskEditScreen />} />
