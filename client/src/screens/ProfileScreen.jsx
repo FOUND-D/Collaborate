@@ -32,6 +32,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import AchievementTags from '../components/AchievementTags';
 import { BACKEND_URL } from '../config/runtime';
+import DirectRatingModal from '../components/DirectRatingModal';
 import './ProfileScreen.css';
 import './SkillExchange.css';
 
@@ -40,6 +41,7 @@ const ProfileScreen = () => {
   const { userId: paramUserId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showDirectRatingModal, setShowDirectRatingModal] = useState(false);
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -466,6 +468,16 @@ const ProfileScreen = () => {
                   </>
                 ) : (
                   <span className="rating-count">Not yet rated</span>
+                )}
+                {!isOwnProfile && (
+                  <button 
+                    type="button" 
+                    className="rate-user-btn" 
+                    onClick={() => setShowDirectRatingModal(true)}
+                    style={{ marginLeft: '12px', background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9rem' }}
+                  >
+                    <FaStar /> Rate User
+                  </button>
                 )}
               </div>
 
@@ -1034,6 +1046,14 @@ const ProfileScreen = () => {
           initialSelected={profileUser.showcasedProjectIds || []} 
           onClose={() => setIsProjectModalOpen(false)} 
           onSave={handleShowcaseUpdate}
+        />
+      )}
+      {/* Rating Modals */}
+      {showDirectRatingModal && profileUser && (
+        <DirectRatingModal 
+          ratee={profileUser}
+          isOpen={showDirectRatingModal}
+          onClose={() => setShowDirectRatingModal(false)}
         />
       )}
     </div>
