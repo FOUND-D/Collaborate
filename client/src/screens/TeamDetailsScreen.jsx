@@ -7,8 +7,8 @@ import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
 import './TeamDetailsScreen.css';
 import api from '../utils/api';
-import { createSocketConnection } from '../utils/socket';
-import { BACKEND_URL } from '../config/runtime';
+import io from 'socket.io-client';
+import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
 
 // Helper to calculate progress for project cards
 const calculateProgress = (tasks) => {
@@ -59,7 +59,7 @@ const TeamDetailsScreen = () => {
 
     dispatch(getTeamDetails(id));
 
-    const socket = createSocketConnection();
+    const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
     const fetchSession = async () => {
