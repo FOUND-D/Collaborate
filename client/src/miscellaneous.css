@@ -3,11 +3,13 @@
     ========================================= */
 .hero-input-container,
 .ai-result-preview {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
   padding: 2rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--glass-shadow);
   width: 100%;
   max-width: 800px;
 }
