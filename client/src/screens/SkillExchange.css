@@ -1,7 +1,8 @@
 .phase2-page {
-  background: var(--bg-primary);
   min-height: 100vh;
-  padding: 24px 32px;
+  padding: 32px 44px 64px;
+  background: var(--phase2-page-bg);
+  color: var(--phase2-copy);
 }
 
 .phase2-shell {
@@ -10,10 +11,9 @@
 }
 
 .phase2-glass {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow-sm);
+  background: var(--phase2-shell-bg);
+  border: 1px solid var(--phase2-shell-border);
+  box-shadow: var(--phase2-shell-shadow);
 }
 
 .phase2-hero {
