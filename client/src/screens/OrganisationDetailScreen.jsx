@@ -506,8 +506,8 @@ const OrganisationDetailScreen = () => {
           {inviteStatus.message && <div className={`org-detail-inline-message ${inviteStatus.type}`}>{inviteStatus.message}</div>}
           {memberRoleError && <div className="org-detail-inline-message error">{memberRoleError}</div>}
           <div className="org-detail-list-card">
-            {sortedMembers.length ? sortedMembers.map((member) => {
-              const memberId = member.user?._id || member.user;
+            {sortedMembers.length ? sortedMembers.map((member, index) => {
+              const memberId = member.user?._id || member.user || index;
               const canManage = isOwnerOrAdmin && member.role !== 'owner' && (currentUserRole === 'owner' || member.role === 'member');
               const canChangeRole = currentUserRole === 'owner' || (currentUserRole === 'admin' && member.role === 'member');
               return (
