@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../actions/userActions';
-import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain, FaStar } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaFolder, FaUsers, FaTasks, FaCog, FaSignOutAlt, FaComments, FaBook, FaBuilding, FaExchangeAlt, FaVideo, FaFolderOpen, FaCoins, FaMedal, FaShieldAlt, FaBrain, FaStar, FaFlag } from 'react-icons/fa';
 import UserGuideModal from './UserGuideModal';
 import OrgSwitcher from './OrgSwitcher';
 import { BACKEND_URL } from '../config/runtime';
@@ -97,10 +97,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
             <FaMedal className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>Leaderboard</span>
           </NavLink>
-          <button className="nav-item" onClick={toggleChat} style={navItemStyle}>
-            <FaComments className="nav-item-icon" />
-            <span className="nav-item-label" style={labelStyle}>Chat</span>
-          </button>
+          <NavLink to="/my-ratings" className={getNavLinkClass} style={navItemStyle}>
+            <FaStar className="nav-item-icon" />
+            <span className="nav-item-label" style={labelStyle}>My Ratings</span>
+          </NavLink>
           <button
             type="button"
             className="nav-item sidebar-guide-btn"
@@ -122,10 +122,16 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
           <span className="nav-item-label" style={labelStyle}>Settings</span>
         </NavLink>
         {userInfo?.role === 'admin' && (
-          <NavLink to="/admin" className={getNavLinkClass} style={navItemStyle}>
-            <FaShieldAlt className="nav-item-icon" />
-            <span className="nav-item-label" style={labelStyle}>Admin</span>
-          </NavLink>
+          <>
+            <NavLink to="/admin" className={getNavLinkClass} style={navItemStyle}>
+              <FaShieldAlt className="nav-item-icon" />
+              <span className="nav-item-label" style={labelStyle}>Admin</span>
+            </NavLink>
+            <NavLink to="/admin/complaints" className={getNavLinkClass} style={navItemStyle}>
+              <FaFlag className="nav-item-icon" />
+              <span className="nav-item-label" style={labelStyle}>Complaints</span>
+            </NavLink>
+          </>
         )}
 
         <div className="sidebar-bottom">
