@@ -11,6 +11,7 @@ const {
   getUserStats,
   getUserPublicProfile,
   getGithubStats,
+  refreshDevScore,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -25,6 +26,7 @@ router
   .get(protect, getUserProfile)
   .patch(protect, updateUserProfile);
 
+router.post('/dev-score/refresh', protect, refreshDevScore);
 router.get('/:id', protect, getUserPublicProfile);
 
 router.patch('/profile/image', protect, updateUserProfileImage);

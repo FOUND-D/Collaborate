@@ -2,6 +2,13 @@ const axios = require('axios');
 const asyncHandler = require('../middleware/asyncHandler');
 const generateToken = require('../utils/generateToken');
 const { supabase, createUser, verifyUserPassword, updateUser, getUserById } = require('../lib/repo');
+const devScoreService = require('../services/devScoreService');
+
+const refreshDevScore = asyncHandler(async (req, res) => {
+  const fullUser = await getUserById(req.user._id);
+  const result = await devScoreService.computeDevScore(fullUser);
+  res.json(result);
+});
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, department, yearOfStudy, studentId, techStack, profileImage } = req.body;
@@ -129,7 +136,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
   }
 
-  const updated = await updateUser(req.user._id, req.body);
+  let updated = await updateUser(req.user._id, req.body);
+  
+  if (req.body.githubUsername !== undefined || req.body.leetcodeUsername !== undefined) {
+    const scoreData = await devScoreService.computeDevScore(updated);
+    updated = { ...updated, ...scoreData, dev_score: scoreData.devScore };
+  }
+
   res.json({ ...updated, token: generateToken(updated._id) });
 });
 
@@ -146,9 +159,9 @@ const updateUserProfileImage = asyncHandler(async (req, res) => {
 
 const searchUsers = asyncHandler(async (req, res) => {
   const q = req.query.search || '';
-  const { data, error } = await supabase.from('users').select('id,name,email,role,profile_image,tech_stack').neq('id', req.user._id).or(`name.ilike.%${q}%,email.ilike.%${q}%`);
+  const { data, error } = await supabase.from('users').select('id,name,email,role,profile_image,tech_stack,dev_score').neq('id', req.user._id).or(`name.ilike.%${q}%,email.ilike.%${q}%`).order('dev_score', { ascending: false });
   if (error) throw error;
-  res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack })));
+  res.json((data || []).map((u) => ({ _id: u.id, name: u.name, email: u.email, role: u.role, profileImage: u.profile_image, techStack: u.tech_stack, devScore: u.dev_score ?? 0 })));
 });
 
 // @desc    Get public profile by ID
@@ -179,6 +192,10 @@ const getUserPublicProfile = asyncHandler(async (req, res) => {
     bio: user.bio,
     badges: user.badges,
     createdAt: user.createdAt,
+    devScore: user.devScore,
+    githubScore: user.githubScore,
+    leetcodeScore: user.leetcodeScore,
+    devScoreUpdatedAt: user.devScoreUpdatedAt,
   };
 
   if (isOwnProfile) {
@@ -413,6 +430,7 @@ module.exports = {
   getUserStats,
   getUserPublicProfile,
   getGithubStats,
+  refreshDevScore,
   adminGetUsers,
   adminUpdateUserRole,
   adminGetStats,

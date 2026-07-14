@@ -24,6 +24,8 @@ const toPublicCompactUser = (user) => {
     avg_rating: formatAvgRating(user.avg_rating),
     profileImage: user.profile_image || '',
     credits: user.credits ?? 0,
+    devScore: user.dev_score ?? 0,
+    dev_score: user.dev_score ?? 0,
     badges: user.badges || [],
   };
 };
@@ -65,6 +67,11 @@ const toPublicUser = (u) => {
     showcasedProjectIds: u.showcased_project_ids || [],
     bio: u.bio || '',
     badges: u.badges || [],
+    devScore: u.dev_score ?? 0,
+    dev_score: u.dev_score ?? 0,
+    githubScore: u.github_score ?? 0,
+    leetcodeScore: u.leetcode_score ?? 0,
+    devScoreUpdatedAt: u.dev_score_updated_at || null,
     createdAt: u.created_at,
     updatedAt: u.updated_at,
   };
@@ -846,18 +853,6 @@ const completeSession = async ({ sessionId }) => {
   if (session.status === 'completed') return getSessionById(sessionId);
   if (session.status === 'cancelled') throw new Error('Cancelled sessions cannot be completed');
 
-  const listing = session.listing_id ? await getListingRecordById(session.listing_id) : null;
-  const creditRate = listing?.credit_rate ?? 0;
-
-  // Transfer credits
-  const { error: txError } = await supabase.rpc('transfer_credits', {
-    from_user: session.learner_id,
-    to_user: session.teacher_id,
-    amount: creditRate,
-  });
-
-  if (txError) throw txError;
-
   const { data, error } = await supabase
     .from('booking_sessions')
     .update({ status: 'completed' })
@@ -1208,6 +1203,27 @@ const deleteRating = async (ratingId) => {
   }
 };
 
+const getTopUsersByDevScore = async ({ limit = 50, department = null }) => {
+  let query = supabase.from('users').select('id,name,profile_image,department,dev_score,github_score,leetcode_score,role').order('dev_score', { ascending: false }).limit(limit);
+  if (department) {
+    query = query.eq('department', department);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []).map(u => ({
+    id: u.id,
+    _id: u.id,
+    name: u.name,
+    role: u.role,
+    department: u.department || '',
+    profileImage: u.profile_image || '',
+    devScore: u.dev_score ?? 0,
+    dev_score: u.dev_score ?? 0,
+    githubScore: u.github_score ?? 0,
+    leetcodeScore: u.leetcode_score ?? 0,
+  }));
+};
+
 module.exports = {
   supabase,
   crypto,
@@ -1265,4 +1281,5 @@ module.exports = {
   uniqueSlug,
   flagRating,
   deleteRating,
+  getTopUsersByDevScore,
 };
