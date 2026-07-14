@@ -44,7 +44,7 @@ const ChatMessage = ({ message }) => {
           <h4>{requestPayload.skill}</h4>
           <div className="session-request-meta">
             <span><FaClock /> {new Date(requestPayload.proposed_time).toLocaleString()}</span>
-            <span><FaCoins /> {requestPayload.credits} credits</span>
+            
           </div>
           <p>{message.content}</p>
           {!isCurrentUser && (

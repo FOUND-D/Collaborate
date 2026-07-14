@@ -66,7 +66,7 @@ const SessionDetailScreen = () => {
 
             <div className="phase2-detail-metrics">
               <div><FaCalendarAlt /> {new Date(session.scheduledAt).toLocaleString()}</div>
-              <div><FaCoins /> {session.creditsTransacted ?? session.listing?.creditRate ?? 0} credits</div>
+              
               <div><FaVideo /> {session.meetingId ? 'Meeting linked' : 'Meeting not linked yet'}</div>
             </div>
 

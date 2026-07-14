@@ -504,31 +504,7 @@
   border-radius: 4px;
 }
 
-/* Credits Tab */
-.admin-panel {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
 
-.admin-panel h3 { margin: 0 0 8px; }
-.admin-panel .note { font-size: 0.85rem; color: var(--color-text-tertiary); margin-bottom: 20px; }
-
-.config-inline {
-  display: flex;
-  gap: 12px;
-}
-
-.config-inline input {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  width: 100px;
-}
 
 .bulk-grid {
   display: flex;

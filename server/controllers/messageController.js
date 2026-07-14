@@ -113,8 +113,8 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 
   if (messageType === 'session_request') {
-    if (!requestPayload?.skill || !requestPayload?.proposed_time || requestPayload?.credits === undefined || !requestPayload?.listing_id) {
-      return res.status(400).json({ message: 'session_request requires skill, proposed_time, credits, and listing_id' });
+    if (!requestPayload?.skill || !requestPayload?.proposed_time || !requestPayload?.listing_id) {
+      return res.status(400).json({ message: 'session_request requires skill, proposed_time, and listing_id' });
     }
   } else if (!content) {
     return res.status(400).json({ message: 'content is required' });

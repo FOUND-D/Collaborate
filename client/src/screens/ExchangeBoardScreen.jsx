@@ -134,11 +134,7 @@ const ExchangeBoardScreen = () => {
                       </span>
                     </div>
                     <div className="phase2-card-footer">
-                      <div>
-                        <strong>{listing.creditRate}</strong>
-                        <small>credits</small>
-                      </div>
-                      <Link className="phase2-button phase2-button-secondary" to={`/exchange/${listing._id}`}>
+                      <Link className="phase2-button phase2-button-secondary" to={`/exchange/${listing._id}`} style={{ width: '100%', textAlign: 'center' }}>
                         View detail
                       </Link>
                     </div>

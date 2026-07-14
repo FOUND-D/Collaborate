@@ -115,7 +115,7 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
             <div className="phase2-modal-head">
               <span className="phase2-badge phase2-badge-ai"><FaBolt /> Exchange listing</span>
               <h2>Create a skill listing</h2>
-              <p>Publish a high-signal offer or request with clear credits, format, and outcome.</p>
+              <p>Publish a high-signal offer or request with clear format, and outcome.</p>
             </div>
 
             <form className="phase2-form-grid" onSubmit={handleSubmit}>
@@ -186,15 +186,6 @@ const ListingCreateModal = ({ isOpen, onClose }) => {
                 </select>
               </label>
 
-              <label className="phase2-field">
-                <span>Credits</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.creditRate}
-                  onChange={(e) => setForm((prev) => ({ ...prev, creditRate: e.target.value }))}
-                />
-              </label>
 
               <label className="phase2-field">
                 <span>Format</span>

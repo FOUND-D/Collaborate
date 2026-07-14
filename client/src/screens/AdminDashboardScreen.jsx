@@ -35,7 +35,7 @@ const AdminDashboardScreen = () => {
             <AdminTabBtn id="listings" label="Listings" icon={<FaFilter />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="sessions" label="Sessions" icon={<FaHistory />} active={activeTab} onClick={setActiveTab} />
             <AdminTabBtn id="announcements" label="Announcements" icon={<FaBullhorn />} active={activeTab} onClick={setActiveTab} />
-            <AdminTabBtn id="credits" label="Credits" icon={<FaCoins />} active={activeTab} onClick={setActiveTab} />
+            
           </div>
         </div>
       </header>
@@ -48,7 +48,7 @@ const AdminDashboardScreen = () => {
         {activeTab === 'listings' && <ListingsTab />}
         {activeTab === 'sessions' && <SessionsTab />}
         {activeTab === 'announcements' && <AnnouncementsTab />}
-        {activeTab === 'credits' && <CreditsTab />}
+        
       </main>
     </div>
   );
@@ -173,76 +173,7 @@ const UsersTab = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [grantModal, setGrantModal] = useState(null); // { userId, name }
-  const [grantData, setGrantData] = useState({ amount: 10, reason: '' });
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const { data } = await api.get(`/api/admin/users?search=${searchTerm}&role=${roleFilter}`);
-      setUsers(data.users || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [roleFilter]);
-
-  const handleSearch = (e) => {
-    if (e.key === 'Enter') fetchUsers();
-  };
-
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      await api.patch(`/api/admin/users/${userId}/role`, { role: newRole });
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-    } catch (err) { alert('Failed to update role'); }
-  };
-
-  const handleSuspend = async (user) => {
-    const actionStr = user.suspended ? 'UNSUSPEND' : 'SUSPEND';
-    const input = window.prompt(`To ${actionStr.toLowerCase()} ${user.name}, please type ${actionStr} below:`);
-    
-    if (input !== actionStr) {
-      if (input !== null) alert(`Action cancelled. You must type ${actionStr} exactly.`);
-      return;
-    }
-
-    try {
-      const { data } = await api.patch(`/api/admin/users/${user.id}/suspend`);
-      setUsers(users.map(u => u.id === user.id ? { ...u, suspended: data.suspended } : u));
-    } catch (err) { alert('Failed to toggle suspension'); }
-  };
-
-  const handleDeleteUser = async (user) => {
-    const input = window.prompt(`WARNING: This will permanently delete ${user.name} and all their data. To proceed, type DELETE below:`);
-    
-    if (input !== 'DELETE') {
-      if (input !== null) alert('Action cancelled. You must type DELETE exactly.');
-      return;
-    }
-
-    try {
-      await api.delete(`/api/admin/users/${user.id}`);
-      setUsers(users.filter(u => u.id !== user.id));
-    } catch (err) { alert('Failed to delete user'); }
-  };
-
-  const handleGrantCredits = async (e) => {
-    e.preventDefault();
-    try {
-      const { data } = await api.patch(`/api/admin/users/${grantModal.userId}/credits`, grantData);
-      setUsers(users.map(u => u.id === grantModal.userId ? { ...u, credits: data.newBalance } : u));
-      setGrantModal(null);
-      setGrantData({ amount: 10, reason: '' });
-    } catch (err) { alert('Failed to grant credits'); }
-  };
-
-  return (
+    return (
     <div className="users-tab fade-in">
       <div className="table-controls">
         <div className="search-box">
@@ -272,7 +203,7 @@ const UsersTab = () => {
                 <th>Name</th>
                 <th>Role</th>
                 <th>Dept</th>
-                <th>Credits</th>
+                
                 <th>Actions</th>
               </tr>
             </thead>
@@ -309,7 +240,7 @@ const UsersTab = () => {
                     </select>
                   </td>
                   <td>{user.department || '—'}</td>
-                  <td>{user.credits}</td>
+                  
                   <td>
                     <div className="action-btns">
                       <a 
@@ -324,9 +255,7 @@ const UsersTab = () => {
                       <button className="btn-icon" title="Message" onClick={() => window.open(`/chat?user=${user.id}`)}>
                         <FaBullhorn />
                       </button>
-                      <button className="btn-icon" title="Adjust Credits" onClick={() => setGrantModal({ userId: user.id, name: user.name })}>
-                        <FaCoins />
-                      </button>
+                      
                       <button 
                         className={`btn-icon ${user.suspended ? 'unsuspend' : 'suspend'}`} 
                         title={user.suspended ? 'Unsuspend' : 'Suspend'}
@@ -350,40 +279,7 @@ const UsersTab = () => {
         </div>
       )}
 
-      {grantModal && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <div className="modal-header">
-              <h3>Adjust Credits: {grantModal.name}</h3>
-              <button onClick={() => setGrantModal(null)}><FaTimes /></button>
-            </div>
-            <form onSubmit={handleGrantCredits} className="admin-form">
-              <div className="field-group">
-                <label>Amount (negative to deduct)</label>
-                <input 
-                  type="number" 
-                  value={grantData.amount} 
-                  onChange={(e) => setGrantData({...grantData, amount: e.target.value})}
-                  required 
-                />
-              </div>
-              <div className="field-group">
-                <label>Reason</label>
-                <input 
-                  type="text" 
-                  value={grantData.reason} 
-                  onChange={(e) => setGrantData({...grantData, reason: e.target.value})}
-                  placeholder="e.g., Reward for mentorship"
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="cancel-btn" onClick={() => setGrantModal(null)}>Cancel</button>
-                <button type="submit" className="submit-btn">Apply Adjustment</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
@@ -926,143 +822,5 @@ const AnnouncementsTab = () => {
   );
 };
 
-const CreditsTab = () => {
-  const [config, setConfig] = useState({ startingCredits: 50 });
-  const [loading, setLoading] = useState(true);
-  const [bulkData, setBulkData] = useState({ userSearch: '', amount: 0, reason: '', type: 'grant' });
-  const [searchResults, setSearchResults] = useState([]);
-  const [targetUser, setTargetUser] = useState(null);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const { data } = await api.get('/api/admin/credit-config');
-        setConfig(data);
-      } catch (err) { console.error(err); }
-      finally { setLoading(false); }
-    };
-    fetchConfig();
-  }, []);
-
-  const handleSaveConfig = async () => {
-    try {
-      await api.patch('/api/admin/credit-config', { startingCredits: config.startingCredits });
-      alert('Config updated');
-    } catch (err) { alert('Failed to update config'); }
-  };
-
-  const handleSearchUser = async () => {
-    if (bulkData.userSearch.length < 3) return;
-    try {
-      const { data } = await api.get(`/api/admin/users?search=${bulkData.userSearch}`);
-      setSearchResults(data.users || []);
-    } catch (err) { console.error(err); }
-  };
-
-  const handleApplyBulk = async () => {
-    if (!targetUser) return;
-    const finalAmount = bulkData.type === 'deduct' ? -Math.abs(bulkData.amount) : Math.abs(bulkData.amount);
-    
-    if (!window.confirm(`Apply ${finalAmount} credits to ${targetUser.name}?`)) return;
-
-    try {
-      await api.patch(`/api/admin/users/${targetUser.id}/credits`, { 
-        amount: finalAmount, 
-        reason: bulkData.reason 
-      });
-      alert('Credits applied');
-      setTargetUser(null);
-      setBulkData({ userSearch: '', amount: 0, reason: '', type: 'grant' });
-      setSearchResults([]);
-    } catch (err) { alert('Failed to apply credits'); }
-  };
-
-  if (loading) return <Loader />;
-
-  return (
-    <div className="credits-tab fade-in">
-      <div className="admin-panel config-panel">
-        <h3>Starting Credits Configuration</h3>
-        <p className="note">This value is granted to new users upon registration.</p>
-        <div className="config-inline">
-          <input 
-            type="number" 
-            value={config.startingCredits} 
-            onChange={e => setConfig({ startingCredits: e.target.value })}
-          />
-          <button className="submit-btn" onClick={handleSaveConfig}>Save Changes</button>
-        </div>
-      </div>
-
-      <div className="admin-panel bulk-panel">
-        <h3>Grant / Deduct Credits (Manual)</h3>
-        <div className="bulk-grid">
-          <div className="field-group">
-            <label>Search User</label>
-            <div className="search-row">
-              <input 
-                type="text" 
-                placeholder="Name or email..." 
-                value={bulkData.userSearch}
-                onChange={e => setBulkData({...bulkData, userSearch: e.target.value})}
-              />
-              <button className="compact-btn" onClick={handleSearchUser}>Search</button>
-            </div>
-            {searchResults.length > 0 && !targetUser && (
-              <div className="inline-results">
-                {searchResults.map(u => (
-                  <div key={u.id} className="result-item" onClick={() => setTargetUser(u)}>
-                    {u.name} ({u.email})
-                  </div>
-                ))}
-              </div>
-            )}
-            {targetUser && (
-              <div className="target-pill">
-                Targeting: <strong>{targetUser.name}</strong>
-                <FaTimes onClick={() => setTargetUser(null)} />
-              </div>
-            )}
-          </div>
-
-          <div className="field-group" style={{ display: 'flex', gap: '12px' }}>
-            <div style={{ flex: 1 }}>
-              <label>Action</label>
-              <select 
-                value={bulkData.type} 
-                onChange={e => setBulkData({...bulkData, type: e.target.value})}
-                className="admin-select"
-                style={{ width: '100%' }}
-              >
-                <option value="grant">Grant</option>
-                <option value="deduct">Deduct</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label>Amount</label>
-              <input 
-                type="number" 
-                min="1"
-                value={bulkData.amount} 
-                onChange={e => setBulkData({...bulkData, amount: Math.abs(e.target.value)})}
-              />
-            </div>
-          </div>
-
-          <div className="field-group-full">
-            <label>Reason</label>
-            <input 
-              type="text" 
-              placeholder="Internal note..." 
-              value={bulkData.reason}
-              onChange={e => setBulkData({...bulkData, reason: e.target.value})}
-            />
-          </div>
-        </div>
-        <button className="submit-btn" disabled={!targetUser} onClick={handleApplyBulk}>Apply Adjustment</button>
-      </div>
-    </div>
-  );
-};
 
 export default AdminDashboardScreen;

@@ -13,8 +13,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
     listingId: '',
     skill: '',
     proposed_time: '',
-    credits: '',
-  });
+    });
   const dispatch = useDispatch();
   const { listings = [] } = useSelector((state) => state.listingList);
 
@@ -91,7 +90,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
 
   const handleSessionRequest = async (event) => {
     event.preventDefault();
-    if (!selectedChat || !sessionDraft.listingId || !sessionDraft.skill || !sessionDraft.proposed_time || sessionDraft.credits === '') {
+    if (!selectedChat || !sessionDraft.listingId || !sessionDraft.skill || !sessionDraft.proposed_time ) {
       return;
     }
 
@@ -101,7 +100,6 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
       sessionRequest: {
         skill: sessionDraft.skill,
         proposed_time: sessionDraft.proposed_time,
-        credits: Number(sessionDraft.credits),
         listing_id: sessionDraft.listingId,
       },
     };
@@ -118,8 +116,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
         listingId: '',
         skill: '',
         proposed_time: '',
-        credits: '',
-      });
+        });
       setIsComposerOpen(false);
     }
   };
@@ -130,8 +127,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
       ...prev,
       listingId,
       skill: selectedListing?.skill?.name || '',
-      credits: selectedListing?.creditRate ?? '',
-    }));
+      }));
   };
 
   return (
@@ -207,17 +203,6 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
                     type="datetime-local"
                     value={sessionDraft.proposed_time}
                     onChange={(e) => setSessionDraft((prev) => ({ ...prev, proposed_time: e.target.value }))}
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span><FaCoins /> Credits</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={sessionDraft.credits}
-                    onChange={(e) => setSessionDraft((prev) => ({ ...prev, credits: e.target.value }))}
                     required
                   />
                 </label>

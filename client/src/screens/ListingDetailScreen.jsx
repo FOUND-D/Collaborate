@@ -70,7 +70,6 @@ const ListingDetailScreen = () => {
             <p className="phase2-detail-copy">{listing.description || 'No description provided.'}</p>
 
             <div className="phase2-detail-metrics">
-              <div><FaCoins /> {listing.creditRate} credits</div>
               <div><FaUsers /> {listing.format === 'group' ? `Group of ${listing.maxGroupSize || 'open size'}` : '1-on-1 format'}</div>
               <div><FaCalendarAlt /> Active listing</div>
             </div>
