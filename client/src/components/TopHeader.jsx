@@ -16,7 +16,8 @@ import {
     FaUsers,
     FaTimes,
     FaSpinner,
-    FaBullhorn
+    FaBullhorn,
+    FaChartLine
 } from 'react-icons/fa';
 import api from '../utils/api';
 import NoticeBoardWidget from './NoticeBoardWidget';
@@ -137,7 +138,7 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
         return 'Collaborate';
     };
 
-    const credits = userInfo?.credits;
+
 
     // Debounced search query fetching
     useEffect(() => {
@@ -262,7 +263,12 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                                     <div className="search-item-avatar-placeholder">{user.name.charAt(0)}</div>
                                 )}
                                 <div className="search-item-info">
-                                    <div className="search-item-title">{user.name}</div>
+                                    <div className="search-item-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        {user.name}
+                                        {user.devScore !== undefined && user.devScore !== null && (
+                                            <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px', color: 'var(--accent-primary)' }}><FaChartLine /> {user.devScore}</span>
+                                        )}
+                                    </div>
                                     <div className="search-item-subtitle">
                                         <span>{user.department || 'General'}</span>
                                         {user.studentId && <span>• Roll No: {user.studentId}</span>}
@@ -502,9 +508,9 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
             </div>
 
             <div className="header-right">
-                <div className="credits-badge">
-                    <FaCoins className="credits-icon" />
-                    <span>{credits !== undefined && credits !== null ? `${credits} Credits` : '-- Credits'}</span>
+                <div className="dev-score-badge">
+                    <FaChartLine className="dev-score-icon" />
+                    <span>{userInfo?.devScore !== undefined && userInfo?.devScore !== null ? `Score: ${userInfo.devScore}` : 'Score: --'}</span>
                 </div>
 
                 <button 

@@ -266,6 +266,33 @@ export const getUserProfile = () => async (dispatch, getState) => {
   }
 };
 
+export const refreshDevScore = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: USER_UPDATE_PROFILE_REQUEST });
+    const { userLogin: { userInfo } } = getState();
+    if (!userInfo?.token) return;
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await api.post('/api/users/dev-score/refresh', {}, config);
+    const updatedUserInfo = { ...userInfo, ...data };
+    
+    dispatch({ type: USER_UPDATE_PROFILE_SUCCESS, payload: updatedUserInfo });
+    dispatch({ type: USER_LOGIN_SUCCESS, payload: updatedUserInfo });
+    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+    
+    return data;
+  } catch (error) {
+    console.error('Dev Score refresh failed:', error);
+    dispatch({ type: USER_UPDATE_PROFILE_FAIL, payload: error.message });
+    throw error;
+  }
+};
+
 export const updateUserProfile = (user) => async (dispatch, getState) => {
   try {
     dispatch({

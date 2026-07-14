@@ -38,7 +38,7 @@
   flex-direction: column;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.credits-gradient {
+.dev-score-gradient {
   background: linear-gradient(135deg, #f59e0b, #ea580c);
 }
 .rating-gradient {

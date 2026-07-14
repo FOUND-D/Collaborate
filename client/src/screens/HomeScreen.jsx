@@ -126,10 +126,10 @@ const HomeScreen = () => {
           </div>
           
           <div className="dashboard-summary-cards">
-             <div className="dashboard-summary-card credits-gradient">
-                <div className="summary-label">Credits</div>
-                <div className="summary-value">{userInfo?.credits ?? 0}</div>
-                <div className="summary-sublabel">Available</div>
+             <div className="dashboard-summary-card dev-score-gradient">
+                <div className="summary-label">Dev Score</div>
+                <div className="summary-value">{userInfo?.devScore ?? 0}</div>
+                <div className="summary-sublabel">Calculated</div>
              </div>
              
              <div className="dashboard-summary-card rating-gradient">

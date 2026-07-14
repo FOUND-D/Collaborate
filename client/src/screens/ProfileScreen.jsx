@@ -6,15 +6,15 @@ import { GitHubCalendar } from 'react-github-calendar';
 import * as ActivityCalendarNS from 'react-activity-calendar';
 import {
   FaGithub,
-  FaLinkedin,
   FaCode,
+  FaChartLine,
+  FaLinkedin,
   FaGlobe,
   FaEdit,
   FaStar,
   FaRegStar,
   FaPlus,
   FaBook,
-  FaChartLine,
   FaPencilAlt,
   FaTimes,
   FaExternalLinkAlt,
@@ -23,6 +23,8 @@ import {
 } from 'react-icons/fa';
 import {
   updateUserProfile,
+  updateUserProfileImage,
+  refreshDevScore,
 } from '../actions/userActions';
 import { listUserSkills, listSkills, createUserSkill, deleteUserSkill } from '../actions/skillActions';
 import { listProjects } from '../actions/projectActions';
@@ -99,8 +101,8 @@ const ProfileScreen = () => {
     portfolioUrl: '',
   });
 
-  const isOwnProfile = !paramUserId || paramUserId === userInfo?._id;
-  const targetId = paramUserId || userInfo?._id;
+  const isOwnProfile = !paramUserId || paramUserId === 'me' || paramUserId === userInfo?._id;
+  const targetId = (!paramUserId || paramUserId === 'me') ? userInfo?._id : paramUserId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -364,9 +366,17 @@ const ProfileScreen = () => {
   useEffect(() => {
     if (updateSuccess) {
       setIsEditModalOpen(false);
-      setProfileUser(prev => ({...prev, ...editForm, yearOfStudy: editForm.yearOfStudy ? Number(editForm.yearOfStudy) : null}));
+      const reFetch = async () => {
+        try {
+          const { data: user } = await api.get(`/api/users/${targetId}`);
+          setProfileUser(user);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      if (targetId) reFetch();
     }
-  }, [updateSuccess]);
+  }, [updateSuccess, targetId]);
 
   const handleShowcaseUpdate = async (selectedIds) => {
     try {
@@ -481,12 +491,49 @@ const ProfileScreen = () => {
                 )}
               </div>
 
-              {isOwnProfile && (
-                <div className="credits-balance">
-                  <FaStar style={{ color: '#000' }} />
-                  {profileUser.credits ?? 50} Credits
+              <div className="dev-score-section" style={{ padding: '16px', background: 'var(--bg-overlay)', borderRadius: '12px', marginTop: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <span style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}><FaChartLine /> Total Dev Score</span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>{profileUser.devScore ?? '--'}</span>
                 </div>
-              )}
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span><FaGithub style={{ marginRight: '6px' }}/>GitHub Sub-score:</span>
+                    <span>{profileUser.githubScore ?? '--'}</span>
+                  </div>
+                  {(profileUser.leetcodeUsername || profileUser.leetcodeScore !== undefined) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span><FaCode style={{ marginRight: '6px' }}/>LeetCode Sub-score:</span>
+                      <span>{profileUser.leetcodeScore ?? '--'}</span>
+                    </div>
+                  )}
+                  {profileUser.devScoreUpdatedAt && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                      Last updated: {new Date(profileUser.devScoreUpdatedAt).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+
+                {isOwnProfile && (
+                  <button 
+                    className="phase2-button phase2-button-secondary" 
+                    style={{ width: '100%', marginTop: '12px', padding: '6px' }}
+                    onClick={async () => {
+                      try {
+                        await dispatch(refreshDevScore());
+                        const { data: user } = await api.get(`/api/users/${targetId}`);
+                        setProfileUser(user);
+                      } catch (err) {
+                        console.error('Failed to refresh dev score:', err);
+                      }
+                    }}
+                    disabled={updateLoading}
+                  >
+                    {updateLoading ? 'Refreshing...' : 'Refresh Dev Score'}
+                  </button>
+                )}
+              </div>
 
               {/* Links Section */}
               <div className="links-section">

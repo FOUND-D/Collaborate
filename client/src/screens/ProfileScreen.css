@@ -175,18 +175,7 @@
   color: var(--text-tertiary);
 }
 
-.credits-balance {
-  background: var(--accent-gradient);
-  color: #000;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
+
 
 /* Links Section (Left Column) */
 .links-section {
