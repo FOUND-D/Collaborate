@@ -17,8 +17,9 @@ router.get('/', protect, asyncHandler(async (req, res) => {
     // Users search (by name or student_id/roll number)
     supabase
       .from('users')
-      .select('id, name, email, role, profile_image, student_id, department')
+      .select('id, name, email, role, profile_image, student_id, department, dev_score')
       .or(`name.ilike.%${query}%,student_id.ilike.%${query}%`)
+      .order('dev_score', { ascending: false })
       .limit(10),
 
     // Projects search (by name or goal)
@@ -59,7 +60,8 @@ router.get('/', protect, asyncHandler(async (req, res) => {
     role: u.role,
     profileImage: u.profile_image,
     studentId: u.student_id,
-    department: u.department
+    department: u.department,
+    devScore: u.dev_score ?? 0
   }));
 
   const projects = (projectsRes.data || []).map(p => ({
