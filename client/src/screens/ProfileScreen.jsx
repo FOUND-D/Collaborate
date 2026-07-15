@@ -174,7 +174,7 @@ const ProfileScreen = () => {
     setGithubError(null);
     try {
       const { data } = await api.get(`/api/users/github/${username}?showPrivate=${profileUser?.githubShowPrivate || false}`);
-      setGithubData(data.user);
+      setGithubData({ ...data.user, contributionCalendar: data.contributionCalendar });
       setGithubRepos(data.repos);
       setPinnedRepos(data.pinnedRepoNames || []);
     } catch (err) {
@@ -872,16 +872,32 @@ const ProfileScreen = () => {
                         <h2 className="section-title"><FaGithub /> Contribution Graph</h2>
                       </div>
                       <div className="github-calendar-scroll">
-                        <GitHubCalendar 
-                          username={profileUser.githubUsername} 
-                          colorScheme="light"
-                          theme={{
-                            light: ['#ede9e4', '#99f6e4', '#2dd4bf', '#14b8a6', '#0d9488']
-                          }}
-                          blockSize={12}
-                          blockMargin={4}
-                          fontSize={12}
-                        />
+                        {githubData.contributionCalendar && githubData.contributionCalendar.length > 0 ? (
+                          <ActivityCalendarNS.ActivityCalendar
+                            data={githubData.contributionCalendar}
+                            colorScheme="light"
+                            theme={{
+                              light: ['#ede9e4', '#99f6e4', '#2dd4bf', '#14b8a6', '#0d9488']
+                            }}
+                            blockSize={12}
+                            blockMargin={4}
+                            fontSize={12}
+                            labels={{
+                              totalCount: '{{count}} contributions in the last year'
+                            }}
+                          />
+                        ) : (
+                          <GitHubCalendar 
+                            username={profileUser.githubUsername} 
+                            colorScheme="light"
+                            theme={{
+                              light: ['#ede9e4', '#99f6e4', '#2dd4bf', '#14b8a6', '#0d9488']
+                            }}
+                            blockSize={12}
+                            blockMargin={4}
+                            fontSize={12}
+                          />
+                        )}
                       </div>
                     </section>
                   )}
