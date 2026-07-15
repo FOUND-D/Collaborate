@@ -1,6 +1,6 @@
+require('dotenv').config();
 const { supabase } = require('../lib/repo');
 const { computeDevScore } = require('../services/devScoreService');
-require('dotenv').config();
 
 async function backfill() {
   console.log("Fetching users with GitHub or LeetCode connected...");

@@ -10,9 +10,9 @@ function computeGithubScoreObj({ followers = 0, publicRepos = 0, totalStars = 0,
   return Math.min(100, Math.round(score * 100) / 100);
 }
 
-function computeLeetcodeScoreObj({ easySolved = 0, mediumSolved = 0, hardSolved = 0, contributionPoint = 0 }) {
-  const raw = easySolved * 1 + mediumSolved * 3 + hardSolved * 6;
-  const score = raw * 0.15 + Math.log10(contributionPoint + 1) * 5;
+function computeLeetcodeScoreObj({ easySolved = 0, totalEasy = 1, mediumSolved = 0, totalMedium = 1, hardSolved = 0, totalHard = 1, contributionPoint = 0 }) {
+  const raw = (easySolved / Math.max(1, totalEasy)) * 1 + (mediumSolved / Math.max(1, totalMedium)) * 3 + (hardSolved / Math.max(1, totalHard)) * 6;
+  const score = raw * 10 + Math.log10(contributionPoint + 1) * 5;
   return Math.min(100, Math.round(score * 100) / 100);
 }
 
@@ -76,9 +76,12 @@ async function computeLeetcodeScore(leetcodeUsername) {
     }
 
     return computeLeetcodeScoreObj({
-      easySolved: data.totalEasy || data.easySolved || 0,
-      mediumSolved: data.totalMedium || data.mediumSolved || 0,
-      hardSolved: data.totalHard || data.hardSolved || 0,
+      easySolved: data.easySolved || 0,
+      totalEasy: data.totalEasy || 1,
+      mediumSolved: data.mediumSolved || 0,
+      totalMedium: data.totalMedium || 1,
+      hardSolved: data.hardSolved || 0,
+      totalHard: data.totalHard || 1,
       contributionPoint: data.contributionPoint || 0
     });
   } catch (error) {
