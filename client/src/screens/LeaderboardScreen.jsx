@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaTrophy, FaMedal, FaGithub, FaCode, FaChartLine } from 'react-icons/fa';
+import { FaTrophy, FaMedal, FaGithub, FaCode, FaChartLine, FaInfoCircle } from 'react-icons/fa';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import api from '../utils/api';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -29,11 +30,30 @@ const LeaderboardScreen = () => {
     fetchLeaderboard();
   }, [department]);
 
+  const scoreExplanationPopover = (
+    <Popover id="popover-dev-score" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+      <Popover.Header as="h3" style={{ background: 'var(--bg-overlay)', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', margin: 0 }}>Dev Score Calculation</Popover.Header>
+      <Popover.Body style={{ color: 'var(--text-secondary)' }}>
+        <strong>Dev Score</strong> is out of 100, calculated as:<br/><br/>
+        <strong>GitHub:</strong> Based on Stars, Followers, Public Repos, and Forks using a logarithmic scale to reward early milestones.<br/>
+        <strong>LeetCode:</strong> Based on the percentage of Easy (1x weight), Medium (3x weight), and Hard (6x weight) problems solved, plus Contribution Points.<br/><br/>
+        <em>If both accounts are connected, the Dev Score is their combined average.</em>
+      </Popover.Body>
+    </Popover>
+  );
+
   return (
     <div className="phase2-page">
       <div className="phase2-shell">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2><FaTrophy style={{ marginRight: '8px', color: 'var(--accent-primary)' }} /> Developer Leaderboard</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <h2 style={{ display: 'flex', alignItems: 'center', margin: 0 }}>
+            <FaTrophy style={{ marginRight: '8px', color: 'var(--accent-primary)' }} /> Developer Leaderboard
+            <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={scoreExplanationPopover}>
+              <span style={{ cursor: 'pointer', marginLeft: '12px', fontSize: '1.2rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center' }}>
+                <FaInfoCircle />
+              </span>
+            </OverlayTrigger>
+          </h2>
           <select 
             value={department} 
             onChange={(e) => setDepartment(e.target.value)}
@@ -44,6 +64,9 @@ const LeaderboardScreen = () => {
             <option value="Information Technology">Information Technology</option>
           </select>
         </div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          Scores and Leaderboard rankings are automatically updated every day at 6:00 AM.
+        </p>
 
         {loading ? <Loader /> : error ? <Message variant="danger">{error}</Message> : (
           leaderboard.length === 0 ? (
