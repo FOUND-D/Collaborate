@@ -387,6 +387,7 @@ const getGithubStats = asyncHandler(async (req, res) => {
     }
 
     let pinnedRepoNames = [];
+    let contributionCalendar = [];
     if (process.env.GITHUB_PAT) {
       try {
         const q = `
@@ -396,6 +397,16 @@ const getGithubStats = asyncHandler(async (req, res) => {
                 nodes {
                   ... on Repository {
                     name
+                  }
+                }
+              }
+              contributionsCollection {
+                contributionCalendar {
+                  weeks {
+                    contributionDays {
+                      contributionCount
+                      date
+                    }
                   }
                 }
               }
@@ -415,12 +426,29 @@ const getGithubStats = asyncHandler(async (req, res) => {
         if (graphqlRes.data?.data?.user?.pinnedItems?.nodes) {
           pinnedRepoNames = graphqlRes.data.data.user.pinnedItems.nodes.map(node => node.name.toLowerCase());
         }
+        if (graphqlRes.data?.data?.user?.contributionsCollection?.contributionCalendar?.weeks) {
+          const weeks = graphqlRes.data.data.user.contributionsCollection.contributionCalendar.weeks;
+          for (const week of weeks) {
+            for (const day of week.contributionDays) {
+              let level = 0;
+              if (day.contributionCount > 0) level = 1;
+              if (day.contributionCount > 3) level = 2;
+              if (day.contributionCount > 6) level = 3;
+              if (day.contributionCount > 10) level = 4;
+              contributionCalendar.push({
+                date: day.date,
+                count: day.contributionCount,
+                level
+              });
+            }
+          }
+        }
       } catch (err) {
-        console.error('GraphQL pinned repos error:', err.message);
+        console.error('GraphQL github profile error:', err.message);
       }
     }
 
-    res.json({ user: userRes.data, repos, pinnedRepoNames });
+    res.json({ user: userRes.data, repos, pinnedRepoNames, contributionCalendar });
   } catch (error) {
     console.error('GitHub proxy error:', error.message);
     if (error.response) {
