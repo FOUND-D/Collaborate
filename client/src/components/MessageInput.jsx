@@ -14,6 +14,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
     skill: '',
     proposed_time: '',
     });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const { listings = [] } = useSelector((state) => state.listingList);
 
@@ -64,7 +65,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!content.trim() || !selectedChat) return;
+    if (isSubmitting || !content.trim() || !selectedChat) return;
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -74,50 +75,60 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
       socketRef.current.emit('stopTyping', { conversationId: selectedChat.id });
     }
 
-    const messageData = { content };
-    if (selectedChat.type === 'team') {
-      messageData.teamId = selectedChat.id;
-    } else {
-      messageData.recipientId = selectedChat.id;
-    }
+    setIsSubmitting(true);
+    try {
+      const messageData = { content };
+      if (selectedChat.type === 'team') {
+        messageData.teamId = selectedChat.id;
+      } else {
+        messageData.recipientId = selectedChat.id;
+      }
 
-    const newMessage = await dispatch(sendMessage(messageData));
-    if (newMessage) {
-      setContent('');
-      if (onMessageSent) onMessageSent();
+      const newMessage = await dispatch(sendMessage(messageData));
+      if (newMessage) {
+        setContent('');
+        if (onMessageSent) onMessageSent();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSessionRequest = async (event) => {
     event.preventDefault();
-    if (!selectedChat || !sessionDraft.listingId || !sessionDraft.skill || !sessionDraft.proposed_time ) {
+    if (isSubmitting || !selectedChat || !sessionDraft.listingId || !sessionDraft.skill || !sessionDraft.proposed_time ) {
       return;
     }
 
-    const messageData = {
-      type: 'session_request',
-      content: `Proposed session for ${sessionDraft.skill}`,
-      sessionRequest: {
-        skill: sessionDraft.skill,
-        proposed_time: sessionDraft.proposed_time,
-        listing_id: sessionDraft.listingId,
-      },
-    };
+    setIsSubmitting(true);
+    try {
+      const messageData = {
+        type: 'session_request',
+        content: `Proposed session for ${sessionDraft.skill}`,
+        sessionRequest: {
+          skill: sessionDraft.skill,
+          proposed_time: sessionDraft.proposed_time,
+          listing_id: sessionDraft.listingId,
+        },
+      };
 
-    if (selectedChat.type === 'team') {
-      messageData.teamId = selectedChat.id;
-    } else {
-      messageData.recipientId = selectedChat.id;
-    }
+      if (selectedChat.type === 'team') {
+        messageData.teamId = selectedChat.id;
+      } else {
+        messageData.recipientId = selectedChat.id;
+      }
 
-    const sent = await dispatch(sendMessage(messageData));
-    if (sent) {
-      setSessionDraft({
-        listingId: '',
-        skill: '',
-        proposed_time: '',
-        });
-      setIsComposerOpen(false);
+      const sent = await dispatch(sendMessage(messageData));
+      if (sent) {
+        setSessionDraft({
+          listingId: '',
+          skill: '',
+          proposed_time: '',
+          });
+        setIsComposerOpen(false);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -148,7 +159,7 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
           onChange={handleContentChange}
           className="message-input-field"
         />
-        <button type="submit" className="message-input-send-btn">
+        <button type="submit" disabled={isSubmitting || !content.trim()} className="message-input-send-btn" style={{ opacity: isSubmitting ? 0.5 : 1 }}>
           <FaPaperPlane />
         </button>
       </form>
@@ -211,9 +222,10 @@ const MessageInput = ({ selectedChat, socketRef, onMessageSent }) => {
               <button
                 type="submit"
                 className="session-compose-submit"
-                disabled={!availableListings.length}
+                disabled={isSubmitting || !availableListings.length}
+                style={{ opacity: isSubmitting ? 0.7 : 1 }}
               >
-                Send session request
+                {isSubmitting ? 'Sending...' : 'Send session request'}
               </button>
 
               {!availableListings.length && (

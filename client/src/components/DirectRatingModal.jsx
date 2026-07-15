@@ -7,20 +7,27 @@ const DirectRatingModal = ({ ratee, isOpen, onClose }) => {
   const dispatch = useDispatch();
   const [stars, setStars] = useState(5);
   const [review, setReview] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!ratee?._id) return;
-    const created = await dispatch(createRating({
-      rateeId: ratee._id,
-      stars,
-      review,
-    }));
+    if (isSubmitting || !ratee?._id) return;
+    
+    setIsSubmitting(true);
+    try {
+      const created = await dispatch(createRating({
+        rateeId: ratee._id,
+        stars,
+        review,
+      }));
 
-    if (created) {
-      setStars(5);
-      setReview('');
-      onClose();
+      if (created) {
+        setStars(5);
+        setReview('');
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -66,8 +73,8 @@ const DirectRatingModal = ({ ratee, isOpen, onClose }) => {
               <button type="button" className="btn btn-light" onClick={onClose} style={{ marginRight: '10px', padding: '10px 16px', background: '#e0e0e0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary" style={{ padding: '10px 16px', background: 'var(--accent-color)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                Submit Rating
+              <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: '10px 16px', background: 'var(--accent-color)', color: '#fff', border: 'none', borderRadius: '6px', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1 }}>
+                {isSubmitting ? 'Submitting...' : 'Submit Rating'}
               </button>
             </div>
           </form>

@@ -10,6 +10,7 @@ const RatingPromptModal = ({ session, isOpen, onClose }) => {
   const userInfo = useSelector((state) => state.userLogin.userInfo);
   const [stars, setStars] = useState(5);
   const [review, setReview] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const ratee = useMemo(() => {
     if (!session || !userInfo) return null;
@@ -18,18 +19,24 @@ const RatingPromptModal = ({ session, isOpen, onClose }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!ratee?._id || !session?._id) return;
-    const created = await dispatch(createRating({
-      sessionId: session._id,
-      rateeId: ratee._id,
-      stars,
-      review,
-    }));
+    if (isSubmitting || !ratee?._id || !session?._id) return;
+    
+    setIsSubmitting(true);
+    try {
+      const created = await dispatch(createRating({
+        sessionId: session._id,
+        rateeId: ratee._id,
+        stars,
+        review,
+      }));
 
-    if (created) {
-      setStars(5);
-      setReview('');
-      onClose();
+      if (created) {
+        setStars(5);
+        setReview('');
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -90,8 +97,8 @@ const RatingPromptModal = ({ session, isOpen, onClose }) => {
                 <button type="button" className="phase2-button phase2-button-secondary" onClick={onClose}>
                   Later
                 </button>
-                <button type="submit" className="phase2-button phase2-button-primary">
-                  Submit rating
+                <button type="submit" disabled={isSubmitting} className="phase2-button phase2-button-primary" style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}>
+                  {isSubmitting ? 'Submitting...' : 'Submit rating'}
                 </button>
               </div>
             </form>
