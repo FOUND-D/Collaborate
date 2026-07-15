@@ -8,6 +8,9 @@ const Groq = require('groq-sdk');
 const cors = require('cors');
 const connectDB = require('./config/db');
 
+// Initialize Cron Jobs
+require('./jobs/cronJobs');
+
 const userRoutes = require('./routes/userRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
