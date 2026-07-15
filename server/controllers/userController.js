@@ -359,11 +359,16 @@ const getGithubStats = asyncHandler(async (req, res) => {
   const { username } = req.params;
   const showPrivate = req.query.showPrivate === 'true';
   
-  const headers = {};
+  const headers = {
+    'User-Agent': 'collaborate'
+  };
+  if (process.env.GITHUB_PAT) {
+    headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
+  }
+  
   let reposUrl = `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`;
 
   if (showPrivate && process.env.GITHUB_PAT) {
-    headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
     // /users/:username/repos only returns public repos even with a PAT.
     // To get private repos, we must use /user/repos which gets all repos for the authenticated PAT.
     reposUrl = `https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator`;
@@ -397,7 +402,16 @@ const getGithubStats = asyncHandler(async (req, res) => {
             }
           }
         `;
-        const graphqlRes = await axios.post('https://api.github.com/graphql', { query: q }, { headers: { 'Authorization': `Bearer ${process.env.GITHUB_PAT}` } });
+        const graphqlRes = await axios.post(
+          'https://api.github.com/graphql',
+          { query: q },
+          {
+            headers: {
+              'Authorization': `Bearer ${process.env.GITHUB_PAT}`,
+              'User-Agent': 'collaborate'
+            }
+          }
+        );
         if (graphqlRes.data?.data?.user?.pinnedItems?.nodes) {
           pinnedRepoNames = graphqlRes.data.data.user.pinnedItems.nodes.map(node => node.name.toLowerCase());
         }
@@ -409,11 +423,13 @@ const getGithubStats = asyncHandler(async (req, res) => {
     res.json({ user: userRes.data, repos, pinnedRepoNames });
   } catch (error) {
     console.error('GitHub proxy error:', error.message);
-    if (error.response && error.response.status === 403 && error.response.data?.message?.includes('rate limit')) {
-      return res.status(429).json({ message: 'GitHub API rate limit exceeded. Please try again later or add a Personal Access Token.' });
-    }
-    if (error.response && error.response.status === 404) {
-      return res.status(404).json({ message: 'GitHub user not found' });
+    if (error.response) {
+      const statusCode = error.response.status;
+      const message = error.response.data?.message || 'Error fetching GitHub data';
+      if (statusCode === 403 && message.toLowerCase().includes('rate limit')) {
+        return res.status(429).json({ message: 'GitHub API rate limit exceeded. Please try again later or add a Personal Access Token.' });
+      }
+      return res.status(statusCode).json({ message });
     }
     res.status(500).json({ message: 'Error fetching GitHub data' });
   }

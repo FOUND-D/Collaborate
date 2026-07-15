@@ -19,11 +19,16 @@ function computeLeetcodeScoreObj({ easySolved = 0, mediumSolved = 0, hardSolved 
 async function computeGithubScore(githubUsername, showPrivate) {
   if (!githubUsername) return 0;
   try {
-    const headers = {};
+    const headers = {
+      'User-Agent': 'collaborate'
+    };
+    if (process.env.GITHUB_PAT) {
+      headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
+    }
+    
     let reposUrl = `https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=100`;
 
     if (showPrivate && process.env.GITHUB_PAT) {
-      headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
       reposUrl = `https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator`;
     }
 

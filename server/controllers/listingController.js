@@ -16,7 +16,7 @@ const createExchangeListing = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'listing_type must be offer or request' });
   }
 
-  const listing = await createListing(req.user._id, req.body);
+  const listing = await createListing({ userId: req.user._id, payload: req.body });
   res.status(201).json(listing);
 });
 
