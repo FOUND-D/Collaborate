@@ -6,6 +6,7 @@ const {
   getListingById,
   updateListing,
 } = require('../lib/repo');
+const { sendNotification } = require('../services/notificationService');
 
 const createExchangeListing = asyncHandler(async (req, res) => {
   const skillId = req.body.skillId || req.body.skill_id;
@@ -17,6 +18,19 @@ const createExchangeListing = asyncHandler(async (req, res) => {
   }
 
   const listing = await createListing({ userId: req.user._id, payload: req.body });
+  
+  try {
+    sendNotification(req.app.get('io'), {
+      userId: req.user._id,
+      title: 'Listing Published',
+      message: `Your ${listingType} for ${skillId} has been successfully published.`,
+      type: 'general',
+      data: { listingId: listing.id }
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   res.status(201).json(listing);
 });
 

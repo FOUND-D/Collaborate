@@ -173,6 +173,60 @@ const UsersTab = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (roleFilter !== 'all') params.role = roleFilter;
+      const { data } = await api.get('/api/admin/users', { params });
+      setUsers(data.users || data || []);
+    } catch (err) {
+      console.error('Failed to fetch users:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [roleFilter]);
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+      fetchUsers();
+    }
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await api.put(`/api/admin/users/${userId}/role`, { role: newRole });
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
+    } catch (err) {
+      console.error('Failed to update role:', err);
+    }
+  };
+
+  const handleSuspend = async (user) => {
+    const newStatus = !user.suspended;
+    try {
+      await api.put(`/api/admin/users/${user.id}/status`, { suspended: newStatus });
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, suspended: newStatus } : u)));
+    } catch (err) {
+      console.error('Failed to update suspension:', err);
+    }
+  };
+
+  const handleDeleteUser = async (user) => {
+    if (!window.confirm(`Are you sure you want to delete ${user.name}? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/api/admin/users/${user.id}`);
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+    }
+  };
     return (
     <div className="users-tab fade-in">
       <div className="table-controls">

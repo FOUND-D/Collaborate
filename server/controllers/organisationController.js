@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const { supabase, crypto, uniqueSlug, toPublicOrganisation, toPublicOrgMember } = require('../lib/repo');
+const { sendNotification } = require('../services/notificationService');
 
 const createOrganisation = asyncHandler(async (req, res) => {
   const { name, description = '', logo = '' } = req.body;
@@ -57,6 +58,19 @@ const createOrganisation = asyncHandler(async (req, res) => {
   }
   
   console.log(`[createOrganisation] Success.`);
+  
+  try {
+    await sendNotification(req.app.get('io'), {
+      userId: req.user._id,
+      title: 'Organisation Created',
+      message: `Created ${name} organisation.`,
+      type: 'general',
+      data: { organisationId: data.id }
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   res.status(201).json(toPublicOrganisation(data));
 });
 

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "_id": "1784015526352",
+    "reason": "Fake/Fraudulent",
+    "description": "fake",
+    "reporterId": "0ca477ae-2263-4b18-9f6e-0e38827ef30c",
+    "reporterName": "Bhavya",
+    "status": "pending",
+    "createdAt": "2026-07-14T07:52:06.352Z"
+  }
+]

@@ -1,6 +1,7 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const Groq = require('groq-sdk');
 const { supabase } = require('../lib/repo');
+const { sendNotification } = require('../services/notificationService');
 const dotenv = require('dotenv');
 const { toPublicTask } = require('./taskController');
 dotenv.config();
@@ -62,19 +63,24 @@ const getManagedTeam = async (teamId, userId) => {
 };
 
 const resolveProjectContext = async (req) => {
+  console.log(`[resolveProjectContext] req.body:`, req.body);
   const teamContext = await getManagedTeam(req.body.teamId || null, req.user._id);
   const organisationId = teamContext.organisationId || req.body.organisationId || null;
+  console.log(`[resolveProjectContext] organisationId resolved to:`, organisationId);
 
   if (!organisationId) {
+    console.error(`[resolveProjectContext] ERROR 400: No organisationId provided. req.body.organisationId=${req.body.organisationId}`);
     return { error: { status: 400, message: 'Join or create an organisation before creating a project' } };
   }
 
   const orgMembership = await getOrgMembership(organisationId, req.user._id);
   if (!orgMembership) {
+    console.error(`[resolveProjectContext] ERROR 403: User is not part of organisation ${organisationId}`);
     return { error: { status: 403, message: 'You must be part of this organisation before creating a project' } };
   }
 
   if (req.body.teamId && !teamContext.team) {
+    console.error(`[resolveProjectContext] ERROR 404: Selected team not found ${req.body.teamId}`);
     return { error: { status: 404, message: 'Selected team not found' } };
   }
 
@@ -83,6 +89,7 @@ const resolveProjectContext = async (req) => {
   }
 
   if (req.body.teamId && teamContext.organisationId && req.body.organisationId && teamContext.organisationId !== req.body.organisationId) {
+    console.error(`[resolveProjectContext] ERROR 400: Team belongs to different org. teamOrg=${teamContext.organisationId}, bodyOrg=${req.body.organisationId}`);
     return { error: { status: 400, message: 'The selected team belongs to a different organisation' } };
   }
 
@@ -131,8 +138,10 @@ const getProjects = asyncHandler(async (req, res) => {
 });
 
 const createProject = asyncHandler(async (req, res) => {
+  console.log(`[createProject] Started for user ${req.user._id}`);
   const context = await resolveProjectContext(req);
   if (context.error) {
+    console.log(`[createProject] Context returned error:`, context.error);
     return res.status(context.error.status).json({ message: context.error.message });
   }
 
@@ -145,6 +154,31 @@ const createProject = asyncHandler(async (req, res) => {
     owner_id: req.user._id,
   }).select('*').single();
   if (error) throw error;
+  
+  try {
+    let userIdsToNotify = [];
+    if (context.teamId) {
+      const { data: members } = await supabase.from('team_members').select('user_id').eq('team_id', context.teamId);
+      if (members) userIdsToNotify = members.map(m => m.user_id);
+    } else {
+      const { data: members } = await supabase.from('organisation_members').select('user_id').eq('organisation_id', context.organisationId);
+      if (members) userIdsToNotify = members.map(m => m.user_id);
+    }
+    
+    const creatorName = req.user.name || 'Someone';
+    for (const uid of userIdsToNotify) {
+      await sendNotification(req.app.get('io'), {
+        userId: uid,
+        title: 'New Project',
+        message: `${creatorName} created a new project: ${req.body.name}`,
+        type: 'general',
+        data: { projectId: data.id }
+      });
+    }
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   res.status(201).json(toPublicProject(data));
 });
 
@@ -415,6 +449,18 @@ Example format:
     await insertTasks(taskData, project.data.id, context.teamId, req.user._id);
   } else {
     console.warn('AI generated no tasks or tasks were in an unexpected format. Roadmap keys:', Object.keys(roadmap));
+  }
+
+  try {
+    sendNotification(req.app.get('io'), {
+      userId: req.user._id,
+      title: 'AI Project Created',
+      message: `Created ${projectName} project with AI roadmap.`,
+      type: 'general',
+      data: { projectId: project.data.id }
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
   }
 
   res.status(201).json({ ...toPublicProject(project.data), roadmap, techStack });

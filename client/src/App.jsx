@@ -32,6 +32,8 @@ import AdminDashboardScreen from './screens/AdminDashboardScreen';
 import AdminComplaintsScreen from './screens/AdminComplaintsScreen';
 import ChatDocked from './components/ChatDocked';
 import TopHeader from './components/TopHeader';
+import ToastNotification from './components/ToastNotification';
+import { createSocketConnection } from './utils/socket';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { fetchMembershipStatus, logout } from './actions/userActions'; // Import logout
@@ -120,6 +122,15 @@ const AppContent = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (userInfo?.token) {
+      const newSocket = createSocketConnection();
+      setSocket(newSocket);
+      return () => newSocket.disconnect();
+    }
+  }, [userInfo?.token]);
   
   const isPublicRoute = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
@@ -167,6 +178,7 @@ const AppContent = () => {
 
   return (
     <div className={layoutClass}>
+        <ToastNotification socket={socket} />
         {!isPublicRoute && isMobile && !sidebarCollapsed && (
           <div 
             style={{ 

@@ -62,8 +62,16 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
 
     // Toast notifications state
     const [toasts, setToasts] = useState([]);
+    const [isSilentMode, setIsSilentMode] = useState(localStorage.getItem('silentNotifications') === 'true');
+
+    const toggleSilentMode = () => {
+        const newValue = !isSilentMode;
+        localStorage.setItem('silentNotifications', newValue.toString());
+        setIsSilentMode(newValue);
+    };
 
     const showToast = (title, message) => {
+        if (localStorage.getItem('silentNotifications') === 'true') return;
         const id = Date.now();
         setToasts((prev) => [...prev, { id, title, message }]);
         setTimeout(() => {
@@ -101,10 +109,20 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
         if (userInfo) {
             dispatch(listNotifications());
 
+            const userId = userInfo.id || userInfo._id;
             const socket = createSocketConnection();
             
-            // Join personal notification room
-            socket.emit('joinNotificationRoom', userInfo.id || userInfo._id);
+            // Wait for socket to connect before joining notification room
+            const joinRoom = () => {
+                console.log('[TopHeader] Socket connected, joining notification room for', userId);
+                socket.emit('joinNotificationRoom', userId);
+            };
+
+            // Join when connected (or immediately if already connected)
+            if (socket.connected) {
+                joinRoom();
+            }
+            socket.on('connect', joinRoom);
 
             // Listen to real-time notification events
             socket.on('newNotification', (newNotif) => {
@@ -113,7 +131,12 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                 showToast(newNotif.title, newNotif.message);
             });
 
+            socket.on('disconnect', () => {
+                console.log('[TopHeader] Notification socket disconnected');
+            });
+
             return () => {
+                socket.off('connect', joinRoom);
                 socket.disconnect();
             };
         }
@@ -542,11 +565,19 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                     <div className="header-notification-dropdown" ref={notificationDropdownRef}>
                         <div className="notification-dropdown-header">
                             <h4>Notifications</h4>
-                            {unreadCount > 0 && (
-                                <button className="mark-all-read-btn" onClick={() => dispatch(markAllNotificationsAsRead())}>
-                                    Mark all as read
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    className="mark-all-read-btn" 
+                                    onClick={toggleSilentMode}
+                                >
+                                    {isSilentMode ? 'Unmute' : 'Silent Mode'}
                                 </button>
-                            )}
+                                {unreadCount > 0 && (
+                                    <button className="mark-all-read-btn" onClick={() => dispatch(markAllNotificationsAsRead())}>
+                                        Mark all as read
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="notification-dropdown-body">
                             {loadingNotifications ? (

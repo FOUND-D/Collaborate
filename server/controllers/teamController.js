@@ -67,6 +67,20 @@ const createTeam = asyncHandler(async (req, res) => {
   if (error) throw error;
   await supabase.from('team_members').insert({ team_id: data.id, user_id: req.user._id });
   req.io?.to(organisation).emit('teamCreated', { teamId: data.id, type: normalizedType });
+  
+  try {
+    const { sendNotification } = require('../services/notificationService');
+    sendNotification(req.app.get('io'), {
+      userId: req.user._id,
+      title: 'Team Created',
+      message: `Created ${name} team.`,
+      type: 'general',
+      data: { teamId: data.id }
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   res.status(201).json(await hydrateTeam(data, req.user._id));
 });
 
