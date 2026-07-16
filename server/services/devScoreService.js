@@ -10,25 +10,24 @@ function computeGithubScoreObj({ followers = 0, publicRepos = 0, totalStars = 0,
   return Math.min(100, Math.round(score * 100) / 100);
 }
 
-function computeLeetcodeScoreObj({ easySolved = 0, totalEasy = 1, mediumSolved = 0, totalMedium = 1, hardSolved = 0, totalHard = 1, contributionPoint = 0 }) {
-  const raw = (easySolved / Math.max(1, totalEasy)) * 1 + (mediumSolved / Math.max(1, totalMedium)) * 3 + (hardSolved / Math.max(1, totalHard)) * 6;
-  const score = raw * 10 + Math.log10(contributionPoint + 1) * 5;
+function computeLeetcodeScoreObj({ easySolved = 0, totalEasy = 954, mediumSolved = 0, totalMedium = 2084, hardSolved = 0, totalHard = 953 }) {
+  const easyRatio = totalEasy > 0 ? easySolved / totalEasy : 0;
+  const mediumRatio = totalMedium > 0 ? mediumSolved / totalMedium : 0;
+  const hardRatio = totalHard > 0 ? hardSolved / totalHard : 0;
+
+  // Weighted: easy 25%, medium 35%, hard 40%
+  const score = (easyRatio * 25 + mediumRatio * 35 + hardRatio * 40) * 100;
   return Math.min(100, Math.round(score * 100) / 100);
 }
 
 async function computeGithubScore(githubUsername, showPrivate) {
   if (!githubUsername) return 0;
   try {
-    const headers = {
-      'User-Agent': 'collaborate'
-    };
-    if (process.env.GITHUB_PAT) {
-      headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
-    }
-    
+    const headers = {};
     let reposUrl = `https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=100`;
 
     if (showPrivate && process.env.GITHUB_PAT) {
+      headers['Authorization'] = `Bearer ${process.env.GITHUB_PAT}`;
       reposUrl = `https://api.github.com/user/repos?sort=updated&per_page=100&affiliation=owner,collaborator`;
     }
 
@@ -77,12 +76,11 @@ async function computeLeetcodeScore(leetcodeUsername) {
 
     return computeLeetcodeScoreObj({
       easySolved: data.easySolved || 0,
-      totalEasy: data.totalEasy || 1,
+      totalEasy: data.totalEasy || 954,
       mediumSolved: data.mediumSolved || 0,
-      totalMedium: data.totalMedium || 1,
+      totalMedium: data.totalMedium || 2084,
       hardSolved: data.hardSolved || 0,
-      totalHard: data.totalHard || 1,
-      contributionPoint: data.contributionPoint || 0
+      totalHard: data.totalHard || 953,
     });
   } catch (error) {
     console.error('Error fetching Leetcode stats for Dev Score:', error.message);
@@ -91,23 +89,19 @@ async function computeLeetcodeScore(leetcodeUsername) {
 }
 
 async function computeDevScore(user) {
-  const githubUsername = user.github_username || user.githubUsername;
-  const leetcodeUsername = user.leetcode_username || user.leetcodeUsername;
-  const githubShowPrivate = user.github_show_private || user.githubShowPrivate;
-
-  const hasGithub = !!githubUsername;
-  const hasLeetcode = !!leetcodeUsername;
+  const hasGithub = !!user.github_username;
+  const hasLeetcode = !!user.leetcode_username;
 
   let githubScore = 0;
   if (hasGithub) {
-    const freshScore = await computeGithubScore(githubUsername, githubShowPrivate);
-    githubScore = freshScore !== null ? freshScore : (user.github_score || user.githubScore || 0);
+    const freshScore = await computeGithubScore(user.github_username, user.github_show_private);
+    githubScore = freshScore !== null ? freshScore : (user.github_score || 0);
   }
 
   let leetcodeScore = 0;
   if (hasLeetcode) {
-    const freshScore = await computeLeetcodeScore(leetcodeUsername);
-    leetcodeScore = freshScore !== null ? freshScore : (user.leetcode_score || user.leetcodeScore || 0);
+    const freshScore = await computeLeetcodeScore(user.leetcode_username);
+    leetcodeScore = freshScore !== null ? freshScore : (user.leetcode_score || 0);
   }
 
   let devScore;
@@ -120,6 +114,7 @@ async function computeDevScore(user) {
   } else {
     devScore = 0;
   }
+  
 
   devScore = Math.round(devScore * 100) / 100;
 

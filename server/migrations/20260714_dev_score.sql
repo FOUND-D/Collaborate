@@ -9,3 +9,4 @@ ALTER TABLE users
   ADD COLUMN IF NOT EXISTS dev_score_updated_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_users_dev_score ON users (dev_score DESC);
+
