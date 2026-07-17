@@ -257,14 +257,14 @@ const linkGithubRepo = asyncHandler(async (req, res) => {
   // Validate repo exists on GitHub before saving
   try {
     const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
-    if (process.env.GITHUB_PAT) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_PAT}`;
+    const ghToken = (process.env.GITHUB_PAT || process.env.GITHUB_TOKEN || '').trim();
+    if (ghToken) ghHeaders.Authorization = `Bearer ${ghToken}`;
     await axios.get(`https://api.github.com/repos/${normalizedRepo}`, { headers: ghHeaders });
   } catch (ghErr) {
+    console.warn('GitHub validation warning:', ghErr.response?.data || ghErr.message);
     if (ghErr.response?.status === 404) {
       return res.status(400).json({ message: `Repository "${normalizedRepo}" not found on GitHub or is private.` });
     }
-    // If rate limited or other GitHub error, still save but warn
-    console.warn('GitHub validation warning:', ghErr.message);
   }
 
   const { error: updateError } = await supabase
@@ -299,7 +299,8 @@ const getTeamCommits = asyncHandler(async (req, res) => {
 
   // Fetch commits from GitHub API
   const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
-  if (process.env.GITHUB_PAT) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_PAT}`;
+  const ghToken = (process.env.GITHUB_PAT || process.env.GITHUB_TOKEN || '').trim();
+  if (ghToken) ghHeaders.Authorization = `Bearer ${ghToken}`;
 
   let commits;
   try {
@@ -309,11 +310,18 @@ const getTeamCommits = asyncHandler(async (req, res) => {
     );
     commits = ghData;
   } catch (ghErr) {
+    console.error('GitHub API error:', ghErr.response?.data || ghErr.message);
     if (ghErr.response?.status === 404) {
       return res.status(404).json({ message: 'Repository not found on GitHub. It may have been deleted or made private.' });
     }
     if (ghErr.response?.status === 403) {
-      return res.status(429).json({ message: 'GitHub API rate limit reached. Please try again later.' });
+      const ghMessage = ghErr.response?.data?.message || '';
+      if (ghMessage.toLowerCase().includes('rate limit')) {
+        return res.status(429).json({ message: 'GitHub API rate limit reached. Please try again later.' });
+      }
+      return res.status(403).json({
+        message: `GitHub access forbidden: ${ghMessage || 'Check repository permissions or token scopes.'}`
+      });
     }
     throw ghErr;
   }
