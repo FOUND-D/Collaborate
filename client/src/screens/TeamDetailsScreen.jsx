@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaChevronLeft, FaRegCopy, FaCheck } from 'react-icons/fa';
+import { FaChevronLeft, FaRegCopy, FaCheck, FaCodeBranch } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
+import GitActivity from '../components/GitActivity';
 import './TeamDetailsScreen.css';
 import api from '../utils/api';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
+
 
 // Helper to calculate progress for project cards
 const calculateProgress = (tasks) => {
@@ -42,7 +44,9 @@ const TeamDetailsScreen = () => {
   const [memberActionError, setMemberActionError] = useState(null);
   const [memberActionSuccess, setMemberActionSuccess] = useState(null);
   const [canManageMembers, setCanManageMembers] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const socketRef = useRef(null);
+
 
   const teamDetails = useSelector((state) => state.teamDetails);
   const { loading, error, team } = teamDetails;
@@ -215,7 +219,7 @@ const TeamDetailsScreen = () => {
             <span>Teams</span>
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '2rem' }}>
             <h1 className="team-detail-title" style={{ marginBottom: 0 }}>{team.name}</h1>
             <span className="task-status-pill pending" style={{ textTransform: 'capitalize' }}>
               {(team.type || 'study_group').replace('_', ' ')}
@@ -225,8 +229,28 @@ const TeamDetailsScreen = () => {
             )}
           </div>
 
-          <div className="detail-section-group">
-            <h2 className="detail-section-title">Team Info</h2>
+          {/* Tab Bar */}
+          <div className="git-tab-bar">
+            <button
+              className={`git-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
+              className={`git-tab-btn ${activeTab === 'git' ? 'active' : ''}`}
+              onClick={() => setActiveTab('git')}
+            >
+              <FaCodeBranch style={{ marginRight: 6, fontSize: '0.8rem' }} />
+              Git Activity
+            </button>
+          </div>
+
+          {/* ── Overview Tab ── */}
+          {activeTab === 'overview' && (
+            <>
+            <div className="detail-section-group">
+              <h2 className="detail-section-title">Team Info</h2>
             <div className="copy-id-capsule">
               <span className="team-id-text">{team._id}</span>
               <button className="copy-id-btn" onClick={() => handleCopy(team._id)}>
@@ -370,6 +394,15 @@ const TeamDetailsScreen = () => {
                 <Message variant="info">No ongoing projects for this team.</Message>
             )}
           </div>
+          </>
+          )}
+
+          {/* ── Git Activity Tab ── */}
+          {activeTab === 'git' && (
+            <div className="detail-section-group">
+              <GitActivity team={team} userInfo={userInfo} />
+            </div>
+          )}
         </>
       )}
     </div>

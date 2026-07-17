@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const { supabase } = require('../lib/repo');
+const axios = require('axios');
 
 const getOrgMembership = async (organisationId, userId) => {
   if (!organisationId || !userId) return null;
@@ -27,6 +28,8 @@ const hydrateTeam = async (team, viewerId = null) => {
     subjectCode: team.subject_code || '',
     subject_code: team.subject_code || '',
     createdByRole: team.created_by_role || '',
+    githubRepo: team.github_repo || null,
+    github_repo: team.github_repo || null,
     owner: owner ? { _id: owner.id, name: owner.name, email: owner.email } : null,
     members: (members || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
     pendingJoinRequests: (requests || []).map((r) => r.users).filter(Boolean).map((u) => ({ _id: u.id, name: u.name, email: u.email })),
@@ -139,7 +142,6 @@ const addMember = asyncHandler(async (req, res) => {
 
   await supabase.from('team_join_requests').delete().eq('team_id', team.id).eq('user_id', userId);
 
-  // Trigger Notification to Added Member
   try {
     const { sendNotification } = require('../services/notificationService');
     sendNotification(req.io, {
@@ -192,7 +194,6 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
     }
     await supabase.from('team_members').insert({ team_id: req.params.id, user_id: userId });
 
-    // Trigger Notification for approval
     try {
       const { sendNotification } = require('../services/notificationService');
       sendNotification(req.io, {
@@ -206,7 +207,6 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
       console.error('Failed to trigger team join approval notification:', notifErr.message);
     }
   } else {
-    // Notify about decline
     try {
       const { sendNotification } = require('../services/notificationService');
       sendNotification(req.io, {
@@ -223,4 +223,183 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
   res.json({ message: `User join request ${action}d` });
 });
 
-module.exports = { createTeam, addMember, getTeams, joinTeam, deleteTeam, updateTeamJoinRequest, getTeamById };
+// ---------------------------------------------------------------
+// NEW: Link or update the GitHub repository for a team
+// PUT /api/teams/:id/github
+// Body: { repoPath: 'owner/repo-name' }
+// ---------------------------------------------------------------
+const linkGithubRepo = asyncHandler(async (req, res) => {
+  const { repoPath } = req.body;
+
+  // Fetch team to validate ownership
+  const { data: team, error: teamError } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle();
+
+  if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
+  if (team.owner_id !== req.user._id) {
+    return res.status(403).json({ message: 'Only the team owner can link a GitHub repository' });
+  }
+
+  // Accept full GitHub URLs or shorthand 'owner/repo'
+  let normalizedRepo = (repoPath || '').trim();
+  const urlMatch = normalizedRepo.match(/github\.com\/([^/]+\/[^/]+)/);
+  if (urlMatch) {
+    normalizedRepo = urlMatch[1].replace(/\.git$/, '');
+  }
+
+  if (!normalizedRepo || !normalizedRepo.includes('/')) {
+    return res.status(400).json({ message: 'Invalid repository format. Use owner/repo-name or a full GitHub URL.' });
+  }
+
+  // Validate repo exists on GitHub before saving
+  try {
+    const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+    if (process.env.GITHUB_TOKEN) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    await axios.get(`https://api.github.com/repos/${normalizedRepo}`, { headers: ghHeaders });
+  } catch (ghErr) {
+    if (ghErr.response?.status === 404) {
+      return res.status(400).json({ message: `Repository "${normalizedRepo}" not found on GitHub or is private.` });
+    }
+    // If rate limited or other GitHub error, still save but warn
+    console.warn('GitHub validation warning:', ghErr.message);
+  }
+
+  const { error: updateError } = await supabase
+    .from('teams')
+    .update({ github_repo: normalizedRepo })
+    .eq('id', req.params.id);
+
+  if (updateError) throw updateError;
+
+  const { data: updated } = await supabase.from('teams').select('*').eq('id', req.params.id).maybeSingle();
+  res.json(await hydrateTeam(updated, req.user._id));
+});
+
+// ---------------------------------------------------------------
+// NEW: Fetch latest commits with team member matching
+// GET /api/teams/:id/commits?page=1&per_page=20
+// ---------------------------------------------------------------
+const getTeamCommits = asyncHandler(async (req, res) => {
+  const { data: team, error: teamError } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle();
+
+  if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
+  if (!team.github_repo) {
+    return res.status(400).json({ message: 'No GitHub repository linked to this team yet.' });
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const perPage = Math.min(parseInt(req.query.per_page) || 20, 50);
+
+  // Fetch commits from GitHub API
+  const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (process.env.GITHUB_TOKEN) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+
+  let commits;
+  try {
+    const { data: ghData } = await axios.get(
+      `https://api.github.com/repos/${team.github_repo}/commits`,
+      { headers: ghHeaders, params: { page, per_page: perPage } }
+    );
+    commits = ghData;
+  } catch (ghErr) {
+    if (ghErr.response?.status === 404) {
+      return res.status(404).json({ message: 'Repository not found on GitHub. It may have been deleted or made private.' });
+    }
+    if (ghErr.response?.status === 403) {
+      return res.status(429).json({ message: 'GitHub API rate limit reached. Please try again later or add a GITHUB_TOKEN to the server.' });
+    }
+    throw ghErr;
+  }
+
+  if (!commits || commits.length === 0) {
+    return res.json({ commits: [], repo: team.github_repo });
+  }
+
+  // Fetch all team members including their github_username and email
+  const { data: memberRows } = await supabase
+    .from('team_members')
+    .select('users(id, name, email, profile_image, role, github_username)')
+    .eq('team_id', team.id);
+
+  const teamMembers = (memberRows || [])
+    .map(r => r.users)
+    .filter(Boolean);
+
+  // Build lookup maps for fast matching
+  const byGithubUsername = {};
+  const byEmail = {};
+  const byName = {};
+  for (const member of teamMembers) {
+    if (member.github_username) {
+      byGithubUsername[member.github_username.toLowerCase()] = member;
+    }
+    if (member.email) {
+      byEmail[member.email.toLowerCase()] = member;
+    }
+    if (member.name) {
+      byName[member.name.toLowerCase()] = member;
+    }
+  }
+
+  // Enrich each commit with matched Collaborate user profile
+  const enrichedCommits = commits.map(commit => {
+    const ghLogin = commit.author?.login?.toLowerCase() || '';
+    const ghEmail = commit.commit?.author?.email?.toLowerCase() || '';
+    const ghName = commit.commit?.author?.name?.toLowerCase() || '';
+
+    // Match priority: github username > email > name
+    const matchedUser =
+      byGithubUsername[ghLogin] ||
+      byEmail[ghEmail] ||
+      byName[ghName] ||
+      null;
+
+    return {
+      sha: commit.sha,
+      shortSha: commit.sha.substring(0, 7),
+      message: commit.commit.message,
+      htmlUrl: commit.html_url,
+      authoredAt: commit.commit.author.date,
+      githubAuthor: {
+        login: commit.author?.login || null,
+        avatarUrl: commit.author?.avatar_url || null,
+        name: commit.commit.author.name,
+        email: commit.commit.author.email,
+      },
+      collaborateUser: matchedUser ? {
+        id: matchedUser.id,
+        name: matchedUser.name,
+        email: matchedUser.email,
+        role: matchedUser.role,
+        profileImage: matchedUser.profile_image || null,
+        githubUsername: matchedUser.github_username || null,
+      } : null,
+    };
+  });
+
+  res.json({
+    repo: team.github_repo,
+    page,
+    perPage,
+    commits: enrichedCommits,
+  });
+});
+
+module.exports = {
+  createTeam,
+  addMember,
+  getTeams,
+  joinTeam,
+  deleteTeam,
+  updateTeamJoinRequest,
+  getTeamById,
+  linkGithubRepo,
+  getTeamCommits,
+};

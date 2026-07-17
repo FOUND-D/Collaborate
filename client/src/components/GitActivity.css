@@ -1,0 +1,451 @@
+/* =====================================================
+   GIT ACTIVITY TAB — GitHub Integration
+===================================================== */
+
+/* --- Tab Bar --- */
+.git-tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.git-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.75rem 1.2rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.git-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.git-tab-btn.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+/* --- Repo Link Panel --- */
+.github-link-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.github-link-icon {
+  width: 72px;
+  height: 72px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.github-link-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.github-link-sub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 420px;
+  margin-bottom: 1.8rem;
+}
+
+.github-link-form {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 480px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.github-repo-input {
+  flex: 1 1 280px;
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  padding: 0.7rem 1rem;
+  transition: border-color 0.2s ease;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.github-repo-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+}
+
+.github-repo-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.github-link-btn {
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.github-link-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--accent-glow);
+}
+
+.github-link-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Linked Repo Header --- */
+.github-repo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.2rem;
+  background: rgba(10, 132, 255, 0.05);
+  border: 1px solid rgba(10, 132, 255, 0.15);
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.github-repo-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.github-repo-icon {
+  font-size: 1.3rem;
+  color: var(--accent-color);
+}
+
+.github-repo-name {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.github-repo-link-anchor {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.github-repo-link-anchor:hover {
+  text-decoration: underline;
+}
+
+.github-repo-change-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.github-repo-change-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Commit Feed --- */
+.commit-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.commit-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.commit-item:last-child {
+  border-bottom: none;
+}
+
+.commit-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
+}
+
+.commit-avatar-col {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding-top: 2px;
+}
+
+.commit-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--glass-border);
+  object-fit: cover;
+  background: var(--glass-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.commit-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.commit-timeline-line {
+  width: 1px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.07);
+  margin-top: 6px;
+}
+
+.commit-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.commit-author-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.commit-author-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.commit-author-name:hover {
+  color: var(--accent-color);
+}
+
+.commit-badge-collaborate {
+  background: rgba(10, 132, 255, 0.15);
+  border: 1px solid rgba(10, 132, 255, 0.25);
+  border-radius: 6px;
+  color: var(--accent-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 0.1rem 0.45rem;
+}
+
+.commit-badge-github {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+}
+
+.commit-time {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.commit-message {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.commit-message-full {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  margin-top: 0.25rem;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.commit-sha-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: rgba(255,255,255,0.04);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: color 0.2s ease, border-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.commit-sha-link:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* --- Load More --- */
+.commit-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.commit-load-more-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.6rem 1.6rem;
+  transition: all 0.2s ease;
+}
+
+.commit-load-more-btn:hover:not(:disabled) {
+  background: rgba(10, 132, 255, 0.1);
+  border-color: rgba(10, 132, 255, 0.3);
+  color: var(--accent-color);
+}
+
+.commit-load-more-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Error / Empty States --- */
+.git-error-box {
+  background: rgba(255, 69, 58, 0.08);
+  border: 1px solid rgba(255, 69, 58, 0.2);
+  border-radius: 12px;
+  color: var(--danger-color);
+  font-size: 0.9rem;
+  padding: 1rem 1.2rem;
+  text-align: center;
+}
+
+.git-loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 1.5rem 0;
+}
+
+.git-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: git-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes git-spin {
+  to { transform: rotate(360deg); }
+}
+
+.commit-empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* --- Stats Row --- */
+.git-stats-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.git-stat-chip {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.git-stat-chip span {
+  color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+  .github-link-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .github-link-btn {
+    width: 100%;
+  }
+  .commit-time {
+    display: none;
+  }
+}
