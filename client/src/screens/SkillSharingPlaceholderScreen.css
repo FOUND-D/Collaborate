@@ -1,0 +1,160 @@
+.skill-sharing-placeholder-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 40px 24px;
+  background: var(--background-main);
+}
+
+.skill-sharing-placeholder-card {
+  max-width: 800px;
+  width: 100%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-large);
+  padding: 48px 40px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-sharing-placeholder-card::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.15) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.skill-sharing-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 40px;
+}
+
+.skill-sharing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(10, 132, 255, 0.1);
+  border: 1px solid rgba(10, 132, 255, 0.2);
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 20px;
+}
+
+.skill-sharing-badge-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.skill-sharing-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: var(--accent-gradient-vivid);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.skill-sharing-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.skill-sharing-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+  position: relative;
+  z-index: 1;
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .skill-sharing-benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  .skill-sharing-placeholder-card {
+    padding: 32px 20px;
+  }
+}
+
+.benefit-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-medium);
+  padding: 24px;
+  transition: transform var(--transition-main), border-color var(--transition-main), background var(--transition-main);
+}
+
+.benefit-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(10, 132, 255, 0.25);
+  background: rgba(10, 132, 255, 0.02);
+}
+
+.benefit-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(10, 132, 255, 0.1);
+  border: 1px solid rgba(10, 132, 255, 0.15);
+  border-radius: var(--radius-small);
+  color: var(--accent-color);
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+
+.benefit-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.benefit-card p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.skill-sharing-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+.skill-sharing-footer span {
+  color: var(--green-accent);
+  font-weight: 500;
+}

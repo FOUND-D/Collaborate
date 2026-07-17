@@ -101,6 +101,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar, toggleChat, isMobile }) => {
             <FaStar className="nav-item-icon" />
             <span className="nav-item-label" style={labelStyle}>My Ratings</span>
           </NavLink>
+          <NavLink to="/skill-sharing" className={getNavLinkClass} style={navItemStyle}>
+            <FaBrain className="nav-item-icon" />
+            <span className="nav-item-label" style={labelStyle}>Skill Sharing</span>
+          </NavLink>
           <button
             type="button"
             className="nav-item sidebar-guide-btn"
