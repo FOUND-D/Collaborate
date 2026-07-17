@@ -257,7 +257,7 @@ const linkGithubRepo = asyncHandler(async (req, res) => {
   // Validate repo exists on GitHub before saving
   try {
     const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
-    if (process.env.GITHUB_TOKEN) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    if (process.env.GITHUB_PAT) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_PAT}`;
     await axios.get(`https://api.github.com/repos/${normalizedRepo}`, { headers: ghHeaders });
   } catch (ghErr) {
     if (ghErr.response?.status === 404) {
@@ -299,7 +299,7 @@ const getTeamCommits = asyncHandler(async (req, res) => {
 
   // Fetch commits from GitHub API
   const ghHeaders = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
-  if (process.env.GITHUB_TOKEN) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  if (process.env.GITHUB_PAT) ghHeaders.Authorization = `Bearer ${process.env.GITHUB_PAT}`;
 
   let commits;
   try {
@@ -313,7 +313,7 @@ const getTeamCommits = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Repository not found on GitHub. It may have been deleted or made private.' });
     }
     if (ghErr.response?.status === 403) {
-      return res.status(429).json({ message: 'GitHub API rate limit reached. Please try again later or add a GITHUB_TOKEN to the server.' });
+      return res.status(429).json({ message: 'GitHub API rate limit reached. Please try again later.' });
     }
     throw ghErr;
   }

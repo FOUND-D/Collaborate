@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaChevronLeft, FaRegCopy, FaCheck, FaCodeBranch } from 'react-icons/fa';
+import { FaChevronLeft, FaRegCopy, FaCheck, FaCodeBranch, FaUsers } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
@@ -11,7 +11,6 @@ import api from '../utils/api';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
 
-
 // Helper to calculate progress for project cards
 const calculateProgress = (tasks) => {
   if (!tasks || tasks.length === 0) return 0;
@@ -19,16 +18,38 @@ const calculateProgress = (tasks) => {
   return Math.round((completedTasks / tasks.length) * 100);
 };
 
-// Helper to get a consistent pastel color from a string (e.g., user ID)
+// Consistent pastel color from a string
 const getPastelColor = (str) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   const h = hash % 360;
-  return `hsl(${h}, 70%, 85%)`;
+  return `hsl(${h}, 60%, 78%)`;
 };
 
+// Resolve member avatar src — real photo → DiceBear initials fallback
+const getMemberAvatar = (member) => {
+  if (member.profileImage) {
+    return member.profileImage.startsWith('data:image')
+      ? member.profileImage
+      : `${BACKEND_URL}${member.profileImage}`;
+  }
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(member.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&backgroundType=solid&fontSize=40&fontWeight=700`;
+};
+
+// ── Clickable Member Card ──────────────────────────────────────
+const MemberCard = ({ member }) => (
+  <Link to={`/profile/${member._id}`} className="member-card" title={`View ${member.name}'s profile`}>
+    <img
+      className="member-card-avatar"
+      src={getMemberAvatar(member)}
+      alt={member.name}
+      style={{ backgroundColor: getPastelColor(member._id) }}
+    />
+    <span className="member-card-name">{member.name}</span>
+  </Link>
+);
 
 const TeamDetailsScreen = () => {
   const { id } = useParams();
@@ -46,7 +67,6 @@ const TeamDetailsScreen = () => {
   const [canManageMembers, setCanManageMembers] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const socketRef = useRef(null);
-
 
   const teamDetails = useSelector((state) => state.teamDetails);
   const { loading, error, team } = teamDetails;
@@ -74,7 +94,7 @@ const TeamDetailsScreen = () => {
         // No active session found
       }
     };
-    
+
     const fetchUpcomingSessions = async () => {
       try {
         const { data } = await api.get(`/api/booking-sessions?team_id=${id}`, {
@@ -151,10 +171,10 @@ const TeamDetailsScreen = () => {
     fetchOrgContext();
   }, [team]);
 
-  const handleCopy = (id) => {
-    navigator.clipboard.writeText(id);
+  const handleCopy = (val) => {
+    navigator.clipboard.writeText(val);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const startSessionHandler = async () => {
@@ -219,29 +239,98 @@ const TeamDetailsScreen = () => {
             <span>Teams</span>
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '2rem' }}>
-            <h1 className="team-detail-title" style={{ marginBottom: 0 }}>{team.name}</h1>
-            <span className="task-status-pill pending" style={{ textTransform: 'capitalize' }}>
-              {(team.type || 'study_group').replace('_', ' ')}
-            </span>
-            {team.subjectCode && (
-              <span className="task-status-pill inprogress">{team.subjectCode}</span>
-            )}
+          {/* ── Page Header ── */}
+          <div className="team-detail-header">
+            <div className="team-detail-header-left">
+              <h1 className="team-detail-title">{team.name}</h1>
+              <div className="team-detail-badges">
+                <span className="task-status-pill pending" style={{ textTransform: 'capitalize' }}>
+                  {(team.type || 'study_group').replace('_', ' ')}
+                </span>
+                {team.subjectCode && (
+                  <span className="task-status-pill inprogress">{team.subjectCode}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Compact Team Info utility bar inline with header */}
+            <div className="team-info-utility-bar">
+              {/* ID copy row */}
+              <div className="team-id-row">
+                <span className="team-id-label">Team ID</span>
+                <div className="team-id-field">
+                  <span className="team-id-text">{team._id}</span>
+                  <button
+                    className="copy-id-btn"
+                    onClick={() => handleCopy(team._id)}
+                    title={copied ? 'Copied!' : 'Copy ID'}
+                  >
+                    {copied ? <FaCheck style={{ color: 'var(--success-color, #30d158)' }} /> : <FaRegCopy />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Session actions */}
+              {sessionError && <Message variant="danger">{sessionError}</Message>}
+              <div className="team-session-actions">
+                {session ? (
+                  <>
+                    <Link to={`/team/${id}/session`} className="btn btn-primary session-btn">
+                      Join Session
+                    </Link>
+                    {session.startedBy === userInfo._id && (
+                      <button className="btn btn-danger session-btn" onClick={endSessionHandler}>
+                        End Session
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <button className="btn btn-primary session-btn" onClick={startSessionHandler}>
+                    Start Session
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Tab Bar */}
-          <div className="git-tab-bar">
+          {/* Upcoming booked sessions (compact strip) */}
+          {upcomingSessions.length > 0 && (
+            <div className="upcoming-sessions-strip">
+              <span className="upcoming-sessions-label">Upcoming</span>
+              <div className="upcoming-sessions-list">
+                {upcomingSessions.map(sess => {
+                  const scheduledDate = new Date(sess.scheduled_at);
+                  const diffMins = (scheduledDate - new Date()) / 1000 / 60;
+                  const canJoin = diffMins <= 15 || scheduledDate <= new Date();
+                  return (
+                    <div key={sess.id} className="upcoming-session-chip">
+                      <strong>{sess.skill?.name || 'Skill session'}</strong>
+                      <span>{scheduledDate.toLocaleString()} · {sess.teacher?.name}</span>
+                      {canJoin && (
+                        <span className="task-status-pill inprogress" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span className="pulse-dot" /> Join Now
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Tab Bar ── */}
+          <div className="team-tab-bar">
             <button
-              className={`git-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+              className={`team-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveTab('overview')}
             >
               Overview
             </button>
             <button
-              className={`git-tab-btn ${activeTab === 'git' ? 'active' : ''}`}
+              className={`team-tab-btn ${activeTab === 'git' ? 'active' : ''}`}
               onClick={() => setActiveTab('git')}
             >
-              <FaCodeBranch style={{ marginRight: 6, fontSize: '0.8rem' }} />
+              <FaCodeBranch style={{ marginRight: 6, fontSize: '0.78rem' }} />
               Git Activity
             </button>
           </div>
@@ -249,152 +338,96 @@ const TeamDetailsScreen = () => {
           {/* ── Overview Tab ── */}
           {activeTab === 'overview' && (
             <>
-            <div className="detail-section-group">
-              <h2 className="detail-section-title">Team Info</h2>
-            <div className="copy-id-capsule">
-              <span className="team-id-text">{team._id}</span>
-              <button className="copy-id-btn" onClick={() => handleCopy(team._id)}>
-                {copied ? <FaCheck style={{ color: 'green' }} /> : <FaRegCopy />}
-              </button>
-            </div>
-            {sessionError && <Message variant="danger">{sessionError}</Message>}
-            {session ? (
-              <>
-                <Link to={`/team/${id}/session`} className="btn btn-primary">
-                  Join Session
-                </Link>
-                {session.startedBy === userInfo._id && (
-                  <button className="btn btn-danger" onClick={endSessionHandler}>
-                    End Session
-                  </button>
-                )}
-              </>
-            ) : (
-              <button className="btn btn-primary" onClick={startSessionHandler}>
-                Start Session
-              </button>
-            )}
-            
-            {upcomingSessions.length > 0 && (
-              <div style={{ marginTop: '24px' }}>
-                <h3 style={{ fontSize: '1rem', marginBottom: '12px' }}>Upcoming Sessions</h3>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  {upcomingSessions.map(sess => {
-                    const scheduledDate = new Date(sess.scheduled_at);
-                    const now = new Date();
-                    const diffMins = (scheduledDate - now) / 1000 / 60;
-                    const canJoin = diffMins <= 15 || scheduledDate <= now;
-
-                    return (
-                      <div key={sess.id} className="phase2-glass" style={{ padding: '12px 16px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <strong>{sess.skill?.name || 'Skill session'}</strong>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            {scheduledDate.toLocaleString()} • Booked by {sess.teacher?.name}
-                          </div>
-                        </div>
-                        {canJoin && (
-                          <span className="task-status-pill inprogress" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span className="pulse-dot"></span> Join Now
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+              {/* Members — primary card */}
+              <div className="detail-section-group detail-section-primary">
+                <div className="detail-section-header">
+                  <h2 className="detail-section-title">
+                    Members
+                    <span className="member-count-badge">{team.members ? team.members.length : 0}</span>
+                  </h2>
                 </div>
-              </div>
-            )}
-          </div>
 
-          <div className="detail-section-group">
-            <h2 className="detail-section-title">Members ({team.members ? team.members.length : 0})</h2>
-            {team.organisation && canManageMembers && (
-              <div className="team-member-management">
-                <div className="team-member-management-copy">
-                  Add members from the organisation directly into this team. Projects linked to this team will inherit those members.
-                </div>
-                {memberActionError && <Message variant="danger">{memberActionError}</Message>}
-                {memberActionSuccess && <Message variant="success">{memberActionSuccess}</Message>}
-                {orgMembers.length === 0 ? (
-                  <div className="team-member-management-empty">All organisation members are already in this team.</div>
-                ) : (
-                  <form className="team-member-management-form" onSubmit={addMemberHandler}>
-                    <select
-                      className="team-member-select"
-                      value={selectedMemberId}
-                      onChange={(e) => setSelectedMemberId(e.target.value)}
-                    >
-                      <option value="">Select organisation member</option>
-                      {orgMembers.map((member) => {
-                        const memberId = member.user?._id || member.userId || member.user;
-                        return (
-                          <option key={memberId} value={memberId}>
-                            {member.user?.name || 'Unknown'} ({member.user?.email || 'No email'})
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <button className="btn btn-primary" type="submit" disabled={memberActionLoading || !selectedMemberId}>
-                      {memberActionLoading ? 'Adding...' : 'Add Member'}
-                    </button>
-                  </form>
-                )}
-              </div>
-            )}
-            <div className="member-chip-group">
-              {team.members && team.members.map((member) => (
-                <div key={member._id} className="member-chip" title={member.name}>
-                  <div 
-                    className="member-avatar-circle" 
-                    style={{ backgroundColor: getPastelColor(member._id) }}
-                  >
-                    {member.profileImage ? (
-                      <img
-                        src={
-                          member.profileImage.startsWith('data:image')
-                            ? member.profileImage
-                            : `${BACKEND_URL}${member.profileImage}`
-                        }
-                        alt={member.name}
-                      />
+                {/* Add from org */}
+                {team.organisation && canManageMembers && (
+                  <div className="team-member-management">
+                    <div className="team-member-management-copy">
+                      Add members from the organisation — they'll inherit access to all linked projects.
+                    </div>
+                    {memberActionError && <Message variant="danger">{memberActionError}</Message>}
+                    {memberActionSuccess && <Message variant="success">{memberActionSuccess}</Message>}
+                    {orgMembers.length === 0 ? (
+                      <div className="team-member-management-empty">All organisation members are already in this team.</div>
                     ) : (
-                      member.name.charAt(0).toUpperCase()
+                      <form className="team-member-management-form" onSubmit={addMemberHandler}>
+                        <select
+                          className="team-member-select"
+                          value={selectedMemberId}
+                          onChange={(e) => setSelectedMemberId(e.target.value)}
+                        >
+                          <option value="">Select organisation member</option>
+                          {orgMembers.map((member) => {
+                            const memberId = member.user?._id || member.userId || member.user;
+                            return (
+                              <option key={memberId} value={memberId}>
+                                {member.user?.name || 'Unknown'} ({member.user?.email || 'No email'})
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <button className="btn btn-primary" type="submit" disabled={memberActionLoading || !selectedMemberId}>
+                          {memberActionLoading ? 'Adding…' : 'Add Member'}
+                        </button>
+                      </form>
                     )}
                   </div>
-                  <span>{member.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+                )}
 
-          <div className="detail-section-group">
-            <h2 className="detail-section-title">Ongoing Projects</h2>
-            {team.projects && team.projects.length > 0 ? (
-                team.projects.map((project) => {
+                {/* Member card grid */}
+                {team.members && team.members.length > 0 ? (
+                  <div className="member-card-grid">
+                    {team.members.map((member) => (
+                      <MemberCard key={member._id} member={member} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="members-empty-state">
+                    <FaUsers className="members-empty-icon" />
+                    <p>No members yet.</p>
+                    <span>Invite teammates to start collaborating.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Ongoing Projects */}
+              <div className="detail-section-group">
+                <h2 className="detail-section-title">Ongoing Projects</h2>
+                {team.projects && team.projects.length > 0 ? (
+                  team.projects.map((project) => {
                     const progress = calculateProgress(project.tasks);
                     return (
-                        <Link to={`/project/${project._id || project.id}`} key={project._id || project.id} className="project-link-card">
-                            <div className="project-card-info">
-                                <div className="project-card-name">{project.name}</div>
-                                <div className="project-card-progress">
-                                    <div className="progress-bar-container">
-                                        <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
-                                    </div>
-                                </div>
+                      <Link to={`/project/${project._id || project.id}`} key={project._id || project.id} className="project-link-card">
+                        <div className="project-card-info">
+                          <div className="project-card-name">{project.name}</div>
+                          <div className="project-card-progress">
+                            <div className="progress-bar-container">
+                              <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
                             </div>
-                            {project.dueDate && (
-                                <div className="project-card-due-date">
-                                    Due: {new Date(project.dueDate).toLocaleDateString()}
-                                </div>
-                            )}
-                        </Link>
-                    )
-                })
-            ) : (
-                <Message variant="info">No ongoing projects for this team.</Message>
-            )}
-          </div>
-          </>
+                            <span className="progress-bar-label">{progress}%</span>
+                          </div>
+                        </div>
+                        {project.dueDate && (
+                          <div className="project-card-due-date">
+                            Due: {new Date(project.dueDate).toLocaleDateString()}
+                          </div>
+                        )}
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <Message variant="info">No ongoing projects for this team.</Message>
+                )}
+              </div>
+            </>
           )}
 
           {/* ── Git Activity Tab ── */}

@@ -1,11 +1,11 @@
 /* =====================================================
-   TEAM DETAILS
+   TEAM DETAILS — full stylesheet
 ===================================================== */
 
 .team-detail-container {
   max-width: 1100px;
   margin: auto;
-  padding: 3rem 2rem 4rem;
+  padding: 3rem 2rem 5rem;
   min-height: 100vh;
   background: var(--surface-panel-gradient);
   font-family: var(--font-sans);
@@ -16,6 +16,7 @@
   color: var(--text-primary);
 }
 
+/* ── Back nav ──────────────────────────────────────── */
 .team-detail-nav {
   display: inline-flex;
   align-items: center;
@@ -33,205 +34,490 @@
   transform: translateX(-2px);
 }
 
-.team-detail-title {
-  font-size: clamp(2.5rem,5vw,3.2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin-bottom: 2.5rem;
-  color: var(--text-primary) !important;
-  text-shadow: var(--shadow-subtle);
+/* ── Page header with utility bar ─────────────────── */
+.team-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
 }
 
+.team-detail-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.team-detail-title {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--text-primary) !important;
+  text-shadow: var(--shadow-subtle);
+  line-height: 1.1;
+}
+
+.team-detail-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Compact utility bar (ID + session, top-right) ── */
+.team-info-utility-bar {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 280px;
+  max-width: 400px;
+  flex-shrink: 0;
+  box-shadow: var(--glass-shadow);
+}
+
+.team-id-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary) !important;
+}
+
+.team-id-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.team-id-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-panel-muted);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem 0.5rem 0.8rem;
+}
+
+.team-id-text {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-primary) !important;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-id-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.18s ease;
+  flex-shrink: 0;
+  color: var(--text-secondary) !important;
+}
+
+.copy-id-btn:hover {
+  background: var(--glass-bg-heavy);
+  border-color: var(--accent-color);
+  transform: scale(1.08);
+}
+
+.team-session-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.session-btn {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.88rem !important;
+}
+
+.team-info-utility-bar .btn {
+  background: var(--accent-gradient);
+  border: none !important;
+  color: var(--text-inverse) !important;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--accent-glow);
+  transition: 0.22s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-info-utility-bar .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.team-info-utility-bar .btn-danger {
+  background: var(--danger-color) !important;
+  box-shadow: none;
+}
+
+/* ── Upcoming sessions strip ──────────────────────── */
+.upcoming-sessions-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+}
+
+.upcoming-sessions-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary) !important;
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+.upcoming-sessions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.upcoming-session-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  background: var(--surface-panel-muted);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  flex-wrap: wrap;
+}
+
+.upcoming-session-chip strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.upcoming-session-chip span {
+  color: var(--text-secondary) !important;
+  font-size: 0.78rem;
+}
+
+/* ── Tab Bar ──────────────────────────────────────── */
+.team-tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 1.25rem;
+}
+
+.team-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  transition: color 0.18s ease, border-color 0.18s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: -1px;
+  letter-spacing: 0.01em;
+}
+
+/* Small divider dot between tabs */
+.team-tab-btn + .team-tab-btn {
+  margin-left: 0.15rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.team-tab-btn + .team-tab-btn::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 30%;
+  height: 40%;
+  width: 1px;
+  background: var(--glass-border);
+  border-radius: 999px;
+}
+
+.team-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.team-tab-btn.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  background: transparent;
+}
+
+/* ── Section cards ────────────────────────────────── */
 .detail-section-group {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-backdrop);
   -webkit-backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
-  padding: 2.2rem 2.4rem;
-  margin-bottom: 2.2rem;
+  padding: 2rem 2.2rem;
+  margin-bottom: 1.6rem;
   box-shadow: var(--glass-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.detail-section-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
-  color: var(--text-primary) !important;
-}
-
-.copy-id-capsule {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: var(--surface-panel-muted);
-  padding: 0.6rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
-  width: fit-content;
-  margin-bottom: 1.5rem;
-}
-
-.team-id-text {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.85rem;
-  color: var(--text-primary) !important;
-}
-
-.copy-id-btn {
-  background: var(--surface-panel-backdrop);
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s ease;
-}
-
-.copy-id-btn:hover {
-  background: var(--surface-panel-header);
-  transform: scale(1.05);
-}
-
-.detail-section-group .btn {
-  background: var(--accent-gradient);
-  border: none !important;
-  color: var(--text-inverse) !important;
-  padding: 0.55rem 1.3rem;
-  border-radius: 999px;
-  font-weight: 700;
-  margin-right: 0.6rem;
-  box-shadow: var(--accent-glow);
-  transition: 0.25s ease;
-}
-
-.detail-section-group .btn:hover {
-  transform: translateY(-2px);
+.detail-section-group:hover {
+  border-color: rgba(255, 255, 255, 0.12);
   box-shadow: var(--shadow-hover);
 }
 
-.detail-section-group .btn-danger {
-  background: var(--danger-color) !important;
-  box-shadow: var(--shadow-subtle);
+/* Primary card (Members) gets slightly more visual weight */
+.detail-section-primary {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.member-chip-group {
+.detail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.4rem;
+}
+
+.detail-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary) !important;
+  margin: 0 0 1.4rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Title inside header row — no bottom margin */
+.detail-section-header .detail-section-title {
+  margin-bottom: 0;
+}
+
+.member-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary) !important;
+}
+
+/* ── Member cards ─────────────────────────────────── */
+.member-card-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
-  margin-top: 0.8rem;
+  gap: 0.7rem;
 }
 
-.team-member-management {
-  margin-bottom: 1.25rem;
-  padding: 1rem;
+.member-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--surface-panel-muted);
   border: 1px solid var(--surface-border);
-  border-radius: 16px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-backdrop);
-  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem 0.35rem 0.35rem;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.member-card:hover {
+  border-color: var(--accent-color);
+  background: rgba(10, 132, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.member-card-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.member-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+  white-space: nowrap;
+}
+
+/* ── Members empty state ──────────────────────────── */
+.members-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1rem;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.members-empty-icon {
+  font-size: 2rem;
+  color: var(--text-secondary) !important;
+  opacity: 0.4;
+  margin-bottom: 0.5rem;
+}
+
+.members-empty-state p {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary) !important;
+  margin: 0;
+}
+
+.members-empty-state span {
+  font-size: 0.83rem;
+  color: var(--text-secondary) !important;
+  opacity: 0.7;
+}
+
+/* ── Org member management ────────────────────────── */
+.team-member-management {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .team-member-management-copy {
   color: var(--text-secondary) !important;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   margin-bottom: 0.9rem;
+  line-height: 1.5;
 }
 
 .team-member-management-form {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.7rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .team-member-select {
-  flex: 1 1 320px;
-  min-height: 44px;
-  border-radius: 12px;
+  flex: 1 1 280px;
+  min-height: 42px;
+  border-radius: 10px;
   border: 1px solid var(--surface-border-strong);
   background: var(--glass-bg-heavy);
-  padding: 0.75rem 0.9rem;
+  padding: 0.6rem 0.85rem;
   color: var(--text-primary);
+  font-size: 0.9rem;
 }
 
 .team-member-management-empty {
   color: var(--text-secondary) !important;
-  font-size: 0.88rem;
+  font-size: 0.87rem;
 }
 
-.member-chip {
-  background: var(--surface-panel-muted);
-  border: 1px solid var(--surface-border);
+.team-member-management .btn {
+  background: var(--accent-gradient);
+  border: none !important;
+  color: var(--text-inverse) !important;
+  padding: 0.55rem 1.2rem;
   border-radius: 999px;
-  padding: 0.45rem 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
+  font-weight: 700;
+  box-shadow: var(--accent-glow);
+  transition: 0.22s ease;
+  cursor: pointer;
 }
 
-.member-chip span {
-  color: var(--text-primary);
+.team-member-management .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
 
-.member-avatar-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  color: var(--text-inverse);
-  font-size: 0.7rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-subtle);
-}
-
-.member-avatar-circle img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
+/* ── Project cards ────────────────────────────────── */
 .project-link-card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 1.2rem 1.4rem;
-  margin-bottom: 0.8rem;
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 0.7rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   text-decoration: none;
-  transition: 0.25s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   backdrop-filter: var(--glass-backdrop);
   -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .project-link-card:hover {
-  background: var(--glass-bg-heavy);
+  border-color: var(--accent-color);
+  background: rgba(10, 132, 255, 0.04);
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 
 .project-card-name {
   font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .progress-bar-container {
-  width: 180px;
-  height: 6px;
-  background: var(--surface-border);
+  width: 160px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -243,30 +529,52 @@
   box-shadow: var(--accent-glow);
 }
 
-.project-card-due-date {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+.progress-bar-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary) !important;
+  font-weight: 600;
 }
 
+.project-card-due-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary) !important;
+  white-space: nowrap;
+}
+
+/* ── Alerts ───────────────────────────────────────── */
 .team-detail-container .alert {
   background: var(--glass-bg) !important;
   border: 1px solid var(--glass-border) !important;
   color: var(--text-primary) !important;
-  border-radius: 14px;
-  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
   backdrop-filter: var(--glass-backdrop);
   -webkit-backdrop-filter: var(--glass-backdrop);
+  font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 860px) {
+  .team-detail-header {
+    flex-direction: column;
+  }
+
+  .team-info-utility-bar {
+    max-width: 100%;
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
   .team-detail-container {
-    padding: 2rem 1.2rem;
+    padding: 1.5rem 1rem 3rem;
   }
 
   .project-link-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 
   .team-member-management-form {
@@ -276,5 +584,9 @@
 
   .progress-bar-container {
     width: 100%;
+  }
+
+  .team-detail-title {
+    font-size: 1.8rem;
   }
 }
