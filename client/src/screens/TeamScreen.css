@@ -58,8 +58,8 @@
 }
 
 .action-card {
-  background: #0d1117;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--background-secondary-cards, #0d1117);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.07));
   border-radius: 12px;
   padding: 26px 22px 22px;
   display: flex;
@@ -68,13 +68,14 @@
   text-align: center;
   gap: 8px;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
 }
 
 .action-card:hover {
-  background: #111519;
-  border-color: rgba(255,255,255,0.12);
+  background: rgba(52, 211, 153, 0.05);
+  border-color: var(--green-accent, #34D399);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(52, 211, 153, 0.08);
 }
 
 .action-card-icon-wrap {
@@ -85,27 +86,27 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 4px;
-  background: rgba(59,130,246,0.10);
-  color: #60a5fa;
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green-accent, #34D399);
 }
 
 .action-card-title {
   font-size: 14px;
   font-weight: 650;
-  color: #f1f5f9;
+  color: var(--text-primary, #f1f5f9);
   letter-spacing: -0.1px;
 }
 
 .action-card-description {
   font-size: 12px;
-  color: rgba(241,245,249,0.38);
+  color: var(--text-secondary, rgba(241,245,249,0.38));
   line-height: 1.55;
 }
 
 .action-card-link {
   font-size: 12px;
   font-weight: 600;
-  color: #60a5fa;
+  color: var(--green-accent, #34D399);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -120,11 +121,11 @@
 .action-card-gate-link {
   justify-content: center;
   text-decoration: none;
-  color: rgba(241, 245, 249, 0.62);
+  color: var(--text-secondary, rgba(241, 245, 249, 0.62));
 }
 
 .action-card-gate-link:hover {
-  color: #93c5fd;
+  color: var(--green-accent, #34D399);
 }
 
 
