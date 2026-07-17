@@ -239,7 +239,7 @@ const TeamDetailsScreen = () => {
             <span>Teams</span>
           </Link>
 
-          {/* ── Page Header ── */}
+          {/* ── Page Header — title + badges only ── */}
           <div className="team-detail-header">
             <div className="team-detail-header-left">
               <h1 className="team-detail-title">{team.name}</h1>
@@ -249,45 +249,6 @@ const TeamDetailsScreen = () => {
                 </span>
                 {team.subjectCode && (
                   <span className="task-status-pill inprogress">{team.subjectCode}</span>
-                )}
-              </div>
-            </div>
-
-            {/* Compact Team Info utility bar inline with header */}
-            <div className="team-info-utility-bar">
-              {/* ID copy row */}
-              <div className="team-id-row">
-                <span className="team-id-label">Team ID</span>
-                <div className="team-id-field">
-                  <span className="team-id-text">{team._id}</span>
-                  <button
-                    className="copy-id-btn"
-                    onClick={() => handleCopy(team._id)}
-                    title={copied ? 'Copied!' : 'Copy ID'}
-                  >
-                    {copied ? <FaCheck style={{ color: 'var(--success-color, #30d158)' }} /> : <FaRegCopy />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Session actions */}
-              {sessionError && <Message variant="danger">{sessionError}</Message>}
-              <div className="team-session-actions">
-                {session ? (
-                  <>
-                    <Link to={`/team/${id}/session`} className="btn btn-primary session-btn">
-                      Join Session
-                    </Link>
-                    {session.startedBy === userInfo._id && (
-                      <button className="btn btn-danger session-btn" onClick={endSessionHandler}>
-                        End Session
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <button className="btn btn-primary session-btn" onClick={startSessionHandler}>
-                    Start Session
-                  </button>
                 )}
               </div>
             </div>
@@ -318,21 +279,54 @@ const TeamDetailsScreen = () => {
             </div>
           )}
 
-          {/* ── Tab Bar ── */}
+          {/* ── Tab Bar with inline actions ── */}
           <div className="team-tab-bar">
-            <button
-              className={`team-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              Overview
-            </button>
-            <button
-              className={`team-tab-btn ${activeTab === 'git' ? 'active' : ''}`}
-              onClick={() => setActiveTab('git')}
-            >
-              <FaCodeBranch style={{ marginRight: 6, fontSize: '0.78rem' }} />
-              Git Activity
-            </button>
+            <div className="team-tab-pills">
+              <button
+                className={`team-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                Overview
+              </button>
+              <button
+                className={`team-tab-btn ${activeTab === 'git' ? 'active' : ''}`}
+                onClick={() => setActiveTab('git')}
+              >
+                <FaCodeBranch style={{ marginRight: 6, fontSize: '0.78rem' }} />
+                Git Activity
+              </button>
+            </div>
+
+            {/* Right side: ID copy + session */}
+            <div className="team-tab-actions">
+              <div className="team-id-field">
+                <span className="team-id-text">{team._id}</span>
+                <button
+                  className="copy-id-btn"
+                  onClick={() => handleCopy(team._id)}
+                  title={copied ? 'Copied!' : 'Copy ID'}
+                >
+                  {copied ? <FaCheck style={{ color: 'var(--success-color, #30d158)' }} /> : <FaRegCopy />}
+                </button>
+              </div>
+              {sessionError && <Message variant="danger">{sessionError}</Message>}
+              {session ? (
+                <>
+                  <Link to={`/team/${id}/session`} className="btn btn-primary tab-action-btn">
+                    Join Session
+                  </Link>
+                  {session.startedBy === userInfo._id && (
+                    <button className="btn btn-danger tab-action-btn" onClick={endSessionHandler}>
+                      End
+                    </button>
+                  )}
+                </>
+              ) : (
+                <button className="btn btn-primary tab-action-btn" onClick={startSessionHandler}>
+                  Start Session
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ── Overview Tab ── */}
