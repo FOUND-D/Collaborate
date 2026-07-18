@@ -89,19 +89,26 @@ async function computeLeetcodeScore(leetcodeUsername) {
 }
 
 async function computeDevScore(user) {
-  const hasGithub = !!user.github_username;
-  const hasLeetcode = !!user.leetcode_username;
+  // Support both camelCase (from getUserById/updateUser) and snake_case (from raw Supabase rows)
+  const githubUsername = user.github_username || user.githubUsername || '';
+  const leetcodeUsername = user.leetcode_username || user.leetcodeUsername || '';
+  const githubShowPrivate = user.github_show_private ?? user.githubShowPrivate ?? false;
+  const fallbackGithubScore = user.github_score ?? user.githubScore ?? 0;
+  const fallbackLeetcodeScore = user.leetcode_score ?? user.leetcodeScore ?? 0;
+
+  const hasGithub = !!githubUsername;
+  const hasLeetcode = !!leetcodeUsername;
 
   let githubScore = 0;
   if (hasGithub) {
-    const freshScore = await computeGithubScore(user.github_username, user.github_show_private);
-    githubScore = freshScore !== null ? freshScore : (user.github_score || 0);
+    const freshScore = await computeGithubScore(githubUsername, githubShowPrivate);
+    githubScore = freshScore !== null ? freshScore : fallbackGithubScore;
   }
 
   let leetcodeScore = 0;
   if (hasLeetcode) {
-    const freshScore = await computeLeetcodeScore(user.leetcode_username);
-    leetcodeScore = freshScore !== null ? freshScore : (user.leetcode_score || 0);
+    const freshScore = await computeLeetcodeScore(leetcodeUsername);
+    leetcodeScore = freshScore !== null ? freshScore : fallbackLeetcodeScore;
   }
 
   let devScore;
