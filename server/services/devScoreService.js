@@ -136,36 +136,62 @@ async function computeLeetcodeScore(leetcodeUsername) {
     return 0;
   }
 
-  const url = `https://leetcode-api-faisalshohag.vercel.app/${leetcodeUsername}`;
-  console.log(`[DevScore][LeetCode] Fetching: ${url}`);
+  // Try alfa-leetcode-api first (Render-hosted → reliable from server IPs, won't block like Vercel free tier)
+  // Fallback to faisalshohag if alfa is down
+  const apis = [
+    {
+      name: 'alfa-leetcode-api',
+      url: `https://alfa-leetcode-api.onrender.com/${leetcodeUsername}/solved`,
+      parse: (data) => ({
+        easySolved:   data.easySolved   ?? 0,
+        mediumSolved: data.mediumSolved ?? 0,
+        hardSolved:   data.hardSolved   ?? 0,
+        totalEasy:    954,
+        totalMedium:  2084,
+        totalHard:    953,
+      }),
+      isError: (data) => !data || data.errors || data.message === 'Not Found',
+    },
+    {
+      name: 'faisalshohag',
+      url: `https://leetcode-api-faisalshohag.vercel.app/${leetcodeUsername}`,
+      parse: (data) => ({
+        easySolved:   data.easySolved   ?? data.easy   ?? 0,
+        mediumSolved: data.mediumSolved ?? data.medium ?? 0,
+        hardSolved:   data.hardSolved   ?? data.hard   ?? 0,
+        totalEasy:    data.totalEasy    ?? 954,
+        totalMedium:  data.totalMedium  ?? 2084,
+        totalHard:    data.totalHard    ?? 953,
+      }),
+      isError: (data) => !data || data.errors || data.message === 'Not Found',
+    },
+  ];
 
-  try {
-    const res = await axios.get(url, { timeout: 10000 });
-    const data = res.data;
+  for (const api of apis) {
+    console.log(`[DevScore][LeetCode] Trying ${api.name}: ${api.url}`);
+    try {
+      const res = await axios.get(api.url, { timeout: 12000 });
+      const data = res.data;
+      console.log(`[DevScore][LeetCode] ${api.name} response:`, JSON.stringify(data));
 
-    console.log('[DevScore][LeetCode] Raw API response:', JSON.stringify(data));
+      if (api.isError(data)) {
+        throw new Error(`LeetCode user not found or error response from ${api.name}`);
+      }
 
-    if (data.errors || data.message === 'Not Found') {
-      throw new Error(`LeetCode user not found: ${leetcodeUsername}`);
+      const parsed = api.parse(data);
+      console.log(`[DevScore][LeetCode] Parsed → easy=${parsed.easySolved}/${parsed.totalEasy} med=${parsed.mediumSolved}/${parsed.totalMedium} hard=${parsed.hardSolved}/${parsed.totalHard}`);
+      return computeLeetcodeScoreObj(parsed);
+    } catch (error) {
+      console.error(`[DevScore][LeetCode] ${api.name} FAILED: ${error.message}`);
+      if (error.response) {
+        console.error(`[DevScore][LeetCode] HTTP ${error.response.status}:`, JSON.stringify(error.response.data));
+      }
+      // Continue to next API
     }
-
-    const easySolved   = data.easySolved   ?? data.easy   ?? 0;
-    const mediumSolved = data.mediumSolved ?? data.medium ?? 0;
-    const hardSolved   = data.hardSolved   ?? data.hard   ?? 0;
-    const totalEasy    = data.totalEasy    ?? 954;
-    const totalMedium  = data.totalMedium  ?? 2084;
-    const totalHard    = data.totalHard    ?? 953;
-
-    console.log(`[DevScore][LeetCode] Parsed → easy=${easySolved}/${totalEasy} med=${mediumSolved}/${totalMedium} hard=${hardSolved}/${totalHard}`);
-
-    return computeLeetcodeScoreObj({ easySolved, totalEasy, mediumSolved, totalMedium, hardSolved, totalHard });
-  } catch (error) {
-    console.error('[DevScore][LeetCode] FETCH FAILED:', error.message);
-    if (error.response) {
-      console.error(`[DevScore][LeetCode] HTTP ${error.response.status}:`, JSON.stringify(error.response.data));
-    }
-    return null;
   }
+
+  console.error('[DevScore][LeetCode] All APIs failed, returning null');
+  return null;
 }
 
 // ---------------------------------------------------------------------------
