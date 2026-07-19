@@ -26,7 +26,7 @@ const badgeLabels = {
   bronze_teacher: 'Bronze Teacher',
   silver_mentor: 'Silver Mentor',
   gold_expert: 'Gold Expert',
-  faculty_verified: 'Faculty Verified ✓',
+  faculty_verified: 'Faculty Verified',
   first_session: 'First Session',
   resource_sharer: 'Resource Sharer',
 };

@@ -7,7 +7,7 @@ import { listProjects } from '../actions/projectActions';
 import { listTasks } from '../actions/taskActions';
 import { listMyOrganisations } from '../actions/organisationActions';
 import { listSkillMatches } from '../actions/skillActions';
-import { FaBuilding, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaBuilding, FaPlus, FaSearch, FaChalkboardTeacher, FaVideo, FaLayerGroup } from 'react-icons/fa';
 import api from '../utils/api';
 import { selectHasTeam } from '../selectors/membershipSelectors';
 import AchievementTags from '../components/AchievementTags';
@@ -160,7 +160,7 @@ const HomeScreen = () => {
         </div>
         <div className="stats-grid">
           <div className="stat-mini-card teal">
-            <div className="mini-card-icon">🚀</div>
+            <div className="mini-card-icon"><FaChalkboardTeacher /></div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.sessionsTaught ?? '—'}</span>
               <span className="mini-card-lbl">Sessions Taught</span>
@@ -168,21 +168,21 @@ const HomeScreen = () => {
             </div>
           </div>
           <div className="stat-mini-card blue">
-            <div className="mini-card-icon">📽️</div>
+            <div className="mini-card-icon"><FaVideo /></div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.sessionsAttended ?? '—'}</span>
               <span className="mini-card-lbl">Sessions Attended</span>
             </div>
           </div>
           <div className="stat-mini-card green">
-            <div className="mini-card-icon">🏆</div>
+            <div className="mini-card-icon"><FaLayerGroup /></div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.skillCount ?? '—'}</span>
               <span className="mini-card-lbl">Skills Mastered</span>
             </div>
           </div>
           <div className="stat-mini-card yellow">
-            <div className="mini-card-icon">⭐</div>
+            <div className="mini-card-icon"><FaStar /></div>
             <div className="mini-card-info">
               <span className="mini-card-val">{stats?.avgRating ? stats.avgRating.toFixed(1) : '—'}</span>
               <span className="mini-card-lbl">Average Rating</span>

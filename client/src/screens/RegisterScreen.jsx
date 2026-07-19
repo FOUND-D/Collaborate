@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload } from 'react-icons/fa';
+import { FaArrowRight, FaEye, FaEyeSlash, FaGoogle, FaUpload, FaUserGraduate, FaChalkboardTeacher } from 'react-icons/fa';
 import { register } from '../actions/userActions';
 import Loader from '../components/Loader';
 import '../styles/auth.css';
@@ -156,14 +156,14 @@ const RegisterScreen = () => {
                   className={`role-toggle-btn ${role !== 'faculty' ? 'active' : ''}`}
                   onClick={() => setRole('undergrad')}
                 >
-                  🎓 Student
+                  <FaUserGraduate /> Student
                 </button>
                 <button 
                   type="button" 
                   className={`role-toggle-btn ${role === 'faculty' ? 'active' : ''}`}
                   onClick={() => setRole('faculty')}
                 >
-                  👨‍🏫 Faculty
+                  <FaChalkboardTeacher /> Faculty
                 </button>
               </div>
               {role === 'faculty' && (

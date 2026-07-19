@@ -20,6 +20,8 @@ import {
   FaExternalLinkAlt,
   FaCheckCircle,
   FaBrain,
+  FaGraduationCap,
+  FaCodeBranch,
 } from 'react-icons/fa';
 import {
   updateUserProfile,
@@ -426,7 +428,7 @@ const ProfileScreen = () => {
               </div>
               <div className="profile-name">{profileUser.name}</div>
               <span className={`role-badge ${getRoleBadgeClass(profileUser.role)}`}>
-                {profileUser.role === 'faculty' ? '🎓 Faculty' : profileUser.role}
+                {profileUser.role === 'faculty' ? <><FaGraduationCap /> Faculty</> : profileUser.role}
               </span>
               <AchievementTags 
                 badges={profileUser.badges} 
@@ -851,8 +853,8 @@ const ProfileScreen = () => {
                                   </span>
                                 )}
                                 <div style={{ display: 'flex', gap: '12px' }}>
-                                  <span>⭐ {repo.stargazers_count}</span>
-                                  <span>🍴 {repo.forks_count}</span>
+                                  <span><FaStar /> {repo.stargazers_count}</span>
+                                  <span><FaCodeBranch /> {repo.forks_count}</span>
                                 </div>
                                 <span className={`phase2-pill ${repo.private ? 'subtle' : 'offer'}`} style={{ fontSize: '0.65rem', padding: '2px 8px', background: repo.private ? 'rgba(239, 68, 68, 0.1)' : undefined, color: repo.private ? '#ef4444' : undefined }}>
                                   {repo.private ? 'Private' : 'Public'}
