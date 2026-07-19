@@ -11,9 +11,18 @@ import {
   FaUsers,
   FaCog,
   FaBars,
+  FaExchangeAlt,
+  FaVideo,
+  FaFolderOpen,
+  FaMedal,
+  FaStar,
+  FaShieldAlt,
 } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
 const UserGuideModal = ({ isOpen, onClose }) => {
+  const userInfo = useSelector((state) => state.userLogin?.userInfo);
+
   if (!isOpen) return null;
 
   return (
@@ -101,6 +110,62 @@ const UserGuideModal = ({ isOpen, onClose }) => {
               <h4>Finish in Profile, Settings, and Organisations</h4>
               <p>Update your profile, manage preferences, and move between organisations from the account section.</p>
             </div>
+
+            <div className="guide-card guide-step-card">
+              <div className="guide-card-icon color-green">
+                <FaExchangeAlt />
+              </div>
+              <div className="guide-step-number">8</div>
+              <h4>Browse the Exchange Board</h4>
+              <p>Post skill-sharing listings or browse offers from others. Book sessions and use credits to learn new skills.</p>
+            </div>
+
+            <div className="guide-card guide-step-card">
+              <div className="guide-card-icon color-orange">
+                <FaVideo />
+              </div>
+              <div className="guide-step-number">9</div>
+              <h4>Track your Sessions</h4>
+              <p>View all your booked sessions as a teacher or learner. Check status and join when it's time.</p>
+            </div>
+
+            <div className="guide-card guide-step-card">
+              <div className="guide-card-icon color-blue">
+                <FaFolderOpen />
+              </div>
+              <div className="guide-step-number">10</div>
+              <h4>Access shared Resources</h4>
+              <p>Upload, browse, and download documents and materials shared within your workspace.</p>
+            </div>
+
+            <div className="guide-card guide-step-card">
+              <div className="guide-card-icon color-orange">
+                <FaMedal />
+              </div>
+              <div className="guide-step-number">11</div>
+              <h4>Check the Leaderboard</h4>
+              <p>See how you rank against other developers. Connect both GitHub and LeetCode to appear on the board.</p>
+            </div>
+
+            <div className="guide-card guide-step-card">
+              <div className="guide-card-icon color-purple">
+                <FaStar />
+              </div>
+              <div className="guide-step-number">12</div>
+              <h4>View your Ratings</h4>
+              <p>See all peer ratings you've received and given, along with your average score.</p>
+            </div>
+
+            {userInfo?.role === 'admin' && (
+              <div className="guide-card guide-step-card">
+                <div className="guide-card-icon color-blue">
+                  <FaShieldAlt />
+                </div>
+                <div className="guide-step-number">13</div>
+                <h4>Admin Dashboard & Complaints</h4>
+                <p>Manage users, view platform stats, and review complaints. Only visible to admins.</p>
+              </div>
+            )}
           </div>
 
           <div className="guide-tips">

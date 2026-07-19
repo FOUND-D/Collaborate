@@ -23,6 +23,10 @@ It explains:
 - deployment notes
 - common failure points and debugging tips
 
+## Documentation
+
+For a non-technical overview of all available features and screens, please see the [User Guide](docs/USER_GUIDE.md).
+
 ## Architecture Overview
 
 The app is split into a client and server:
