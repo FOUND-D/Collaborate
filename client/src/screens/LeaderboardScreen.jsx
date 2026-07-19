@@ -34,10 +34,11 @@ const LeaderboardScreen = () => {
     <Popover id="popover-dev-score" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
       <Popover.Header as="h3" style={{ background: 'var(--bg-overlay)', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', margin: 0 }}>Dev Score Calculation</Popover.Header>
       <Popover.Body style={{ color: 'var(--text-secondary)' }}>
-        <strong>Dev Score</strong> is out of 100, calculated as:<br/><br/>
+        <strong>Dev Score</strong> is out of 100, calculated as the <strong>combined average</strong> of both platforms:<br/><br/>
         <strong>GitHub:</strong> Based on Stars, Followers, Public Repos, and Forks using a logarithmic scale to reward early milestones.<br/>
-        <strong>LeetCode:</strong> Based on the percentage of Easy (1x weight), Medium (3x weight), and Hard (6x weight) problems solved, plus Contribution Points.<br/><br/>
-        <em>If both accounts are connected, the Dev Score is their combined average.</em>
+        <strong>LeetCode:</strong> Based on the percentage of Easy (1x weight), Medium (3x weight), and Hard (6x weight) problems solved.<br/><br/>
+        <em>The leaderboard only shows users who have <strong>both</strong> GitHub and LeetCode accounts connected. Dev Score = (GitHub Score + LeetCode Score) / 2.</em><br/><br/>
+        <em>Users with only one platform connected still get a score on their profile but won't appear here.</em>
       </Popover.Body>
     </Popover>
   );
@@ -65,12 +66,12 @@ const LeaderboardScreen = () => {
           </select>
         </div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          Scores and Leaderboard rankings are automatically updated every day at 6:00 AM.
+          Only users with both GitHub & LeetCode connected are ranked. Scores update daily at 6:00 AM.
         </p>
 
         {loading ? <Loader /> : error ? <Message variant="danger">{error}</Message> : (
           leaderboard.length === 0 ? (
-             <div className="phase2-empty">No users found on the leaderboard.</div>
+             <div className="phase2-empty">No users found. Connect both GitHub & LeetCode on your profile to appear on the leaderboard.</div>
           ) : (
             <div className="leaderboard-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {leaderboard.map((user, index) => {

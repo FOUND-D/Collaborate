@@ -2,18 +2,17 @@ const cron = require('node-cron');
 const { supabase } = require('../lib/repo');
 const { computeDevScore } = require('../services/devScoreService');
 
-// Schedule a task to run every day at 6:00 AM (server time)
-cron.schedule('0 6 * * *', async () => {
-  console.log('Running daily Dev Score and Leaderboard update job...');
+async function refreshAllDevScores() {
+  console.log('Running Dev Score update for all users...');
   try {
     // Fetch users who have either GitHub or LeetCode connected
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, github_username, leetcode_username, github_show_private')
-      .or('github_username.neq.null,leetcode_username.neq.null');
+      .select('id, github_username, leetcode_username, github_show_private, github_score, leetcode_score')
+      .or('github_username.neq.,leetcode_username.neq.');
 
     if (error) {
-      console.error('Error fetching users for cron job:', error);
+      console.error('Error fetching users for dev score update:', error);
       return;
     }
 
@@ -22,14 +21,25 @@ cron.schedule('0 6 * * *', async () => {
 
     for (const user of validUsers) {
       try {
-        await computeDevScore(user);
+        const result = await computeDevScore(user);
+        console.log(`Updated score for ${user.id}: devScore=${result.devScore} (GH=${result.githubScore}, LC=${result.leetcodeScore})`);
       } catch (err) {
         console.error(`Failed to update score for ${user.id}:`, err.message);
       }
     }
 
-    console.log('Daily Dev Score update job completed.');
+    console.log('Dev Score update completed.');
   } catch (err) {
-    console.error('Cron job error:', err.message);
+    console.error('Dev score update error:', err.message);
   }
+}
+
+// Run on server startup (with a small delay to let the server finish booting)
+setTimeout(() => {
+  refreshAllDevScores();
+}, 3000);
+
+// Schedule a daily refresh at 6:00 AM (server time)
+cron.schedule('0 6 * * *', () => {
+  refreshAllDevScores();
 });

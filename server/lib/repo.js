@@ -1204,7 +1204,16 @@ const deleteRating = async (ratingId) => {
 };
 
 const getTopUsersByDevScore = async ({ limit = 50, department = null }) => {
-  let query = supabase.from('users').select('id,name,profile_image,department,dev_score,github_score,leetcode_score,role').order('dev_score', { ascending: false }).limit(limit);
+  // Leaderboard only shows users who have BOTH GitHub and LeetCode connected
+  let query = supabase
+    .from('users')
+    .select('id,name,profile_image,department,dev_score,github_score,leetcode_score,role,github_username,leetcode_username')
+    .not('github_username', 'is', null)
+    .neq('github_username', '')
+    .not('leetcode_username', 'is', null)
+    .neq('leetcode_username', '')
+    .order('dev_score', { ascending: false })
+    .limit(limit);
   if (department) {
     query = query.eq('department', department);
   }

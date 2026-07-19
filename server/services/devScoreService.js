@@ -20,18 +20,18 @@ function computeGithubScoreObj({ followers = 0, publicRepos = 0, totalStars = 0,
 }
 
 // LeetCode score: out of 100
-// Weighted ratio (easy 25%, medium 35%, hard 40%) using sqrt curve
-// so early solves are rewarded visibly (e.g. 56 solved ≈ 11–15 pts)
+// Score = (solved / total) * weightage for each difficulty
+// Easy: 25 weight, Medium: 35 weight, Hard: 40 weight (sum = 100)
 function computeLeetcodeScoreObj({ easySolved = 0, totalEasy = 954, mediumSolved = 0, totalMedium = 2084, hardSolved = 0, totalHard = 953 }) {
   const easyRatio   = totalEasy   > 0 ? easySolved   / totalEasy   : 0;
   const mediumRatio = totalMedium > 0 ? mediumSolved / totalMedium : 0;
   const hardRatio   = totalHard   > 0 ? hardSolved   / totalHard   : 0;
 
-  // raw is on 0–1 scale (weights sum to 1.0, not 100)
-  const raw = easyRatio * 0.25 + mediumRatio * 0.35 + hardRatio * 0.40;
-  const score = Math.sqrt(raw) * 100;
+  // Score = (solved / total) * weightage for each difficulty
+  // Easy: 25 weight, Medium: 35 weight, Hard: 40 weight (sum = 100)
+  const score = easyRatio * 25 + mediumRatio * 35 + hardRatio * 40;
   const result = Math.min(100, Math.round(score * 100) / 100);
-  console.log(`[DevScore][LeetCode] scoreObj inputs → easy=${easySolved}/${totalEasy} med=${mediumSolved}/${totalMedium} hard=${hardSolved}/${totalHard} → raw=${raw.toFixed(6)} sqrt=${Math.sqrt(raw).toFixed(6)} → result=${result}`);
+  console.log(`[DevScore][LeetCode] scoreObj inputs → easy=${easySolved}/${totalEasy} med=${mediumSolved}/${totalMedium} hard=${hardSolved}/${totalHard} → score=${score.toFixed(6)} → result=${result}`);
   return result;
 }
 
