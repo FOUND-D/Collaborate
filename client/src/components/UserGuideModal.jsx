@@ -1,29 +1,102 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import './UserGuideModal.css';
 import {
   FaTimes,
   FaBook,
-  FaCheckCircle,
-  FaTachometerAlt,
-  FaFolder,
-  FaTasks,
-  FaComments,
+  FaCompass,
   FaUsers,
-  FaCog,
-  FaBars,
+  FaComments,
   FaExchangeAlt,
-  FaVideo,
   FaFolderOpen,
-  FaMedal,
-  FaStar,
-  FaShieldAlt,
+  FaBell,
+  FaUserCog,
+  FaChalkboardTeacher,
+  FaTools,
+  FaQuestionCircle,
+  FaSearch
 } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
+
+const helpSections = [
+  {
+    title: 'Getting started',
+    icon: FaBook,
+    body: "Welcome to Collaborate! This guide will help you understand the basics of the platform. Here, you'll find everything you need to connect with your team and manage your work."
+  },
+  {
+    title: 'Finding your way around',
+    icon: FaCompass,
+    body: "Use the sidebar on the left to navigate between different areas like your dashboard, projects, and teams. The dashboard gives you a high-level overview of your recent activity and tasks."
+  },
+  {
+    title: 'Working with teams and projects',
+    icon: FaUsers,
+    body: "Create teams to group people working together, then build projects within those teams. You can assign tasks, track progress, and run video meetings directly from a team's page."
+  },
+  {
+    title: 'Chat',
+    icon: FaComments,
+    body: "Communicate with your team in real time. You can use the docked chat panel for quick messages or expand it for a full-screen view during longer conversations."
+  },
+  {
+    title: 'The skill exchange',
+    icon: FaExchangeAlt,
+    body: "The skill exchange lets you teach and learn from others.\n\n• Setting up your skills: Add what you know and want to learn to your profile.\n• Browsing the exchange board: Look for available offers or post your own requests.\n• Booking a session: Spend credits to schedule time with a peer.\n• During and after a session: Meet over video and exchange feedback.\n• Credits: Earn credits by teaching, spend them to learn.\n• Ratings and badges: Give ratings after sessions and earn badges for participation.\n• Leaderboard: See how your contributions compare against others."
+  },
+  {
+    title: 'Resources',
+    icon: FaFolderOpen,
+    body: "The resources section acts as a shared library. Here you can upload, organize, and download documents, notes, and other materials shared by your workspace."
+  },
+  {
+    title: 'Notifications',
+    icon: FaBell,
+    body: "Stay updated on what's happening. You'll receive alerts for new messages, task assignments, upcoming sessions, and important team updates."
+  },
+  {
+    title: 'Your profile and settings',
+    icon: FaUserCog,
+    body: "Your profile showcases your skills, connected accounts, and your achievements. Use settings to manage your preferences, timezone, and notifications."
+  },
+  {
+    title: 'Faculty extras',
+    icon: FaChalkboardTeacher,
+    body: "Faculty members get a verified badge and additional permissions to endorse skills. These endorsements help build trust and highlight expertise on the platform."
+  },
+  {
+    title: 'A note on features still on the way',
+    icon: FaTools,
+    body: "We're constantly improving Collaborate! Features like the automated skill directory and public portfolio pages are currently in preview mode and will be fully operational in a future update."
+  },
+  {
+    title: 'Questions',
+    icon: FaQuestionCircle,
+    body: "If you have administrative questions, please reach out to your organisation admin. For technical issues or bugs, use the feedback option found in your Settings."
+  }
+];
+
+const colorClasses = ['color-blue', 'color-green', 'color-purple', 'color-orange'];
 
 const UserGuideModal = ({ isOpen, onClose }) => {
-  const userInfo = useSelector((state) => state.userLogin?.userInfo);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return helpSections;
+    const query = searchQuery.toLowerCase();
+    return helpSections.filter(section =>
+      section.title.toLowerCase().includes(query) ||
+      section.body.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  // When search changes, reset active index to the first available match
+  React.useEffect(() => {
+    setActiveIndex(0);
+  }, [searchQuery]);
 
   if (!isOpen) return null;
+
+  const activeSection = filteredSections[activeIndex];
 
   return (
     <div className="user-guide-overlay" onClick={onClose}>
@@ -31,7 +104,7 @@ const UserGuideModal = ({ isOpen, onClose }) => {
         <div className="user-guide-header">
           <div className="guide-title">
             <FaBook className="guide-icon-main" />
-            <h2>User Guide</h2>
+            <h2>Help Center</h2>
           </div>
           <button className="guide-close-btn" onClick={onClose} type="button">
             <FaTimes />
@@ -39,143 +112,57 @@ const UserGuideModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className="user-guide-content">
-          <div className="guide-section welcome-section">
-            <h3>How to move around Collaborate</h3>
-            <p>
-              Use the sidebar as your map. The steps below show you how to switch between pages and use the main features
-              without changing where anything sits on the screen.
-            </p>
+          <div className="guide-search-wrapper">
+            <FaSearch className="guide-search-icon" />
+            <input
+              type="text"
+              className="guide-search-input"
+              placeholder="Search help topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
-          <div className="guide-grid">
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-blue">
-                <FaBars />
-              </div>
-              <div className="guide-step-number">1</div>
-              <h4>Open or collapse the sidebar</h4>
-              <p>Use the top-left toggle to expand the workspace menu or collapse it when you need more room.</p>
+          <div className="guide-two-pane">
+            <div className="guide-sidebar">
+              {filteredSections.length > 0 ? (
+                filteredSections.map((section, idx) => {
+                  const Icon = section.icon;
+                  const colorClass = colorClasses[helpSections.indexOf(section) % colorClasses.length];
+                  const isActive = idx === activeIndex;
+                  return (
+                    <button
+                      key={section.title}
+                      className={`guide-nav-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setActiveIndex(idx)}
+                    >
+                      <div className={`guide-nav-icon ${colorClass}`}>
+                        <Icon />
+                      </div>
+                      <span className="guide-nav-title">{section.title}</span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="guide-no-results">No topics found.</div>
+              )}
             </div>
 
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-blue">
-                <FaTachometerAlt />
-              </div>
-              <div className="guide-step-number">2</div>
-              <h4>Start from the dashboard</h4>
-              <p>Dashboard shows your workspace summary, recent activity, and the quickest way back into daily work.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-green">
-                <FaFolder />
-              </div>
-              <div className="guide-step-number">3</div>
-              <h4>Open Projects to plan work</h4>
-              <p>Create projects, track progress, and open a project to manage its tasks and goal details.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-green">
-                <FaTasks />
-              </div>
-              <div className="guide-step-number">4</div>
-              <h4>Use Tasks to manage action items</h4>
-              <p>Add tasks, edit them, filter by status, and mark them complete as work moves forward.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-purple">
-                <FaUsers />
-              </div>
-              <div className="guide-step-number">5</div>
-              <h4>Go to Teams for collaboration</h4>
-              <p>Invite teammates, check team details, and start or join meetings from the team page.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-orange">
-                <FaComments />
-              </div>
-              <div className="guide-step-number">6</div>
-              <h4>Switch into Chat</h4>
-              <p>Use the chat sidebar to pick a team or member, then expand the chat if you want a full-screen view.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-purple">
-                <FaCog />
-              </div>
-              <div className="guide-step-number">7</div>
-              <h4>Finish in Profile, Settings, and Organisations</h4>
-              <p>Update your profile, manage preferences, and move between organisations from the account section.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-green">
-                <FaExchangeAlt />
-              </div>
-              <div className="guide-step-number">8</div>
-              <h4>Browse the Exchange Board</h4>
-              <p>Post skill-sharing listings or browse offers from others. Book sessions and use credits to learn new skills.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-orange">
-                <FaVideo />
-              </div>
-              <div className="guide-step-number">9</div>
-              <h4>Track your Sessions</h4>
-              <p>View all your booked sessions as a teacher or learner. Check status and join when it's time.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-blue">
-                <FaFolderOpen />
-              </div>
-              <div className="guide-step-number">10</div>
-              <h4>Access shared Resources</h4>
-              <p>Upload, browse, and download documents and materials shared within your workspace.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-orange">
-                <FaMedal />
-              </div>
-              <div className="guide-step-number">11</div>
-              <h4>Check the Leaderboard</h4>
-              <p>See how you rank against other developers. Connect both GitHub and LeetCode to appear on the board.</p>
-            </div>
-
-            <div className="guide-card guide-step-card">
-              <div className="guide-card-icon color-purple">
-                <FaStar />
-              </div>
-              <div className="guide-step-number">12</div>
-              <h4>View your Ratings</h4>
-              <p>See all peer ratings you've received and given, along with your average score.</p>
-            </div>
-
-            {userInfo?.role === 'admin' && (
-              <div className="guide-card guide-step-card">
-                <div className="guide-card-icon color-blue">
-                  <FaShieldAlt />
+            <div className="guide-detail-pane">
+              {activeSection && (
+                <div className="guide-detail-content">
+                  <div className={`guide-detail-icon-wrap ${colorClasses[helpSections.indexOf(activeSection) % colorClasses.length]}`}>
+                    <activeSection.icon />
+                  </div>
+                  <h3>{activeSection.title}</h3>
+                  <div className="guide-detail-body">
+                    {activeSection.body.split('\n').map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </div>
                 </div>
-                <div className="guide-step-number">13</div>
-                <h4>Admin Dashboard & Complaints</h4>
-                <p>Manage users, view platform stats, and review complaints. Only visible to admins.</p>
-              </div>
-            )}
-          </div>
-
-          <div className="guide-tips">
-            <h4>Quick toggle guide</h4>
-            <ul>
-              <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Click <strong>Chat</strong> in the sidebar to open the docked chat panel.</li>
-                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Use the <strong>Expand</strong> icon in chat to open the full-screen chat view.</li>
-                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} On mobile, use the sidebar menu button to show or hide the workspace navigation.</li>
-                            <li>{(typeof FaCheckCircle !== 'undefined') ? <FaCheckCircle /> : <svg width="14" height="14" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', verticalAlign: 'text-bottom' }} xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 14.5l-5-5 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z"/></svg>} Open a team to start a meeting, then use the meeting controls for camera, mic, and screen share.</li>
-            </ul>
+              )}
+            </div>
           </div>
         </div>
 
