@@ -7,6 +7,7 @@ const {
   getUserSkills,
   getPeerMatches,
 } = require('../lib/repo');
+const skillSharingService = require('../services/skillSharingService');
 
 const getSkills = asyncHandler(async (req, res) => {
   res.json(await listSkills());
@@ -14,10 +15,6 @@ const getSkills = asyncHandler(async (req, res) => {
 
 const createUserSkill = asyncHandler(async (req, res) => {
   const { skillId, skill_id, name, type = 'can_teach', level } = req.body;
-
-  if (type !== 'can_teach') {
-    return res.status(400).json({ message: 'type must be can_teach' });
-  }
 
   let finalSkillId = skillId || skill_id;
 
@@ -52,9 +49,9 @@ const createUserSkill = asyncHandler(async (req, res) => {
   const { data: userSkill, error: upsertError } = await supabase
     .from('user_skills')
     .upsert({
-      user_id: req.user._id,
+      user_id: req.user._id || req.user.id,
       skill_id: finalSkillId,
-      type,
+      type: type || 'can_teach',
       level: level || null,
     }, { onConflict: 'user_id,skill_id,type' })
     .select('*, skill:skills(*)')
@@ -78,7 +75,7 @@ const createUserSkill = asyncHandler(async (req, res) => {
 
 const deleteUserSkill = asyncHandler(async (req, res) => {
   await removeUserSkill({
-    userId: req.user._id,
+    userId: req.user._id || req.user.id,
     skillId: req.params.skillId,
     type: req.query.type || null,
   });
@@ -90,7 +87,7 @@ const getSkillsForUser = asyncHandler(async (req, res) => {
 });
 
 const getSkillMatches = asyncHandler(async (req, res) => {
-  res.json(await getPeerMatches(req.user._id, 5));
+  res.json(await getPeerMatches(req.user._id || req.user.id, 5));
 });
 
 // @desc    Delete a skill (Admin only)
@@ -112,7 +109,7 @@ const endorseSkill = asyncHandler(async (req, res) => {
 
   const { data, error } = await supabase
     .from('user_skills')
-    .update({ endorsed_by: req.user._id, endorsed_at: new Date().toISOString() })
+    .update({ endorsed_by: req.user._id || req.user.id, endorsed_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('skill_id', skillId)
     .eq('type', type || 'can_teach')
@@ -131,6 +128,34 @@ const endorseSkill = asyncHandler(async (req, res) => {
   res.json({ message: 'Skill endorsed', data });
 });
 
+// New skill sharing features
+const getGroupedBySkill = asyncHandler(async (req, res) => {
+  res.json(await skillSharingService.groupUsersBySkill());
+});
+
+const getGroupedByUser = asyncHandler(async (req, res) => {
+  res.json(await skillSharingService.groupSkillsByUser());
+});
+
+const getMatchmaking = asyncHandler(async (req, res) => {
+  const targetUserId = req.params.userId || req.user.id || req.user._id;
+  res.json(await skillSharingService.matchSkillsForUser(targetUserId));
+});
+
+const filterSkills = asyncHandler(async (req, res) => {
+  const skills = req.query.skills ? req.query.skills.split(',') : [];
+  const matchAll = req.query.matchAll === 'true';
+  const type = req.query.type || null;
+  res.json(await skillSharingService.filterUsersBySkills(skills, { matchAll, type }));
+});
+
+const getVennDiagram = asyncHandler(async (req, res) => {
+  const skillIds = req.query.skillIds ? req.query.skillIds.split(',').filter(Boolean) : [];
+  const skillNames = req.query.skills ? req.query.skills.split(',').filter(Boolean) : [];
+  const type = req.query.type || null;
+  res.json(await skillSharingService.getVennDiagramData({ skillIds, skillNames, type }));
+});
+
 module.exports = {
   getSkills,
   createUserSkill,
@@ -139,4 +164,9 @@ module.exports = {
   getSkillMatches,
   deleteSkill,
   endorseSkill,
+  getGroupedBySkill,
+  getGroupedByUser,
+  getMatchmaking,
+  filterSkills,
+  getVennDiagram,
 };

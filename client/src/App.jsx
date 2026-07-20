@@ -25,7 +25,7 @@ import { MembersPage, RolesPage, CompliancePage, CustomFieldsPage, AuditLogPage,
 import AcceptInviteScreen from './screens/AcceptInviteScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import PhaseOnePlaceholderScreen from './screens/PhaseOnePlaceholderScreen';
-import SkillSharingPlaceholderScreen from './screens/SkillSharingPlaceholderScreen';
+import SkillSharingScreen from './screens/SkillSharingScreen';
 import ResourcesScreen from './screens/ResourcesScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import MyRatingsScreen from './screens/MyRatingsScreen';
@@ -241,7 +241,7 @@ const AppContent = () => {
                 <Route path="/resources" element={<ProtectedRoute><ResourcesScreen /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardScreen /></ProtectedRoute>} />
                 <Route path="/my-ratings" element={<ProtectedRoute><MyRatingsScreen /></ProtectedRoute>} />
-                <Route path="/skill-sharing" element={<ProtectedRoute><SkillSharingPlaceholderScreen /></ProtectedRoute>} />
+                <Route path="/skill-sharing" element={<ProtectedRoute><SkillSharingScreen /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboardScreen /></AdminRoute>} />
                 <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsScreen /></AdminRoute>} />
                 <Route path="/portfolio/:slug" element={<ProtectedRoute><PhaseOnePlaceholderScreen title="Portfolio" description="Coming in Phase 2." /></ProtectedRoute>} />

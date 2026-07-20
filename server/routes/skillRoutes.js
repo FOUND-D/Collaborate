@@ -7,6 +7,11 @@ const {
   getSkillMatches,
   deleteSkill,
   endorseSkill,
+  getGroupedBySkill,
+  getGroupedByUser,
+  getMatchmaking,
+  filterSkills,
+  getVennDiagram,
 } = require('../controllers/skillController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/orgMiddleware');
@@ -14,6 +19,12 @@ const { requireRole } = require('../middleware/orgMiddleware');
 const router = express.Router();
 
 router.route('/').get(protect, getSkills);
+router.route('/group-by-skill').get(protect, getGroupedBySkill);
+router.route('/group-by-user').get(protect, getGroupedByUser);
+router.route('/venn').get(protect, getVennDiagram);
+router.route('/filter').get(protect, filterSkills);
+router.route('/match').get(protect, getMatchmaking);
+router.route('/match/:userId').get(protect, getMatchmaking);
 router.route('/matches').get(protect, getSkillMatches);
 router.route('/user').post(protect, createUserSkill);
 router.route('/user/:skillId').delete(protect, deleteUserSkill);

@@ -24,3 +24,4 @@ router.use('/:teamId/sessions', meetingRoutes);
 router.route('/:id').get(protect, getTeamById).delete(protect, deleteTeam);
 
 module.exports = router;
+
