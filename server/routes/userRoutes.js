@@ -24,7 +24,8 @@ router.get('/github/:username', protect, getGithubStats);
 router
   .route('/profile')
   .get(protect, getUserProfile)
-  .patch(protect, updateUserProfile);
+  .patch(protect, updateUserProfile)
+  .put(protect, updateUserProfile);
 
 router.post('/dev-score/refresh', protect, refreshDevScore);
 router.get('/:id', protect, getUserPublicProfile);

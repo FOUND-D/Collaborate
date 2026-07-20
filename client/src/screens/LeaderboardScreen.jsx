@@ -63,7 +63,7 @@ const LeaderboardScreen = () => {
             console.log('Reverse geocode lookup skipped:', e.message);
           }
 
-          await api.put('/api/users/profile', {
+          await api.patch('/api/users/profile', {
             latitude,
             longitude,
             location: locationName,
