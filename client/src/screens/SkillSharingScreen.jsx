@@ -12,13 +12,46 @@ import {
   FaStar, 
   FaExternalLinkAlt, 
   FaTimes,
-  FaCheck
+  FaCheck,
+  FaSlidersH,
+  FaBolt
 } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BACKEND_URL } from '../config/runtime';
 import './SkillSharingScreen.css';
+
+const CACHE_KEY = 'collaborate_skill_sharing_cache_v3';
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+const getCachedPageData = () => {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp < CACHE_TTL_MS) {
+      return parsed.data;
+    }
+  } catch (e) {
+    console.error('Failed to read skill sharing cache:', e);
+  }
+  return null;
+};
+
+const setCachedPageData = (data) => {
+  try {
+    sessionStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        data,
+      })
+    );
+  } catch (e) {
+    console.error('Failed to save skill sharing cache:', e);
+  }
+};
 
 const SkillSharingScreen = () => {
   const navigate = useNavigate();
@@ -27,6 +60,7 @@ const SkillSharingScreen = () => {
   // Core state
   const [activeTab, setActiveTab] = useState('venn'); // 'venn' | 'skills' | 'users' | 'match'
   const [loading, setLoading] = useState(true);
+  const [isCached, setIsCached] = useState(false);
   const [skillsList, setSkillsList] = useState([]);
   const [groupedBySkill, setGroupedBySkill] = useState([]);
   const [groupedByUser, setGroupedByUser] = useState([]);
@@ -38,6 +72,7 @@ const SkillSharingScreen = () => {
   const [vennData, setVennData] = useState(null);
   const [activeRegionKey, setActiveRegionKey] = useState('intersectionAB');
   const [vennLoading, setVennLoading] = useState(false);
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   // Search & Filter state for directories
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,30 +90,69 @@ const SkillSharingScreen = () => {
     },
   });
 
-  // Fetch initial base data
+  // Load from cache on mount + fetch in background
   useEffect(() => {
     if (!userInfo?.token) return;
 
-    const fetchData = async () => {
-      setLoading(true);
+    // 1. Load from cache immediately if present
+    const cached = getCachedPageData();
+    if (cached) {
+      setSkillsList(cached.skillsList || []);
+      setGroupedBySkill(cached.groupedBySkill || []);
+      setGroupedByUser(cached.groupedByUser || []);
+      setMatchesData(cached.matchesData || null);
+      if (cached.vennData) {
+        setVennData(cached.vennData);
+        if (cached.vennData.skillsCount === 3) {
+          setActiveRegionKey('intersectionABC');
+        } else {
+          setActiveRegionKey('intersectionAB');
+        }
+      }
+      setIsCached(true);
+      setLoading(false);
+    }
+
+    // 2. Fetch fresh data from server
+    const fetchFreshData = async () => {
+      if (!cached) setLoading(true);
       try {
-        const [skillsRes, groupSkillRes, groupUserRes, matchRes] = await Promise.all([
+        const [skillsRes, groupSkillRes, groupUserRes, matchRes, vennRes] = await Promise.all([
           axios.get(`${BACKEND_URL}/api/skills`, getAuthConfig()),
           axios.get(`${BACKEND_URL}/api/skills/group-by-skill`, getAuthConfig()),
           axios.get(`${BACKEND_URL}/api/skills/group-by-user`, getAuthConfig()),
           axios.get(`${BACKEND_URL}/api/skills/match`, getAuthConfig()),
+          axios.get(`${BACKEND_URL}/api/skills/venn?type=${typeFilter}`, getAuthConfig()),
         ]);
 
-        const fetchedSkills = skillsRes.data || [];
-        setSkillsList(fetchedSkills);
-        setGroupedBySkill(groupSkillRes.data || []);
-        setGroupedByUser(groupUserRes.data || []);
-        setMatchesData(matchRes.data || null);
+        const freshSkills = skillsRes.data || [];
+        const freshGroupSkill = groupSkillRes.data || [];
+        const freshGroupUser = groupUserRes.data || [];
+        const freshMatch = matchRes.data || null;
+        const freshVenn = vennRes.data || null;
 
-        // Pre-select top 2 or 3 skills for Venn Diagram
-        if (fetchedSkills.length >= 2) {
-          setSelectedSkillIds([fetchedSkills[0].id, fetchedSkills[1].id]);
+        setSkillsList(freshSkills);
+        setGroupedBySkill(freshGroupSkill);
+        setGroupedByUser(freshGroupUser);
+        setMatchesData(freshMatch);
+        setVennData(freshVenn);
+
+        if (freshVenn?.skillsCount === 3) {
+          setActiveRegionKey('intersectionABC');
+        } else {
+          setActiveRegionKey('intersectionAB');
         }
+
+        // Write to cache
+        setCachedPageData({
+          skillsList: freshSkills,
+          groupedBySkill: freshGroupSkill,
+          groupedByUser: freshGroupUser,
+          matchesData: freshMatch,
+          vennData: freshVenn,
+        });
+
+        setIsCached(true);
       } catch (err) {
         console.error('Error loading skill sharing data:', err);
       } finally {
@@ -86,12 +160,12 @@ const SkillSharingScreen = () => {
       }
     };
 
-    fetchData();
+    fetchFreshData();
   }, [userInfo?.token]);
 
-  // Fetch Venn Diagram Data whenever selected skills or type filter changes
+  // Fetch Venn Diagram Data when user specifically alters selected skills or type filter
   useEffect(() => {
-    if (!userInfo?.token) return;
+    if (!userInfo?.token || loading) return;
 
     const fetchVenn = async () => {
       setVennLoading(true);
@@ -107,7 +181,7 @@ const SkillSharingScreen = () => {
         const res = await axios.get(`${BACKEND_URL}/api/skills/venn?${params.toString()}`, getAuthConfig());
         setVennData(res.data);
 
-        // Set default active region
+        // Update active region key
         if (res.data?.skillsCount === 3) {
           setActiveRegionKey('intersectionABC');
         } else {
@@ -126,7 +200,6 @@ const SkillSharingScreen = () => {
   // Toggle skill selection for Venn Diagram (max 3)
   const handleToggleSkillSelection = (skillId) => {
     if (selectedSkillIds.includes(skillId)) {
-      if (selectedSkillIds.length <= 2) return; // Maintain at least 2 skills
       setSelectedSkillIds(selectedSkillIds.filter((id) => id !== skillId));
     } else {
       if (selectedSkillIds.length >= 3) {
@@ -154,18 +227,36 @@ const SkillSharingScreen = () => {
         getAuthConfig()
       );
 
-      // Refresh data
-      const [skillsRes, groupSkillRes, groupUserRes, matchRes] = await Promise.all([
+      // Refresh data and invalidate cache
+      sessionStorage.removeItem(CACHE_KEY);
+
+      const [skillsRes, groupSkillRes, groupUserRes, matchRes, vennRes] = await Promise.all([
         axios.get(`${BACKEND_URL}/api/skills`, getAuthConfig()),
         axios.get(`${BACKEND_URL}/api/skills/group-by-skill`, getAuthConfig()),
         axios.get(`${BACKEND_URL}/api/skills/group-by-user`, getAuthConfig()),
         axios.get(`${BACKEND_URL}/api/skills/match`, getAuthConfig()),
+        axios.get(`${BACKEND_URL}/api/skills/venn?type=${typeFilter}`, getAuthConfig()),
       ]);
 
-      setSkillsList(skillsRes.data || []);
-      setGroupedBySkill(groupSkillRes.data || []);
-      setGroupedByUser(groupUserRes.data || []);
-      setMatchesData(matchRes.data || null);
+      const freshSkills = skillsRes.data || [];
+      const freshGroupSkill = groupSkillRes.data || [];
+      const freshGroupUser = groupUserRes.data || [];
+      const freshMatch = matchRes.data || null;
+      const freshVenn = vennRes.data || null;
+
+      setSkillsList(freshSkills);
+      setGroupedBySkill(freshGroupSkill);
+      setGroupedByUser(freshGroupUser);
+      setMatchesData(freshMatch);
+      setVennData(freshVenn);
+
+      setCachedPageData({
+        skillsList: freshSkills,
+        groupedBySkill: freshGroupSkill,
+        groupedByUser: freshGroupUser,
+        matchesData: freshMatch,
+        vennData: freshVenn,
+      });
 
       setIsModalOpen(false);
       setNewSkillName('');
@@ -201,9 +292,14 @@ const SkillSharingScreen = () => {
         <div className="skill-sharing-title-group">
           <h1>
             <FaBrain /> Skill Sharing & Matrix
+            {isCached && (
+              <span className="cached-indicator-badge" title="Page content cached for instant load">
+                <FaBolt /> Instant Cached
+              </span>
+            )}
           </h1>
           <p className="skill-sharing-subtitle">
-            Analyze skill intersections via interactive Venn diagrams, discover mentors & learners in your organization, and exchange knowledge.
+            Automatically generated Venn Diagram matrix comparing top organization skills and member profiles.
           </p>
         </div>
         <button
@@ -260,12 +356,65 @@ const SkillSharingScreen = () => {
               exit={{ opacity: 0, y: -15 }}
               className="venn-container-card"
             >
-              {/* Controls Bar */}
-              <div className="venn-controls-bar">
-                <div className="skill-selector-group">
-                  <span className="selector-label">Select Skills to Compare (2 or 3):</span>
+              {/* Default Overview Banner */}
+              <div className="venn-auto-info-banner">
+                <div className="venn-auto-title">
+                  <span>✨ Organization Matrix comparing:</span>
+                  <div className="active-skill-pills">
+                    {vennData?.targetSkills?.map((sk, idx) => (
+                      <span key={sk.id} className={`skill-chip selected-${idx}`} style={{ padding: '3px 10px', fontSize: '0.8rem' }}>
+                        {sk.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {/* Optional Custom Compare Toggle */}
+                  <button
+                    type="button"
+                    className="custom-compare-toggle-btn"
+                    onClick={() => setShowCustomPicker(!showCustomPicker)}
+                  >
+                    <FaSlidersH /> {showCustomPicker ? 'Hide Custom Filter' : 'Custom Compare (Optional)'}
+                  </button>
+
+                  <div className="venn-type-filter">
+                    <button
+                      className={`filter-btn ${typeFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setTypeFilter('all')}
+                    >
+                      All Skills
+                    </button>
+                    <button
+                      className={`filter-btn ${typeFilter === 'can_teach' ? 'active' : ''}`}
+                      onClick={() => setTypeFilter('can_teach')}
+                    >
+                      Can Teach
+                    </button>
+                    <button
+                      className={`filter-btn ${typeFilter === 'want_to_learn' ? 'active' : ''}`}
+                      onClick={() => setTypeFilter('want_to_learn')}
+                    >
+                      Want to Learn
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional Custom Skill Picker (Hidden by default) */}
+              {showCustomPicker && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="custom-picker-container"
+                >
+                  <span className="selector-label" style={{ display: 'block', marginBottom: '10px' }}>
+                    Select specific skills to compare (up to 3):
+                  </span>
                   <div className="skill-chips-wrap">
-                    {skillsList.slice(0, 12).map((sk) => {
+                    {skillsList.slice(0, 16).map((sk) => {
                       const selIndex = selectedSkillIds.indexOf(sk.id);
                       const isSelected = selIndex !== -1;
                       return (
@@ -281,29 +430,8 @@ const SkillSharingScreen = () => {
                       );
                     })}
                   </div>
-                </div>
-
-                <div className="venn-type-filter">
-                  <button
-                    className={`filter-btn ${typeFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setTypeFilter('all')}
-                  >
-                    All Skills
-                  </button>
-                  <button
-                    className={`filter-btn ${typeFilter === 'can_teach' ? 'active' : ''}`}
-                    onClick={() => setTypeFilter('can_teach')}
-                  >
-                    Can Teach
-                  </button>
-                  <button
-                    className={`filter-btn ${typeFilter === 'want_to_learn' ? 'active' : ''}`}
-                    onClick={() => setTypeFilter('want_to_learn')}
-                  >
-                    Want to Learn
-                  </button>
-                </div>
-              </div>
+                </motion.div>
+              )}
 
               {/* Venn Visual & Details Panel */}
               <div className="venn-visual-wrapper">
@@ -462,7 +590,7 @@ const SkillSharingScreen = () => {
                       </g>
                     </svg>
                   ) : (
-                    <div style={{ color: 'var(--text-secondary)' }}>Select at least 2 skills to visualize Venn intersection matrix.</div>
+                    <div style={{ color: 'var(--text-secondary)' }}>Matrix calculation in progress...</div>
                   )}
                 </div>
 
