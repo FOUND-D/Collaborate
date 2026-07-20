@@ -155,9 +155,24 @@ const SettingsScreen = () => {
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
-                setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-                setSuccessMsg('Coordinates fetched. In a production app, we would reverse-geocode this to an address.');
-                setTimeout(() => setSuccessMsg(''), 3000);
+                let locName = `Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`;
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                    const geoData = await geoRes.json();
+                    if (geoData?.address) {
+                        const city = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.state;
+                        if (city) locName = city;
+                    }
+                } catch (e) {}
+                setLocation(locName);
+                dispatch(updateUserProfile({ id: userInfo._id, latitude, longitude, location: locName }))
+                    .then(() => {
+                        setSuccessMsg('Location access granted and coordinates updated successfully!');
+                        setTimeout(() => setSuccessMsg(''), 3000);
+                    })
+                    .catch((err) => {
+                        setErrorMsg(err.message || 'Location update failed');
+                    });
             },
             (err) => {
                 setErrorMsg('Could not fetch location: ' + err.message);

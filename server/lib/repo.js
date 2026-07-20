@@ -55,6 +55,8 @@ const toPublicUser = (u) => {
     avg_rating: formatAvgRating(u.avg_rating),
     phone: u.phone || '',
     location: u.location || '',
+    latitude: u.latitude ?? null,
+    longitude: u.longitude ?? null,
     timezone: u.timezone || 'UTC',
     language: u.language || 'English',
     dateFormat: u.date_format || 'MM/DD/YYYY',
@@ -414,6 +416,8 @@ const updateUser = async (id, patch) => {
   if (patch.profile_image !== undefined) updates.profile_image = patch.profile_image;
   if (patch.phone !== undefined) updates.phone = patch.phone;
   if (patch.location !== undefined) updates.location = patch.location;
+  if (patch.latitude !== undefined) updates.latitude = patch.latitude;
+  if (patch.longitude !== undefined) updates.longitude = patch.longitude;
   if (patch.timezone !== undefined) updates.timezone = patch.timezone;
   if (patch.language !== undefined) updates.language = patch.language;
   if (patch.dateFormat !== undefined) updates.date_format = patch.dateFormat;
@@ -1207,7 +1211,7 @@ const getTopUsersByDevScore = async ({ limit = 50, department = null }) => {
   // Leaderboard only shows users who have BOTH GitHub and LeetCode connected
   let query = supabase
     .from('users')
-    .select('id,name,profile_image,department,dev_score,github_score,leetcode_score,role,github_username,leetcode_username')
+    .select('id,name,profile_image,department,location,latitude,longitude,dev_score,github_score,leetcode_score,role,github_username,leetcode_username')
     .not('github_username', 'is', null)
     .neq('github_username', '')
     .not('leetcode_username', 'is', null)
@@ -1225,6 +1229,9 @@ const getTopUsersByDevScore = async ({ limit = 50, department = null }) => {
     name: u.name,
     role: u.role,
     department: u.department || '',
+    location: u.location || '',
+    latitude: u.latitude ?? null,
+    longitude: u.longitude ?? null,
     profileImage: u.profile_image || '',
     devScore: u.dev_score ?? 0,
     dev_score: u.dev_score ?? 0,
