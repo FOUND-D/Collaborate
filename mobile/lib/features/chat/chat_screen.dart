@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
@@ -13,7 +14,7 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with SafeLoadMixin {
   List<Map<String, dynamic>> _conversations = [];
   List<Map<String, dynamic>> _teams = [];
   List<Map<String, dynamic>> _messages = [];
@@ -31,27 +32,35 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _load() async {
-    final api = context.read<AuthProvider>().api;
-    final workspace = context.read<WorkspaceProvider>();
-    if (workspace.teams.isEmpty) {
-      await workspace.loadTeams();
-    }
-    final convos = await api.getConversations();
-    setState(() {
-      _conversations = convos;
-      _teams = workspace.teams;
-      _loading = false;
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await safeLoad(() async {
+      final api = context.read<AuthProvider>().api;
+      final workspace = context.read<WorkspaceProvider>();
+      if (workspace.teams.isEmpty) {
+        await workspace.loadTeams();
+      }
+      final convos = await api.getConversations();
+      if (mounted) {
+        setState(() {
+          _conversations = convos;
+          _teams = workspace.teams;
+        });
+      }
+      if (_selectedId != null) await _loadMessages();
     });
-    if (_selectedId != null) await _loadMessages();
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _loadMessages() async {
     if (_selectedId == null) return;
-    final api = context.read<AuthProvider>().api;
-    final msgs = _selectedType == 'team'
-        ? await api.getTeamMessages(_selectedId!)
-        : await api.getConversationMessages(_selectedId!);
-    setState(() => _messages = msgs);
+    await safeLoad(() async {
+      final api = context.read<AuthProvider>().api;
+      final msgs = _selectedType == 'team'
+          ? await api.getTeamMessages(_selectedId!)
+          : await api.getConversationMessages(_selectedId!);
+      if (mounted) setState(() => _messages = msgs);
+    });
   }
 
   void _openChat(String id, String type, String name) {
@@ -96,6 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildChatPanel() {
     return Column(
       children: [
+        if (loadErrorBanner(onRetry: _loadMessages) != null) loadErrorBanner(onRetry: _loadMessages)!,
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -153,12 +163,27 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (!wide) {
-      return Scaffold(body: _buildChatList());
+      return Scaffold(
+        body: Column(
+          children: [
+            if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+            Expanded(child: _buildChatList()),
+          ],
+        ),
+      );
     }
 
     return Row(
       children: [
-        SizedBox(width: 300, child: _buildChatList()),
+        SizedBox(
+          width: 300,
+          child: Column(
+            children: [
+              if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+              Expanded(child: _buildChatList()),
+            ],
+          ),
+        ),
         const VerticalDivider(width: 1),
         Expanded(
           child: _selectedId == null

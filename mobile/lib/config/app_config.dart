@@ -2,7 +2,9 @@
 class AppConfig {
   static const String apiBaseUrl = 'https://collaborate-1.onrender.com';
   static const String socketUrl = 'https://collaborate-1.onrender.com';
-  static const Duration requestTimeout = Duration(seconds: 20);
+  static const Duration requestTimeout = Duration(seconds: 45);
+  static const Duration coldStartTimeout = Duration(seconds: 60);
+  static const int maxConcurrentRequests = 3;
   static const String appName = 'Collaborate';
 
   // Cache TTLs

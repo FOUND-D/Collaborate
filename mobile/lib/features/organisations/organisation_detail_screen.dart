@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -12,7 +13,7 @@ class OrganisationDetailScreen extends StatefulWidget {
   State<OrganisationDetailScreen> createState() => _OrganisationDetailScreenState();
 }
 
-class _OrganisationDetailScreenState extends State<OrganisationDetailScreen> {
+class _OrganisationDetailScreenState extends State<OrganisationDetailScreen> with SafeLoadMixin {
   Map<String, dynamic>? _org;
   List<Map<String, dynamic>> _members = [];
   List<Map<String, dynamic>> _teams = [];
@@ -27,22 +28,26 @@ class _OrganisationDetailScreenState extends State<OrganisationDetailScreen> {
   }
 
   Future<void> _load() async {
-    final api = context.read<AuthProvider>().api;
-    final results = await Future.wait([
-      api.getOrganisation(widget.id),
-      api.getOrgMembers(widget.id),
-      api.getOrgTeams(widget.id),
-      api.listOrgRoles(widget.id),
-      api.getOrgAuditLog(widget.id),
-    ]);
-    setState(() {
-      _org = results[0] as Map<String, dynamic>;
-      _members = results[1] as List<Map<String, dynamic>>;
-      _teams = results[2] as List<Map<String, dynamic>>;
-      _roles = results[3] as List<Map<String, dynamic>>;
-      _auditLog = results[4] as List<Map<String, dynamic>>;
-      _loading = false;
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await safeLoad(() async {
+      final api = context.read<AuthProvider>().api;
+      final org = await api.getOrganisation(widget.id);
+      if (mounted) setState(() => _org = org);
+      final members = await api.getOrgMembers(widget.id);
+      final teams = await api.getOrgTeams(widget.id);
+      if (mounted) setState(() {
+        _members = members;
+        _teams = teams;
+      });
+      final roles = await api.listOrgRoles(widget.id);
+      final auditLog = await api.getOrgAuditLog(widget.id);
+      if (mounted) setState(() {
+        _roles = roles;
+        _auditLog = auditLog;
+      });
     });
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _invite() async {
@@ -86,6 +91,17 @@ class _OrganisationDetailScreenState extends State<OrganisationDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Scaffold(body: LoadingView());
+    if (_org == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          children: [
+            if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+            const Expanded(child: EmptyState(title: 'Could not load organisation')),
+          ],
+        ),
+      );
+    }
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -99,30 +115,37 @@ class _OrganisationDetailScreenState extends State<OrganisationDetailScreen> {
           ]),
           actions: [IconButton(onPressed: _invite, icon: const Icon(Icons.person_add))],
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: _members.map((m) => ListTile(
-                    leading: UserAvatar(name: str(m['name'] ?? m['user']?['name'])),
-                    title: Text(str(m['name'] ?? m['user']?['name'])),
-                    subtitle: Text(str(m['role'], 'member')),
-                  )).toList(),
-            ),
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: _teams.map((t) => CollaborateCard(child: ListTile(title: Text(str(t['name']))))).toList(),
-            ),
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: _roles.map((r) => ListTile(title: Text(str(r['name'])), subtitle: Text(str(r['description'], '')))).toList(),
-            ),
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: _auditLog.map((e) => ListTile(
-                    title: Text(str(e['action'])),
-                    subtitle: Text(str(e['createdAt'])),
-                  )).toList(),
+            if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+            Expanded(
+              child: TabBarView(
+                children: [
+                  ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: _members.map((m) => ListTile(
+                          leading: UserAvatar(name: str(m['name'] ?? m['user']?['name'])),
+                          title: Text(str(m['name'] ?? m['user']?['name'])),
+                          subtitle: Text(str(m['role'], 'member')),
+                        )).toList(),
+                  ),
+                  ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: _teams.map((t) => CollaborateCard(child: ListTile(title: Text(str(t['name']))))).toList(),
+                  ),
+                  ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: _roles.map((r) => ListTile(title: Text(str(r['name'])), subtitle: Text(str(r['description'], '')))).toList(),
+                  ),
+                  ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: _auditLog.map((e) => ListTile(
+                          title: Text(str(e['action'])),
+                          subtitle: Text(str(e['createdAt'])),
+                        )).toList(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

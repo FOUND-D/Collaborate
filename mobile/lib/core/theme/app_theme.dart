@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData light() => _build(Brightness.light);
   static ThemeData dark() => _build(Brightness.dark);
+
+  static const _fontFamily = 'Segoe UI';
 
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
@@ -18,6 +19,8 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      fontFamily: _fontFamily,
+      fontFamilyFallback: const ['Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       scaffoldBackgroundColor: bg,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
@@ -29,9 +32,12 @@ class AppTheme {
         error: AppColors.danger,
       ),
       dividerColor: border,
-      textTheme: GoogleFonts.dmSansTextTheme().apply(
-        bodyColor: textPrimary,
-        displayColor: textPrimary,
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: textPrimary, fontFamily: _fontFamily),
+        bodyMedium: TextStyle(color: textPrimary, fontFamily: _fontFamily),
+        titleLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.w700, fontFamily: _fontFamily),
+        titleMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.w600, fontFamily: _fontFamily),
+        headlineSmall: TextStyle(color: textPrimary, fontWeight: FontWeight.w800, fontFamily: _fontFamily),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: card,
@@ -39,10 +45,11 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.dmSans(
+        titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: textPrimary,
+          fontFamily: _fontFamily,
         ),
       ),
       cardTheme: CardThemeData(
@@ -78,7 +85,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontFamily: _fontFamily),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -94,17 +101,14 @@ class AppTheme {
         indicatorColor: AppColors.primary.withValues(alpha: 0.12),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.dmSans(
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            );
+            return const TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary, fontFamily: _fontFamily);
           }
-          return GoogleFonts.dmSans(color: textSecondary);
+          return TextStyle(color: textSecondary, fontFamily: _fontFamily);
         }),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: secondary,
-        labelStyle: GoogleFonts.dmSans(fontSize: 12),
+        labelStyle: const TextStyle(fontSize: 12, fontFamily: _fontFamily),
         side: BorderSide(color: border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),

@@ -45,8 +45,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _warmSession() async {
-    await _connectSocket();
-    await refreshMembership();
+    // Defer membership + socket so dashboard HTTP gets priority on cold start.
+    Future<void>.delayed(const Duration(seconds: 4), refreshMembership);
+    Future<void>.delayed(const Duration(seconds: 2), _connectSocket);
   }
 
   Future<void> _connectSocket() async {
@@ -122,12 +123,8 @@ class AuthProvider extends ChangeNotifier {
   Future<void> refreshMembership() async {
     if (_user == null) return;
     try {
-      final results = await Future.wait([
-        api.getOrganisations(),
-        api.getTeams(),
-      ]);
-      final orgs = results[0] as List<Map<String, dynamic>>;
-      final teams = results[1] as List<Map<String, dynamic>>;
+      final orgs = await api.getOrganisations();
+      final teams = await api.getTeams();
       _hasTeam = teams.isNotEmpty;
       if (orgs.isNotEmpty) {
         final savedOrgId = await _storage.getCurrentOrgId();

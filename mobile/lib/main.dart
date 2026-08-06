@@ -2,17 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'core/network/connection_prewarmer.dart';
+import 'core/cache/api_cache_manager.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/workspace_provider.dart';
 import 'router/app_router.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  GoogleFonts.config.allowRuntimeFetching = true;
+  await Future.wait([
+    ApiCacheManager.shared.hydrate(),
+    ConnectionPrewarmer.prewarm(),
+  ]);
   runApp(const CollaborateApp());
 }
 
@@ -28,6 +32,7 @@ class _CollaborateAppState extends State<CollaborateApp> {
   late final ThemeProvider _themeProvider;
   late final WorkspaceProvider _workspaceProvider;
   late final GoRouter _router;
+  bool _wasAuthenticated = false;
 
   @override
   void initState() {
@@ -37,12 +42,19 @@ class _CollaborateAppState extends State<CollaborateApp> {
     _workspaceProvider = WorkspaceProvider(_authProvider.api);
     _router = AppRouter.create(_authProvider);
     _authProvider.addListener(_onAuthChanged);
+    _onAuthChanged();
   }
 
   void _onAuthChanged() {
-    if (_authProvider.isAuthenticated && !_authProvider.isLoading) {
-      unawaited(_workspaceProvider.prefetchAll());
-    } else if (!_authProvider.isAuthenticated && !_authProvider.isLoading) {
+    if (_authProvider.isLoading) return;
+
+    if (_authProvider.isAuthenticated) {
+      if (!_wasAuthenticated) {
+        _wasAuthenticated = true;
+        unawaited(_workspaceProvider.loadDashboard());
+      }
+    } else {
+      _wasAuthenticated = false;
       _workspaceProvider.clear();
     }
   }

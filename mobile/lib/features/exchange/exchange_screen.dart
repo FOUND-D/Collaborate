@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/json_helpers.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -12,7 +13,7 @@ class ExchangeScreen extends StatefulWidget {
   State<ExchangeScreen> createState() => _ExchangeScreenState();
 }
 
-class _ExchangeScreenState extends State<ExchangeScreen> {
+class _ExchangeScreenState extends State<ExchangeScreen> with SafeLoadMixin {
   List<Map<String, dynamic>> _listings = [];
   String? _typeFilter;
   bool _loading = true;
@@ -24,11 +25,13 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
   }
 
   Future<void> _load() async {
-    final data = await context.read<AuthProvider>().api.getListings(type: _typeFilter);
-    setState(() {
-      _listings = data;
-      _loading = false;
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await safeLoad(() async {
+      final data = await context.read<AuthProvider>().api.getListings(type: _typeFilter);
+      if (mounted) setState(() => _listings = data);
     });
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _create() async {
@@ -81,6 +84,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
       floatingActionButton: FloatingActionButton.extended(onPressed: _create, icon: const Icon(Icons.add), label: const Text('Listing')),
       body: Column(
         children: [
+          if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(

@@ -39,15 +39,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final stats = workspace.userStats;
     final matches = workspace.skillMatches;
 
-    if (workspace.dashboardLoading && stats == null && matches.isEmpty) {
-      return const LoadingView(message: 'Loading workspace...');
-    }
-
     return RefreshIndicator(
       onRefresh: () => workspace.loadDashboard(forceRefresh: true),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (workspace.dashboardError != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Material(
+                color: Colors.red.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                child: ListTile(
+                  title: Text(workspace.dashboardError!, style: const TextStyle(color: Colors.red)),
+                  trailing: TextButton(
+                    onPressed: () => workspace.loadDashboard(forceRefresh: true),
+                    child: const Text('Retry'),
+                  ),
+                ),
+              ),
+            ),
           if (auth.currentOrg == null)
             CollaborateCard(
               child: Row(
@@ -115,15 +126,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ActionChip(label: const Text('Chat'), onPressed: () => context.go('/chat')),
             ],
           ),
+          if (workspace.dashboardLoading && stats == null && matches.isEmpty) ...[
+            const SizedBox(height: 24),
+            const LoadingView(message: 'Loading workspace stats...'),
+          ],
           if (stats != null) ...[
             const SizedBox(height: 16),
             const SectionHeader(title: 'Your stats'),
             CollaborateCard(
               child: Column(
                 children: [
-                  _statRow('Projects', str(stats['projectCount'], '0')),
-                  _statRow('Open tasks', str(stats['openTasks'], '0')),
-                  _statRow('Completion rate', '${stats['completionRate'] ?? 0}%'),
+                  _statRow('Sessions taught', str(stats['sessionsTaught'], '0')),
+                  _statRow('Sessions attended', str(stats['sessionsAttended'], '0')),
+                  _statRow('Skills', str(stats['skillCount'], '0')),
+                  _statRow('Badges', str(stats['badgesCount'], '0')),
                 ],
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/json_helpers.dart';
 import '../../core/utils/media_url.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -15,7 +16,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with SafeLoadMixin {
   Map<String, dynamic>? _user;
   List<Map<String, dynamic>> _badges = [];
   bool _loading = true;
@@ -27,20 +28,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-    final auth = context.read<AuthProvider>();
-    final id = widget.userId ?? auth.userId!;
-    final user = widget.userId == null ? await auth.api.getUserProfile() : await auth.api.getUserById(id);
-    final badges = await auth.api.getUserBadges(id);
-    setState(() {
-      _user = user;
-      _badges = badges;
-      _loading = false;
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await safeLoad(() async {
+      final auth = context.read<AuthProvider>();
+      final id = widget.userId ?? auth.userId!;
+      final user = widget.userId == null ? await auth.api.getUserProfile() : await auth.api.getUserById(id);
+      final badges = await auth.api.getUserBadges(id);
+      if (mounted) setState(() {
+        _user = user;
+        _badges = badges;
+      });
     });
+    if (mounted) setState(() => _loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Scaffold(body: LoadingView());
+    if (_user == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          children: [
+            if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+            const Expanded(child: EmptyState(title: 'Could not load profile')),
+          ],
+        ),
+      );
+    }
     final u = _user!;
     final isSelf = widget.userId == null || widget.userId == context.read<AuthProvider>().userId;
     return Scaffold(
@@ -54,50 +70,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Column(
         children: [
-          Center(
-            child: UserAvatar(
-              name: str(u['name']),
-              imageUrl: resolveMediaUrl(str(u['profileImage'])),
-              radius: 48,
+          if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Center(
+                    child: UserAvatar(
+                      name: str(u['name']),
+                      imageUrl: resolveMediaUrl(str(u['profileImage'])),
+                      radius: 48,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(child: Text(str(u['name']), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800))),
+                  Center(child: Text(str(u['department'], ''), style: TextStyle(color: Theme.of(context).hintColor))),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: CollaborateCard(gradient: AppColors.devScoreGradient, child: Column(children: [const Text('Dev Score', style: TextStyle(color: Colors.white70)), Text('${u['devScore'] ?? 0}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800))]))),
+                      const SizedBox(width: 12),
+                      Expanded(child: CollaborateCard(child: Column(children: [Text('Rating', style: TextStyle(color: Theme.of(context).hintColor)), Text(u['avg_rating'] != null ? (u['avg_rating'] as num).toStringAsFixed(1) : '—', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800))]))),
+                    ],
+                  ),
+                  if (u['bio'] != null && str(u['bio']).isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    CollaborateCard(child: Text(str(u['bio']))),
+                  ],
+                  if (_badges.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const SectionHeader(title: 'Badges'),
+                    Wrap(
+                      spacing: 8,
+                      children: _badges.map((b) => Chip(label: Text(str(b['name'] ?? b['title'])))).toList(),
+                    ),
+                  ],
+                  if (isSelf) ...[
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await context.read<AuthProvider>().api.refreshDevScore();
+                        await _load();
+                        await context.read<AuthProvider>().refreshUser();
+                      },
+                      child: const Text('Refresh Dev Score'),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          Center(child: Text(str(u['name']), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800))),
-          Center(child: Text(str(u['department'], ''), style: TextStyle(color: Theme.of(context).hintColor))),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: CollaborateCard(gradient: AppColors.devScoreGradient, child: Column(children: [const Text('Dev Score', style: TextStyle(color: Colors.white70)), Text('${u['devScore'] ?? 0}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800))]))),
-              const SizedBox(width: 12),
-              Expanded(child: CollaborateCard(child: Column(children: [Text('Rating', style: TextStyle(color: Theme.of(context).hintColor)), Text(u['avg_rating'] != null ? (u['avg_rating'] as num).toStringAsFixed(1) : '—', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800))]))),
-            ],
-          ),
-          if (u['bio'] != null && str(u['bio']).isNotEmpty) ...[
-            const SizedBox(height: 16),
-            CollaborateCard(child: Text(str(u['bio']))),
-          ],
-          if (_badges.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const SectionHeader(title: 'Badges'),
-            Wrap(
-              spacing: 8,
-              children: _badges.map((b) => Chip(label: Text(str(b['name'] ?? b['title'])))).toList(),
-            ),
-          ],
-          if (isSelf) ...[
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                await context.read<AuthProvider>().api.refreshDevScore();
-                await _load();
-                await context.read<AuthProvider>().refreshUser();
-              },
-              child: const Text('Refresh Dev Score'),
-            ),
-          ],
         ],
       ),
     );

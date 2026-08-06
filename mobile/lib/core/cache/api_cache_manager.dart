@@ -7,8 +7,9 @@ import 'memory_cache.dart';
 import 'request_coalescer.dart';
 
 class ApiCacheManager {
-  ApiCacheManager({DiskCache? disk})
-      : _disk = disk ?? DiskCache();
+  ApiCacheManager._({DiskCache? disk}) : _disk = disk ?? DiskCache();
+
+  static final ApiCacheManager shared = ApiCacheManager._();
 
   final MemoryCache _memory = MemoryCache();
   final RequestCoalescer _coalescer = RequestCoalescer();
@@ -23,6 +24,7 @@ class ApiCacheManager {
     'GET:/api/users/profile',
   };
 
+  /// Load disk cache into memory before first paint (non-blocking for network).
   Future<void> hydrate() async {
     if (_hydrated) return;
     _hydrated = true;
@@ -53,16 +55,6 @@ class ApiCacheManager {
         }
         return cached;
       }
-
-      if (persist || _persistedKeys.contains(key)) {
-        final diskEntry = await _disk.get(key);
-        if (diskEntry != null) {
-          final value = diskEntry.value as T;
-          _memory.set(key, value, ttl);
-          unawaited(_refresh(key, ttl, network, persist: persist));
-          return value;
-        }
-      }
     }
 
     return _coalescer.run(key, () => _refresh(key, ttl, network, persist: persist));
@@ -77,7 +69,7 @@ class ApiCacheManager {
     final fresh = await network();
     _memory.set(key, fresh, ttl);
     if (persist || _persistedKeys.contains(key)) {
-      await _disk.set(key, fresh, ttl);
+      unawaited(_disk.set(key, fresh, ttl));
     }
     return fresh;
   }

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import '../../config/app_config.dart';
 import '../cache/api_cache_manager.dart';
+import 'concurrency_limiter.dart';
+import 'retry_interceptor.dart';
 
 typedef TokenProvider = String? Function();
 typedef OnUnauthorized = void Function();
@@ -14,7 +16,7 @@ class ApiClient {
     ApiCacheManager? cache,
   })  : _tokenProvider = tokenProvider,
         _onUnauthorized = onUnauthorized,
-        _cache = cache ?? ApiCacheManager() {
+        _cache = cache ?? ApiCacheManager.shared {
     _dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.apiBaseUrl,
@@ -28,6 +30,7 @@ class ApiClient {
       ),
     );
 
+    _dio.interceptors.add(RetryInterceptor(_dio));
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -47,14 +50,15 @@ class ApiClient {
         },
       ),
     );
-
-    unawaited(_cache.hydrate());
   }
 
   late final Dio _dio;
   final TokenProvider _tokenProvider;
   final OnUnauthorized? _onUnauthorized;
   final ApiCacheManager _cache;
+  final ConcurrencyLimiter _limiter = ConcurrencyLimiter(
+    maxConcurrent: AppConfig.maxConcurrentRequests,
+  );
 
   Dio get dio => _dio;
   ApiCacheManager get cache => _cache;
@@ -72,14 +76,18 @@ class ApiClient {
     return error.toString();
   }
 
+  Future<T> _request<T>(Future<T> Function() action) => _limiter.run(action);
+
   Future<T> get<T>(
     String path, {
     Map<String, dynamic>? query,
     bool forceRefresh = false,
   }) async {
     if (!ApiCacheManager.shouldCache('GET', path)) {
-      final res = await _dio.get<T>(path, queryParameters: query);
-      return res.data as T;
+      return _request(() async {
+        final res = await _dio.get<T>(path, queryParameters: query);
+        return res.data as T;
+      });
     }
 
     final key = ApiCacheManager.cacheKey('GET', path, query);
@@ -88,35 +96,43 @@ class ApiClient {
       key: key,
       ttl: ttl,
       forceRefresh: forceRefresh,
-      network: () async {
+      network: () => _request(() async {
         final res = await _dio.get<T>(path, queryParameters: query);
         return res.data as T;
-      },
+      }),
     );
   }
 
   Future<T> post<T>(String path, {dynamic data, Map<String, dynamic>? query}) async {
-    final res = await _dio.post<T>(path, data: data, queryParameters: query);
-    _invalidateForMutation(path);
-    return res.data as T;
+    return _request(() async {
+      final res = await _dio.post<T>(path, data: data, queryParameters: query);
+      _invalidateForMutation(path);
+      return res.data as T;
+    });
   }
 
   Future<T> put<T>(String path, {dynamic data, Map<String, dynamic>? query}) async {
-    final res = await _dio.put<T>(path, data: data, queryParameters: query);
-    _invalidateForMutation(path);
-    return res.data as T;
+    return _request(() async {
+      final res = await _dio.put<T>(path, data: data, queryParameters: query);
+      _invalidateForMutation(path);
+      return res.data as T;
+    });
   }
 
   Future<T> patch<T>(String path, {dynamic data, Map<String, dynamic>? query}) async {
-    final res = await _dio.patch<T>(path, data: data, queryParameters: query);
-    _invalidateForMutation(path);
-    return res.data as T;
+    return _request(() async {
+      final res = await _dio.patch<T>(path, data: data, queryParameters: query);
+      _invalidateForMutation(path);
+      return res.data as T;
+    });
   }
 
   Future<T> delete<T>(String path, {dynamic data, Map<String, dynamic>? query}) async {
-    final res = await _dio.delete<T>(path, data: data, queryParameters: query);
-    _invalidateForMutation(path);
-    return res.data as T;
+    return _request(() async {
+      final res = await _dio.delete<T>(path, data: data, queryParameters: query);
+      _invalidateForMutation(path);
+      return res.data as T;
+    });
   }
 
   void invalidateCache([String? prefix]) {

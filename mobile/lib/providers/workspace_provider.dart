@@ -21,23 +21,19 @@ class WorkspaceProvider extends ChangeNotifier {
   bool tasksLoading = false;
   bool organisationsLoading = false;
   bool dashboardLoading = false;
+  String? dashboardError;
 
-  Future<void> prefetchAll() {
-    return Future.wait([
-      loadTeams(),
-      loadProjects(),
-      loadTasks(),
-      loadOrganisations(),
-      loadDashboard(),
-    ]);
-  }
+  Future<void>? _dashboardFuture;
+
+  Future<void> prefetchEssentials() => loadDashboard();
 
   Future<void> loadTeams({bool forceRefresh = false}) async {
     if (teams.isEmpty) teamsLoading = true;
     notifyListeners();
     try {
       teams = await _api.getTeams(forceRefresh: forceRefresh);
-    } finally {
+    } catch (_) {}
+    finally {
       teamsLoading = false;
       notifyListeners();
     }
@@ -48,7 +44,8 @@ class WorkspaceProvider extends ChangeNotifier {
     notifyListeners();
     try {
       projects = await _api.getProjects(forceRefresh: forceRefresh);
-    } finally {
+    } catch (_) {}
+    finally {
       projectsLoading = false;
       notifyListeners();
     }
@@ -59,7 +56,8 @@ class WorkspaceProvider extends ChangeNotifier {
     notifyListeners();
     try {
       tasks = await _api.getTasks(forceRefresh: forceRefresh);
-    } finally {
+    } catch (_) {}
+    finally {
       tasksLoading = false;
       notifyListeners();
     }
@@ -70,26 +68,54 @@ class WorkspaceProvider extends ChangeNotifier {
     notifyListeners();
     try {
       organisations = await _api.getOrganisations(forceRefresh: forceRefresh);
-    } finally {
+    } catch (_) {}
+    finally {
       organisationsLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> loadDashboard({bool forceRefresh = false}) async {
-    if (userStats == null && skillMatches.isEmpty) dashboardLoading = true;
-    notifyListeners();
+  /// Loads dashboard stats in the background. Safe to call multiple times — deduped.
+  Future<void> loadDashboard({bool forceRefresh = false}) {
+    if (!forceRefresh && _dashboardFuture != null) {
+      return _dashboardFuture!;
+    }
+    _dashboardFuture = _loadDashboard(forceRefresh).whenComplete(() {
+      _dashboardFuture = null;
+    });
+    return _dashboardFuture!;
+  }
+
+  Future<void> _loadDashboard(bool forceRefresh) async {
+    final showSpinner = userStats == null && skillMatches.isEmpty;
+    if (showSpinner) {
+      dashboardLoading = true;
+      dashboardError = null;
+      notifyListeners();
+    }
+
     try {
-      final results = await Future.wait([
-        _api.getUserStats(forceRefresh: forceRefresh),
-        _api.getSkillMatches(forceRefresh: forceRefresh),
-      ]);
-      userStats = results[0] as Map<String, dynamic>;
-      skillMatches = results[1] as List<Map<String, dynamic>>;
+      userStats = await _api.getUserStats(forceRefresh: forceRefresh);
+      notifyListeners();
+      skillMatches = await _api.getSkillMatches(forceRefresh: forceRefresh);
+      dashboardError = null;
+    } catch (e) {
+      dashboardError = _friendlyError(e);
     } finally {
       dashboardLoading = false;
       notifyListeners();
     }
+  }
+
+  String _friendlyError(Object e) {
+    final msg = e.toString();
+    if (msg.contains('timeout') || msg.contains('Timeout')) {
+      return 'Server is waking up — pull to refresh or try again in a moment.';
+    }
+    if (msg.contains('connection error') || msg.contains('SocketException')) {
+      return 'Network error — check your connection and try again.';
+    }
+    return msg.replaceFirst('Exception: ', '');
   }
 
   void clear() {
@@ -99,6 +125,9 @@ class WorkspaceProvider extends ChangeNotifier {
     organisations = [];
     skillMatches = [];
     userStats = null;
+    dashboardLoading = false;
+    dashboardError = null;
+    _dashboardFuture = null;
     notifyListeners();
   }
 }

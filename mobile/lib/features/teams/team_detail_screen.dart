@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -13,7 +14,7 @@ class TeamDetailScreen extends StatefulWidget {
   State<TeamDetailScreen> createState() => _TeamDetailScreenState();
 }
 
-class _TeamDetailScreenState extends State<TeamDetailScreen> {
+class _TeamDetailScreenState extends State<TeamDetailScreen> with SafeLoadMixin {
   Map<String, dynamic>? _team;
   List<Map<String, dynamic>> _sessions = [];
   bool _loading = true;
@@ -26,14 +27,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
   }
 
   Future<void> _load() async {
-    final api = context.read<AuthProvider>().api;
-    final team = await api.getTeam(widget.id);
-    final sessions = await api.getTeamSessions(widget.id);
-    setState(() {
-      _team = team;
-      _sessions = sessions;
-      _loading = false;
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await safeLoad(() async {
+      final api = context.read<AuthProvider>().api;
+      final team = await api.getTeam(widget.id);
+      final sessions = await api.getTeamSessions(widget.id);
+      if (mounted) setState(() {
+        _team = team;
+        _sessions = sessions;
+      });
     });
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _startSession() async {
@@ -44,6 +49,17 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Scaffold(body: LoadingView());
+    if (_team == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          children: [
+            if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+            const Expanded(child: EmptyState(title: 'Could not load team')),
+          ],
+        ),
+      );
+    }
     final team = _team!;
     final members = asMapList(team['members']);
     return Scaffold(
@@ -53,27 +69,37 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
           IconButton(icon: const Icon(Icons.videocam), onPressed: () => context.push('/team/${widget.id}/meeting')),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Column(
         children: [
-          ElevatedButton.icon(onPressed: _startSession, icon: const Icon(Icons.play_arrow), label: const Text('Start session')),
-          const SizedBox(height: 16),
-          const SectionHeader(title: 'Members'),
-          ...members.map((m) => ListTile(
-                leading: UserAvatar(name: str(m['name'])),
-                title: Text(str(m['name'])),
-                subtitle: Text(str(m['role'], 'member')),
-                onTap: () => context.push('/profile/${pickId(m)}'),
-              )),
-          const SectionHeader(title: 'Sessions'),
-          if (_sessions.isEmpty) const Text('No sessions yet'),
-          ..._sessions.map((s) => CollaborateCard(
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(str(s['status'], 'session')),
-                  subtitle: Text(str(s['createdAt'])),
-                ),
-              )),
+          if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  ElevatedButton.icon(onPressed: _startSession, icon: const Icon(Icons.play_arrow), label: const Text('Start session')),
+                  const SizedBox(height: 16),
+                  const SectionHeader(title: 'Members'),
+                  ...members.map((m) => ListTile(
+                        leading: UserAvatar(name: str(m['name'])),
+                        title: Text(str(m['name'])),
+                        subtitle: Text(str(m['role'], 'member')),
+                        onTap: () => context.push('/profile/${pickId(m)}'),
+                      )),
+                  const SectionHeader(title: 'Sessions'),
+                  if (_sessions.isEmpty) const Text('No sessions yet'),
+                  ..._sessions.map((s) => CollaborateCard(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(str(s['status'], 'session')),
+                          subtitle: Text(str(s['createdAt'])),
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/json_helpers.dart';
+import '../../core/utils/safe_load_mixin.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -12,7 +13,7 @@ class LeaderboardScreen extends StatefulWidget {
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
-class _LeaderboardScreenState extends State<LeaderboardScreen> {
+class _LeaderboardScreenState extends State<LeaderboardScreen> with SafeLoadMixin {
   List<Map<String, dynamic>> _users = [];
   bool _nearbyOnly = false;
   bool _loading = true;
@@ -24,12 +25,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() => _loading = true);
-    final data = await context.read<AuthProvider>().api.getLeaderboard(nearbyOnly: _nearbyOnly);
-    setState(() {
-      _users = data;
-      _loading = false;
+    await safeLoad(() async {
+      final data = await context.read<AuthProvider>().api.getLeaderboard(nearbyOnly: _nearbyOnly);
+      if (mounted) setState(() => _users = data);
     });
+    if (mounted) setState(() => _loading = false);
   }
 
   @override
@@ -37,6 +39,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Scaffold(
       body: Column(
         children: [
+          if (loadErrorBanner(onRetry: _load) != null) loadErrorBanner(onRetry: _load)!,
           Padding(
             padding: const EdgeInsets.all(12),
             child: FilterChip(
