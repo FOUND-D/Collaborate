@@ -1,0 +1,74 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/utils/json_helpers.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/shared_widgets.dart';
+
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  List<Map<String, dynamic>> _notifications = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().socketService.onNewNotification((_) => _load());
+    });
+  }
+
+  Future<void> _load() async {
+    final data = await context.read<AuthProvider>().api.getNotifications();
+    setState(() {
+      _notifications = data;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await context.read<AuthProvider>().api.markAllNotificationsRead();
+              await _load();
+            },
+            child: const Text('Mark all read'),
+          ),
+        ],
+      ),
+      body: _loading
+          ? const LoadingView()
+          : _notifications.isEmpty
+              ? const EmptyState(title: 'No notifications')
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _notifications.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (_, i) {
+                    final n = _notifications[i];
+                    final read = n['read'] == true;
+                    return CollaborateCard(
+                      child: ListTile(
+                        title: Text(str(n['title']), style: TextStyle(fontWeight: read ? FontWeight.normal : FontWeight.w700)),
+                        subtitle: Text(str(n['message'] ?? n['body'], '')),
+                        onTap: () async {
+                          await context.read<AuthProvider>().api.markNotificationRead(pickId(n)!);
+                          await _load();
+                        },
+                      ),
+                    );
+                  },
+                ),
+    );
+  }
+}
