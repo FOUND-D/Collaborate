@@ -30,7 +30,9 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final auth = context.select<AuthProvider, ({Map<String, dynamic>? user, Map<String, dynamic>? org, bool isAdmin})>(
+      (p) => (user: p.user, org: p.currentOrg, isAdmin: p.isAdmin),
+    );
     final location = GoRouterState.of(context).uri.toString();
     final user = auth.user;
 
@@ -80,14 +82,14 @@ class AppShell extends StatelessWidget {
                     context.push('/profile');
                   },
                 ),
-              if (auth.currentOrg != null)
+              if (auth.org != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Chip(
                       avatar: const Icon(Icons.business, size: 16),
-                      label: Text(str(auth.currentOrg!['name'])),
+                      label: Text(str(auth.org!['name'])),
                     ),
                   ),
                 ),
@@ -133,7 +135,7 @@ class AppShell extends StatelessWidget {
                 leading: const Icon(Icons.logout, color: AppColors.danger),
                 title: const Text('Logout', style: TextStyle(color: AppColors.danger)),
                 onTap: () async {
-                  await auth.logout();
+                  await context.read<AuthProvider>().logout();
                   if (context.mounted) context.go('/login');
                 },
               ),

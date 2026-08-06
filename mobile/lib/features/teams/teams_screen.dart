@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
 class TeamsScreen extends StatefulWidget {
@@ -12,21 +13,13 @@ class TeamsScreen extends StatefulWidget {
 }
 
 class _TeamsScreenState extends State<TeamsScreen> {
-  List<Map<String, dynamic>> _teams = [];
-  bool _loading = true;
   final _name = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final data = await context.read<AuthProvider>().api.getTeams();
-    setState(() {
-      _teams = data;
-      _loading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WorkspaceProvider>().loadTeams();
     });
   }
 
@@ -34,11 +27,14 @@ class _TeamsScreenState extends State<TeamsScreen> {
     if (_name.text.trim().isEmpty) return;
     await context.read<AuthProvider>().api.createTeam({'name': _name.text.trim()});
     _name.clear();
-    await _load();
+    if (mounted) await context.read<WorkspaceProvider>().loadTeams(forceRefresh: true);
   }
 
   @override
   Widget build(BuildContext context) {
+    final workspace = context.watch<WorkspaceProvider>();
+    final teams = workspace.teams;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showDialog(
@@ -55,18 +51,17 @@ class _TeamsScreenState extends State<TeamsScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Team'),
       ),
-      body: _loading
+      body: workspace.teamsLoading && teams.isEmpty
           ? const LoadingView()
           : RefreshIndicator(
-              onRefresh: _load,
-              child: _teams.isEmpty
+              onRefresh: () => workspace.loadTeams(forceRefresh: true),
+              child: teams.isEmpty
                   ? ListView(children: const [SizedBox(height: 120), EmptyState(title: 'No teams yet')])
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
-                      itemCount: _teams.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemCount: teams.length,
                       itemBuilder: (_, i) {
-                        final t = _teams[i];
+                        final t = teams[i];
                         final id = pickId(t)!;
                         return CollaborateCard(
                           onTap: () => context.push('/team/$id'),
@@ -77,6 +72,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
                           ),
                         );
                       },
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                     ),
             ),
     );

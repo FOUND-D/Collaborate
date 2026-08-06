@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -12,43 +12,36 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> _tasks = [];
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final data = await context.read<AuthProvider>().api.getTasks();
-    setState(() {
-      _tasks = data;
-      _loading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WorkspaceProvider>().loadTasks();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final workspace = context.watch<WorkspaceProvider>();
+    final tasks = workspace.tasks;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/task/create'),
         icon: const Icon(Icons.add),
         label: const Text('Task'),
       ),
-      body: _loading
+      body: workspace.tasksLoading && tasks.isEmpty
           ? const LoadingView()
           : RefreshIndicator(
-              onRefresh: _load,
-              child: _tasks.isEmpty
+              onRefresh: () => workspace.loadTasks(forceRefresh: true),
+              child: tasks.isEmpty
                   ? ListView(children: const [SizedBox(height: 120), EmptyState(title: 'No tasks')])
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
-                      itemCount: _tasks.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemCount: tasks.length,
                       itemBuilder: (_, i) {
-                        final t = _tasks[i];
+                        final t = tasks[i];
                         final id = pickId(t)!;
                         return CollaborateCard(
                           onTap: () => context.push('/task/$id/edit'),
@@ -60,6 +53,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           ),
                         );
                       },
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                     ),
             ),
     );

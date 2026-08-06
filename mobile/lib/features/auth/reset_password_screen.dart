@@ -25,17 +25,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Future<void> _submit() async {
     if (widget.token == null) return;
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       await context.read<AuthProvider>().api.resetPassword(widget.token!, _password.text);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated')));
-        context.go('/login');
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated')));
+      context.go('/login');
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);

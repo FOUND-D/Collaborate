@@ -25,14 +25,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    if (!mounted) return;
     setState(() {
       _submitting = true;
       _error = null;
     });
     try {
-      await context.read<AuthProvider>().login(_email.text.trim(), _password.text);
-      if (mounted) context.go('/dashboard');
+      final auth = context.read<AuthProvider>();
+      await auth.login(_email.text.trim(), _password.text);
+      if (!mounted) return;
+      context.go('/dashboard');
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _submitting = false);

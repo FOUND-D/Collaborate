@@ -30,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submit() async {
+    if (!mounted) return;
     setState(() {
       _submitting = true;
       _error = null;
@@ -44,8 +45,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'yearOfStudy': int.tryParse(_year) ?? 1,
         'studentId': _studentId.text.trim(),
       });
-      if (mounted) context.go('/dashboard');
+      if (!mounted) return;
+      context.go('/dashboard');
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _submitting = false);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
 class OrganisationsScreen extends StatefulWidget {
@@ -12,43 +12,36 @@ class OrganisationsScreen extends StatefulWidget {
 }
 
 class _OrganisationsScreenState extends State<OrganisationsScreen> {
-  List<Map<String, dynamic>> _orgs = [];
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final data = await context.read<AuthProvider>().api.getOrganisations();
-    setState(() {
-      _orgs = data;
-      _loading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WorkspaceProvider>().loadOrganisations();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final workspace = context.watch<WorkspaceProvider>();
+    final orgs = workspace.organisations;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/organisations/create'),
         icon: const Icon(Icons.add),
         label: const Text('Organisation'),
       ),
-      body: _loading
+      body: workspace.organisationsLoading && orgs.isEmpty
           ? const LoadingView()
           : RefreshIndicator(
-              onRefresh: _load,
-              child: _orgs.isEmpty
+              onRefresh: () => workspace.loadOrganisations(forceRefresh: true),
+              child: orgs.isEmpty
                   ? ListView(children: const [SizedBox(height: 120), EmptyState(title: 'No organisations')])
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
-                      itemCount: _orgs.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemCount: orgs.length,
                       itemBuilder: (_, i) {
-                        final o = _orgs[i];
+                        final o = orgs[i];
                         return CollaborateCard(
                           onTap: () => context.push('/organisations/${pickId(o)}'),
                           child: ListTile(
@@ -58,6 +51,7 @@ class _OrganisationsScreenState extends State<OrganisationsScreen> {
                           ),
                         );
                       },
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                     ),
             ),
     );

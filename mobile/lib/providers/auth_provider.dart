@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../core/network/api_client.dart';
 import '../core/network/socket_service.dart';
@@ -35,12 +37,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _bootstrap() async {
     _user = await _storage.getUser();
-    if (_user != null) {
-      await _connectSocket();
-      await refreshMembership();
-    }
     _loading = false;
     notifyListeners();
+    if (_user != null) {
+      unawaited(_warmSession());
+    }
+  }
+
+  Future<void> _warmSession() async {
+    await _connectSocket();
+    await refreshMembership();
   }
 
   Future<void> _connectSocket() async {
@@ -59,8 +65,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await api.login(email, password);
       await _storage.saveUser(_user!);
-      await _connectSocket();
-      await refreshMembership();
+      unawaited(_warmSession());
     } catch (e) {
       _error = _apiClient.messageFromError(e);
       rethrow;
@@ -77,8 +82,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await api.register(payload);
       await _storage.saveUser(_user!);
-      await _connectSocket();
-      await refreshMembership();
+      unawaited(_warmSession());
     } catch (e) {
       _error = _apiClient.messageFromError(e);
       rethrow;
@@ -90,6 +94,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     socketService.disconnect();
+    _apiClient.invalidateCache();
     _user = null;
     _currentOrg = null;
     _hasTeam = false;
@@ -117,8 +122,12 @@ class AuthProvider extends ChangeNotifier {
   Future<void> refreshMembership() async {
     if (_user == null) return;
     try {
-      final orgs = await api.getOrganisations();
-      final teams = await api.getTeams();
+      final results = await Future.wait([
+        api.getOrganisations(),
+        api.getTeams(),
+      ]);
+      final orgs = results[0] as List<Map<String, dynamic>>;
+      final teams = results[1] as List<Map<String, dynamic>>;
       _hasTeam = teams.isNotEmpty;
       if (orgs.isNotEmpty) {
         final savedOrgId = await _storage.getCurrentOrgId();

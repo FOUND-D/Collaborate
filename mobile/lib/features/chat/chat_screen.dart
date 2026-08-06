@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/utils/json_helpers.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -31,11 +32,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _load() async {
     final api = context.read<AuthProvider>().api;
+    final workspace = context.read<WorkspaceProvider>();
+    if (workspace.teams.isEmpty) {
+      await workspace.loadTeams();
+    }
     final convos = await api.getConversations();
-    final teams = await api.getTeams();
     setState(() {
       _conversations = convos;
-      _teams = teams;
+      _teams = workspace.teams;
       _loading = false;
     });
     if (_selectedId != null) await _loadMessages();

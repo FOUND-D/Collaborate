@@ -39,16 +39,16 @@ class ApiService {
     return asMapList(await _client.get('/api/users/search', query: {'q': query}));
   }
 
-  Future<Map<String, dynamic>> getUserProfile() async {
-    return asMap(await _client.get('/api/users/profile'));
+  Future<Map<String, dynamic>> getUserProfile({bool forceRefresh = false}) async {
+    return asMap(await _client.get('/api/users/profile', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> getUserById(String id) async {
     return asMap(await _client.get('/api/users/$id'));
   }
 
-  Future<Map<String, dynamic>> getUserStats() async {
-    return asMap(await _client.get('/api/users/me/stats'));
+  Future<Map<String, dynamic>> getUserStats({bool forceRefresh = false}) async {
+    return asMap(await _client.get('/api/users/me/stats', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
@@ -72,12 +72,12 @@ class ApiService {
 
   // ─── Teams ────────────────────────────────────────────────────────────────
 
-  Future<List<Map<String, dynamic>>> getTeams() async {
-    return asMapList(await _client.get('/api/teams'));
+  Future<List<Map<String, dynamic>>> getTeams({bool forceRefresh = false}) async {
+    return asMapList(await _client.get('/api/teams', forceRefresh: forceRefresh));
   }
 
-  Future<Map<String, dynamic>> getTeam(String id) async {
-    return asMap(await _client.get('/api/teams/$id'));
+  Future<Map<String, dynamic>> getTeam(String id, {bool forceRefresh = false}) async {
+    return asMap(await _client.get('/api/teams/$id', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> createTeam(Map<String, dynamic> data) async {
@@ -129,12 +129,12 @@ class ApiService {
 
   // ─── Projects ─────────────────────────────────────────────────────────────
 
-  Future<List<Map<String, dynamic>>> getProjects() async {
-    return asMapList(await _client.get('/api/projects'));
+  Future<List<Map<String, dynamic>>> getProjects({bool forceRefresh = false}) async {
+    return asMapList(await _client.get('/api/projects', forceRefresh: forceRefresh));
   }
 
-  Future<Map<String, dynamic>> getProject(String id) async {
-    return asMap(await _client.get('/api/projects/$id'));
+  Future<Map<String, dynamic>> getProject(String id, {bool forceRefresh = false}) async {
+    return asMap(await _client.get('/api/projects/$id', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> createProject(Map<String, dynamic> data) async {
@@ -155,12 +155,12 @@ class ApiService {
 
   // ─── Tasks ────────────────────────────────────────────────────────────────
 
-  Future<List<Map<String, dynamic>>> getTasks() async {
-    return asMapList(await _client.get('/api/tasks'));
+  Future<List<Map<String, dynamic>>> getTasks({bool forceRefresh = false}) async {
+    return asMapList(await _client.get('/api/tasks', forceRefresh: forceRefresh));
   }
 
-  Future<Map<String, dynamic>> getTask(String id) async {
-    return asMap(await _client.get('/api/tasks/$id'));
+  Future<Map<String, dynamic>> getTask(String id, {bool forceRefresh = false}) async {
+    return asMap(await _client.get('/api/tasks/$id', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> createTask(Map<String, dynamic> data) async {
@@ -270,8 +270,8 @@ class ApiService {
     await _client.delete('/api/skills/user/$skillId$suffix');
   }
 
-  Future<List<Map<String, dynamic>>> getSkillMatches() async {
-    return asMapList(await _client.get('/api/skills/matches'));
+  Future<List<Map<String, dynamic>>> getSkillMatches({bool forceRefresh = false}) async {
+    return asMapList(await _client.get('/api/skills/matches', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> getSkillVenn() async {
@@ -420,8 +420,8 @@ class ApiService {
 
   // ─── Organisations ────────────────────────────────────────────────────────
 
-  Future<List<Map<String, dynamic>>> getOrganisations() async {
-    return asMapList(await _client.get('/api/organisations'));
+  Future<List<Map<String, dynamic>>> getOrganisations({bool forceRefresh = false}) async {
+    return asMapList(await _client.get('/api/organisations', forceRefresh: forceRefresh));
   }
 
   Future<Map<String, dynamic>> getOrganisation(String id) async {

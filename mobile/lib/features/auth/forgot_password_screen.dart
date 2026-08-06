@@ -22,6 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _submit() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _message = null;
@@ -29,11 +30,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
     try {
       await context.read<AuthProvider>().api.forgotPassword(_email.text.trim());
+      if (!mounted) return;
       setState(() => _message = 'If an account exists, a reset link has been sent.');
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } finally {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 

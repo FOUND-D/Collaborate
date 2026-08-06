@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/json_helpers.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/workspace_provider.dart';
 import '../../widgets/shared_widgets.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -14,33 +15,12 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  Map<String, dynamic>? _stats;
-  List<Map<String, dynamic>> _matches = [];
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final api = context.read<AuthProvider>().api;
-    try {
-      final results = await Future.wait([
-        api.getUserStats(),
-        api.getSkillMatches(),
-        api.getProjects(),
-        api.getTasks(),
-      ]);
-      setState(() {
-        _stats = results[0] as Map<String, dynamic>;
-        _matches = results[1] as List<Map<String, dynamic>>;
-        _loading = false;
-      });
-    } catch (_) {
-      setState(() => _loading = false);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WorkspaceProvider>().loadDashboard();
+    });
   }
 
   String _greeting() {
@@ -53,13 +33,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final workspace = context.watch<WorkspaceProvider>();
     final user = auth.user;
     final name = str(user?['name']).split(' ').first;
+    final stats = workspace.userStats;
+    final matches = workspace.skillMatches;
 
-    if (_loading) return const LoadingView(message: 'Loading workspace...');
+    if (workspace.dashboardLoading && stats == null && matches.isEmpty) {
+      return const LoadingView(message: 'Loading workspace...');
+    }
 
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: () => workspace.loadDashboard(forceRefresh: true),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -130,23 +115,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ActionChip(label: const Text('Chat'), onPressed: () => context.go('/chat')),
             ],
           ),
-          if (_stats != null) ...[
+          if (stats != null) ...[
             const SizedBox(height: 16),
             const SectionHeader(title: 'Your stats'),
             CollaborateCard(
               child: Column(
                 children: [
-                  _statRow('Projects', str(_stats!['projectCount'], '0')),
-                  _statRow('Open tasks', str(_stats!['openTasks'], '0')),
-                  _statRow('Completion rate', '${_stats!['completionRate'] ?? 0}%'),
+                  _statRow('Projects', str(stats['projectCount'], '0')),
+                  _statRow('Open tasks', str(stats['openTasks'], '0')),
+                  _statRow('Completion rate', '${stats['completionRate'] ?? 0}%'),
                 ],
               ),
             ),
           ],
-          if (_matches.isNotEmpty) ...[
+          if (matches.isNotEmpty) ...[
             const SizedBox(height: 16),
             SectionHeader(title: 'Skill matches', action: TextButton(onPressed: () => context.go('/skill-sharing'), child: const Text('View all'))),
-            ..._matches.take(3).map((m) => CollaborateCard(
+            ...matches.take(3).map((m) => CollaborateCard(
                   onTap: () => context.push('/profile/${pickId(m['user'] ?? m)}'),
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
