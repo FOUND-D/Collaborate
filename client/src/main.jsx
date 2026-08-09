@@ -9,6 +9,13 @@ import './index.css'
 import './miscellaneous.css'
 import App from './App.jsx'
 
+if (import.meta.env.VITE_CORDOVA === 'true') {
+  import('./cordova-mobile.css')
+  document.documentElement.classList.add('cordova-app')
+  document.body.classList.add('cordova-app')
+  document.documentElement.setAttribute('data-cordova', 'true')
+}
+
 // 3. Create the persistor
 let persistor = persistStore(store);
 

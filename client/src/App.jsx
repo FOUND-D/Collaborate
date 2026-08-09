@@ -1,5 +1,8 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+
+const isCordova = import.meta.env.VITE_CORDOVA === 'true';
+const Router = isCordova ? HashRouter : BrowserRouter;
 import { useDispatch, useSelector } from 'react-redux'; // Add useDispatch
 import { motion } from 'framer-motion';
 import Sidebar from './components/Sidebar';
@@ -33,6 +36,7 @@ import AdminDashboardScreen from './screens/AdminDashboardScreen';
 import AdminComplaintsScreen from './screens/AdminComplaintsScreen';
 import ChatDocked from './components/ChatDocked';
 import TopHeader from './components/TopHeader';
+import MobileTabBar from './components/MobileTabBar';
 import ToastNotification from './components/ToastNotification';
 import { createSocketConnection } from './utils/socket';
 import { SERVER_STATUS_OFFLINE } from './constants/serverConstants';
@@ -120,8 +124,8 @@ const AppContent = () => {
   const userInfo = useSelector((state) => state.userLogin.userInfo);
   const location = useLocation();
   
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(isCordova || window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(isCordova || window.innerWidth <= 768);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [socket, setSocket] = useState(null);
 
@@ -155,7 +159,7 @@ const AppContent = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
+      const mobile = isCordova || window.innerWidth <= 768;
       setIsMobile(mobile);
       if (mobile) {
         setSidebarCollapsed(true);
@@ -173,23 +177,34 @@ const AppContent = () => {
     }
   }, [dispatch, userInfo?.token]);
 
+  useEffect(() => {
+    if (isCordova) {
+      setSidebarCollapsed(true);
+    }
+  }, [location.pathname]);
+
   const mainContentClass = `app-main ${isChatOpen ? 'chat-open' : ''}`;
   const contentMargin = isPublicRoute || isMobile ? '0px' : (sidebarCollapsed ? '64px' : '280px');
-  const layoutClass = `app-layout ${isPublicRoute ? 'public-layout' : ''}`;
+  const layoutClass = `app-layout ${isPublicRoute ? 'public-layout' : ''}${isCordova ? ' cordova-shell' : ''}`;
+  const showMobileTabBar = isCordova && userInfo && !isPublicRoute;
+
+  const openMobileMenu = () => setSidebarCollapsed(false);
+  const closeMobileMenu = () => setSidebarCollapsed(true);
 
   return (
     <div className={layoutClass}>
         <ToastNotification socket={socket} />
         {!isPublicRoute && isMobile && !sidebarCollapsed && (
           <div 
-            style={{ 
+            className={isCordova ? 'cordova-sidebar-scrim' : undefined}
+            style={isCordova ? undefined : { 
               position: 'fixed', 
               inset: 0, 
               background: 'rgba(0,0,0,0.5)', 
               zIndex: 40,
               transition: 'opacity 300ms ease'
             }} 
-            onClick={toggleSidebar}
+            onClick={closeMobileMenu}
           />
         )}
         {!isPublicRoute && (
@@ -223,7 +238,11 @@ const AppContent = () => {
             )}
             <Suspense fallback={<RouteFallback />}>
               <Routes>
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={
+                  isCordova
+                    ? (userInfo ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />)
+                    : <LandingPage />
+                } />
                 <Route path="/dashboard" element={<ProtectedRoute><HomeScreen /></ProtectedRoute>} />
                 <Route path="/projects" element={<ProtectedRoute><OngoingProjectsScreen /></ProtectedRoute>} />
                 <Route path="/login" element={<LoginScreen />} />
@@ -272,6 +291,9 @@ const AppContent = () => {
           </div>
           {isChatOpen && <ChatDocked onClose={toggleChat} />}
         </div>
+        {showMobileTabBar && (
+          <MobileTabBar onMorePress={openMobileMenu} />
+        )}
     </div>
   );
 };

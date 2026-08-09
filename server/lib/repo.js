@@ -382,7 +382,7 @@ const createUser = async ({ name, email, password, role, department, yearOfStudy
     year_of_study: yearOfStudy || null,
     student_id: studentId || null,
     tech_stack: techStack || [],
-    profile_image: profileImage || null,
+    profile_image: profileImage ?? '',
     credits: 50,
   }).select('*').single();
   if (error) throw error;
