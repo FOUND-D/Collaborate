@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { createSocketConnection } from '../utils/socket';
@@ -103,6 +103,28 @@ const MeetingScreen = () => {
   const peerSocketIdsRef = useRef({});
   const joinedRoomRef = useRef(false);
 
+  const getParticipantName = useCallback((userId) => {
+    if (userId === 'local') return 'You';
+    const participant = participants.find((entry) => entry._id === userId);
+    return participant?.name || 'Guest';
+  }, [participants]);
+
+  const addLocalTracksToPeer = useCallback((peerConnection) => {
+    const local = localStreamRef.current;
+    if (local) {
+      local.getTracks().forEach((track) => peerConnection.addTrack(track, local));
+    }
+
+    const screen = screenStreamRef.current;
+    if (screen) {
+      screen.getVideoTracks().forEach((track) => peerConnection.addTrack(track, screen));
+    }
+  }, []);
+
+  const findScreenSender = (peerConnection) => (
+    peerConnection.getSenders().find((sender) => isScreenShareTrack(sender.track))
+  );
+
   useEffect(() => {
     userInfoRef.current = userInfo;
   }, [userInfo]);
@@ -183,6 +205,44 @@ const MeetingScreen = () => {
     }
   }, []);
 
+  const upsertRemoteMedia = useCallback((userId, track, stream) => {
+    if (!stream) return;
+
+    const isScreen = isScreenShareTrack(track);
+
+    setRemoteStreams((prev) => {
+      const existing = prev.find((entry) => entry.userId === userId);
+      const nextEntry = existing
+        ? { ...existing }
+        : { userId, cameraStream: null, screenStream: null };
+
+      if (isScreen) {
+        nextEntry.screenStream = stream;
+      } else if (track.kind === 'video') {
+        nextEntry.cameraStream = stream;
+      } else if (track.kind === 'audio' && !nextEntry.cameraStream) {
+        nextEntry.cameraStream = stream;
+      }
+
+      if (existing) {
+        return prev.map((entry) => (entry.userId === userId ? nextEntry : entry));
+      }
+      return [...prev, nextEntry];
+    });
+
+    if (isScreen) {
+      updateRemoteScreenShareState(userId, true);
+      track.onended = () => {
+        updateRemoteScreenShareState(userId, false);
+        setRemoteStreams((prev) => (
+          prev.map((entry) => (
+            entry.userId === userId ? { ...entry, screenStream: null } : entry
+          ))
+        ));
+      };
+    }
+  }, [updateRemoteScreenShareState]);
+
   const createPeerConnection = useCallback((targetUserId, targetSocketId, isInitiator) => {
     if (peerConnectionsRef.current[targetUserId]) {
       return peerConnectionsRef.current[targetUserId];
@@ -191,11 +251,7 @@ const MeetingScreen = () => {
     peerSocketIdsRef.current[targetUserId] = targetSocketId;
 
     const peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
-    const streamToSend = screenStreamRef.current || localStreamRef.current;
-
-    if (streamToSend) {
-      streamToSend.getTracks().forEach((track) => peerConnection.addTrack(track, streamToSend));
-    }
+    addLocalTracksToPeer(peerConnection);
 
     peerConnection.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
@@ -213,27 +269,8 @@ const MeetingScreen = () => {
       const remoteStream = event.streams[0];
       if (!remoteStream) return;
 
-      setRemoteStreams((prev) => (
-        prev.some((streamEntry) => streamEntry.userId === targetUserId)
-          ? prev
-          : [...prev, { userId: targetUserId, stream: remoteStream }]
-      ));
-
-      const applyTrackState = (track) => {
-        if (track.kind === 'video' && isScreenShareTrack(track)) {
-          updateRemoteScreenShareState(targetUserId, true);
-        }
-      };
-
-      applyTrackState(event.track);
-      event.track.onunmute = () => applyTrackState(event.track);
-
-      remoteStream.getVideoTracks().forEach((track) => {
-        track.onunmute = () => applyTrackState(track);
-        if (isScreenShareTrack(track)) {
-          updateRemoteScreenShareState(targetUserId, true);
-        }
-      });
+      upsertRemoteMedia(targetUserId, event.track, remoteStream);
+      event.track.onunmute = () => upsertRemoteMedia(targetUserId, event.track, remoteStream);
     };
 
     peerConnectionsRef.current[targetUserId] = peerConnection;
@@ -258,7 +295,7 @@ const MeetingScreen = () => {
     }
 
     return peerConnection;
-  }, [updateRemoteScreenShareState]);
+  }, [addLocalTracksToPeer, upsertRemoteMedia]);
 
   useEffect(() => {
     if (!userInfo?.token) {
@@ -397,6 +434,11 @@ const MeetingScreen = () => {
 
     const handleStopSharingScreen = ({ userId }) => {
       updateRemoteScreenShareState(userId, false);
+      setRemoteStreams((prev) => (
+        prev.map((entry) => (
+          entry.userId === userId ? { ...entry, screenStream: null } : entry
+        ))
+      ));
     };
 
     const handleSessionEnded = async (endedSession) => {
@@ -509,30 +551,31 @@ const MeetingScreen = () => {
     });
   }, []);
 
-  const stopScreenShare = useCallback(() => {
+  const stopScreenShare = useCallback(async () => {
     if (screenStreamRef.current) {
       screenStreamRef.current.getTracks().forEach((track) => track.stop());
       screenStreamRef.current = null;
     }
     setScreenStream(null);
 
-    const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
-    if (cameraTrack) {
-      Object.values(peerConnectionsRef.current).forEach((peerConnection) => {
-        const sender = peerConnection.getSenders().find((item) => item.track?.kind === 'video');
-        if (sender) {
-          sender.replaceTrack(cameraTrack);
-        }
-      });
+    const peerEntries = Object.entries(peerConnectionsRef.current);
+    for (const [targetUserId, peerConnection] of peerEntries) {
+      const screenSender = findScreenSender(peerConnection);
+      if (screenSender) {
+        peerConnection.removeTrack(screenSender);
+        await renegotiatePeerConnection(targetUserId, peerSocketIdsRef.current[targetUserId]);
+      }
     }
 
     setIsSharingScreen(false);
-    setMainScreenUserId(null);
+    setMainScreenUserId((current) => (
+      current === userInfoRef.current?._id ? null : current
+    ));
 
     socketRef.current?.emit('stop-sharing-screen', {
       userId: userInfoRef.current?._id,
     });
-  }, []);
+  }, [renegotiatePeerConnection]);
 
   const startScreenShare = useCallback(async () => {
     try {
@@ -544,10 +587,7 @@ const MeetingScreen = () => {
       const peerEntries = Object.entries(peerConnectionsRef.current);
 
       for (const [targetUserId, peerConnection] of peerEntries) {
-        const sender = peerConnection.getSenders().find((item) => item.track?.kind === 'video');
-        if (sender) {
-          await sender.replaceTrack(screenTrack);
-        } else {
+        if (!findScreenSender(peerConnection)) {
           peerConnection.addTrack(screenTrack, stream);
           await renegotiatePeerConnection(targetUserId, peerSocketIdsRef.current[targetUserId]);
         }
@@ -603,31 +643,40 @@ const MeetingScreen = () => {
     }
   }, [meeting?._id]);
 
-  const renderTile = (stream, userId, isLocal) => {
+  const renderCameraTile = (userId, isLocal, stream) => {
     const isCam = isLocal ? isCameraOn : remoteMediaStatus[userId]?.cameraOn;
     const isMic = isLocal ? isMicOn : remoteMediaStatus[userId]?.micOn;
-    const isShare = !isLocal && remoteMediaStatus[userId]?.isSharingScreen;
-
-    let name = 'Guest';
-    if (isLocal) {
-      name = 'You';
-    } else {
-      const participant = participants.find((entry) => entry._id === userId);
-      if (participant) {
-        name = participant.name;
-      }
-    }
+    const name = getParticipantName(userId);
 
     return (
-      <div
-        key={userId}
-        className={`video-participant-container ${mainScreenUserId === userId ? 'main-screen-share' : ''}`}
-      >
+      <div key={`${userId}-camera`} className="video-participant-container">
         <VideoPlayer
           stream={stream}
           isLocal={isLocal}
           isCameraOn={Boolean(isCam)}
-          isScreenShare={Boolean(isShare)}
+          isScreenShare={false}
+          name={name}
+          isMicOn={Boolean(isMic)}
+        />
+      </div>
+    );
+  };
+
+  const renderScreenTile = (userId, isLocal, stream, options = {}) => {
+    const { isMain = false } = options;
+    const isMic = isLocal ? isMicOn : remoteMediaStatus[userId]?.micOn;
+    const name = isLocal ? 'You (Screen)' : `${getParticipantName(userId)} (Screen)`;
+
+    return (
+      <div
+        key={`${userId}-screen`}
+        className={`video-participant-container ${isMain ? 'main-screen-share' : ''}`}
+      >
+        <VideoPlayer
+          stream={stream}
+          isLocal={isLocal}
+          isCameraOn={true}
+          isScreenShare={true}
           name={name}
           isMicOn={Boolean(isMic)}
         />
@@ -718,31 +767,20 @@ const MeetingScreen = () => {
       <div className={`video-grid-container ${mainScreenUserId ? 'has-main-screen' : ''}`}>
         {mainScreenUserId && (
           <>
-            {mainScreenUserId === userInfo?._id && isSharingScreen && (
-              <div className="video-participant-container main-screen-share">
-                <VideoPlayer
-                  stream={screenStream}
-                  isLocal={true}
-                  isCameraOn={true}
-                  isScreenShare={true}
-                  name="You (Screen)"
-                  isMicOn={false}
-                />
-              </div>
+            {mainScreenUserId === userInfo?._id && isSharingScreen && screenStream && (
+              renderScreenTile('local', true, screenStream, { isMain: true })
             )}
 
-            {remoteStreams.map((remoteStream) => (
-              remoteStream.userId === mainScreenUserId
-                ? renderTile(remoteStream.stream, remoteStream.userId, false)
+            {remoteStreams.map((remoteEntry) => (
+              remoteEntry.userId === mainScreenUserId && remoteEntry.screenStream
+                ? renderScreenTile(remoteEntry.userId, false, remoteEntry.screenStream, { isMain: true })
                 : null
             ))}
 
             <div className="video-sidebar">
-              {mainScreenUserId !== userInfo?._id && renderTile(localStream, 'local', true)}
-              {remoteStreams.map((remoteStream) => (
-                remoteStream.userId !== mainScreenUserId
-                  ? renderTile(remoteStream.stream, remoteStream.userId, false)
-                  : null
+              {renderCameraTile('local', true, localStream)}
+              {remoteStreams.map((remoteEntry) => (
+                renderCameraTile(remoteEntry.userId, false, remoteEntry.cameraStream)
               ))}
             </div>
           </>
@@ -750,20 +788,16 @@ const MeetingScreen = () => {
 
         {!mainScreenUserId && (
           <>
-            {renderTile(localStream, 'local', true)}
-            {isSharingScreen && (
-              <div className="video-participant-container">
-                <VideoPlayer
-                  stream={screenStream}
-                  isLocal={true}
-                  isCameraOn={true}
-                  isScreenShare={true}
-                  name="You (Screen)"
-                  isMicOn={false}
-                />
-              </div>
-            )}
-            {remoteStreams.map((remoteStream) => renderTile(remoteStream.stream, remoteStream.userId, false))}
+            {renderCameraTile('local', true, localStream)}
+            {isSharingScreen && screenStream && renderScreenTile('local', true, screenStream)}
+            {remoteStreams.map((remoteEntry) => (
+              <Fragment key={remoteEntry.userId}>
+                {renderCameraTile(remoteEntry.userId, false, remoteEntry.cameraStream)}
+                {remoteEntry.screenStream && remoteMediaStatus[remoteEntry.userId]?.isSharingScreen
+                  ? renderScreenTile(remoteEntry.userId, false, remoteEntry.screenStream)
+                  : null}
+              </Fragment>
+            ))}
           </>
         )}
       </div>

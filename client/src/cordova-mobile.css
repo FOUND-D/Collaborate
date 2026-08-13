@@ -602,6 +602,7 @@ body.cordova-app .toast-notification-item {
 /* ─── List / table screens (teams, tasks, projects) ─── */
 
 body.cordova-app .team-screen,
+body.cordova-app .team-detail-container,
 body.cordova-app .task-screen,
 body.cordova-app .project-screen,
 body.cordova-app .organisations-screen,
@@ -619,6 +620,72 @@ body.cordova-app [class*='-card'],
 body.cordova-app .panel,
 body.cordova-app .modal-content {
   border-radius: var(--ios-radius-md) !important;
+}
+
+/* ─── Team detail: session + team ID on mobile app ─── */
+
+body.cordova-app .team-detail-container {
+  max-width: 100%;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+body.cordova-app .team-session-panel {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--ios-radius-md);
+}
+
+body.cordova-app .team-session-panel .team-id-row {
+  width: 100%;
+  min-width: 0;
+}
+
+body.cordova-app .team-id-field {
+  width: 100%;
+  min-width: 0;
+}
+
+body.cordova-app .team-id-text {
+  white-space: normal;
+  word-break: break-all;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.45;
+  font-size: 12px;
+}
+
+body.cordova-app .copy-id-btn {
+  width: var(--ios-touch);
+  height: var(--ios-touch);
+  border-radius: 10px;
+}
+
+body.cordova-app .team-session-panel .team-session-actions {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.cordova-app .team-session-panel .session-btn,
+body.cordova-app .team-session-panel .tab-action-btn {
+  width: 100%;
+  min-height: var(--ios-touch);
+  justify-content: center;
+  border-radius: 12px !important;
+}
+
+body.cordova-app .team-tab-bar {
+  width: 100%;
+  overflow: visible;
+}
+
+body.cordova-app .team-tab-pills {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ─── Responsive scale-up on larger phones / small tablets ─── */

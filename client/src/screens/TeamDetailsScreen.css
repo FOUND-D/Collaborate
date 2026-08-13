@@ -68,7 +68,47 @@
   flex-wrap: wrap;
 }
 
-/* ── Compact utility bar (ID + session, top-right) ── */
+/* ── Team session + ID panel ──────────────────────── */
+.team-session-panel {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  box-shadow: var(--glass-shadow);
+}
+
+.team-session-panel .team-id-row {
+  flex: 1;
+  min-width: min(100%, 240px);
+}
+
+.team-session-panel .team-session-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.team-id-copied-hint {
+  font-size: 0.75rem;
+  color: var(--success-color, #30d158) !important;
+  font-weight: 600;
+}
+
+.team-session-panel .session-btn {
+  min-height: 40px;
+}
+
+/* ── Compact utility bar (legacy / optional) ── */
 .team-info-utility-bar {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-backdrop);
@@ -239,11 +279,13 @@
 .team-tab-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   border-bottom: 1px solid var(--glass-border);
   margin-top: 0.2rem;
   margin-bottom: 1rem;
   gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .team-tab-pills {
@@ -609,10 +651,62 @@
     flex-direction: column;
   }
 
-  .team-info-utility-bar {
+  .team-info-utility-bar,
+  .team-session-panel {
     max-width: 100%;
     min-width: unset;
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .team-session-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .team-session-panel .team-session-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .team-session-panel .session-btn,
+  .team-session-panel .tab-action-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .team-id-field {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .team-id-text {
+    white-space: normal;
+    word-break: break-all;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.45;
+    font-size: 0.72rem;
+  }
+
+  .copy-id-btn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .team-tab-pills {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
   }
 }
 

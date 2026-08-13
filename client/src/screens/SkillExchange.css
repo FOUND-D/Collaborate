@@ -759,6 +759,22 @@
     align-items: start;
   }
 
+  .phase2-session-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .phase2-session-card .phase2-button,
+  .phase2-session-card > div[style*='flex'] {
+    width: 100%;
+  }
+
+  .phase2-session-card .phase2-button {
+    min-height: 44px;
+    justify-content: center;
+  }
+
   .phase2-card-grid,
   .phase2-filter-bar {
     grid-template-columns: 1fr;

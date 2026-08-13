@@ -94,7 +94,9 @@
   .team-details-search,
   .team-details-search input,
   .chat-screen-container,
-  .skill-sharing-screen .skill-sharing-table-wrap {
+  .skill-sharing-screen .skill-sharing-table-wrap,
+  .team-detail-container,
+  .team-session-panel {
     max-width: 100%;
     min-width: 0;
   }
