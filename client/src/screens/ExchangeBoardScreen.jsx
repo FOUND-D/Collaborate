@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaBolt, FaFilter, FaPlus, FaSearch, FaStar, FaCheckCircle } from 'react-icons/fa';
+import { FaFilter, FaPlus, FaSearch, FaStar } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { listListings } from '../actions/listingActions';
@@ -8,7 +7,7 @@ import { LISTING_CREATE_RESET } from '../constants/listingConstants';
 import { listSkillMatches, listSkills } from '../actions/skillActions';
 import ListingCreateModal from '../components/ListingCreateModal';
 import AchievementTags from '../components/AchievementTags';
-import './SkillExchange.css';
+import './ExchangeBoardScreen.css';
 
 const ExchangeBoardScreen = () => {
   const dispatch = useDispatch();
@@ -53,134 +52,160 @@ const ExchangeBoardScreen = () => {
   );
 
   return (
-    <div className="phase2-page">
-      <div className="phase2-shell">
-        <div className="phase2-hero">
-          <div>
-            <span className="phase2-badge phase2-badge-ai"><FaBolt /> Matched for you</span>
-            <h1>Exchange board</h1>
-            <p>Scan active offers and requests, filter aggressively, and move into booked sessions with minimal friction.</p>
-          </div>
-          <button type="button" className="phase2-button phase2-button-primary" onClick={() => setIsModalOpen(true)}>
-            <FaPlus /> New listing
-          </button>
+    <div className="exchange-board-page">
+      <div className="exchange-board-header">
+        <div className="exchange-board-header-text">
+          <h1>Exchange board</h1>
+          <p>
+            Scan active offers and requests, filter aggressively, and move into booked sessions with minimal friction.
+          </p>
         </div>
+        <button type="button" className="exchange-board-new-btn" onClick={() => setIsModalOpen(true)}>
+          <FaPlus /> New listing
+        </button>
+      </div>
 
-        <div className="phase2-board-layout">
-          <section className="phase2-main-column">
-            <div className="phase2-filter-bar phase2-glass">
-              <div className="phase2-filter-label"><FaFilter /> Filters</div>
-              <select value={filters.skill_id} onChange={(e) => setFilters((prev) => ({ ...prev, skill_id: e.target.value }))}>
-                <option value="">All skills</option>
-                {skills.map((skill) => (
-                  <option key={skill.id} value={skill.id}>{skill.name}</option>
-                ))}
-              </select>
-              <select value={filters.department} onChange={(e) => setFilters((prev) => ({ ...prev, department: e.target.value }))}>
-                <option value="">All departments</option>
-                {departments.map((department) => (
-                  <option key={department} value={department}>{department}</option>
-                ))}
-              </select>
-              <select value={filters.format} onChange={(e) => setFilters((prev) => ({ ...prev, format: e.target.value }))}>
-                <option value="">All formats</option>
-                <option value="one_on_one">1-on-1</option>
-                <option value="group">Group</option>
-              </select>
-              <select value={filters.listing_type} onChange={(e) => setFilters((prev) => ({ ...prev, listing_type: e.target.value }))}>
-                <option value="">Offer + Request</option>
-                <option value="offer">Offers</option>
-                <option value="request">Requests</option>
-              </select>
+      <div className="exchange-board-layout">
+        <main className="exchange-board-main">
+          <div className="exchange-board-filters">
+            <div className="exchange-filters-label">
+              <FaFilter /> Filters
+            </div>
+            <select
+              className="exchange-filter-select"
+              value={filters.skill_id}
+              onChange={(e) => setFilters((prev) => ({ ...prev, skill_id: e.target.value }))}
+            >
+              <option value="">All skills</option>
+              {skills.map((skill) => (
+                <option key={skill.id} value={skill.id}>{skill.name}</option>
+              ))}
+            </select>
+            <select
+              className="exchange-filter-select"
+              value={filters.department}
+              onChange={(e) => setFilters((prev) => ({ ...prev, department: e.target.value }))}
+            >
+              <option value="">All departments</option>
+              {departments.map((department) => (
+                <option key={department} value={department}>{department}</option>
+              ))}
+            </select>
+            <select
+              className="exchange-filter-select"
+              value={filters.format}
+              onChange={(e) => setFilters((prev) => ({ ...prev, format: e.target.value }))}
+            >
+              <option value="">All formats</option>
+              <option value="one_on_one">1-on-1</option>
+              <option value="group">Group</option>
+            </select>
+            <select
+              className="exchange-filter-select"
+              value={filters.listing_type}
+              onChange={(e) => setFilters((prev) => ({ ...prev, listing_type: e.target.value }))}
+            >
+              <option value="">Offer + Request</option>
+              <option value="offer">Offers</option>
+              <option value="request">Requests</option>
+            </select>
+          </div>
+
+          <div className="exchange-board-grid">
+            {loading ? (
+              <div className="exchange-board-empty">Loading exchange board...</div>
+            ) : listings.length === 0 ? (
+              <div className="exchange-board-empty">No listings match the current filters.</div>
+            ) : (
+              listings.map((listing) => (
+                <article key={listing._id} className="exchange-listing-card">
+                  <div className="exchange-listing-top">
+                    <span className={`exchange-pill ${listing.listingType === 'offer' ? 'offer' : 'request'}`}>
+                      {listing.listingType}
+                    </span>
+                    <span className="exchange-pill format">
+                      {listing.format === 'group' ? 'Group' : '1-on-1'}
+                    </span>
+                  </div>
+
+                  <h3 className="exchange-listing-title">{listing.skill?.name || 'Skill listing'}</h3>
+                  <p className="exchange-listing-desc">
+                    {listing.description || 'No additional details supplied for this exchange.'}
+                  </p>
+
+                  <div className="exchange-listing-meta">
+                    <div className="exchange-listing-author-row">
+                      <Link to={`/profile/${listing.user?._id}`} className="exchange-listing-author">
+                        {listing.user?.name || 'Anonymous'}
+                      </Link>
+                      {listing.user?.role === 'faculty' && (
+                        <span className="exchange-faculty-badge">FACULTY</span>
+                      )}
+                      <AchievementTags badges={listing.posterBadges} size="sm" limit={2} />
+                    </div>
+                    <span className="exchange-listing-dept">{listing.user?.department || 'Open department'}</span>
+                    <span className="exchange-listing-rating">
+                      <FaStar className="exchange-rating-star" />
+                      {listing.user?.avgRating ? listing.user.avgRating.toFixed(1) : 'New'}
+                    </span>
+                  </div>
+
+                  <Link className="exchange-listing-cta" to={`/exchange/${listing._id}`}>
+                    View detail
+                  </Link>
+                </article>
+              ))
+            )}
+          </div>
+        </main>
+
+        <aside className="exchange-board-peers">
+          <div className="exchange-peers-panel">
+            <div className="exchange-peers-head">
+              <span className="exchange-peers-eyebrow">
+                <FaSearch /> Recommended peers
+              </span>
+              <h2>High-fit matches</h2>
             </div>
 
-            <div className="phase2-card-grid">
-              {loading ? (
-                <div className="phase2-empty phase2-glass">Loading exchange board...</div>
-              ) : listings.length === 0 ? (
-                <div className="phase2-empty phase2-glass">No listings match the current filters.</div>
+            <div className="exchange-peer-list">
+              {matches.length === 0 ? (
+                <div className="exchange-board-empty exchange-board-empty-compact">
+                  Complete your skill profile to unlock peer recommendations.
+                </div>
               ) : (
-                listings.map((listing, index) => (
-                  <motion.div
-                    key={listing._id}
-                    className="phase2-listing-card phase2-glass"
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    layout
-                  >
-                    <div className="phase2-card-topline">
-                      <span className={`phase2-pill ${listing.listingType === 'offer' ? 'offer' : 'request'}`}>
-                        {listing.listingType}
-                      </span>
-                      <span className="phase2-pill subtle">{listing.format === 'group' ? 'Group' : '1-on-1'}</span>
-                    </div>
-                    <h3>{listing.skill?.name || 'Skill listing'}</h3>
-                    <p>{listing.description || 'No additional details supplied for this exchange.'}</p>
-                    <div className="phase2-card-meta">
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                        <Link to={`/profile/${listing.user?._id}`} className="phase2-link">
-                          {listing.user?.name || 'Anonymous'}
-                        </Link>
-                        {listing.user?.role === 'faculty' && (
-                          <span className="faculty-badge-tiny">Faculty</span>
-                        )}
-                        <AchievementTags badges={listing.posterBadges} size="sm" limit={2} />
-                      </span>
-                      <span>{listing.user?.department || 'Open department'}</span>
-                      <span className="listing-rating-badge">
-                        <FaStar style={{ color: '#fbbf24', marginRight: '4px' }} />
-                        {listing.user?.avgRating ? listing.user.avgRating.toFixed(1) : 'New'}
-                      </span>
-                    </div>
-                    <div className="phase2-card-footer">
-                      <Link className="phase2-button phase2-button-secondary" to={`/exchange/${listing._id}`} style={{ width: '100%', textAlign: 'center' }}>
-                        View detail
+                matches.map((match) => (
+                  <div key={match.user?._id} className="exchange-peer-card">
+                    <div className="exchange-peer-main">
+                      <Link to={`/profile/${match.user?._id}`} className="exchange-peer-avatar">
+                        {match.user?.name?.charAt(0)?.toUpperCase() || 'P'}
                       </Link>
+                      <div className="exchange-peer-info">
+                        <Link to={`/profile/${match.user?._id}`} className="exchange-peer-name">
+                          {match.user?.name}
+                        </Link>
+                        <p className="exchange-peer-dept">{match.user?.department || 'Open department'}</p>
+                      </div>
+                      <span className="exchange-peer-score">{Math.round(match.matchScore)}</span>
                     </div>
-                  </motion.div>
+                    {match.matchedSkills?.length > 0 && (
+                      <div className="exchange-peer-skills">
+                        {match.matchedSkills.slice(0, 3).map((item) => (
+                          <span key={`${match.user?._id}-${item.skillId}`} className="exchange-peer-skill">
+                            {item.skillName}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))
               )}
             </div>
-          </section>
-
-          <aside className="phase2-sidebar-column">
-            <div className="phase2-recommendation-card phase2-glass">
-              <div className="phase2-recommendation-head">
-                <span className="phase2-badge phase2-badge-ai"><FaSearch /> Recommended peers</span>
-                <h2>High-fit matches</h2>
-              </div>
-              <div className="phase2-match-list">
-                {matches.length === 0 ? (
-                  <div className="phase2-empty">Complete your skill profile to unlock peer recommendations.</div>
-                ) : (
-                  matches.map((match) => (
-                    <div key={match.user?._id} className="phase2-match-card">
-                      <div className="phase2-match-header">
-                        <Link to={`/profile/${match.user?._id}`} className="phase2-avatar">{match.user?.name?.charAt(0)?.toUpperCase() || 'P'}</Link>
-                        <div>
-                          <Link to={`/profile/${match.user?._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <strong>{match.user?.name}</strong>
-                          </Link>
-                          <p>{match.user?.department || 'Open department'}</p>
-                        </div>
-                        <span className="phase2-match-score">{Math.round(match.matchScore)}</span>
-                      </div>
-                      <div className="phase2-match-skills">
-                        {match.matchedSkills?.slice(0, 2).map((item) => (
-                          <span key={`${match.user?._id}-${item.skillId}`} className="phase2-pill subtle">{item.skillName}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        <ListingCreateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+          </div>
+        </aside>
       </div>
+
+      <ListingCreateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

@@ -117,13 +117,17 @@
 }
 
 .dashboard-summary-cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   flex-shrink: 0;
+  width: 320px;
 }
 
 .dashboard-summary-card {
-  min-width: 148px;
+  min-width: 0;
+  width: 100%;
+  min-height: 108px;
   padding: 16px 18px;
   border-radius: 14px;
   color: #fff;
@@ -131,6 +135,7 @@
   flex-direction: column;
   background: linear-gradient(145deg, #1f4536 0%, #2d5a47 100%);
   box-shadow: 0 4px 16px rgba(31, 69, 54, 0.22);
+  box-sizing: border-box;
 }
 
 .summary-card-top {
@@ -138,6 +143,31 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
+  flex: 1;
+  min-height: 76px;
+}
+
+.summary-card-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.summary-card-accent-icon {
+  width: 72px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  font-size: 26px;
+  color: rgba(251, 191, 36, 0.45);
+  line-height: 1;
+}
+
+.rating-card .summary-card-accent-icon {
+  color: rgba(251, 191, 36, 0.55);
 }
 
 .summary-label {
@@ -186,8 +216,10 @@
     gap: 20px;
   }
 
-  .dashboard-summary-cards { width: 100%; }
-  .dashboard-summary-card { flex: 1; min-width: 0; }
+  .dashboard-summary-cards {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .dashboard-divider {

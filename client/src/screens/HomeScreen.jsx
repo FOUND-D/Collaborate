@@ -191,7 +191,7 @@ const HomeScreen = () => {
           <div className="dashboard-summary-cards">
             <div className="dashboard-summary-card dev-score-card">
               <div className="summary-card-top">
-                <div>
+                <div className="summary-card-main">
                   <div className="summary-label">Dev Score</div>
                   <div className="summary-value">{devScoreDisplay}</div>
                   <div className="summary-sublabel">Calculated</div>
@@ -201,14 +201,21 @@ const HomeScreen = () => {
             </div>
 
             <div className="dashboard-summary-card rating-card">
-              <div className="summary-label">Rating</div>
-              <div className="summary-value">{ratingDisplay}</div>
-              <div className="summary-stars">
-                {[1, 2, 3, 4, 5].map((index) => (
-                  index <= roundedRating
-                    ? <FaStar key={index} className="star-icon filled" />
-                    : <FaRegStar key={index} className="star-icon" />
-                ))}
+              <div className="summary-card-top">
+                <div className="summary-card-main">
+                  <div className="summary-label">Rating</div>
+                  <div className="summary-value">{ratingDisplay}</div>
+                  <div className="summary-stars">
+                    {[1, 2, 3, 4, 5].map((index) => (
+                      index <= roundedRating
+                        ? <FaStar key={index} className="star-icon filled" />
+                        : <FaRegStar key={index} className="star-icon" />
+                    ))}
+                  </div>
+                </div>
+                <div className="summary-card-accent-icon" aria-hidden="true">
+                  <FaStar />
+                </div>
               </div>
             </div>
           </div>
