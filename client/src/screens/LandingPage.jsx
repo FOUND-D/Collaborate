@@ -1,24 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import LandingDashboardMockup from '../components/landing/LandingDashboardMockup';
 import {
   FaMoon,
   FaSun,
   FaChevronRight,
   FaChevronDown,
-  FaHome,
-  FaFolder,
-  FaTasks,
-  FaUsers,
-  FaCalendarAlt,
-  FaComments,
-  FaFile,
-  FaChartBar,
-  FaSearch,
-  FaBell,
-  FaBriefcase,
-  FaClipboardList,
-  FaUserFriends,
-  FaChartLine,
   FaBolt,
   FaUser,
   FaExchangeAlt,
@@ -31,6 +19,11 @@ import {
   FaMagic,
   FaStar,
   FaGithub,
+  FaFolder,
+  FaUsers,
+  FaComments,
+  FaCalendarAlt,
+  FaChartBar,
 } from 'react-icons/fa';
 import './LandingPage.css';
 
@@ -43,37 +36,6 @@ const navItems = [
 ];
 
 const avatars = ['AL', 'MK', 'JT', 'RS'];
-
-const sidebarNav = [
-  { icon: FaHome, label: 'Home', active: true },
-  { icon: FaFolder, label: 'Projects' },
-  { icon: FaTasks, label: 'Tasks' },
-  { icon: FaUsers, label: 'Teams' },
-  { icon: FaCalendarAlt, label: 'Calendar' },
-  { icon: FaComments, label: 'Messages' },
-  { icon: FaFile, label: 'Files' },
-  { icon: FaChartBar, label: 'Analytics' },
-];
-
-const kpiCards = [
-  { label: 'Active Projects', value: '24', trend: '+12%', icon: FaBriefcase, color: 'green' },
-  { label: 'Pending Tasks', value: '18', trend: '8%', icon: FaClipboardList, color: 'blue' },
-  { label: 'Team Members', value: '6', trend: '2%', icon: FaUserFriends, color: 'purple' },
-  { label: 'Team Velocity', value: '+12%', trend: '12%', icon: FaChartLine, color: 'orange' },
-];
-
-const recentActivity = [
-  { title: 'Design system updated', user: 'Arin', time: '2m ago', color: '#1f4536' },
-  { title: 'Marketing plan v2', user: 'Ryan', time: '1h ago', color: '#3b82f6' },
-  { title: 'Sprint tasks assigned', user: 'Jonah', time: '3h ago', color: '#8b5cf6' },
-  { title: 'API docs refreshed', user: 'Maya', time: 'Yesterday', color: '#f59e0b' },
-];
-
-const upcomingEvents = [
-  { title: 'Sprint Planning', date: 'Mon, 14 May', time: '10:00 AM', color: '#3b82f6' },
-  { title: 'Design Review', date: 'Wed, 15 May', time: '2:30 PM', color: '#1f4536' },
-  { title: 'Team Sync', date: 'Fri, 17 May', time: '11:00 AM', color: '#8b5cf6' },
-];
 
 const logoCloud = ['Acme', 'Vertex', 'NovaCo', 'Fable', 'Orbis', 'Lightspeed'];
 
@@ -183,6 +145,19 @@ const roleRows = [
 
 const STORAGE_KEY = 'collaborate-landing-theme';
 
+const heroStagger = {
+  hidden: { opacity: 0, y: 18 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.45,
+      ease: [0.2, 0.8, 0.2, 1],
+    },
+  }),
+};
+
 const LandingPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [lpTheme, setLpTheme] = useState(() => {
@@ -193,6 +168,24 @@ const LandingPage = () => {
     }
   });
   const dashboardRef = useRef(null);
+  const heroCenterRef = useRef(null);
+  const [cursorGlow, setCursorGlow] = useState({ x: 50, y: 42 });
+
+  const onHeroMouseMove = useCallback((e) => {
+    const node = heroCenterRef.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setCursorGlow({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    });
+  }, []);
+
+  const onHeroMouseLeave = useCallback(() => {
+    setCursorGlow({ x: 50, y: 42 });
+  }, []);
 
   useEffect(() => {
     try {
@@ -279,185 +272,148 @@ const LandingPage = () => {
           <div className="lp-hero-bg" aria-hidden="true" />
           <div className="lp-container">
             <div className="lp-hero-stage">
-              <article className="lp-float-card lp-float-left lp-fade-up" style={{ '--delay': '200ms' }}>
-                <div className="lp-float-icon green"><FaUser size={14} /></div>
-                <div>
-                  <strong>All-in-One</strong>
-                  <p>Tasks, projects, chat, meetings &amp; more</p>
-                </div>
-              </article>
+              <motion.article
+                className="lp-float-card lp-float-left lp-interactive-card"
+                custom={2}
+                initial="hidden"
+                animate="visible"
+                variants={heroStagger}
+              >
+                <motion.div
+                  className="lp-float-card-inner"
+                  animate={{ y: [0, -7, 0] }}
+                  transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.9 }}
+                >
+                  <div className="lp-float-icon green"><FaUser size={14} /></div>
+                  <div>
+                    <strong>All-in-One</strong>
+                    <p>Tasks, projects, chat, meetings &amp; more</p>
+                  </div>
+                </motion.div>
+              </motion.article>
 
-              <div className="lp-hero-center">
-                <div className="lp-eyebrow lp-fade-up" style={{ '--delay': '80ms' }}>
+              <div
+                className="lp-hero-center"
+                ref={heroCenterRef}
+                onMouseMove={onHeroMouseMove}
+                onMouseLeave={onHeroMouseLeave}
+              >
+                <div
+                  className="lp-hero-cursor-glow"
+                  aria-hidden="true"
+                  style={{
+                    left: `${cursorGlow.x}%`,
+                    top: `${cursorGlow.y}%`,
+                  }}
+                />
+
+                <motion.div
+                  className="lp-eyebrow"
+                  custom={0}
+                  initial="hidden"
+                  animate="visible"
+                  variants={heroStagger}
+                >
                   <span className="lp-eyebrow-dot" />
                   Built for Modern Teams
-                </div>
+                </motion.div>
 
-                <h1 className="lp-hero-title lp-fade-up" style={{ '--delay': '180ms' }}>
-                  The workspace your team <span className="lp-title-accent">actually needs</span>
-                </h1>
+                <motion.h1
+                  className="lp-hero-title"
+                  custom={1}
+                  initial="hidden"
+                  animate="visible"
+                  variants={heroStagger}
+                >
+                  The workspace your team{' '}
+                  <span className="lp-title-accent lp-title-accent-shimmer">actually needs</span>
+                </motion.h1>
 
-                <p className="lp-hero-subtitle lp-fade-up" style={{ '--delay': '280ms' }}>
+                <motion.p
+                  className="lp-hero-subtitle"
+                  custom={2}
+                  initial="hidden"
+                  animate="visible"
+                  variants={heroStagger}
+                >
                   Collaborate brings your projects, tasks, and team communication into one unified workspace.
                   Less chaos. More done.
-                </p>
+                </motion.p>
 
-                <div className="lp-hero-ctas lp-fade-up" style={{ '--delay': '380ms' }}>
-                  <Link to="/register" className="lp-cta-primary">
-                    Start for free <FaChevronRight size={12} />
-                  </Link>
-                  <button type="button" className="lp-cta-demo" onClick={scrollToMockup}>
+                <motion.div
+                  className="lp-hero-ctas"
+                  custom={3}
+                  initial="hidden"
+                  animate="visible"
+                  variants={heroStagger}
+                >
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Link to="/register" className="lp-cta-primary">
+                      Start for free <FaChevronRight size={12} />
+                    </Link>
+                  </motion.div>
+                  <motion.button
+                    type="button"
+                    className="lp-cta-demo"
+                    onClick={scrollToMockup}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
                     <span className="lp-play-icon" />
                     Watch demo
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
 
-                <div className="lp-social-proof lp-fade-up" style={{ '--delay': '480ms' }} id="customers">
+                <motion.div
+                  className="lp-social-proof"
+                  id="customers"
+                  custom={4}
+                  initial="hidden"
+                  animate="visible"
+                  variants={heroStagger}
+                >
                   <div className="lp-avatar-stack" aria-hidden="true">
                     {avatars.map((avatar, i) => (
-                      <span key={avatar} className="lp-avatar-circle" style={{ '--i': i }}>{avatar}</span>
+                      <motion.span
+                        key={avatar}
+                        className="lp-avatar-circle"
+                        style={{ zIndex: i }}
+                        whileHover={{ scale: 1.14, zIndex: 10 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                      >
+                        {avatar}
+                      </motion.span>
                     ))}
                   </div>
                   <div className="lp-proof-text">
                     <span className="lp-live-dot" />
                     Trusted by 2,000+ teams worldwide
                   </div>
-                </div>
+                </motion.div>
               </div>
 
-              <article className="lp-float-card lp-float-right lp-fade-up" style={{ '--delay': '200ms' }}>
-                <div className="lp-float-icon green"><FaBolt size={14} /></div>
-                <div>
-                  <strong>Modern &amp; Fast</strong>
-                  <p>Built for speed and efficiency</p>
-                </div>
-              </article>
+              <motion.article
+                className="lp-float-card lp-float-right lp-interactive-card"
+                custom={2}
+                initial="hidden"
+                animate="visible"
+                variants={heroStagger}
+              >
+                <motion.div
+                  className="lp-float-card-inner"
+                  animate={{ y: [0, -7, 0] }}
+                  transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                >
+                  <div className="lp-float-icon green"><FaBolt size={14} /></div>
+                  <div>
+                    <strong>Modern &amp; Fast</strong>
+                    <p>Built for speed and efficiency</p>
+                  </div>
+                </motion.div>
+              </motion.article>
             </div>
 
-            <div className="lp-dashboard-wrap lp-fade-up" style={{ '--delay': '600ms' }} ref={dashboardRef} id="hero-dashboard">
-              <div className="lp-dashboard-window">
-                <aside className="lp-mock-sidebar">
-                  <div className="lp-mock-sidebar-brand">
-                    <span className="lp-mock-logo">C</span>
-                    <span>Collaborate</span>
-                  </div>
-                  <nav className="lp-mock-nav">
-                    {sidebarNav.map((item) => (
-                      <div key={item.label} className={`lp-mock-nav-item ${item.active ? 'active' : ''}`}>
-                        <item.icon size={13} />
-                        <span>{item.label}</span>
-                      </div>
-                    ))}
-                  </nav>
-                </aside>
-
-                <div className="lp-mock-main">
-                  <div className="lp-mock-header">
-                    <div className="lp-mock-greeting">
-                      <span>Good morning, Arin</span>
-                      <span className="lp-mock-wave">👋</span>
-                    </div>
-                    <div className="lp-mock-search">
-                      <FaSearch size={12} />
-                      <span>Search anything...</span>
-                      <kbd>⌘K</kbd>
-                    </div>
-                    <div className="lp-mock-header-actions">
-                      <button type="button" className="lp-mock-icon-btn" aria-label="Notifications">
-                        <FaBell size={13} />
-                      </button>
-                      <div className="lp-mock-avatar">A</div>
-                    </div>
-                  </div>
-
-                  <div className="lp-mock-kpi-row">
-                    {kpiCards.map((kpi) => (
-                      <div key={kpi.label} className="lp-mock-kpi">
-                        <div className={`lp-mock-kpi-icon ${kpi.color}`}>
-                          <kpi.icon size={13} />
-                        </div>
-                        <div className="lp-mock-kpi-body">
-                          <span className="lp-mock-kpi-value">{kpi.value}</span>
-                          <span className="lp-mock-kpi-label">{kpi.label}</span>
-                        </div>
-                        <span className={`lp-mock-kpi-trend ${kpi.color}`}>
-                          <FaChartLine size={9} /> {kpi.trend}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="lp-mock-content-row">
-                    <div className="lp-mock-panel lp-mock-chart-panel">
-                      <div className="lp-mock-panel-head">
-                        <span>Project Overview</span>
-                        <span className="lp-mock-chip">This week</span>
-                      </div>
-                      <div className="lp-mock-chart-area">
-                        <svg className="lp-mock-chart" viewBox="0 0 320 100" preserveAspectRatio="none" aria-hidden="true">
-                          <defs>
-                            <linearGradient id="lpChartGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="rgba(31,69,54,0.25)" />
-                              <stop offset="100%" stopColor="rgba(31,69,54,0)" />
-                            </linearGradient>
-                          </defs>
-                          <path
-                            d="M0,80 L40,72 L80,68 L120,52 L160,48 L200,40 L240,32 L280,28 L320,20 L320,100 L0,100 Z"
-                            fill="url(#lpChartGrad)"
-                          />
-                          <polyline
-                            points="0,80 40,72 80,68 120,52 160,48 200,40 240,32 280,28 320,20"
-                            fill="none"
-                            stroke="#1f4536"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <div className="lp-mock-chart-tooltip">
-                          <strong>72% Progress</strong>
-                          <span>Wed, 15 May</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="lp-mock-panel">
-                      <div className="lp-mock-panel-head">
-                        <span>Recent Activity</span>
-                      </div>
-                      <ul className="lp-mock-activity-list">
-                        {recentActivity.map((item) => (
-                          <li key={item.title} className="lp-mock-activity-item">
-                            <span className="lp-mock-activity-dot" style={{ background: item.color }} />
-                            <div className="lp-mock-activity-copy">
-                              <strong>{item.title}</strong>
-                              <span>{item.user} · {item.time}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="lp-mock-panel">
-                      <div className="lp-mock-panel-head">
-                        <span>Upcoming</span>
-                      </div>
-                      <ul className="lp-mock-upcoming-list">
-                        {upcomingEvents.map((item) => (
-                          <li key={item.title} className="lp-mock-upcoming-item">
-                            <span className="lp-mock-upcoming-icon" style={{ background: item.color }} />
-                            <div className="lp-mock-upcoming-copy">
-                              <strong>{item.title}</strong>
-                              <span>{item.date} · {item.time}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <LandingDashboardMockup dashboardRef={dashboardRef} />
           </div>
         </section>
 
@@ -484,11 +440,16 @@ const LandingPage = () => {
             </div>
             <div className="lp-feature-grid">
               {platformFeatures.map((feature) => (
-                <article key={feature.title} className="lp-feature-card">
+                <motion.article
+                  key={feature.title}
+                  className="lp-feature-card lp-interactive-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
                   <div className="lp-feature-icon"><feature.icon size={18} /></div>
                   <h3>{feature.title}</h3>
                   <p>{feature.description}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -506,11 +467,16 @@ const LandingPage = () => {
             </div>
             <div className="lp-feature-grid lp-feature-grid-4">
               {peerLearningFeatures.map((feature) => (
-                <article key={feature.title} className="lp-feature-card">
+                <motion.article
+                  key={feature.title}
+                  className="lp-feature-card lp-interactive-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
                   <div className="lp-feature-icon"><feature.icon size={18} /></div>
                   <h3>{feature.title}</h3>
                   <p>{feature.description}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -528,11 +494,16 @@ const LandingPage = () => {
             </div>
             <div className="lp-feature-grid lp-feature-grid-4">
               {gamificationFeatures.map((feature) => (
-                <article key={feature.title} className="lp-feature-card">
+                <motion.article
+                  key={feature.title}
+                  className="lp-feature-card lp-interactive-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
                   <div className="lp-feature-icon"><feature.icon size={18} /></div>
                   <h3>{feature.title}</h3>
                   <p>{feature.description}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -546,13 +517,18 @@ const LandingPage = () => {
             </div>
             <div className="lp-role-grid">
               {roleRows.map((row) => (
-                <article key={row.role} className="lp-role-card">
+                <motion.article
+                  key={row.role}
+                  className="lp-role-card lp-interactive-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
                   <div className="lp-role-badge">
                     {row.role === 'Org Admins' ? <FaBuilding size={14} /> : <FaUser size={14} />}
                   </div>
                   <h3>{row.role}</h3>
                   <p>{row.desc}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -566,11 +542,16 @@ const LandingPage = () => {
             </div>
             <div className="lp-workflow-grid">
               {workflowSteps.map((step) => (
-                <article key={step.number} className="lp-workflow-card">
+                <motion.article
+                  key={step.number}
+                  className="lp-workflow-card lp-interactive-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
                   <div className="lp-workflow-number">{step.number}</div>
                   <h3>{step.title}</h3>
                   <p>{step.description}</p>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -586,10 +567,14 @@ const LandingPage = () => {
                 with skill exchange, Dev Score, and admin oversight — without changing products.
               </p>
               <div className="lp-cta-panel-actions">
-                <Link to="/register" className="lp-cta-primary">
-                  Start for free <FaChevronRight size={12} />
-                </Link>
-                <Link to="/login" className="lp-login-btn lp-login-btn-lg">Log in</Link>
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Link to="/register" className="lp-cta-primary">
+                    Start for free <FaChevronRight size={12} />
+                  </Link>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link to="/login" className="lp-login-btn lp-login-btn-lg">Log in</Link>
+                </motion.div>
               </div>
             </div>
           </div>
