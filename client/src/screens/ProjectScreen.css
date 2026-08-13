@@ -1,51 +1,311 @@
-.projects-page{padding:32px 44px;background:#080a0c;min-height:100vh}
-@media (max-width:1024px){.projects-page{padding:24px 20px}}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:20px}
-.page-header-left h1,.project-hero-header h1{font-size:19px;font-weight:750;color:#f1f5f9;letter-spacing:-.4px;margin:0 0 4px;line-height:1.2}
-.page-header-left p,.project-detail-goal{font-size:12px;color:rgba(241,245,249,.35);margin:0;max-width:440px;line-height:1.6}
-.page-divider{height:1px;background:rgba(255,255,255,.055);margin-bottom:24px}
-.projects-grid,.modern-project-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
-.project-card,.project-list-item{background:#0d1117;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:20px 22px;display:flex;flex-direction:column;gap:14px;transition:border-color .18s,transform .18s;cursor:pointer;text-decoration:none;width:100%}
-.project-card:hover,.project-list-item:hover{border-color:rgba(255,255,255,.13);transform:translateY(-2px)}
-.project-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.project-card-name,.project-name-link{font-size:15px;font-weight:650;color:#f1f5f9;letter-spacing:-.2px;line-height:1.3;text-decoration:none}
-.status-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;letter-spacing:.02em}
-.status-badge.active{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)}
-.status-badge.inactive{background:rgba(255,255,255,.06);color:rgba(241,245,249,.45);border:1px solid rgba(255,255,255,.08)}
-.status-badge.pending{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
-.status-badge.inprogress{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.22)}
-.status-badge.blocked{background:rgba(239,68,68,.10);color:#f87171;border:1px solid rgba(239,68,68,.20)}
-.project-card-meta,.project-metadata-capsules,.project-card-bottom,.project-footer,.project-meta-footer{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.project-card-meta-item,.project-meta-item,.metadata-capsule{font-size:11px;color:rgba(241,245,249,.35)}
-.project-progress-section,.project-progress{display:flex;flex-direction:column;gap:6px}
-.project-progress-row{display:flex;align-items:center;justify-content:space-between}
-.project-progress-label,.project-progress-pct{font-size:11px;color:rgba(241,245,249,.30)}
-.project-progress-pct{font-weight:600;color:rgba(241,245,249,.50)}
-.project-progress-track,.progress-bar-container{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
-.project-progress-fill,.progress-bar-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:999px;transition:width .5s ease;min-width:6px}
-.project-owner-row,.project-team-avatars{display:flex;align-items:center;gap:10px}
-.project-owner-avatar,.member-avatar,.member-avatar-more{width:24px;height:24px;border-radius:50%;background:#3b82f6;border:2px solid #0d1117;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
-.project-footer{justify-content:space-between;gap:12px}
-.project-actions{display:flex;align-items:center;gap:8px}
-.empty-state,.empty-state-container{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;gap:12px}
-.empty-state-icon{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(241,245,249,.22);margin-bottom:4px}
-.empty-state-title{font-size:14px;font-weight:650;color:rgba(241,245,249,.60);letter-spacing:-.1px}
-.empty-state-sub{font-size:12px;color:rgba(241,245,249,.30);max-width:240px;line-height:1.6}
-.project-hero-header,.project-hero-section{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
-.project-hero-actions,.project-hero-title-and-action,.project-header-action-group{display:flex;align-items:center;justify-content:space-between;gap:20px}
-.project-detail-goal{max-width:720px}
-.projects-page .project-list-item,.projects-page .project-card{overflow:hidden}
-.ongoing-projects-page{padding:32px 44px;background:#080a0c;min-height:100vh}
-@media (max-width:1024px){.ongoing-projects-page{padding:24px 20px}}
-.ongoing-projects-page .project-hero-header{margin-bottom:28px}
-.ongoing-projects-page .project-detail-title{font-size:19px}
-.ongoing-projects-page .project-hero-title-and-action{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
-.btn-delete{width:28px;height:28px;border-radius:6px;border:1px solid rgba(239,68,68,.15);background:transparent;color:rgba(239,68,68,.45);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .13s,border-color .13s,color .13s;flex-shrink:0}
-.btn-delete:hover{background:rgba(239,68,68,.09);border-color:rgba(239,68,68,.35);color:#f87171}
+/* Projects — light forest theme */
 
-.project-details-page{width:100%;max-width:none;margin:0;padding:32px 44px;min-height:100vh;background:#080a0c}
-.project-description-container{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0 20px}
-.project-description-column{padding:18px 20px}
-.project-description-column h3{font-size:13px;font-weight:650;margin:0 0 8px;color:#f1f5f9}
-.project-description-text{margin:0;max-width:760px;line-height:1.65;color:rgba(241,245,249,.55);white-space:pre-wrap}
-.subtask-list{margin-top:10px;padding-left:24px}
+.projects-page,
+.ongoing-projects-page,
+.project-details-page {
+  padding: 28px 32px 48px;
+  background: var(--color-bg-primary, #f5f3f0);
+  min-height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .projects-page,
+  .ongoing-projects-page,
+  .project-details-page {
+    padding: 20px 16px 40px;
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.page-header-left h1,
+.project-hero-header h1,
+.project-detail-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin: 0 0 6px;
+  line-height: 1.15;
+}
+
+.page-header-left p,
+.project-detail-goal {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+.page-divider {
+  height: 1px;
+  background: var(--sidebar-border, #e8e8e8);
+  margin-bottom: 24px;
+}
+
+.projects-grid,
+.modern-project-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.project-card,
+.project-list-item {
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.project-card:hover,
+.project-list-item:hover {
+  border-color: #d4d0c8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(31, 69, 54, 0.08);
+}
+
+.project-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.project-card-name,
+.project-name-link {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.status-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-badge.active {
+  background: var(--color-mint-soft, #e8f5ee);
+  color: var(--color-forest, #1f4536);
+  border: 1px solid rgba(31, 69, 54, 0.15);
+}
+
+.status-badge.inactive {
+  background: var(--color-bg-primary, #f5f3f0);
+  color: var(--text-secondary);
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid rgba(180, 83, 9, 0.15);
+}
+
+.status-badge.inprogress {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.status-badge.blocked {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.15);
+}
+
+.project-card-meta,
+.project-metadata-capsules,
+.project-card-bottom,
+.project-footer,
+.project-meta-footer {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.project-card-meta-item,
+.project-meta-item,
+.metadata-capsule {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.project-progress-section,
+.project-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.project-progress-label,
+.project-progress-pct {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.project-progress-pct {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.project-progress-track,
+.progress-bar-container {
+  height: 6px;
+  background: #e8e8e8;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.project-progress-fill,
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1f4536, #2d5a47);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  min-width: 6px;
+}
+
+.project-owner-row,
+.project-team-avatars {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-owner-avatar,
+.member-avatar,
+.member-avatar-more {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-forest, #1f4536);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.project-footer {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.project-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-hero-header,
+.project-hero-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.project-hero-actions,
+.project-hero-title-and-action,
+.project-header-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.project-detail-goal {
+  max-width: 720px;
+}
+
+.ongoing-projects-page .project-hero-title-and-action {
+  align-items: flex-start;
+}
+
+.btn-delete {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: transparent;
+  color: #dc2626;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.13s, border-color 0.13s;
+  flex-shrink: 0;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+.project-description-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0 20px;
+}
+
+.project-description-column {
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  border-radius: 14px;
+}
+
+.project-description-column h3 {
+  font-size: 13px;
+  font-weight: 650;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.project-description-text {
+  margin: 0;
+  max-width: 760px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
+.subtask-list {
+  margin-top: 10px;
+  padding-left: 24px;
+}

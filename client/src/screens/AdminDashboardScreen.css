@@ -66,10 +66,10 @@
 }
 
 .admin-tabs button.active {
-  background: #14b8a6;
-  border-color: #14b8a6;
+  background: var(--color-forest, #1f4536);
+  border-color: var(--color-forest, #1f4536);
   color: white;
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);
+  box-shadow: 0 4px 14px rgba(31, 69, 54, 0.22);
 }
 
 .admin-content {

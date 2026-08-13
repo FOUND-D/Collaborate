@@ -10,12 +10,11 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 32px 44px;
-  min-height: 100vh;
-  background: #080a0c;
+  padding: 28px 32px 48px;
+  min-height: 100%;
+  background: var(--color-bg-primary, #f5f3f0);
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
-  animation: fadeIn 0.4s ease-out both;
 }
 
 
@@ -24,18 +23,16 @@
 ===================================================== */
 
 .project-hero-header {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
-  animation: fadeInDown 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  margin-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .project-detail-title {
-  font-size: 22px;
-  font-weight: 750;
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--text-primary);
-  text-shadow: none;
 }
 
 .project-detail-goal {
@@ -58,9 +55,9 @@
 }
 
 .action-card {
-  background: var(--background-secondary-cards, #0d1117);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.07));
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  border-radius: 14px;
   padding: 26px 22px 22px;
   display: flex;
   flex-direction: column;
@@ -68,14 +65,15 @@
   text-align: center;
   gap: 8px;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
 }
 
 .action-card:hover {
-  background: rgba(52, 211, 153, 0.05);
-  border-color: var(--green-accent, #34D399);
+  background: var(--color-mint-soft, #e8f5ee);
+  border-color: rgba(31, 69, 54, 0.2);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(52, 211, 153, 0.08);
+  box-shadow: 0 6px 20px rgba(31, 69, 54, 0.08);
 }
 
 .action-card-icon-wrap {
@@ -86,27 +84,27 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 4px;
-  background: rgba(52, 211, 153, 0.12);
-  color: var(--green-accent, #34D399);
+  background: var(--color-mint, #d4ede4);
+  color: var(--color-forest, #1f4536);
 }
 
 .action-card-title {
   font-size: 14px;
   font-weight: 650;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   letter-spacing: -0.1px;
 }
 
 .action-card-description {
   font-size: 12px;
-  color: var(--text-secondary, rgba(241,245,249,0.38));
+  color: var(--text-secondary);
   line-height: 1.55;
 }
 
 .action-card-link {
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-accent, #34D399);
+  color: var(--color-forest, #1f4536);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -187,45 +185,27 @@
 ===================================================== */
 
 .team-card {
-  background: #0d1117;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  border-radius: 14px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: none;
-  transition: border-color 0.18s, transform 0.18s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
   position: relative;
   overflow: hidden;
   cursor: pointer;
 }
 
-
-/* Animated radial glow on hover */
 .team-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 30% 30%,
-      rgba(10, 132, 255, 0.08),
-      transparent 60%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
+  display: none;
 }
 
-.team-card:hover::after {
-  opacity: 1;
-}
-
-
-/* Hover */
 .team-card:hover {
   transform: translateY(-2px);
-  box-shadow: none;
-  border-color: rgba(255,255,255,0.13);
+  box-shadow: 0 6px 20px rgba(31, 69, 54, 0.08);
+  border-color: #d4d0c8;
 }
 
 .team-card:active {
@@ -244,16 +224,14 @@
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--sidebar-border, #e8e8e8);
 }
 
-
-/* Avatar */
 .team-avatar {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
+  background: linear-gradient(145deg, #1f4536, #2d5a47);
   color: white;
   font-weight: 800;
   font-size: 0.95rem;

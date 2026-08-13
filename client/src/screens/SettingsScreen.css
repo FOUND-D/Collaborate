@@ -1,8 +1,9 @@
 .settings-page {
-    padding: 32px 20px;
+    padding: 28px 32px 48px;
     max-width: 100%;
     margin: 0;
     color: var(--text-primary);
+    background: var(--color-bg-primary, #f5f3f0);
 }
 
 .settings-header {
@@ -58,8 +59,8 @@
 }
 
 .tab-item.active {
-    color: #14b8a6;
-    border-bottom-color: #14b8a6;
+    color: var(--color-forest, #1f4536);
+    border-bottom-color: var(--color-forest, #1f4536);
 }
 
 .settings-main {

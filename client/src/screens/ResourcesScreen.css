@@ -1,7 +1,8 @@
 .resources-page {
-  padding: 2rem 44px;
+  padding: 28px 32px 48px;
   max-width: 100%;
   margin: 0;
+  background: var(--color-bg-primary, #f5f3f0);
 }
 
 .resources-header {
@@ -22,21 +23,11 @@
 }
 
 .add-resource-btn {
-  background-color: #14b8a6;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: var(--color-forest, #1f4536);
 }
 
 .add-resource-btn:hover {
-  background-color: #0d9488;
+  background-color: var(--color-forest-mid, #2d5a47);
 }
 
 .resources-filters {

@@ -566,3 +566,111 @@
   }
 
 }
+
+/* ─── Light forest theme (app default) ─── */
+.auth-page {
+  background: var(--color-bg-primary, #f5f3f0);
+}
+
+.auth-left {
+  background: #ffffff;
+  border-right: 1px solid var(--sidebar-border, #e8e8e8);
+}
+
+.auth-left::before {
+  background: radial-gradient(ellipse, rgba(31, 69, 54, 0.08) 0%, transparent 65%);
+}
+
+.auth-left::after {
+  background: radial-gradient(ellipse, rgba(31, 69, 54, 0.05) 0%, transparent 65%);
+}
+
+.auth-logo-icon {
+  background: var(--color-forest, #1f4536);
+}
+
+.auth-logo span,
+.auth-left-quote,
+.auth-form-header h1 {
+  color: var(--text-primary);
+}
+
+.auth-left-eyebrow,
+.auth-left-companies span,
+.auth-proof-text,
+.auth-form-header p,
+.field-label,
+.role-info-note {
+  color: var(--text-secondary);
+}
+
+.auth-proof-text strong {
+  color: var(--text-primary);
+}
+
+.auth-right {
+  background: var(--color-bg-primary, #f5f3f0);
+}
+
+.field-input,
+.role-toggle-btn {
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  color: var(--text-primary);
+}
+
+.field-input:focus {
+  border-color: var(--color-forest, #1f4536);
+  box-shadow: 0 0 0 3px rgba(31, 69, 54, 0.1);
+}
+
+.role-toggle-btn.active {
+  background: var(--color-mint-soft, #e8f5ee);
+  border-color: var(--color-forest, #1f4536);
+  color: var(--color-forest, #1f4536);
+}
+
+.field-forgot,
+.field-forgot-btn {
+  color: var(--color-forest, #1f4536);
+}
+
+.field-forgot:hover,
+.field-forgot-btn:hover {
+  color: var(--color-forest-mid, #2d5a47);
+}
+
+.auth-submit-btn {
+  background: var(--color-forest, #1f4536);
+  box-shadow: 0 4px 14px rgba(31, 69, 54, 0.22);
+}
+
+.auth-submit-btn:hover {
+  background: var(--color-forest-mid, #2d5a47);
+}
+
+.auth-divider span {
+  color: var(--text-muted);
+}
+
+.auth-social-btn {
+  background: #ffffff;
+  border: 1px solid var(--sidebar-border, #e8e8e8);
+  color: var(--text-primary);
+}
+
+.auth-footer-text,
+.auth-terms {
+  color: var(--text-secondary);
+}
+
+.auth-terms a {
+  color: var(--color-forest, #1f4536);
+}
+
+.auth-avatar-count {
+  background: var(--color-mint-soft, #e8f5ee);
+  color: var(--color-forest, #1f4536);
+  border-color: #ffffff;
+}
+

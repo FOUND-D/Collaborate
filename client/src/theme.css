@@ -111,7 +111,7 @@ html[data-theme='light'] {
   --phase2-badge-border: var(--color-border);
   --phase2-primary-text: #ffffff;
   --phase2-primary-bg: var(--color-primary);
-  --phase2-primary-shadow: 0 8px 24px rgba(20, 184, 166, 0.2);
+  --phase2-primary-shadow: 0 4px 14px rgba(31, 69, 54, 0.2);
   --phase2-secondary-bg: var(--color-bg-secondary);
   --phase2-secondary-border: var(--color-border);
   --phase2-secondary-text: var(--color-text-primary);

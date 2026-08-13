@@ -7,9 +7,9 @@
 
 /* Phase 2 Common Layout Styles */
 .phase2-page {
-  min-height: 100vh;
-  padding: 32px 44px 64px;
-  background: var(--surface-panel-gradient);
+  min-height: 100%;
+  padding: 28px 32px 48px;
+  background: var(--color-bg-primary, #f5f3f0);
 }
 
 .phase2-shell {
