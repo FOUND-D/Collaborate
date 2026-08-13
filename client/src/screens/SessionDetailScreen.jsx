@@ -7,7 +7,7 @@ import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { cancelSession, completeSession, confirmSession, listSessions } from '../actions/sessionActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import { formatSessionSchedule } from '../utils/dateTime';
-import { getSessionVideoPath } from '../utils/sessionVideo';
+import { canJoinBookingVideo, getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
 const SessionDetailScreen = () => {
@@ -52,7 +52,7 @@ const SessionDetailScreen = () => {
     );
   }
 
-  const meetingHref = getSessionVideoPath(session);
+  const meetingHref = canJoinBookingVideo(session) ? getSessionVideoPath(session) : null;
 
   return (
     <div className="phase2-page">

@@ -935,7 +935,10 @@ const ensureBookingMeeting = async (bookingSessionId) => {
     .select('*')
     .single();
 
-  if (error) throw error;
+  if (error) {
+    const detail = error.message || error.details || 'database error';
+    throw new Error(`Could not create video room (${detail})`);
+  }
 
   await supabase
     .from('booking_sessions')

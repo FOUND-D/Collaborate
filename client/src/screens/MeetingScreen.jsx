@@ -340,10 +340,12 @@ const MeetingScreen = () => {
         }
       } catch (error) {
         if (!isCancelled) {
+          const apiMessage = error.response?.data?.message;
           setSessionError(
-            isBookingMeeting
-              ? 'Video room is not available for this booking yet.'
-              : 'No active session found for this team.'
+            apiMessage
+              || (isBookingMeeting
+                ? 'Video room is not available for this booking yet.'
+                : 'No active session found for this team.')
           );
           console.error('Failed to fetch session', error);
         }

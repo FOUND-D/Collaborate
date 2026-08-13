@@ -12,7 +12,7 @@ import RatingPromptModal from '../components/RatingPromptModal';
 import BookSessionModal from '../components/BookSessionModal';
 import api from '../utils/api';
 import { formatSessionSchedule } from '../utils/dateTime';
-import { getSessionVideoPath } from '../utils/sessionVideo';
+import { canJoinBookingVideo, getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
 const SessionsScreen = () => {
@@ -92,7 +92,7 @@ const SessionsScreen = () => {
           ) : (
             activeSessions.map((session) => {
               const isLive = session.sessionType === 'live';
-              const videoPath = !isLive ? getSessionVideoPath(session) : null;
+              const videoPath = !isLive && canJoinBookingVideo(session) ? getSessionVideoPath(session) : null;
               const statusClass = session.status === 'active' ? 'status-inprogress' :
                                 session.status === 'pending' ? 'status-pending' :
                                 session.status === 'confirmed' ? 'status-todo' :

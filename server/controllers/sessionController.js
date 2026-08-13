@@ -13,6 +13,7 @@ const {
 } = require('../lib/repo');
 const { sendNotification } = require('../services/notificationService');
 const { toTimestamptzISO } = require('../lib/datetime');
+const { canOpenBookingVideo, bookingVideoAccessMessage } = require('../lib/bookingVideo');
 
 const isParticipant = (session, userId) => session && (session.teacher_id === userId || session.learner_id === userId);
 
@@ -193,15 +194,29 @@ const confirmSession = asyncHandler(async (req, res) => {
 const getBookingMeeting = asyncHandler(async (req, res) => {
   const bookingSession = await getSessionRecordById(req.params.id);
   if (!bookingSession) return res.status(404).json({ message: 'Session not found' });
-  if (!await canAccessBookingVideo(bookingSession, req.user._id)) {
+
+  const userId = req.user._id || req.user.id;
+  if (!await canAccessBookingVideo(bookingSession, userId)) {
     return res.status(403).json({ message: 'Not authorized for this session' });
   }
-  if (bookingSession.status !== 'confirmed') {
-    return res.status(400).json({ message: 'Video room is available once the booking is confirmed' });
+
+  if (!canOpenBookingVideo(bookingSession)) {
+    return res.status(400).json({ message: bookingVideoAccessMessage(bookingSession) });
   }
 
-  const meetingRecord = await ensureBookingMeeting(req.params.id);
-  res.json(toPublicMeeting(meetingRecord));
+  try {
+    const meetingRecord = await ensureBookingMeeting(req.params.id);
+    if (!meetingRecord) {
+      return res.status(500).json({ message: 'Could not create a video room for this booking.' });
+    }
+    res.json(toPublicMeeting(meetingRecord));
+  } catch (error) {
+    console.error('ensureBookingMeeting failed:', error);
+    const detail = error?.message || 'Unknown error';
+    return res.status(500).json({
+      message: `Failed to open video room: ${detail}. If this persists, run the booking video SQL migration on Supabase.`,
+    });
+  }
 });
 
 const cancelSession = asyncHandler(async (req, res) => {
