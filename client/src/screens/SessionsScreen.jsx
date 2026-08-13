@@ -11,6 +11,7 @@ import { listTeams } from '../actions/teamActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import BookSessionModal from '../components/BookSessionModal';
 import api from '../utils/api';
+import { getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
 const SessionsScreen = () => {
@@ -90,7 +91,8 @@ const SessionsScreen = () => {
           ) : (
             activeSessions.map((session) => {
               const isLive = session.sessionType === 'live';
-              const statusClass = session.status === 'active' ? 'status-inprogress' : 
+              const videoPath = !isLive ? getSessionVideoPath(session) : null;
+              const statusClass = session.status === 'active' ? 'status-inprogress' :
                                 session.status === 'pending' ? 'status-pending' :
                                 session.status === 'confirmed' ? 'status-todo' :
                                 session.status === 'completed' ? 'status-completed' : 'status-blocked';
@@ -141,7 +143,12 @@ const SessionsScreen = () => {
                       <span className="phase2-empty" style={{ padding: 0 }}>Session ended</span>
                     )
                   ) : (
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {videoPath && (
+                        <Link to={videoPath} className="phase2-button phase2-button-primary">
+                          <FaVideo /> Join video room
+                        </Link>
+                      )}
                       {session.status === 'completed' && !session.rated && (
                         <button className="phase2-button phase2-button-primary" onClick={() => setRatingSession(session)}>
                           Rate Session

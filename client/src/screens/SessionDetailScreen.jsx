@@ -6,6 +6,7 @@ import { RATING_CREATE_RESET } from '../constants/ratingConstants';
 import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { cancelSession, completeSession, confirmSession, listSessions } from '../actions/sessionActions';
 import RatingPromptModal from '../components/RatingPromptModal';
+import { getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
 const SessionDetailScreen = () => {
@@ -50,7 +51,7 @@ const SessionDetailScreen = () => {
     );
   }
 
-  const meetingHref = session.meeting?.team ? `/team/${session.meeting.team}/meeting` : null;
+  const meetingHref = getSessionVideoPath(session);
 
   return (
     <div className="phase2-page">

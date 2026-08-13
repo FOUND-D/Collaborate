@@ -130,9 +130,14 @@ const endMeeting = asyncHandler(async (req, res) => {
   if (error) throw error;
   const session = toPublicMeeting(data);
   const teamId = req.params.teamId || data.team_id;
-  if (teamId) {
-    req.io.to(teamId).emit('sessionEnded', session);
-    req.io.to(teamId).emit('meetingEnded', session);
+  const bookingSessionId = data.booking_session_id;
+  const roomKey = teamId || bookingSessionId;
+  if (roomKey) {
+    req.io.to(roomKey).emit('sessionEnded', session);
+    req.io.to(roomKey).emit('meetingEnded', session);
+  }
+  if (bookingSessionId) {
+    req.io.to(bookingSessionId).emit('sessionEnded', session);
   }
   res.json(session);
 });

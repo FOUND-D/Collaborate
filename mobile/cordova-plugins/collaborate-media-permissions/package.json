@@ -1,0 +1,11 @@
+{
+  "name": "collaborate-media-permissions",
+  "version": "1.0.0",
+  "description": "Camera, microphone, and screen-share manifest permissions for WebRTC sessions",
+  "cordova": {
+    "id": "collaborate-media-permissions",
+    "platforms": [
+      "android"
+    ]
+  }
+}

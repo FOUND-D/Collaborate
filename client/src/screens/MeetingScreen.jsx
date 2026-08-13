@@ -1,9 +1,10 @@
 import React, { Fragment, memo, useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useMatch } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { createSocketConnection } from '../utils/socket';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
 import api from '../utils/api';
+import { requestMeetingMediaPermissions } from '../utils/cordovaPermissions';
 import '../styles/workspace.css';
 
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
@@ -73,7 +74,14 @@ const VideoPlayer = memo(({ stream, isLocal, isCameraOn, isScreenShare, name, is
 });
 
 const MeetingScreen = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const teamSessionMatch = useMatch('/team/:teamId/session');
+  const teamMeetingMatch = useMatch('/team/:teamId/meeting');
+  const bookingMatch = useMatch('/sessions/:bookingSessionId/meeting');
+  const teamId = teamSessionMatch?.params?.teamId || teamMeetingMatch?.params?.teamId || params.id;
+  const bookingSessionId = bookingMatch?.params?.bookingSessionId;
+  const isBookingMeeting = Boolean(bookingSessionId);
+  const roomKey = teamId || bookingSessionId;
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.userLogin);
 
@@ -160,18 +168,32 @@ const MeetingScreen = () => {
     }
 
     joinedRoomRef.current = true;
-    socket.emit('joinTeamRoom', id);
-    socket.emit('userJoined', {
-      teamId: id,
-      user: {
-        ...currentUser,
-        socketId: socket.id,
-        cameraOn: false,
-        micOn: false,
-        isSharingScreen: Boolean(screenStreamRef.current),
-      },
-    });
-  }, [id]);
+    if (isBookingMeeting) {
+      socket.emit('joinBookingSessionRoom', bookingSessionId);
+      socket.emit('userJoined', {
+        bookingSessionId,
+        user: {
+          ...currentUser,
+          socketId: socket.id,
+          cameraOn: false,
+          micOn: false,
+          isSharingScreen: Boolean(screenStreamRef.current),
+        },
+      });
+    } else {
+      socket.emit('joinTeamRoom', teamId);
+      socket.emit('userJoined', {
+        teamId,
+        user: {
+          ...currentUser,
+          socketId: socket.id,
+          cameraOn: false,
+          micOn: false,
+          isSharingScreen: Boolean(screenStreamRef.current),
+        },
+      });
+    }
+  }, [bookingSessionId, isBookingMeeting, teamId]);
 
   const renegotiatePeerConnection = useCallback(async (targetUserId, targetSocketId) => {
     const peerConnection = peerConnectionsRef.current[targetUserId];
@@ -307,7 +329,9 @@ const MeetingScreen = () => {
 
     const fetchMeeting = async () => {
       try {
-        const { data } = await api.get(`/api/teams/${id}/sessions`);
+        const { data } = isBookingMeeting
+          ? await api.get(`/api/booking-sessions/${bookingSessionId}/meeting`)
+          : await api.get(`/api/teams/${teamId}/sessions`);
         if (!isCancelled) {
           setMeeting(data);
           setAgenda(data?.agenda || '');
@@ -316,7 +340,11 @@ const MeetingScreen = () => {
         }
       } catch (error) {
         if (!isCancelled) {
-          setSessionError('No active session found for this team.');
+          setSessionError(
+            isBookingMeeting
+              ? 'Video room is not available for this booking yet.'
+              : 'No active session found for this team.'
+          );
           console.error('Failed to fetch session', error);
         }
       }
@@ -327,7 +355,7 @@ const MeetingScreen = () => {
     return () => {
       isCancelled = true;
     };
-  }, [id, navigate, userInfo?.token]);
+  }, [bookingSessionId, isBookingMeeting, navigate, teamId, userInfo?.token]);
 
   useEffect(() => {
     if (!hasJoinedSession || !userInfo?.token) {
@@ -465,6 +493,11 @@ const MeetingScreen = () => {
 
     const initMedia = async () => {
       try {
+        const permissionsGranted = await requestMeetingMediaPermissions();
+        if (!permissionsGranted && !isCancelled) {
+          setSessionError('Camera and microphone permissions are required for live sessions.');
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         stream.getAudioTracks().forEach((track) => {
           track.enabled = false;
@@ -525,7 +558,7 @@ const MeetingScreen = () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [closePeerConnection, createPeerConnection, hasJoinedSession, id, joinRoom, meeting?._id, renegotiatePeerConnection, summariseSession, updateRemoteScreenShareState, userInfo?.token]);
+  }, [bookingSessionId, closePeerConnection, createPeerConnection, hasJoinedSession, isBookingMeeting, joinRoom, meeting?._id, renegotiatePeerConnection, summariseSession, teamId, updateRemoteScreenShareState, userInfo?.token]);
 
   const toggleCamera = useCallback(() => {
     const track = localStreamRef.current?.getVideoTracks()[0];
@@ -579,6 +612,11 @@ const MeetingScreen = () => {
 
   const startScreenShare = useCallback(async () => {
     try {
+      const permissionsGranted = await requestMeetingMediaPermissions();
+      if (!permissionsGranted) {
+        alert('Camera permission may be required before screen sharing on this device.');
+      }
+
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       screenStreamRef.current = stream;
       setScreenStream(stream);
@@ -607,12 +645,20 @@ const MeetingScreen = () => {
   }, [renegotiatePeerConnection, stopScreenShare]);
 
   const leaveMeeting = useCallback(() => {
-    socketRef.current?.emit('userLeft', {
-      teamId: id,
-      user: userInfoRef.current,
-    });
-    navigate(`/team/${id}`);
-  }, [id, navigate]);
+    if (isBookingMeeting) {
+      socketRef.current?.emit('userLeft', {
+        bookingSessionId,
+        user: userInfoRef.current,
+      });
+      navigate(`/sessions/${bookingSessionId}`);
+    } else {
+      socketRef.current?.emit('userLeft', {
+        teamId,
+        user: userInfoRef.current,
+      });
+      navigate(`/team/${teamId}`);
+    }
+  }, [bookingSessionId, isBookingMeeting, navigate, teamId]);
 
   const joinSession = useCallback(async () => {
     if (!meeting?._id || !userInfo?.token) return;
@@ -701,7 +747,7 @@ const MeetingScreen = () => {
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(`/team/${id}`)}>
+            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(isBookingMeeting ? `/sessions/${bookingSessionId}` : `/team/${teamId}`)}>
               Back to Team
             </button>
           </div>
@@ -745,7 +791,7 @@ const MeetingScreen = () => {
             }}
           />
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(`/team/${id}`)}>
+            <button className="btn workspace-btn workspace-btn-secondary" type="button" onClick={() => navigate(isBookingMeeting ? `/sessions/${bookingSessionId}` : `/team/${teamId}`)}>
               Back to Team
             </button>
             <button className="btn btn-primary workspace-btn" type="button" onClick={joinSession} disabled={!meeting || isJoining}>

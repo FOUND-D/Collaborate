@@ -63,7 +63,7 @@ const groq = new Groq({
 });
 
 const participants = {};
-const socketToTeamMap = {};
+const socketToRoomMap = {};
 
 const jwt = require('jsonwebtoken');
 const { getUserById, supabase } = require('./lib/repo');
@@ -93,17 +93,17 @@ io.on('connection', (socket) => {
   const resolveSessionTeamId = (session) => session?.team || session?.teamId || session?.team_id;
   const resolveSessionUserId = (payload) => payload?.user?._id || payload?.userId || payload?.user?._id;
 
-  socket.on('joinTeamRoom', (teamId) => {
-    socket.join(teamId);
-    console.log(`User joined team room: ${teamId}`);
-    socketToTeamMap[socket.id] = teamId;
+  const joinMediaRoom = (roomKey, label = 'media') => {
+    socket.join(roomKey);
+    console.log(`User joined ${label} room: ${roomKey}`);
+    socketToRoomMap[socket.id] = roomKey;
 
-    const clients = io.sockets.adapter.rooms.get(teamId);
+    const clients = io.sockets.adapter.rooms.get(roomKey);
     const otherUsers = [];
     if (clients) {
       for (const clientId of clients) {
         if (clientId !== socket.id) {
-          const userInRoom = Object.values(participants[teamId] || {}).find(p => p.socketId === clientId);
+          const userInRoom = Object.values(participants[roomKey] || {}).find((p) => p.socketId === clientId);
           if (userInRoom) {
             otherUsers.push({
               socketId: clientId,
@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
               isSharingScreen: userInRoom.isSharingScreen || false,
             });
           } else {
-            console.warn(`User with socketId ${clientId} in room ${teamId} not found in participants map.`);
+            console.warn(`User with socketId ${clientId} in room ${roomKey} not found in participants map.`);
           }
         }
       }
@@ -123,22 +123,26 @@ io.on('connection', (socket) => {
       socket.emit('other-users', otherUsers);
     }
 
-    if (participants[teamId]) {
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    if (participants[roomKey]) {
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
 
-    const newUserEntry = Object.values(participants[teamId] || {}).find(p => p.socketId === socket.id);
+    const newUserEntry = Object.values(participants[roomKey] || {}).find((p) => p.socketId === socket.id);
     if (newUserEntry) {
-      socket.to(teamId).emit('user-connected', {
+      socket.to(roomKey).emit('user-connected', {
         socketId: socket.id,
         userId: newUserEntry._id,
         cameraOn: newUserEntry.cameraOn,
-        micOn: newUserEntry.micOn
+        micOn: newUserEntry.micOn,
       });
     } else {
-      console.warn(`New user with socketId ${socket.id} not found in participants map after joinTeamRoom.`);
+      console.warn(`New user with socketId ${socket.id} not found in participants map after joining room ${roomKey}.`);
     }
-  });
+  };
+
+  socket.on('joinTeamRoom', (teamId) => joinMediaRoom(teamId, 'team'));
+
+  socket.on('joinBookingSessionRoom', (bookingSessionId) => joinMediaRoom(bookingSessionId, 'booking'));
 
   socket.on('startSession', (session) => {
     const teamId = resolveSessionTeamId(session);
@@ -170,11 +174,13 @@ io.on('connection', (socket) => {
     io.to(teamId).emit('meetingEnded', meeting);
   });
 
-  socket.on('userJoined', ({ teamId, user }) => {
-    if (!participants[teamId]) {
-      participants[teamId] = {};
+  socket.on('userJoined', ({ teamId, bookingSessionId, user }) => {
+    const roomKey = teamId || bookingSessionId;
+    if (!roomKey) return;
+    if (!participants[roomKey]) {
+      participants[roomKey] = {};
     }
-    participants[teamId][user._id] = {
+    participants[roomKey][user._id] = {
       ...user,
       socketId: socket.id,
       cameraOn: user.cameraOn ?? false,
@@ -182,33 +188,33 @@ io.on('connection', (socket) => {
       isSharingScreen: user.isSharingScreen ?? false,
     };
     socket.join(user._id);
-    io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
   });
 
   socket.on('userLeft', (payload) => {
-    const teamId = payload?.teamId;
+    const roomKey = payload?.teamId || payload?.bookingSessionId;
     const userId = resolveSessionUserId(payload);
-    if (participants[teamId] && userId && participants[teamId][userId]) {
-      delete participants[teamId][userId];
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    if (participants[roomKey] && userId && participants[roomKey][userId]) {
+      delete participants[roomKey][userId];
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
   });
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
-    const teamId = socketToTeamMap[socket.id];
-    if (teamId && participants[teamId]) {
-      const userEntry = Object.values(participants[teamId]).find(p => p.socketId === socket.id);
+    const roomKey = socketToRoomMap[socket.id];
+    if (roomKey && participants[roomKey]) {
+      const userEntry = Object.values(participants[roomKey]).find((p) => p.socketId === socket.id);
       if (userEntry) {
-        io.to(teamId).emit('user-disconnected', {
+        io.to(roomKey).emit('user-disconnected', {
           socketId: socket.id,
-          userId: userEntry._id
+          userId: userEntry._id,
         });
-        delete participants[teamId][userEntry._id];
-        io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+        delete participants[roomKey][userEntry._id];
+        io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
       }
     }
-    delete socketToTeamMap[socket.id];
+    delete socketToRoomMap[socket.id];
   });
 
   socket.on('offer', (payload) => {
@@ -224,40 +230,40 @@ io.on('connection', (socket) => {
   });
 
   socket.on('toggle-camera', ({ userId, cameraOn }) => {
-    const teamId = socketToTeamMap[socket.id];
-    if (teamId && participants[teamId] && participants[teamId][userId]) {
-      participants[teamId][userId].cameraOn = cameraOn;
-      socket.to(teamId).emit('camera-toggled', { userId, cameraOn });
-      io.to(teamId).emit('toggle-camera', { userId, cameraOn });
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    const roomKey = socketToRoomMap[socket.id];
+    if (roomKey && participants[roomKey] && participants[roomKey][userId]) {
+      participants[roomKey][userId].cameraOn = cameraOn;
+      socket.to(roomKey).emit('camera-toggled', { userId, cameraOn });
+      io.to(roomKey).emit('toggle-camera', { userId, cameraOn });
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
   });
 
   socket.on('toggle-mic', ({ userId, micOn }) => {
-    const teamId = socketToTeamMap[socket.id];
-    if (teamId && participants[teamId] && participants[teamId][userId]) {
-      participants[teamId][userId].micOn = micOn;
-      socket.to(teamId).emit('mic-toggled', { userId, micOn });
-      io.to(teamId).emit('toggle-mic', { userId, micOn });
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    const roomKey = socketToRoomMap[socket.id];
+    if (roomKey && participants[roomKey] && participants[roomKey][userId]) {
+      participants[roomKey][userId].micOn = micOn;
+      socket.to(roomKey).emit('mic-toggled', { userId, micOn });
+      io.to(roomKey).emit('toggle-mic', { userId, micOn });
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
   });
 
   socket.on('sharing-screen', ({ userId }) => {
-    const teamId = socketToTeamMap[socket.id];
-    if (teamId && participants[teamId] && participants[teamId][userId]) {
-      participants[teamId][userId].isSharingScreen = true;
-      io.to(teamId).emit('sharing-screen', { userId });
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    const roomKey = socketToRoomMap[socket.id];
+    if (roomKey && participants[roomKey] && participants[roomKey][userId]) {
+      participants[roomKey][userId].isSharingScreen = true;
+      io.to(roomKey).emit('sharing-screen', { userId });
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
   });
 
   socket.on('stop-sharing-screen', ({ userId }) => {
-    const teamId = socketToTeamMap[socket.id];
-    if (teamId && participants[teamId] && participants[teamId][userId]) {
-      participants[teamId][userId].isSharingScreen = false;
-      io.to(teamId).emit('stop-sharing-screen', { userId });
-      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    const roomKey = socketToRoomMap[socket.id];
+    if (roomKey && participants[roomKey] && participants[roomKey][userId]) {
+      participants[roomKey][userId].isSharingScreen = false;
+      io.to(roomKey).emit('stop-sharing-screen', { userId });
+      io.to(roomKey).emit('participantsUpdated', Object.values(participants[roomKey]));
     }
   });
 

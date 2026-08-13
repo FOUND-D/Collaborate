@@ -20,6 +20,9 @@
     <preference name="Scheme" value="https" />
     <preference name="Hostname" value="localhost" />
 
+    <plugin name="cordova-plugin-android-permissions" spec="^1.1.5" />
+    <plugin name="collaborate-media-permissions" spec="./cordova-plugins/collaborate-media-permissions" />
+
     <platform name="android">
         <preference name="AndroidWindowSplashScreenBackground" value="#0f172a" />
         <preference name="StatusBarBackgroundColor" value="#0f172a" />

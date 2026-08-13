@@ -177,6 +177,9 @@ const toPublicMeeting = (meeting) => {
   return {
     _id: meeting.id,
     team: meeting.team_id,
+    teamId: meeting.team_id || null,
+    bookingSessionId: meeting.booking_session_id || null,
+    booking_session_id: meeting.booking_session_id || null,
     roomId: meeting.room_id,
     status: meeting.status,
     startedBy: meeting.started_by,
@@ -185,6 +188,8 @@ const toPublicMeeting = (meeting) => {
     updatedAt: meeting.updated_at,
   };
 };
+
+const generateMeetingRoomId = () => Math.random().toString(36).substring(2, 15);
 
 const toPublicSkill = (skill) => skill && ({
   id: skill.id,
@@ -868,6 +873,77 @@ const completeSession = async ({ sessionId }) => {
   return toPublicSession((await enrichSessions([data]))[0]);
 };
 
+const canAccessBookingVideo = async (bookingSession, userId) => {
+  if (!bookingSession || !userId) return false;
+  if (bookingSession.teacher_id === userId || bookingSession.learner_id === userId) {
+    return true;
+  }
+  if (bookingSession.team_id) {
+    const { data: membership } = await supabase
+      .from('team_members')
+      .select('team_id')
+      .eq('team_id', bookingSession.team_id)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (membership) return true;
+  }
+  return false;
+};
+
+const ensureBookingMeeting = async (bookingSessionId) => {
+  const bookingSession = await getSessionRecordById(bookingSessionId);
+  if (!bookingSession) return null;
+
+  if (bookingSession.meeting_id) {
+    const { data: existingMeeting, error: existingError } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', bookingSession.meeting_id)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (existingMeeting) return existingMeeting;
+  }
+
+  const { data: activeMeeting, error: activeError } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('booking_session_id', bookingSessionId)
+    .eq('status', 'active')
+    .maybeSingle();
+  if (activeError) throw activeError;
+  if (activeMeeting) {
+    if (!bookingSession.meeting_id) {
+      await supabase
+        .from('booking_sessions')
+        .update({ meeting_id: activeMeeting.id })
+        .eq('id', bookingSessionId);
+    }
+    return activeMeeting;
+  }
+
+  const { data: meeting, error } = await supabase
+    .from('sessions')
+    .insert({
+      team_id: bookingSession.team_id || null,
+      booking_session_id: bookingSessionId,
+      room_id: generateMeetingRoomId(),
+      status: 'active',
+      started_by: bookingSession.teacher_id,
+      agenda: bookingSession.agenda || '',
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await supabase
+    .from('booking_sessions')
+    .update({ meeting_id: meeting.id })
+    .eq('id', bookingSessionId);
+
+  return meeting;
+};
+
 const enrichRatings = async (ratings) => {
   if (!ratings.length) return [];
   const raterIds = unique(ratings.map(r => r.rater_id));
@@ -1282,6 +1358,8 @@ module.exports = {
   listUserSessions,
   updateSessionStatus,
   completeSession,
+  canAccessBookingVideo,
+  ensureBookingMeeting,
   createRating,
   getRatingsForUser,
   recalculateUserAverageRating,

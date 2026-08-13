@@ -5,8 +5,11 @@ const {
   getSessionRecordById,
   updateSessionStatus,
   completeSession,
+  canAccessBookingVideo,
+  ensureBookingMeeting,
   supabase,
   toPublicSession,
+  toPublicMeeting,
 } = require('../lib/repo');
 const { sendNotification } = require('../services/notificationService');
 
@@ -166,6 +169,12 @@ const confirmSession = asyncHandler(async (req, res) => {
     updates: { status: 'confirmed' },
   });
 
+  try {
+    await ensureBookingMeeting(req.params.id);
+  } catch (meetingError) {
+    console.error('Failed to provision booking video room:', meetingError.message);
+  }
+
   // Notify learner that the teacher confirmed
   if (updated && session.learner_id) {
     sendNotification(req.io, {
@@ -178,6 +187,20 @@ const confirmSession = asyncHandler(async (req, res) => {
   }
 
   res.json(updated);
+});
+
+const getBookingMeeting = asyncHandler(async (req, res) => {
+  const bookingSession = await getSessionRecordById(req.params.id);
+  if (!bookingSession) return res.status(404).json({ message: 'Session not found' });
+  if (!await canAccessBookingVideo(bookingSession, req.user._id)) {
+    return res.status(403).json({ message: 'Not authorized for this session' });
+  }
+  if (bookingSession.status !== 'confirmed') {
+    return res.status(400).json({ message: 'Video room is available once the booking is confirmed' });
+  }
+
+  const meetingRecord = await ensureBookingMeeting(req.params.id);
+  res.json(toPublicMeeting(meetingRecord));
 });
 
 const cancelSession = asyncHandler(async (req, res) => {
@@ -252,5 +275,6 @@ module.exports = {
   completeSessionBooking,
   createBookingSession,
   getBookingSessions,
+  getBookingMeeting,
   cancelBookingSession,
 };

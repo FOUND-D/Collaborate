@@ -257,6 +257,7 @@ const AppContent = () => {
                 <Route path="/exchange-board" element={<Navigate to="/exchange" replace />} />
                 <Route path="/sessions" element={<ProtectedRoute><SessionsScreen /></ProtectedRoute>} />
                 <Route path="/sessions/:id" element={<ProtectedRoute><SessionDetailScreen /></ProtectedRoute>} />
+                <Route path="/sessions/:bookingSessionId/meeting" element={<MeetingScreen />} />
                 <Route path="/resources" element={<ProtectedRoute><ResourcesScreen /></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardScreen /></ProtectedRoute>} />
                 <Route path="/my-ratings" element={<ProtectedRoute><MyRatingsScreen /></ProtectedRoute>} />
