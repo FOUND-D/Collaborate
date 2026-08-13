@@ -419,13 +419,8 @@ const TopHeader = ({ isSidebarOpen, toggleSidebar, toggleChat }) => {
                 >
                     {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
                 </button>
-                <div className="header-divider" />
                 <div className="header-breadcrumb">
-                    <div className="breadcrumb-main">
-                        <FaThLarge className="breadcrumb-icon" />
-                        <span>Collaborate</span>
-                    </div>
-                    <FaChevronRight className="breadcrumb-chevron" />
+                    <FaThLarge className="breadcrumb-icon" />
                     <span className="breadcrumb-current">{getPageName()}</span>
                 </div>
             </div>

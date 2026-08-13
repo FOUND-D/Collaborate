@@ -1,8 +1,8 @@
 /* ─── Cordova / iOS-inspired mobile design system ─── */
 
 body.cordova-app {
-  --ios-accent: #007aff;
-  --ios-accent-soft: rgba(0, 122, 255, 0.12);
+  --ios-accent: #1f4536;
+  --ios-accent-soft: rgba(31, 69, 54, 0.12);
   --ios-green: #34c759;
   --ios-orange: #ff9500;
   --ios-red: #ff3b30;
@@ -23,8 +23,8 @@ body.cordova-app {
 }
 
 html[data-theme='dark'] body.cordova-app {
-  --ios-accent: #0a84ff;
-  --ios-accent-soft: rgba(10, 132, 255, 0.16);
+  --ios-accent: #3d6b54;
+  --ios-accent-soft: rgba(61, 107, 84, 0.2);
   --ios-separator: rgba(84, 84, 88, 0.65);
   --ios-tab-bg: rgba(28, 28, 30, 0.88);
   --ios-tab-inactive: #8e8e93;
