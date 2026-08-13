@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { deleteListing, getListingDetails } from '../actions/listingActions';
 import { createSession } from '../actions/sessionActions';
+import { localDateTimeToISO } from '../utils/dateTime';
 import './SkillExchange.css';
 
 const ListingDetailScreen = () => {
@@ -30,7 +31,7 @@ const ListingDetailScreen = () => {
     event.preventDefault();
     const created = await dispatch(createSession({
       listingId: listing?._id,
-      scheduledAt: booking.scheduledAt,
+      scheduledAt: localDateTimeToISO(booking.scheduledAt),
       durationMin: Number(booking.durationMin || 60),
       agenda: booking.agenda || `Skill exchange on ${listing?.skill?.name || 'selected skill'}`,
     }));

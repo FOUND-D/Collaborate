@@ -6,6 +6,7 @@ import { RATING_CREATE_RESET } from '../constants/ratingConstants';
 import { SESSION_STATUS_RESET } from '../constants/sessionConstants';
 import { cancelSession, completeSession, confirmSession, listSessions } from '../actions/sessionActions';
 import RatingPromptModal from '../components/RatingPromptModal';
+import { formatSessionSchedule } from '../utils/dateTime';
 import { getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
@@ -66,7 +67,7 @@ const SessionDetailScreen = () => {
             <p className="phase2-detail-copy">{session.agenda || 'No agenda has been added yet for this session.'}</p>
 
             <div className="phase2-detail-metrics">
-              <div><FaCalendarAlt /> {new Date(session.scheduledAt).toLocaleString()}</div>
+              <div><FaCalendarAlt /> {formatSessionSchedule(session.scheduledAt)}</div>
               
               <div><FaVideo /> {session.meetingId ? 'Meeting linked' : 'Meeting not linked yet'}</div>
             </div>

@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const supabase = require('./supabase');
+const { toTimestamptzISO } = require('./datetime');
 
 const SESSION_REQUEST_PREFIX = 'SESSION_REQUEST:';
 
@@ -788,7 +789,7 @@ const createSessionBooking = async ({ listingId, actorId, scheduledAt, durationM
     teacher_id: listing.user_id,
     learner_id: actorId,
     skill_id: listing.skill_id,
-    scheduled_at: scheduledAt,
+    scheduled_at: toTimestamptzISO(scheduledAt),
     duration_min: durationMin || 60,
     agenda: agenda || '',
     status: 'pending',

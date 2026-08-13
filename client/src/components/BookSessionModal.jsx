@@ -4,6 +4,7 @@ import { FaCalendarPlus, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { listSkills } from '../actions/skillActions';
 import api from '../utils/api';
+import { localDateTimeToISO } from '../utils/dateTime';
 import '../screens/SkillExchange.css';
 
 const defaultState = {
@@ -86,7 +87,7 @@ const BookSessionModal = ({ isOpen, onClose, onBooked }) => {
     setError('');
 
     try {
-      const scheduledAt = new Date(`${form.date}T${form.time}`).toISOString();
+      const scheduledAt = localDateTimeToISO(`${form.date}T${form.time}`);
       const payload = {
         skill_id: form.selectedSkill.id,
         team_id: form.teamId,

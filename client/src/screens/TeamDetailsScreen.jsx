@@ -7,7 +7,7 @@ import Message from '../components/Message';
 import { getTeamDetails } from '../actions/teamActions';
 import GitActivity from '../components/GitActivity';
 import './TeamDetailsScreen.css';
-import api from '../utils/api';
+import { formatSessionSchedule, getSessionScheduledAt, parseSessionScheduledDate } from '../utils/dateTime';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
 
@@ -103,9 +103,9 @@ const TeamDetailsScreen = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const now = new Date();
-        const upcoming = data.filter(s => {
-          const scheduled = new Date(s.scheduled_at);
-          return (s.status === 'pending' || s.status === 'confirmed') && scheduled > now;
+        const upcoming = data.filter((s) => {
+          const scheduled = parseSessionScheduledDate(s);
+          return (s.status === 'pending' || s.status === 'confirmed') && scheduled && scheduled > now;
         });
         setUpcomingSessions(upcoming);
       } catch (err) {
@@ -264,13 +264,13 @@ const TeamDetailsScreen = () => {
               <span className="upcoming-sessions-label">Upcoming</span>
               <div className="upcoming-sessions-list">
                 {upcomingSessions.map(sess => {
-                  const scheduledDate = new Date(sess.scheduled_at);
-                  const diffMins = (scheduledDate - new Date()) / 1000 / 60;
-                  const canJoin = diffMins <= 15 || scheduledDate <= new Date();
+                  const scheduledDate = parseSessionScheduledDate(sess);
+                  const diffMins = scheduledDate ? (scheduledDate - new Date()) / 1000 / 60 : Infinity;
+                  const canJoin = scheduledDate && (diffMins <= 15 || scheduledDate <= new Date());
                   return (
-                    <div key={sess.id} className="upcoming-session-chip">
-                      <strong>{sess.skill?.name || 'Skill session'}</strong>
-                      <span>{scheduledDate.toLocaleString()} · {sess.teacher?.name}</span>
+                    <div key={sess.id || sess._id} className="upcoming-session-chip">
+                      <strong>{sess.skill?.name || sess.listing?.skill?.name || 'Skill session'}</strong>
+                      <span>{formatSessionSchedule(getSessionScheduledAt(sess))} · {sess.teacher?.name}</span>
                       {canJoin && (
                         <span className="task-status-pill inprogress" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <span className="pulse-dot" /> Join Now

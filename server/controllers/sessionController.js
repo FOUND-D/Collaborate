@@ -12,6 +12,7 @@ const {
   toPublicMeeting,
 } = require('../lib/repo');
 const { sendNotification } = require('../services/notificationService');
+const { toTimestamptzISO } = require('../lib/datetime');
 
 const isParticipant = (session, userId) => session && (session.teacher_id === userId || session.learner_id === userId);
 
@@ -25,7 +26,7 @@ const createBookingSession = asyncHandler(async (req, res) => {
   const { data, error } = await supabase.from('booking_sessions').insert({
     skill_id,
     team_id,
-    scheduled_at,
+    scheduled_at: toTimestamptzISO(scheduled_at),
     duration_min: duration_min || 60,
     agenda: agenda || '',
     status: status || 'pending',
@@ -135,7 +136,7 @@ const createSession = asyncHandler(async (req, res) => {
   const session = await createSessionBooking({
     listingId,
     actorId: req.user._id,
-    scheduledAt,
+    scheduledAt: toTimestamptzISO(scheduledAt),
     durationMin: req.body.durationMin || req.body.duration_min,
     agenda: req.body.agenda,
   });

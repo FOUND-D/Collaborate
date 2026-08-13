@@ -11,6 +11,7 @@ import { listTeams } from '../actions/teamActions';
 import RatingPromptModal from '../components/RatingPromptModal';
 import BookSessionModal from '../components/BookSessionModal';
 import api from '../utils/api';
+import { formatSessionSchedule } from '../utils/dateTime';
 import { getSessionVideoPath } from '../utils/sessionVideo';
 import './SkillExchange.css';
 
@@ -127,7 +128,7 @@ const SessionsScreen = () => {
                       ) : (
                         <>
                           <span><FaUser /> {session.listing?.user?.name || session.teacher?.name || 'Partner'}</span>
-                          <span><FaCalendar /> {new Date(session.scheduledAt).toLocaleDateString()}</span>
+                          <span><FaCalendar /> {formatSessionSchedule(session.scheduledAt)}</span>
                           <span><FaClock /> {session.durationMin} min</span>
                         </>
                       )}
