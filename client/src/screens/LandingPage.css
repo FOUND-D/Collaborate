@@ -339,7 +339,9 @@
 .lp-signup-btn:hover {
   background: var(--lp-forest-mid);
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(31, 69, 54, 0.28);
+  box-shadow:
+    0 12px 28px rgba(31, 69, 54, 0.28),
+    0 0 24px rgba(31, 69, 54, 0.18);
 }
 
 .lp-menu-toggle {
@@ -634,12 +636,6 @@
   box-shadow:
     0 14px 32px rgba(31, 69, 54, 0.32),
     0 0 28px rgba(31, 69, 54, 0.2);
-}
-
-.lp-signup-btn:hover {
-  box-shadow:
-    0 12px 28px rgba(31, 69, 54, 0.28),
-    0 0 24px rgba(31, 69, 54, 0.18);
 }
 
 .lp-cta-demo {

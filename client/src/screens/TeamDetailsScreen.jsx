@@ -59,7 +59,9 @@ const TeamDetailsScreen = () => {
   const [session, setSession] = useState(null);
   const [sessionError, setSessionError] = useState(null);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
-  const [orgMembers, setOrgMembers] = useState([]);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberSearchResults, setMemberSearchResults] = useState([]);
+  const [memberSearchLoading, setMemberSearchLoading] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [memberActionLoading, setMemberActionLoading] = useState(false);
   const [memberActionError, setMemberActionError] = useState(null);
@@ -141,35 +143,35 @@ const TeamDetailsScreen = () => {
   }, [id]);
 
   useEffect(() => {
-    const fetchOrgContext = async () => {
-      if (!team?.organisation) {
-        setOrgMembers([]);
-        setCanManageMembers(Boolean(team?.permissions?.canManageMembers));
-        return;
-      }
-
-      try {
-        const [{ data: org }, { data: membersRes }] = await Promise.all([
-          api.get(`/api/organisations/${team.organisation}`),
-          api.get(`/api/organisations/${team.organisation}/members`),
-        ]);
-
-        const teamMemberIds = new Set((team.members || []).map((member) => member._id));
-        const availableMembers = (membersRes.members || []).filter((member) => {
-          const memberId = member.user?._id || member.userId || member.user;
-          return memberId && !teamMemberIds.has(memberId);
-        });
-
-        setOrgMembers(availableMembers);
-        setSelectedMemberId((currentValue) => currentValue || (availableMembers[0]?.user?._id || availableMembers[0]?.userId || ''));
-        setCanManageMembers(Boolean(team?.permissions?.canManageMembers || org.permissions?.canManageTeams));
-      } catch {
-        setCanManageMembers(Boolean(team?.permissions?.canManageMembers));
-      }
-    };
-
-    fetchOrgContext();
+    setCanManageMembers(Boolean(team?.permissions?.canManageMembers));
   }, [team]);
+
+  useEffect(() => {
+    if (!canManageMembers || memberSearch.trim().length < 2) {
+      setMemberSearchResults([]);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(async () => {
+      setMemberSearchLoading(true);
+      try {
+        const { data } = await api.get(`/api/users/search?search=${encodeURIComponent(memberSearch.trim())}`);
+        const teamMemberIds = new Set((team?.members || []).map((member) => member._id));
+        const available = (data || []).filter((user) => user._id && !teamMemberIds.has(user._id));
+        setMemberSearchResults(available);
+        setSelectedMemberId((current) => {
+          if (current && available.some((user) => user._id === current)) return current;
+          return available[0]?._id || '';
+        });
+      } catch {
+        setMemberSearchResults([]);
+      } finally {
+        setMemberSearchLoading(false);
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [memberSearch, team?.members, canManageMembers]);
 
   const handleCopy = (val) => {
     navigator.clipboard.writeText(val);
@@ -216,7 +218,9 @@ const TeamDetailsScreen = () => {
 
     try {
       await api.put(`/api/teams/${id}/members`, { userId: selectedMemberId });
-      setMemberActionSuccess('Organisation member added to the team');
+      setMemberActionSuccess('User added to the team');
+      setMemberSearch('');
+      setMemberSearchResults([]);
       setSelectedMemberId('');
       dispatch(getTeamDetails(id));
     } catch (error) {
@@ -341,38 +345,51 @@ const TeamDetailsScreen = () => {
                   </h2>
                 </div>
 
-                {/* Add from org */}
-                {team.organisation && canManageMembers && (
+                {/* Add members (any platform user — org membership not required) */}
+                {canManageMembers && (
                   <div className="team-member-management">
                     <div className="team-member-management-copy">
-                      Add members from the organisation — they'll inherit access to all linked projects.
+                      Search for any Collaborate user by name or email. They do not need to be in the same organisation.
                     </div>
                     {memberActionError && <Message variant="danger">{memberActionError}</Message>}
                     {memberActionSuccess && <Message variant="success">{memberActionSuccess}</Message>}
-                    {orgMembers.length === 0 ? (
-                      <div className="team-member-management-empty">All organisation members are already in this team.</div>
-                    ) : (
-                      <form className="team-member-management-form" onSubmit={addMemberHandler}>
-                        <select
-                          className="team-member-select"
-                          value={selectedMemberId}
-                          onChange={(e) => setSelectedMemberId(e.target.value)}
-                        >
-                          <option value="">Select organisation member</option>
-                          {orgMembers.map((member) => {
-                            const memberId = member.user?._id || member.userId || member.user;
-                            return (
-                              <option key={memberId} value={memberId}>
-                                {member.user?.name || 'Unknown'} ({member.user?.email || 'No email'})
-                              </option>
-                            );
-                          })}
-                        </select>
-                        <button className="btn btn-primary" type="submit" disabled={memberActionLoading || !selectedMemberId}>
-                          {memberActionLoading ? 'Adding…' : 'Add Member'}
-                        </button>
-                      </form>
-                    )}
+                    <form className="team-member-management-form" onSubmit={addMemberHandler}>
+                      <input
+                        type="search"
+                        className="team-member-search"
+                        placeholder="Search users by name or email…"
+                        value={memberSearch}
+                        onChange={(e) => {
+                          setMemberSearch(e.target.value);
+                          setSelectedMemberId('');
+                        }}
+                        aria-label="Search users to add"
+                      />
+                      <select
+                        className="team-member-select"
+                        value={selectedMemberId}
+                        onChange={(e) => setSelectedMemberId(e.target.value)}
+                        disabled={memberSearchResults.length === 0}
+                      >
+                        <option value="">
+                          {memberSearchLoading
+                            ? 'Searching…'
+                            : memberSearch.trim().length < 2
+                              ? 'Type at least 2 characters'
+                              : memberSearchResults.length === 0
+                                ? 'No users found'
+                                : 'Select user'}
+                        </option>
+                        {memberSearchResults.map((user) => (
+                          <option key={user._id} value={user._id}>
+                            {user.name} ({user.email}) · {user.role || 'member'}
+                          </option>
+                        ))}
+                      </select>
+                      <button className="btn btn-primary" type="submit" disabled={memberActionLoading || !selectedMemberId}>
+                        {memberActionLoading ? 'Adding…' : 'Add Member'}
+                      </button>
+                    </form>
                   </div>
                 )}
 

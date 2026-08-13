@@ -1,5 +1,5 @@
 const asyncHandler = require('../middleware/asyncHandler');
-const { supabase } = require('../lib/repo');
+const { supabase, getUserById } = require('../lib/repo');
 const axios = require('axios');
 
 const getOrgMembership = async (organisationId, userId) => {
@@ -116,14 +116,20 @@ const getTeams = asyncHandler(async (req, res) => {
 
 const addMember = asyncHandler(async (req, res) => {
   const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({ message: 'userId is required' });
+  }
+
   const { data: team, error: teamError } = await supabase.from('teams').select('*').eq('id', req.params.id).single();
   if (teamError || !team) return res.status(404).json({ message: 'Team not found' });
 
-  if (team.organisation_id) {
-    const targetMembership = await getOrgMembership(team.organisation_id, userId);
-    if (!targetMembership) {
-      return res.status(400).json({ message: 'Only members of this organisation can be added to the team' });
-    }
+  if (team.owner_id !== req.user._id) {
+    return res.status(403).json({ message: 'Only the team owner can add members' });
+  }
+
+  const targetUser = await getUserById(userId);
+  if (!targetUser) {
+    return res.status(404).json({ message: 'User not found' });
   }
 
   const { data: existingMember, error: existingError } = await supabase
@@ -186,13 +192,25 @@ const updateTeamJoinRequest = asyncHandler(async (req, res) => {
 
   await supabase.from('team_join_requests').delete().eq('team_id', req.params.id).eq('user_id', userId);
   if (action === 'approve') {
-    if (team.organisation_id) {
-      const targetMembership = await getOrgMembership(team.organisation_id, userId);
-      if (!targetMembership) {
-        return res.status(400).json({ message: 'Only members of this organisation can join this team' });
-      }
+    if (team.owner_id !== req.user._id) {
+      return res.status(403).json({ message: 'Only the team owner can approve join requests' });
     }
-    await supabase.from('team_members').insert({ team_id: req.params.id, user_id: userId });
+
+    const targetUser = await getUserById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { data: existingMember, error: existingError } = await supabase
+      .from('team_members')
+      .select('team_id')
+      .eq('team_id', req.params.id)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (!existingMember) {
+      await supabase.from('team_members').insert({ team_id: req.params.id, user_id: userId });
+    }
 
     try {
       const { sendNotification } = require('../services/notificationService');

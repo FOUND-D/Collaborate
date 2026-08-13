@@ -468,7 +468,7 @@
   opacity: 0.7;
 }
 
-/* ── Org member management ────────────────────────── */
+/* ── Team member management (cross-org search) ───── */
 .team-member-management {
   margin-bottom: 1.5rem;
   padding: 1rem 1.1rem;
@@ -491,8 +491,9 @@
   flex-wrap: wrap;
 }
 
+.team-member-search,
 .team-member-select {
-  flex: 1 1 280px;
+  flex: 1 1 200px;
   min-height: 42px;
   border-radius: 10px;
   border: 1px solid var(--surface-border-strong);
@@ -500,6 +501,10 @@
   padding: 0.6rem 0.85rem;
   color: var(--text-primary);
   font-size: 0.9rem;
+}
+
+.team-member-select {
+  flex: 1 1 280px;
 }
 
 .team-member-management-empty {
