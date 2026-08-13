@@ -119,10 +119,17 @@
   padding-bottom: 0;
 }
 
-.page-divider {
-  height: 1px;
-  background: var(--sidebar-border, #e8e8e8);
-  margin-bottom: 24px;
+@media (max-width: 768px) {
+  .app-page-header,
+  .page-header-left,
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .app-page-subtitle,
+  .workspace-page-subtitle {
+    max-width: 100%;
+  }
 }
 
 /* ─── Primary / secondary buttons ─── */

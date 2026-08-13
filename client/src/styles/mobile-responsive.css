@@ -1,0 +1,122 @@
+/* Global mobile layout — prevent overflow and improve scaling */
+
+@media (max-width: 768px) {
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  #root {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .app-main {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .main-content,
+  .main-content-shifted {
+    max-width: 100%;
+    overflow-x: hidden;
+    padding: 16px 12px;
+  }
+
+  .app-page-header,
+  .page-header,
+  .project-hero-header,
+  .resources-header,
+  .settings-header,
+  .orgs-page-header,
+  .skill-sharing-header-section,
+  .exchange-board-header,
+  .phase2-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .app-page-header h1,
+  .page-header-left h1,
+  .workspace-page-title,
+  .phase2-hero h1 {
+    font-size: 22px;
+    word-break: break-word;
+  }
+
+  .app-page-header .btn,
+  .page-header .btn,
+  .app-btn-primary,
+  .btn-gradient,
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  pre,
+  code {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  input,
+  textarea,
+  select,
+  .form-control {
+    max-width: 100%;
+  }
+
+  .modal-content,
+  .modal-dialog {
+    max-width: calc(100vw - 24px) !important;
+    margin: 12px auto;
+  }
+
+  .team-details-search,
+  .team-details-search input,
+  .chat-screen-container,
+  .skill-sharing-screen .skill-sharing-table-wrap {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .phase2-page,
+  .teams-dashboard-page,
+  .task-page,
+  .ongoing-projects-page,
+  .project-details-page,
+  .projects-page,
+  .resources-page,
+  .settings-page,
+  .orgs-page,
+  .org-detail-page,
+  .skill-sharing-screen {
+    padding: 16px 12px 32px;
+  }
+
+  .main-content,
+  .main-content-shifted {
+    padding: 12px 10px;
+  }
+}

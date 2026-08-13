@@ -38,13 +38,242 @@
 .project-detail-goal {
   margin-top: 0.6rem;
   font-size: 13px;
-  color: rgba(241,245,249,.40);
-  opacity: 1;
+  color: var(--text-secondary);
+  line-height: 1.55;
 }
 
 
 /* =====================================================
-   ACTION CARDS (Already styled in HomeScreen.css)
+   PENDING JOIN REQUESTS (team owner)
+===================================================== */
+
+.pending-requests-section {
+  margin-bottom: 28px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e8e8e8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.pending-requests-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border, #e8e8e8);
+}
+
+.pending-requests-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.pending-requests-subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.pending-requests-count {
+  flex-shrink: 0;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-forest, #1f4536);
+  background: var(--color-mint-soft, #e8f5ee);
+  border: 1px solid rgba(31, 69, 54, 0.15);
+}
+
+.pending-requests-list {
+  display: grid;
+  gap: 14px;
+}
+
+.pending-request-team-card {
+  border-radius: 14px;
+  border: 1px solid var(--color-border, #e8e8e8);
+  background: var(--color-bg-primary, #f5f3f0);
+  overflow: hidden;
+}
+
+.pending-request-team-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border, #e8e8e8);
+}
+
+.pending-request-team-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(145deg, #1f4536, #2d5a47);
+  flex-shrink: 0;
+}
+
+.pending-request-team-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.pending-request-team-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pending-request-users {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pending-request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e8e8e8);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pending-request-row:hover {
+  border-color: rgba(31, 69, 54, 0.22);
+  box-shadow: 0 4px 14px rgba(31, 69, 54, 0.06);
+}
+
+.pending-request-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pending-request-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-forest, #1f4536);
+  background: var(--color-mint, #d4ede4);
+  flex-shrink: 0;
+}
+
+.pending-request-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pending-request-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.pending-request-user-email {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pending-request-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pending-request-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pending-request-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pending-request-btn.approve {
+  color: #fff;
+  background: var(--color-forest, #1f4536);
+  border-color: var(--color-forest, #1f4536);
+  box-shadow: 0 4px 12px rgba(31, 69, 54, 0.18);
+}
+
+.pending-request-btn.approve:hover:not(:disabled) {
+  background: var(--color-forest-mid, #2d5a47);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(31, 69, 54, 0.22);
+}
+
+.pending-request-btn.decline {
+  color: #b91c1c;
+  background: #fff;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.pending-request-btn.decline:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.45);
+  transform: translateY(-1px);
+}
+
+.pending-request-btn svg {
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   TEAM GRID (Staggered)
 ===================================================== */
 
 .action-cards-grid {
@@ -270,7 +499,7 @@
 .team-card-meta {
   margin-top: 12px;
   font-size: 0.88rem;
-  color: rgba(241,245,249,.35);
+  color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -290,7 +519,8 @@
 }
 
 .team-card-meta-item svg {
-  color: #93c5fd;
+  color: var(--color-forest, #1f4536);
+  opacity: 0.65;
   transition: transform 0.3s;
 }
 
@@ -410,6 +640,30 @@
 
   .modern-team-list {
     grid-template-columns: 1fr;
+  }
+
+  .pending-requests-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pending-request-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pending-request-actions {
+    justify-content: flex-end;
+  }
+
+  .pending-request-btn span {
+    display: none;
+  }
+
+  .pending-request-btn {
+    min-width: 40px;
+    padding: 0 12px;
+    justify-content: center;
   }
 
   .project-hero-header {

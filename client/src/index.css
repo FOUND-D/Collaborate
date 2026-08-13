@@ -9,6 +9,7 @@
 @import url('./styles/app-page.css');
 @import url('./styles/workspace.css');
 @import url('./styles/figma-enhancement.css');
+@import url('./styles/mobile-responsive.css');
 @import url('./screens/HomeScreen.css');
 @import url('./screens/ProjectScreen.css');
 @import url('./screens/TeamScreen.css');

@@ -208,29 +208,75 @@ const TeamScreen = () => {
       </div>
 
       {teamsWithPendingRequests.length > 0 && (
-        <div className="pending-requests-section">
-          <h2 className="section-title">Pending Join Requests</h2>
-          <div className="requests-list">
-            {teamsWithPendingRequests.map(team => (
-              <div key={team._id} className="request-item">
-                <p><strong>{team.name}</strong> has requests from:</p>
-                <ul>
-                  {team.pendingJoinRequests.map(requestingUser => (
-                    <li key={requestingUser._id}>
-                      <span>{requestingUser.name}</span>
-                      <button className="btn btn-icon btn-success btn-small" onClick={() => handleJoinRequest(team._id, requestingUser._id, 'approve')}>
-                        <FaCheck />
-                      </button>
-                      <button className="btn btn-icon btn-danger btn-small" onClick={() => handleJoinRequest(team._id, requestingUser._id, 'reject')}>
-                        <FaTimes />
-                      </button>
+        <section className="pending-requests-section" aria-label="Pending join requests">
+          <div className="pending-requests-header">
+            <div>
+              <h2 className="pending-requests-title">Pending Join Requests</h2>
+              <p className="pending-requests-subtitle">
+                Review and approve teammates who want to join your teams.
+              </p>
+            </div>
+            <span className="pending-requests-count">
+              {teamsWithPendingRequests.reduce((total, team) => total + team.pendingJoinRequests.length, 0)}
+            </span>
+          </div>
+
+          <div className="pending-requests-list">
+            {teamsWithPendingRequests.map((team) => (
+              <article key={team._id} className="pending-request-team-card">
+                <header className="pending-request-team-header">
+                  <div className="pending-request-team-avatar">{getInitials(team.name)}</div>
+                  <div className="pending-request-team-meta">
+                    <h3 className="pending-request-team-name">{team.name}</h3>
+                    <p className="pending-request-team-sub">
+                      {team.pendingJoinRequests.length} pending request{team.pendingJoinRequests.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </header>
+
+                <ul className="pending-request-users">
+                  {team.pendingJoinRequests.map((requestingUser) => (
+                    <li key={requestingUser._id} className="pending-request-row">
+                      <div className="pending-request-user">
+                        <span className="pending-request-user-avatar" aria-hidden="true">
+                          {getInitials(requestingUser.name)}
+                        </span>
+                        <div className="pending-request-user-info">
+                          <span className="pending-request-user-name">{requestingUser.name}</span>
+                          {requestingUser.email && (
+                            <span className="pending-request-user-email">{requestingUser.email}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="pending-request-actions">
+                        <button
+                          type="button"
+                          className="pending-request-btn approve"
+                          onClick={() => handleJoinRequest(team._id, requestingUser._id, 'approve')}
+                          disabled={loadingUpdateJoinRequest}
+                          aria-label={`Approve ${requestingUser.name}`}
+                        >
+                          <FaCheck />
+                          <span>Approve</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="pending-request-btn decline"
+                          onClick={() => handleJoinRequest(team._id, requestingUser._id, 'reject')}
+                          disabled={loadingUpdateJoinRequest}
+                          aria-label={`Decline ${requestingUser.name}`}
+                        >
+                          <FaTimes />
+                          <span>Decline</span>
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {loadingDelete && <Loader />}

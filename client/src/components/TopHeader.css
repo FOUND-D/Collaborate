@@ -580,6 +580,19 @@
 
 @media (max-width: 600px) {
     .top-header { padding: 0 16px; }
+    .header-search-container {
+        max-width: none;
+        flex: 1;
+        min-width: 0;
+        margin: 0 8px;
+    }
+    .search-dropdown-overlay {
+        min-width: 0;
+        width: calc(100vw - 32px);
+        max-width: calc(100vw - 32px);
+        left: 0;
+        right: auto;
+    }
     .header-notification-dropdown {
         right: 16px;
         width: calc(100% - 32px);

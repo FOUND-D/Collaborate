@@ -32,7 +32,7 @@
   height: 100%;
   padding: 2rem; 
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   align-content: center; 
   justify-content: center;
   gap: 20px;
@@ -61,6 +61,10 @@
   object-fit: cover; 
   background: #000;
   display: block; 
+}
+
+.screen-share-video {
+  object-fit: contain;
 }
 
 .local-video-flipped {
@@ -124,6 +128,7 @@
 .meeting-controls {
   padding: 1.2rem 1rem; 
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
   padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
@@ -245,6 +250,20 @@
     flex: 1; 
     font-size: 0.85rem;
     padding: 0 1rem;
+  }
+
+  .meeting-controls {
+    gap: 8px;
+    padding: 0.75rem;
+  }
+
+  .meeting-controls .btn {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+  }
+
+  .meeting-header {
+    padding: 0.75rem 1rem;
   }
 
   /* Screen Sharing Grid on Mobile */

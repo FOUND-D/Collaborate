@@ -109,7 +109,8 @@ io.on('connection', (socket) => {
               socketId: clientId,
               userId: userInRoom._id,
               cameraOn: userInRoom.cameraOn,
-              micOn: userInRoom.micOn
+              micOn: userInRoom.micOn,
+              isSharingScreen: userInRoom.isSharingScreen || false,
             });
           } else {
             console.warn(`User with socketId ${clientId} in room ${teamId} not found in participants map.`);
@@ -178,6 +179,7 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       cameraOn: user.cameraOn ?? false,
       micOn: user.micOn ?? false,
+      isSharingScreen: user.isSharingScreen ?? false,
     };
     socket.join(user._id);
     io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
@@ -237,6 +239,24 @@ io.on('connection', (socket) => {
       participants[teamId][userId].micOn = micOn;
       socket.to(teamId).emit('mic-toggled', { userId, micOn });
       io.to(teamId).emit('toggle-mic', { userId, micOn });
+      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    }
+  });
+
+  socket.on('sharing-screen', ({ userId }) => {
+    const teamId = socketToTeamMap[socket.id];
+    if (teamId && participants[teamId] && participants[teamId][userId]) {
+      participants[teamId][userId].isSharingScreen = true;
+      io.to(teamId).emit('sharing-screen', { userId });
+      io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
+    }
+  });
+
+  socket.on('stop-sharing-screen', ({ userId }) => {
+    const teamId = socketToTeamMap[socket.id];
+    if (teamId && participants[teamId] && participants[teamId][userId]) {
+      participants[teamId][userId].isSharingScreen = false;
+      io.to(teamId).emit('stop-sharing-screen', { userId });
       io.to(teamId).emit('participantsUpdated', Object.values(participants[teamId]));
     }
   });
