@@ -10,6 +10,7 @@ import './TeamDetailsScreen.css';
 import { formatSessionSchedule, getSessionScheduledAt, parseSessionScheduledDate } from '../utils/dateTime';
 import io from 'socket.io-client';
 import { BACKEND_URL, SOCKET_URL } from '../config/runtime';
+import api from '../utils/api';
 
 // Helper to calculate progress for project cards
 const calculateProgress = (tasks) => {
